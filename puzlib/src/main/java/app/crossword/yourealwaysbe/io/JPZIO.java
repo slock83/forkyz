@@ -212,11 +212,17 @@ public class JPZIO implements PuzzleParser {
                                 maxClueNum = Math.max(maxClueNum, clueNumber);
                             }
 
+                            String shape
+                                = attributes.getValue("background-shape");
+                            if ("circle".equalsIgnoreCase(shape)) {
+                                box.setCircled(true);
+                            }
+
                             JPZXMLParser.this.boxes[y][x] = box;
                         }
                     }
                 } catch (NumberFormatException e) {
-                    LOG.severe("Could not read Independent XML cell data: " + e);
+                    LOG.severe("Could not read JPZ XML cell data: " + e);
                 }
             }
         };
