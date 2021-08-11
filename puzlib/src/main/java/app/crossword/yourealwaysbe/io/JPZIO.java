@@ -273,7 +273,7 @@ public class JPZIO implements PuzzleParser {
                         }
                     }
                 } catch (NumberFormatException e) {
-                    LOG.severe("Could not read Independent XML cell data: " + e);
+                    LOG.severe("Could not read JPZ XML cell data: " + e);
                 }
             }
 
