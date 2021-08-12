@@ -374,7 +374,7 @@ public class PlayboardRenderer {
      */
     public String getContentDescription(CharSequence baseDescription) {
         Box curBox = board.getCurrentBox();
-        return getContentDescription(baseDescription, curBox);
+        return getContentDescription(baseDescription, curBox, true);
     }
 
     /**
@@ -385,9 +385,10 @@ public class PlayboardRenderer {
      * @param boxes
      * @param index which of the boxes to get description for, will return a
      * "no selection" string if index is out of range
+     * @param hasCursor true if the box has the cursor
      */
     public String getContentDescription(
-        CharSequence baseDescription, Box[] boxes, int index
+        CharSequence baseDescription, Box[] boxes, int index, boolean hasCursor
     ) {
         if (index < 0 || index >= boxes.length) {
             Context context = ForkyzApplication.getInstance();
@@ -396,15 +397,19 @@ public class PlayboardRenderer {
             );
         } else {
             Box curBox = boxes[index];
-            return getContentDescription(baseDescription, curBox);
+            return getContentDescription(baseDescription, curBox, hasCursor);
         }
     }
     /**
      * Dynamic content description for the given box
      *
      * @param baseDescription short description of the box
+     * @param box the box to describe
+     * @param hasCursor if the current box has the cursor
      */
-    public String getContentDescription(CharSequence baseDescription, Box box) {
+    public String getContentDescription(
+        CharSequence baseDescription, Box box, boolean hasCursor
+    ) {
         Context context = ForkyzApplication.getInstance();
 
         String response = box.isBlank()
@@ -447,7 +452,7 @@ public class PlayboardRenderer {
         );
 
         String error = context.getString(
-            highlightError(box)
+            highlightError(box, hasCursor)
                 ? R.string.cur_box_error
                 : R.string.cur_box_no_error
         );
@@ -481,6 +486,8 @@ public class PlayboardRenderer {
         white.setTextSize(letterTextSize);
 
         boolean inCurrentWord = (currentWord != null) && currentWord.checkInWord(col, row);
+        boolean isHighlighted
+            = (highlight.across == col) && (highlight.down == row);
 
         Paint thisLetter;
 
@@ -489,13 +496,19 @@ public class PlayboardRenderer {
         if (box == null) {
             canvas.drawRect(r, this.blackBox);
         } else {
+            boolean highlightError = highlightError(box, isHighlighted);
+
+            if (highlightError)
+                box.setCheated(true);
+
             // Background colors
-            if ((highlight.across == col) && (highlight.down == row)) {
+            if (isHighlighted && !highlightError) {
                 canvas.drawRect(r, this.currentLetterHighlight);
+            } else if (isHighlighted && highlightError) {
+                canvas.drawRect(r, this.red);
             } else if ((currentWord != null) && currentWord.checkInWord(col, row)) {
                 canvas.drawRect(r, this.currentWordHighlight);
-            } else if (highlightError(box)) {
-                box.setCheated(true);
+            } else if (highlightError) {
                 canvas.drawRect(r, this.red);
             } else if (this.hintHighlight && box.isCheated()) {
                 canvas.drawRect(r, this.cheated);
@@ -517,13 +530,8 @@ public class PlayboardRenderer {
             String noteStringAcross = null;
             String noteStringDown = null;
 
-            if (board.isShowErrors() &&
-                (box.hasSolution() &&
-                 box.getSolution() != box.getResponse())) {
-                if (!box.isBlank()){
-                    box.setCheated(true);
-                }
-                if ((highlight.across == col) && (highlight.down == row)) {
+            if (highlightError) {
+                if (isHighlighted) {
                     thisLetter = this.white;
                 } else if (inCurrentWord) {
                     thisLetter = red;
@@ -632,8 +640,11 @@ public class PlayboardRenderer {
         }
     }
 
-    private boolean highlightError(Box box) {
-        return this.board.isShowErrors()
+    private boolean highlightError(Box box, boolean hasCursor) {
+        boolean showErrors = this.board.isShowErrorsGrid()
+            || (this.board.isShowErrorsCursor() && hasCursor);
+
+        return showErrors
             && !box.isBlank()
             && box.hasSolution()
             && box.getSolution() != box.getResponse();

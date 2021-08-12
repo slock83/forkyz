@@ -62,6 +62,8 @@ public class PlayActivity extends PuzzleActivity
     private static final double BOARD_DIM_RATIO = 1.0;
     private static final String SHOW_CLUES_TAB = "showCluesOnPlayScreen";
     private static final String CLUE_TABS_PAGE = "playActivityClueTabsPage";
+    private static final String PREF_SHOW_ERRORS_GRID = "showErrors";
+    private static final String PREF_SHOW_ERRORS_CURSOR = "showErrorsCursor";
     static final String ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static final String SHOW_TIMER = "showTimer";
     public static final String SCALE = "scale";
@@ -76,7 +78,6 @@ public class PlayActivity extends PuzzleActivity
     private TextView clue;
     private PlayboardRenderer renderer;
 
-    private boolean showErrors = false;
     private boolean scratchMode = false;
     private long lastTap = 0;
     private int screenWidthInInches;
@@ -131,7 +132,6 @@ public class PlayActivity extends PuzzleActivity
         utils.holographic(this);
         utils.finishOnHomeButton(this);
 
-        this.showErrors = this.prefs.getBoolean("showErrors", false);
         this.scratchMode = this.prefs.getBoolean("scratchMode", false);
         setDefaultKeyMode(Activity.DEFAULT_KEYS_DISABLE);
 
@@ -379,13 +379,9 @@ public class PlayActivity extends PuzzleActivity
 
         Puzzle puz = getPuzzle();
         if (puz == null || puz.isUpdatable()) {
-            menu.findItem(R.id.play_menu_show_errors).setEnabled(false);
             menu.findItem(R.id.play_menu_reveal).setEnabled(false);
         } else {
-            menu.findItem(R.id.play_menu_show_errors).setChecked(this.showErrors);
-
             if (ForkyzApplication.isTabletish(metrics)) {
-                menu.findItem(R.id.play_menu_show_errors).setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
                 menu.findItem(R.id.play_menu_reveal).setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             }
         }
@@ -397,6 +393,32 @@ public class PlayActivity extends PuzzleActivity
         }
 
         menu.findItem(R.id.play_menu_scratch_mode).setChecked(this.scratchMode);
+
+        return true;
+    }
+
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        Puzzle puz = getPuzzle();
+        menu.findItem(R.id.play_menu_show_errors).setEnabled(
+            !(puz == null || puz.isUpdatable())
+        );
+
+        boolean showErrorsGrid
+            = this.prefs.getBoolean(PREF_SHOW_ERRORS_GRID, false);
+        boolean showErrorsCursor
+            = this.prefs.getBoolean(PREF_SHOW_ERRORS_CURSOR, false);
+
+        int showErrorsTitle = (showErrorsGrid || showErrorsCursor)
+            ? R.string.showing_errors
+            : R.string.show_errors;
+
+        menu.findItem(R.id.play_menu_show_errors)
+            .setTitle(showErrorsTitle);
+
+        menu.findItem(R.id.play_menu_show_errors_grid)
+            .setChecked(showErrorsGrid);
+        menu.findItem(R.id.play_menu_show_errors_cursor)
+            .setChecked(showErrorsCursor);
 
         return true;
     }
@@ -561,12 +583,19 @@ public class PlayActivity extends PuzzleActivity
             } else if (id == R.id.play_menu_reveal_puzzle) {
                 showRevealPuzzleDialog();
                 return true;
-            } else if (id == R.id.play_menu_show_errors) {
-                getBoard().toggleShowErrors();
-                item.setChecked(getBoard().isShowErrors());
+            } else if (id == R.id.play_menu_show_errors_grid) {
+                getBoard().toggleShowErrorsGrid();
                 this.prefs.edit().putBoolean(
-                    "showErrors", getBoard().isShowErrors()
+                    PREF_SHOW_ERRORS_GRID, getBoard().isShowErrorsGrid()
                 ).apply();
+                invalidateOptionsMenu();
+                return true;
+            } else if (id == R.id.play_menu_show_errors_cursor) {
+                getBoard().toggleShowErrorsCursor();
+                this.prefs.edit().putBoolean(
+                    PREF_SHOW_ERRORS_CURSOR, getBoard().isShowErrorsCursor()
+                ).apply();
+                invalidateOptionsMenu();
                 return true;
             } else if (id == R.id.play_menu_scratch_mode) {
                 this.scratchMode = !this.scratchMode;
@@ -783,12 +812,16 @@ public class PlayActivity extends PuzzleActivity
             neverNull(puz.getCopyright())
         ));
 
-        if (puz.isUpdatable()) {
-            this.showErrors = false;
+        boolean showErrorsGrid
+            = this.prefs.getBoolean(PREF_SHOW_ERRORS_GRID, false);
+        if (board.isShowErrorsGrid() != showErrorsGrid) {
+            board.toggleShowErrorsGrid();
         }
 
-        if (board.isShowErrors() != this.showErrors) {
-            board.toggleShowErrors();
+        boolean showErrorsCursor
+            = this.prefs.getBoolean(PREF_SHOW_ERRORS_CURSOR, false);
+        if (board.isShowErrorsCursor() != showErrorsCursor) {
+            board.toggleShowErrorsCursor();
         }
 
         if (clueTabs != null) {

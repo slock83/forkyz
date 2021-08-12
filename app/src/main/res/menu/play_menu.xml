@@ -64,8 +64,20 @@
         android:id="@+id/play_menu_show_errors"
         android:icon="@android:drawable/ic_menu_view"
         android:title="@string/show_errors"
-        android:checkable="true"
-    />
+    >
+        <menu>
+            <item
+                android:id="@+id/play_menu_show_errors_cursor"
+                android:title="@string/show_errors_cursor"
+                android:checkable="true"
+            />
+            <item
+                android:id="@+id/play_menu_show_errors_grid"
+                android:title="@string/show_errors_full_grid"
+                android:checkable="true"
+            />
+        </menu>
+    </item>
     <item
         android:id="@+id/play_menu_scratch_mode"
         android:title="@string/scratch_mode"

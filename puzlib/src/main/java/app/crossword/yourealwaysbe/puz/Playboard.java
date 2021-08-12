@@ -22,7 +22,8 @@ public class Playboard implements Serializable {
     private String responder;
     private Box[][] boxes;
     private boolean across = true;
-    private boolean showErrors;
+    private boolean showErrorsGrid;
+    private boolean showErrorsCursor;
     private boolean skipCompletedLetters;
     private boolean preserveCorrectLettersInShowErrors;
     private boolean dontDeleteCrossing;
@@ -383,15 +384,61 @@ public class Playboard implements Serializable {
         return responder;
     }
 
-    public void setShowErrors(boolean showErrors) {
-        boolean changed = (this.showErrors != showErrors);
-        this.showErrors = showErrors;
+    /**
+     * Show errors across the whole grid
+     */
+    public void setShowErrorsGrid(boolean showErrors) {
+        boolean changed = (this.showErrorsGrid != showErrors);
+        this.showErrorsGrid = showErrors;
         if (changed)
             notifyChange();
     }
 
+    /**
+     * Show errors under the cursor only
+     */
+    public void setShowErrorsCursor(boolean showErrorsCursor) {
+        boolean changed = (this.showErrorsCursor != showErrorsCursor);
+        this.showErrorsCursor = showErrorsCursor;
+        if (changed)
+            notifyChange();
+    }
+
+    /**
+     * Toggle show errors across the grid
+     */
+    public void toggleShowErrorsGrid() {
+        this.showErrorsGrid = !this.showErrorsGrid;
+        notifyChange(true);
+    }
+
+    /**
+     * Toggle show errors across under cursor
+     */
+    public void toggleShowErrorsCursor() {
+        this.showErrorsCursor = !this.showErrorsCursor;
+        notifyChange(true);
+    }
+
+    /**
+     * Is showing errors across the whole grid
+     */
+    public boolean isShowErrorsGrid() {
+        return this.showErrorsGrid;
+    }
+
+    /**
+     * Is showing errors across under cursor
+     */
+    public boolean isShowErrorsCursor() {
+        return this.showErrorsCursor;
+    }
+
+    /**
+     * Is showing errors either or cursor or grid
+     */
     public boolean isShowErrors() {
-        return this.showErrors;
+        return isShowErrorsGrid() || isShowErrorsCursor();
     }
 
     public void setSkipCompletedLetters(boolean skipCompletedLetters) {
@@ -945,11 +992,6 @@ public class Playboard implements Serializable {
         }
 
         return w;
-    }
-
-    public void toggleShowErrors() {
-        this.showErrors = !this.showErrors;
-        notifyChange(true);
     }
 
     public void addListener(PlayboardListener listener) {

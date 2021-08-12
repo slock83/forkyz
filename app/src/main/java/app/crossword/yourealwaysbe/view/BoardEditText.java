@@ -299,7 +299,7 @@ public class BoardEditText extends ScrollingImageView {
         setBitmap(renderer.drawBoxes(boxes, selection, displayScratch, displayScratch));
         setContentDescription(
             renderer.getContentDescription(
-                contentDescriptionBase, boxes, selection.across
+                contentDescriptionBase, boxes, selection.across, true
             )
         );
     }

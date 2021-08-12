@@ -218,6 +218,9 @@
     <string name="medium">Medium</string>
     <string name="large">Large</string>
     <string name="show_errors">Show Errors</string>
+    <string name="showing_errors">Showing Errors</string>
+    <string name="show_errors_full_grid">Grid</string>
+    <string name="show_errors_cursor">Cursor</string>
     <string name="scratch_mode">Scratch Mode</string>
     <string name="reveal">Reveal</string>
     <string name="letter">Letter</string>
