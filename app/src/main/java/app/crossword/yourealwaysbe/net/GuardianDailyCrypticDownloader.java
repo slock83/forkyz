@@ -8,17 +8,13 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import org.jsoup.Jsoup;
 import org.jsoup.HttpStatusException;
 import org.jsoup.nodes.Document;
 
-import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.io.GuardianJSONIO;
+
 
 /**
  * Guardian Daily Cryptic downloader
@@ -31,9 +27,6 @@ public class GuardianDailyCrypticDownloader extends AbstractDownloader {
 
     private static final int BASE_CW_NUMBER = 28112;
     private static final LocalDate BASE_CW_DATE = LocalDate.of(2020, 4, 20);
-
-    private static final int CW_WIDTH = 15;
-    private static final int CW_HEIGHT = 15;
 
     public GuardianDailyCrypticDownloader() {
         super(
@@ -58,12 +51,13 @@ public class GuardianDailyCrypticDownloader extends AbstractDownloader {
     ) {
         try {
             URL url = new URL(this.baseUrl + urlSuffix);
-            JSONObject cw = getCrosswordJSON(url);
+            String cwJson = getCrosswordJSON(url);
 
-            if (cw == null)
+            if (cwJson == null)
                 return null;
 
-            Puzzle puz = readPuzzleFromJSON(cw, date);
+            Puzzle puz = GuardianJSONIO.readPuzzle(cwJson);
+            puz.setCopyright("Guardian / " + puz.getAuthor());
 
             if (puz != null) {
                 puz.setSource(getName());
@@ -72,8 +66,6 @@ public class GuardianDailyCrypticDownloader extends AbstractDownloader {
 
             return puz;
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
             e.printStackTrace();
         }
 
@@ -112,8 +104,7 @@ public class GuardianDailyCrypticDownloader extends AbstractDownloader {
         return Long.toString(cwNum);
     }
 
-    private static JSONObject getCrosswordJSON(URL url)
-            throws IOException, JSONException {
+    private static String getCrosswordJSON(URL url) throws IOException {
         try {
             LOG.info("Downloading " + url);
             Document doc = Jsoup.connect(url.toString()).get();
@@ -121,95 +112,11 @@ public class GuardianDailyCrypticDownloader extends AbstractDownloader {
                                .attr("data-crossword-data");
 
             if (!cwJson.isEmpty())
-                return new JSONObject(cwJson);
+                return cwJson;
         } catch (HttpStatusException e) {
             LOG.info("Could not download " + url);
         }
         return null;
-    }
-
-    /**
-     * Read puzzle from Guardian JSON format
-     *
-     * Take date argument as reading from json date field brings
-     * timezones into play.
-     *
-     * Does not set source or support url (this method may be moved to
-     * puzlib/io at some point).
-     */
-    private static Puzzle readPuzzleFromJSON(
-        JSONObject json, LocalDate date
-    ) throws JSONException {
-        Puzzle puz = new Puzzle();
-
-        puz.setTitle(json.getString("name"));
-        puz.setAuthor(json.getJSONObject("creator").getString("name"));
-        puz.setCopyright("Guardian / " + puz.getAuthor());
-        puz.setDate(date);
-
-        puz.setBoxes(getBoxes(json));
-        addClues(json, puz);
-
-        return puz;
-    }
-
-    private static Box[][] getBoxes(JSONObject json) throws JSONException {
-        Box[][] boxes = new Box[CW_HEIGHT][CW_WIDTH];
-
-        JSONArray entries = json.getJSONArray("entries");
-        for (int i = 0; i < entries.length(); i++) {
-            JSONObject entry = entries.getJSONObject(i);
-
-            JSONObject position = entry.getJSONObject("position");
-            int x = position.getInt("x");
-            int y = position.getInt("y");
-
-            if (x < 0 || x >= CW_WIDTH || y < 0 || y >= CW_HEIGHT)
-                continue;
-
-            int num = entry.getInt("number");
-            String clueSol = entry.getString("solution");
-            String direction = entry.getString("direction");
-
-            int dx = 0;
-            int dy = 0;
-            if (direction.equals("across"))
-                dx = 1;
-            else
-                dy = 1;
-
-            int boxX = x;
-            int boxY = y;
-            for (int j = 0; j < clueSol.length(); j++) {
-                if (boxX >= CW_WIDTH || boxY >= CW_HEIGHT)
-                    break;
-
-                if (boxes[boxY][boxX] == null)
-                    boxes[boxY][boxX] = new Box();
-                boxes[boxY][boxX].setSolution(clueSol.charAt(j));
-
-                boxX += dx;
-                boxY += dy;
-            }
-
-            boxes[y][x].setClueNumber(num);
-        }
-
-        return boxes;
-    }
-
-    private static void addClues(JSONObject json, Puzzle puz)
-            throws JSONException {
-        JSONArray entries = json.getJSONArray("entries");
-        for (int i = 0; i < entries.length(); i++) {
-            JSONObject entry = entries.getJSONObject(i);
-
-            int num = entry.getInt("number");
-            boolean across = entry.getString("direction").equals("across");
-            String clue = entry.getString("clue");
-
-            puz.addClue(new Clue(num, across, clue));
-        }
     }
 
     /**
