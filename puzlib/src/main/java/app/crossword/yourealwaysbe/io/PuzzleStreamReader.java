@@ -17,7 +17,8 @@ public class PuzzleStreamReader {
         new UclickXMLIO(),
         new BrainsOnlyIO(),
         new KingFeaturesPlaintextIO(),
-        new GuardianJSONIO()
+        new GuardianJSONIO(),
+        new AmuseLabsJSONIO()
     };
 
     public interface InputStreamSupplier {

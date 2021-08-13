@@ -293,12 +293,13 @@ public class Downloaders {
         }
 
         if (prefs.getBoolean("downloadLat", true)) {
-            downloaders.add(new UclickDownloader(
-                "tmcal",
+            downloaders.add(new AmuseLabsDownloader(
                 "Los Angeles Times",
-                "Rich Norris",
-                "https://www.latimes.com/subscriptions/digital.html",
-                Downloader.DATE_NO_SUNDAY
+                "lat",
+                "tca",
+                "latimes",
+                Downloader.DATE_NO_SUNDAY,
+                "https://www.latimes.com/subscriptions/digital.html"
             ));
         }
 

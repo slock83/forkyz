@@ -1,0 +1,1795 @@
+{
+  "title": "Test Amuse Labs",
+  "subtitle": "",
+  "description": "",
+  "copyright": "Test Copyright",
+  "author": "Test Author",
+  "publisher": "",
+  "authorEmail": "",
+  "authorURL": "",
+  "help": "",
+  "pauseMessage": "Pause Message",
+  "endMessage": "End Message",
+  "attributions": "",
+  "id": "test1234",
+  "set": "test",
+  "locale": "en-US",
+  "puzzleType": "CROSSWORD",
+  "srcJPZ": true,
+  "isImported": false,
+  "srcFileName": "",
+  "creationTime": 1625782189095,
+  "modifiedTime": 1625782189095,
+  "publishTime": 1628049600000,
+  "publishTimeZone": "America/New_York",
+  "replay": false,
+  "multiPlayEnabled": false,
+  "videoPrerollAds": false,
+  "displayAds": false,
+  "correctWordPoints": 10,
+  "letterPenalty": -1,
+  "bonusPoints": 15,
+  "targetTime": 15,
+  "linkPenalty": -5,
+  "checkPDF": true,
+  "clueDisplay": "text",
+  "mediaPreviewEnabled": false,
+  "mediaPreviewAndTextEnabled": true,
+  "colorFeedbackEnabled": false,
+  "allowSharing": true,
+  "hideClueColumns": false,
+  "wordLengthsEnabled": false,
+  "startButtonEnabled": true,
+  "caseSensitive": false,
+  "defaultHintsEnabled": false,
+  "hintsEnabled": true,
+  "revealEnabled": true,
+  "checkEnabled": true,
+  "errorCheckModeEnabled": true,
+  "showRebus": false,
+  "articleHintsEnabled": false,
+  "contestModeEnabled": false,
+  "gatherEmail": false,
+  "gatherMobile": false,
+  "gatherName": false,
+  "w": 15,
+  "h": 15,
+  "box": [
+    ["A","A","A", "\u0000","A","A","A", "\u0000","A","A","A", "\u0000","A","A","A"],
+    ["A","A","A","A","A","A","A", "\u0000","A","A","A", "\u0000","A","A","A"],
+    ["A","A","A","A","A","A","A", "\u0000","A","A","A","A","A","A","A"],
+    ["B","A","A","A","A","B", "\u0000","A","A","A","A","A","A","A","A"],
+    [ "\u0000", "\u0000","A","A","A","A","A","A", "\u0000","A","A","A","A","A","A"],
+    ["A","A","A","A", "\u0000","A","A","A", "\u0000","A","A","A", "\u0000", "\u0000", "\u0000" ],
+    ["A","A","A", "\u0000","A","A","A","A","A", "\u0000","A","A","A","A","A"],
+    ["A","A","A","A","A", "\u0000","A","A","A", "\u0000","A","A","A","A","A"],
+    ["A","A","A","A","A", "\u0000","A","A","A","A","A", "\u0000","A","A","A"],
+    [ "\u0000", "\u0000", "\u0000","A","A","A", "\u0000","A","A","A", "\u0000","A","A","A","A"],
+    ["A","A","A","A","A","A", "\u0000","A","A","A","A","A","A", "\u0000", "\u0000" ],
+    ["A","A","A","A","A","A","A","A", "\u0000","A","A","A","A","A","A"],
+    ["A","A","A","A","A","A","A", "\u0000","A","A","A","A","A","A","A"],
+    ["A","A","A", "\u0000","A","A","A", "\u0000","A","A","A","A","A","A","A"],
+    ["A","A","A", "\u0000","A","A","A", "\u0000","A","A","A", "\u0000","A","A","A"]
+  ],
+  "clueNums": [
+    [ 1, 14, 17, 0, 23, 27, 30, 0, 38, 45, 50, 0, 56, 61, 64 ],
+    [ 2, 0, 0, 20, 0, 0, 0, 0, 39, 0, 0, 0, 57, 0, 0 ],
+    [ 3, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 54, 0, 0, 0 ],
+    [ 4, 0, 0, 0, 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 0 ],
+    [ 0, 0, 18, 0, 0, 0, 31, 0, 0, 46, 0, 0, 0, 0, 0 ],
+    [ 5, 15, 0, 0, 0, 28, 0, 0, 0, 47, 0, 0, 0, 0, 0 ],
+    [ 6, 0, 0, 0, 24, 0, 0, 0, 41, 0, 51, 0, 58, 62, 65 ],
+    [ 7, 0, 0, 21, 0, 0, 32, 0, 0, 0, 52, 0, 0, 0, 0 ],
+    [ 8, 0, 0, 0, 0, 0, 33, 0, 0, 48, 0, 0, 59, 0, 0 ],
+    [ 0, 0, 0, 22, 0, 29, 0, 36, 0, 0, 0, 55, 0, 0, 0 ],
+    [ 9, 16, 19, 0, 0, 0, 0, 37, 0, 0, 53, 0, 0, 0, 0 ],
+    [ 10, 0, 0, 0, 0, 0, 34, 0, 0, 49, 0, 0, 0, 63, 66 ],
+    [ 11, 0, 0, 0, 0, 0, 0, 0, 42, 0, 0, 0, 0, 0, 0 ],
+    [ 12, 0, 0, 0, 25, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0 ],
+    [ 13, 0, 0, 0, 26, 0, 0, 0, 44, 0, 0, 0, 60, 0, 0 ]
+  ],
+  "placedWords": [
+    {
+      "word": "AAAB",
+      "originalTerm": "AAAB",
+      "nBoxes": 4,
+      "x": 0,
+      "y": 0,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 1,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 1a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 5,
+      "y": 0,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 5,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 5a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 5,
+      "x": 10,
+      "y": 0,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 9,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 9a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 0,
+      "y": 1,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 14,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 14a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 5,
+      "y": 1,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 15,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 15a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 10,
+      "y": 1,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 16,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 16a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAAA",
+      "originalTerm": "AAAAAAAAA",
+      "nBoxes": 9,
+      "x": 0,
+      "y": 2,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 17,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 17a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        9
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 10,
+      "y": 2,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 19,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 19a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 1,
+      "y": 3,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 20,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 20a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 7,
+      "y": 3,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 21,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 21a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 0,
+      "y": 4,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 23,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 23a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAAA",
+      "originalTerm": "AAAAAAAAA",
+      "nBoxes": 9,
+      "x": 6,
+      "y": 4,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 24,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 24a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        9
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAABAAA",
+      "originalTerm": "AAABAAA",
+      "nBoxes": 7,
+      "x": 0,
+      "y": 5,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 27,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 27a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 9,
+      "y": 5,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 29,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 29a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 0,
+      "y": 6,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 30,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 30a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 4,
+      "y": 6,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 31,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 31a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 11,
+      "y": 6,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 34,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 34a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAAA",
+      "originalTerm": "AAAAAAAAA",
+      "nBoxes": 9,
+      "x": 3,
+      "y": 7,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 35,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 35a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        9
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 0,
+      "y": 8,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 38,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 38a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 6,
+      "y": 8,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 41,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 41a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 12,
+      "y": 8,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 42,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 42a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 0,
+      "y": 9,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 45,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 45a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 8,
+      "y": 9,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 48,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 48a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAAA",
+      "originalTerm": "AAAAAAAAA",
+      "nBoxes": 9,
+      "x": 0,
+      "y": 10,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 50,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 50a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        9
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 10,
+      "y": 10,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 53,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 53a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 2,
+      "y": 11,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 54,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 54a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 9,
+      "y": 11,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 55,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 55a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 0,
+      "y": 12,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 56,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 56a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAAA",
+      "originalTerm": "AAAAAAAAA",
+      "nBoxes": 9,
+      "x": 6,
+      "y": 12,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 58,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 58a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        9
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 0,
+      "y": 13,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 61,
+      "clue": {
+        "date": 0,
+        "clue": "61a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 6,
+      "y": 13,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 62,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 62a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 11,
+      "y": 13,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 63,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 63a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 0,
+      "y": 14,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 64,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 64a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 6,
+      "y": 14,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 65,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 65a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 11,
+      "y": 14,
+      "acrossNotDown": true,
+      "direction": "E",
+      "clueSection": "Across",
+      "clueNum": 66,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 66a",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 0,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 1,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 1d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 1,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 2,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 2d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 2,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 3,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 3d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "BAAAAB",
+      "originalTerm": "BAAAAB",
+      "nBoxes": 6,
+      "x": 3,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 4,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 4d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 5,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 5,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 5d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 6,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 6,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 6d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 7,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 7,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 7d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 8,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 8,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 8d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 10,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 9,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 9d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAA",
+      "originalTerm": "AAAAAAAA",
+      "nBoxes": 8,
+      "x": 11,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 10,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 10d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        8
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 12,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 11,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 11d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 13,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 12,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 12d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 14,
+      "y": 0,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 13,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 13d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 4,
+      "y": 2,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 18,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 18d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 9,
+      "y": 3,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 22,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 22d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 0,
+      "y": 4,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 23,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 23d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 6,
+      "y": 4,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 24,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 24d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 13,
+      "y": 4,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 25,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 25d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 14,
+      "y": 4,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 26,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 26d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 5,
+      "y": 5,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 28,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 28d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 7,
+      "y": 6,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 32,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 32d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 8,
+      "y": 6,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 33,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 33d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAAA",
+      "originalTerm": "AAAAAAAA",
+      "nBoxes": 8,
+      "x": 3,
+      "y": 7,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 35,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 35d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        8
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 9,
+      "y": 7,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 36,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 36d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 10,
+      "y": 7,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 37,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 37d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 0,
+      "y": 8,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 38,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 38d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 1,
+      "y": 8,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 39,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 39d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 2,
+      "y": 8,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 40,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 40d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 12,
+      "y": 8,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 42,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 42d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAAA",
+      "originalTerm": "AAAAAAA",
+      "nBoxes": 7,
+      "x": 13,
+      "y": 8,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 43,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 43d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        7
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 14,
+      "y": 8,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 44,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 44d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 4,
+      "y": 9,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 46,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 46d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 5,
+      "y": 9,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 47,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 47d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAAA",
+      "originalTerm": "AAAAAA",
+      "nBoxes": 6,
+      "x": 11,
+      "y": 9,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 49,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 49d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        6
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 6,
+      "y": 10,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 51,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 51d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAAA",
+      "originalTerm": "AAAAA",
+      "nBoxes": 5,
+      "x": 7,
+      "y": 10,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 52,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 52d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        5
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAAA",
+      "originalTerm": "AAAA",
+      "nBoxes": 4,
+      "x": 9,
+      "y": 11,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 55,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 55d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        4
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 0,
+      "y": 12,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 56,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 56d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 1,
+      "y": 12,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 57,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 57d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 8,
+      "y": 12,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 59,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 59d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    },
+    {
+      "word": "AAA",
+      "originalTerm": "AAA",
+      "nBoxes": 3,
+      "x": 14,
+      "y": 12,
+      "acrossNotDown": false,
+      "direction": "S",
+      "clueSection": "Down",
+      "clueNum": 60,
+      "clue": {
+        "date": 0,
+        "clue": "Clue 60d",
+        "fullSentenceLowerCase": ""
+      },
+      "wordLens": [
+        3
+      ],
+      "intersects": false
+    }
+  ],
+  "boxToPlacedWordsIdxs": [
+    [ [ 0, 35 ], [ 3, 35 ], [ 6, 35 ], null, [ 10, 50 ], [ 12, 50 ], [ 14, 50 ], null, [ 18, 60 ], [ 21, 60 ], [ 23, 60 ], null, [ 27, 72 ], [ 29, 72 ], [ 32, 72 ] ],
+    [ [ 36, 0 ], [ 3, 36 ], [ 6, 36 ], [ 8, 36 ], [ 10, 36 ], [ 12, 36 ], [ 14, 36 ], null, [ 61, 18 ], [ 21, 61 ], [ 23, 61 ], null, [ 73, 27 ], [ 29, 73 ], [ 32, 73 ] ],
+    [ [ 37, 0 ], [ 3, 37 ], [ 6, 37 ], [ 8, 37 ], [ 10, 37 ], [ 12, 37 ], [ 14, 37 ], null, [ 62, 18 ], [ 21, 62 ], [ 23, 62 ], [ 25, 62 ], [ 27, 62 ], [ 29, 62 ], [ 32, 62 ] ],
+    [ [ 38, 0 ], [ 3, 38 ], [ 6, 38 ], [ 8, 38 ], [ 10, 38 ], [ 12, 38 ], null, [ 17, 57 ], [ 18, 57 ], [ 21, 57 ], [ 23, 57 ], [ 25, 57 ], [ 27, 57 ], [ 29, 57 ], [ 32, 57 ] ],
+    [ null, null, [ 48, 6 ], [ 8, 48 ], [ 10, 48 ], [ 12, 48 ], [ 15, 48 ], [ 17, 48 ], null, [ 66, 21 ], [ 23, 66 ], [ 25, 66 ], [ 27, 66 ], [ 29, 66 ], [ 32, 66 ] ],
+    [ [ 1, 39 ], [ 4, 39 ], [ 6, 39 ], [ 8, 39 ], null, [ 54, 12 ], [ 15, 54 ], [ 17, 54 ], null, [ 67, 21 ], [ 23, 67 ], [ 25, 67 ], null, null, null ],
+    [ [ 40, 1 ], [ 4, 40 ], [ 6, 40 ], null, [ 11, 51 ], [ 12, 51 ], [ 15, 51 ], [ 17, 51 ], [ 19, 51 ], null, [ 69, 23 ], [ 25, 69 ], [ 28, 69 ], [ 30, 69 ], [ 33, 69 ] ],
+    [ [ 41, 1 ], [ 4, 41 ], [ 6, 41 ], [ 9, 41 ], [ 11, 41 ], null, [ 55, 15 ], [ 17, 55 ], [ 19, 55 ], null, [ 70, 23 ], [ 25, 70 ], [ 28, 70 ], [ 30, 70 ], [ 33, 70 ] ],
+    [ [ 42, 1 ], [ 4, 42 ], [ 6, 42 ], [ 9, 42 ], [ 11, 42 ], null, [ 56, 15 ], [ 17, 56 ], [ 19, 56 ], [ 22, 56 ], [ 23, 56 ], null, [ 74, 28 ], [ 30, 74 ], [ 33, 74 ] ],
+    [ null, null, null, [ 49, 9 ], [ 11, 49 ], [ 13, 49 ], null, [ 58, 17 ], [ 19, 58 ], [ 22, 58 ], null, [ 26, 71 ], [ 28, 71 ], [ 30, 71 ], [ 33, 71 ] ],
+    [ [ 2, 43 ], [ 5, 43 ], [ 7, 43 ], [ 9, 43 ], [ 11, 43 ], [ 13, 43 ], null, [ 59, 17 ], [ 19, 59 ], [ 22, 59 ], [ 24, 59 ], [ 26, 59 ], [ 28, 59 ], null, null ],
+    [ [ 44, 2 ], [ 5, 44 ], [ 7, 44 ], [ 9, 44 ], [ 11, 44 ], [ 13, 44 ], [ 16, 44 ], [ 17, 44 ], null, [ 68, 22 ], [ 24, 68 ], [ 26, 68 ], [ 28, 68 ], [ 31, 68 ], [ 34, 68 ] ],
+    [ [ 45, 2 ], [ 5, 45 ], [ 7, 45 ], [ 9, 45 ], [ 11, 45 ], [ 13, 45 ], [ 16, 45 ], null, [ 20, 63 ], [ 22, 63 ], [ 24, 63 ], [ 26, 63 ], [ 28, 63 ], [ 31, 63 ], [ 34, 63 ] ],
+    [ [ 46, 2 ], [ 5, 46 ], [ 7, 46 ], null, [ 52, 11 ], [ 13, 52 ], [ 16, 52 ], null, [ 64, 20 ], [ 22, 64 ], [ 24, 64 ], [ 26, 64 ], [ 28, 64 ], [ 31, 64 ], [ 34, 64 ] ],
+    [ [ 47, 2 ], [ 5, 47 ], [ 7, 47 ], null, [ 53, 11 ], [ 13, 53 ], [ 16, 53 ], null, [ 65, 20 ], [ 22, 65 ], [ 24, 65 ], null, [ 75, 28 ], [ 31, 75 ], [ 34, 75 ]
+    ]
+  ],
+  "cellInfos": [
+    {
+      "x": 3,
+      "y": 10,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 7,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 4,
+      "y": 10,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 5,
+      "y": 2,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 5,
+      "y": 7,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 5,
+      "y": 10,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 6,
+      "y": 2,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 6,
+      "y": 7,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 6,
+      "y": 10,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 7,
+      "y": 2,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 7,
+      "y": 7,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 8,
+      "y": 4,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 9,
+      "y": 4,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    },
+    {
+      "x": 10,
+      "y": 4,
+      "isCircled": true,
+      "rightWall": false,
+      "bottomWall": false,
+      "displayRightWallShort": false,
+      "displayBottomWallShort": false,
+      "isVoid": false
+    }
+  ],
+  "preRevealIdxs": [
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ],
+    [ false, false, false, false, false, false, false, false, false, false, false, false, false, false, false ]
+  ],
+  "tags": [],
+  "level": 0,
+  "levelsExhausted": true,
+  "haveMessages": true,
+  "placeAll": false
+}

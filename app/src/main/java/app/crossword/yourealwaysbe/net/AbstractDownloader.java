@@ -129,7 +129,7 @@ public abstract class AbstractDownloader implements Downloader {
         return LocalDate.ofEpochDay(0L);
     }
 
-    private BufferedInputStream getInputStream(
+    protected BufferedInputStream getInputStream(
         URL url, Map<String, String> headers
     ) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();

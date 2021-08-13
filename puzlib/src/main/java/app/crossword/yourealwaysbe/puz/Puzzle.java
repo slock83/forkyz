@@ -169,7 +169,9 @@ public class Puzzle implements Serializable{
                 } else {
                     if (boxNumber > 0) {
                         throw new IllegalArgumentException(
-                            "Box numbered " + boxNumber
+                            "Box at row " + row
+                                + " and col " + col
+                                + " numbered " + boxNumber
                                 + " expected not to be numbered"
                         );
                     }
