@@ -3,6 +3,8 @@ package app.crossword.yourealwaysbe.net;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 
@@ -12,7 +14,8 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * Date = Thursdays
  */
 public class JonesinDownloader extends AbstractDownloader {
-    private static final String NAME = "Jonesin' Crosswords";
+    private static final String NAME
+        = ForkyzApplication.getInstance().getString(R.string.jonesin_crosswords);
     private static final String SUPPORT_URL = "https://crosswordnexus.com/jonesin/";
     NumberFormat nf = NumberFormat.getInstance();
 

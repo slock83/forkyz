@@ -3,6 +3,8 @@ package app.crossword.yourealwaysbe.net;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 
@@ -12,7 +14,8 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * Date = Fridays
  */
 public class WSJFridayDownloader extends AbstractDownloader {
-    private static final String NAME = "Wall Street Journal";
+    private static final String NAME
+        = ForkyzApplication.getInstance().getString(R.string.wall_street_journal);
     private static final String SUPPORT_URL = "https://subscribe.wsj.com";
     NumberFormat nf = NumberFormat.getInstance();
 

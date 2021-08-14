@@ -185,6 +185,7 @@
     <string name="sheffer_crossword">Sheffer Crossword</string>
     <string name="universal_crossword">Universal Crossword</string>
     <string name="usa_today">USA Today</string>
+    <string name="uclick_copyright">uclick LLC</string>
 
     <!-- preferences weekly -->
     <string name="updates_fridays">Updates Fridays</string>

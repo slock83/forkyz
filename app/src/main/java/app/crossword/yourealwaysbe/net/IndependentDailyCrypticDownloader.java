@@ -3,6 +3,9 @@ package app.crossword.yourealwaysbe.net;
 import java.time.LocalDate;
 import java.util.Locale;
 
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.forkyz.R;
+
 /**
  * Independent Daily Cryptic downloader
  * https://puzzles.independent.co.uk/games/webgl-cryptic-crossword-independent
@@ -10,7 +13,8 @@ import java.util.Locale;
  */
 public class IndependentDailyCrypticDownloader
         extends AbstractJPZDownloader {
-    private static final String NAME = "The Independent's Cryptic Crossword";
+    private static final String NAME =
+        ForkyzApplication.getInstance().getString(R.string.independent_daily);
     private static final String SUPPORT_URL
         = "https://www.independent.co.uk/donations";
 

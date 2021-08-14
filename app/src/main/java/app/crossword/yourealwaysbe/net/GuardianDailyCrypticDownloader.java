@@ -12,9 +12,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.HttpStatusException;
 import org.jsoup.nodes.Document;
 
-import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.GuardianJSONIO;
-
+import app.crossword.yourealwaysbe.puz.Puzzle;
 
 /**
  * Guardian Daily Cryptic downloader
@@ -22,7 +23,8 @@ import app.crossword.yourealwaysbe.io.GuardianJSONIO;
  * Date = Daily
  */
 public class GuardianDailyCrypticDownloader extends AbstractDownloader {
-    private static final String NAME = "Guardian Daily Cryptic";
+    private static final String NAME =
+        ForkyzApplication.getInstance().getString(R.string.guardian_daily);
     private static final String SUPPORT_URL = "https://support.theguardian.com";
 
     private static final int BASE_CW_NUMBER = 28112;

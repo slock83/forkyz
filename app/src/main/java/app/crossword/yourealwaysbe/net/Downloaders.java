@@ -290,7 +290,7 @@ public class Downloaders {
         if (prefs.getBoolean("downloadJoseph", true)) {
             downloaders.add(new KingDigitalDownloader(
                 "Joseph",
-                "Thomas Joseph Crossword",
+                context.getString(R.string.joseph_crossword),
                 Downloader.DATE_NO_SUNDAY,
                 "https://puzzles.kingdigital.com"
             ));
@@ -298,7 +298,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadLat", true)) {
             downloaders.add(new AmuseLabsDownloader(
-                "Los Angeles Times",
+                context.getString(R.string.lat_crosswords),
                 "cdn4", "lat", "tca", "latimes",
                 Downloader.DATE_DAILY,
                 "https://www.latimes.com/subscriptions/digital.html"
@@ -308,7 +308,7 @@ public class Downloaders {
         if (prefs.getBoolean("downloadNewsday", true)) {
             downloaders.add(new BrainsOnlyDownloader(
                 "https://brainsonly.com/servlets-newsday-crossword/newsdaycrossword?date=",
-                "Newsday",
+                context.getString(R.string.newsday),
                 // i can't browse this site for a more specific URL
                 // (GDPR)
                 "https://www.newsday.com"
@@ -318,7 +318,7 @@ public class Downloaders {
         if (prefs.getBoolean("downloadSheffer", true)) {
             downloaders.add(new KingDigitalDownloader(
                 "Sheffer",
-                "Sheffer Crossword",
+                context.getString(R.string.sheffer_crossword),
                 Downloader.DATE_NO_SUNDAY,
                 "https://puzzles.kingdigital.com"
             ));
@@ -327,8 +327,8 @@ public class Downloaders {
         if (prefs.getBoolean("downloadUniversal", true)) {
             downloaders.add(new UclickDownloader(
                 "fcx",
-                "Universal Crossword",
-                "uclick LLC",
+                context.getString(R.string.universal_crossword),
+                context.getString(R.string.uclick_copyright),
                 "http://www.uclick.com/client/spi/fcx/",
                 Downloader.DATE_DAILY
             ));
@@ -337,8 +337,8 @@ public class Downloaders {
         if (prefs.getBoolean("downloadUSAToday", true)) {
             downloaders.add(new UclickDownloader(
                 "usaon",
-                "USA Today",
-                "USA Today",
+                context.getString(R.string.usa_today),
+                context.getString(R.string.usa_today),
                 "https://subscribe.usatoday.com",
                 Downloader.DATE_NO_SUNDAY
             ));
@@ -351,7 +351,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadWaPoClassic", true)) {
             downloaders.add(new AmuseLabsDownloader(
-                "Washington Post Classic",
+                context.getString(R.string.washington_post_classic),
                 "cdn1", "wapo", "mreagle_", "wapo-mr",
                 Downloader.DATE_SUNDAY,
                 "https://subscribe.washingtonpost.com"
@@ -360,7 +360,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadWaPoSunday", true)) {
             downloaders.add(new AmuseLabsDownloader(
-                "Washington Post Sunday",
+                context.getString(R.string.washington_post_sunday),
                 "cdn1", "wapo", "ebirnholz_", "wapo-eb",
                 Downloader.DATE_SUNDAY,
                 "https://subscribe.washingtonpost.com"
