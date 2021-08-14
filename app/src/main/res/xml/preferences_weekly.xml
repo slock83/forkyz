@@ -19,19 +19,23 @@
         android:title="@string/large_sized"
     >
         <androidx.preference.CheckBoxPreference
+            android:title="@string/premier_crossword"
+            android:defaultValue="true"
+            android:summary="@string/updates_sundays"
+            android:key="downloadPremier"
+        />
+        <androidx.preference.CheckBoxPreference
             android:title="@string/wall_street_journal"
             android:defaultValue="true"
             android:summary="@string/updates_fridays"
             android:key="downloadWsj"
         />
-
         <androidx.preference.CheckBoxPreference
             android:title="@string/washington_post_classic"
             android:defaultValue="true"
             android:summary="@string/updates_sundays"
             android:key="downloadWaPoClassic"
         />
-
         <androidx.preference.CheckBoxPreference
             android:title="@string/washington_post_sunday"
             android:defaultValue="true"

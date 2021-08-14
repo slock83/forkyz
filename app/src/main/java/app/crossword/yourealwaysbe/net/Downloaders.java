@@ -315,6 +315,15 @@ public class Downloaders {
             ));
         }
 
+        if (prefs.getBoolean("downloadPremier", true)) {
+            downloaders.add(new KingDigitalDownloader(
+                "Premier",
+                context.getString(R.string.premier_crossword),
+                Downloader.DATE_SUNDAY,
+                "https://puzzles.kingdigital.com"
+            ));
+        }
+
         if (prefs.getBoolean("downloadSheffer", true)) {
             downloaders.add(new KingDigitalDownloader(
                 "Sheffer",
