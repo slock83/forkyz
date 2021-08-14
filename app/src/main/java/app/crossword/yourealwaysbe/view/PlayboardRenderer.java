@@ -44,6 +44,7 @@ public class PlayboardRenderer {
     private final Paint numberText = new Paint();
     private final Paint noteText = new Paint();
     private final Paint red = new Paint();
+    private final Paint redHighlight = new Paint();
     private final Paint white = new Paint();
     private Bitmap bitmap;
     private Playboard board;
@@ -54,6 +55,7 @@ public class PlayboardRenderer {
     private final int boxColor;
     private final int blankColor;
     private final int errorColor;
+    private final int errorHighlightColor;
     private final int currentWordHighlightColor;
     private final int currentLetterHighlightColor;
     private final int cheatedColor;
@@ -75,10 +77,16 @@ public class PlayboardRenderer {
             = ContextCompat.getColor(context, R.color.currentWordHighlightColor);
         currentLetterHighlightColor
             = ContextCompat.getColor(context, R.color.currentLetterHighlightColor);
-        errorColor = ContextCompat.getColor(context, R.color.errorColor);
-        cheatedColor = ContextCompat.getColor(context, R.color.cheatedColor);
-        boardLetterColor = ContextCompat.getColor(context, R.color.boardLetterColor);
-        boardNoteColor = ContextCompat.getColor(context, R.color.boardNoteColor);
+        errorColor
+            = ContextCompat.getColor(context, R.color.errorColor);
+        errorHighlightColor
+            = ContextCompat.getColor(context, R.color.errorHighlightColor);
+        cheatedColor
+            = ContextCompat.getColor(context, R.color.cheatedColor);
+        boardLetterColor
+            = ContextCompat.getColor(context, R.color.boardLetterColor);
+        boardNoteColor
+            = ContextCompat.getColor(context, R.color.boardNoteColor);
 
         blackLine.setColor(blankColor);
         blackLine.setStrokeWidth(2.0F);
@@ -118,6 +126,11 @@ public class PlayboardRenderer {
         red.setColor(errorColor);
         red.setAntiAlias(true);
         red.setTypeface(Typeface.SANS_SERIF);
+
+        redHighlight.setTextAlign(Align.CENTER);
+        redHighlight.setColor(errorHighlightColor);
+        redHighlight.setAntiAlias(true);
+        redHighlight.setTypeface(Typeface.SANS_SERIF);
 
         cheated.setColor(cheatedColor);
     }
@@ -483,6 +496,7 @@ public class PlayboardRenderer {
         numberText.setTextSize(numberTextSize);
         letterText.setTextSize(letterTextSize);
         red.setTextSize(letterTextSize);
+        redHighlight.setTextSize(letterTextSize);
         white.setTextSize(letterTextSize);
 
         boolean inCurrentWord = (currentWord != null) && currentWord.checkInWord(col, row);
@@ -505,7 +519,7 @@ public class PlayboardRenderer {
             if (isHighlighted && !highlightError) {
                 canvas.drawRect(r, this.currentLetterHighlight);
             } else if (isHighlighted && highlightError) {
-                canvas.drawRect(r, this.red);
+                canvas.drawRect(r, this.redHighlight);
             } else if ((currentWord != null) && currentWord.checkInWord(col, row)) {
                 canvas.drawRect(r, this.currentWordHighlight);
             } else if (highlightError) {
@@ -534,7 +548,7 @@ public class PlayboardRenderer {
                 if (isHighlighted) {
                     thisLetter = this.white;
                 } else if (inCurrentWord) {
-                    thisLetter = red;
+                    thisLetter = this.redHighlight;
                 }
             }
 

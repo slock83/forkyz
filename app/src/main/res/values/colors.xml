@@ -12,6 +12,7 @@
     <color name="boxColor">#fff</color>
     <color name="blankColor">#000</color>
     <color name="errorColor">#f00</color>
+    <color name="errorHighlightColor">#f00</color>
     <color name="currentWordHighlightColor">#FFAE57</color>
     <color name="currentLetterHighlightColor">#EB6000</color>
     <color name="cheatedColor">#FFE0E0</color>
