@@ -18,6 +18,7 @@
     />
     <androidx.preference.CheckBoxPreference
         android:title="@string/joseph_crossword"
+        android:summary="@string/updates_mon_sat"
         android:defaultValue="true"
         android:key="downloadJoseph"
     />
@@ -33,11 +34,13 @@
     />
     <androidx.preference.CheckBoxPreference
         android:title="@string/sheffer_crossword"
+        android:summary="@string/updates_mon_sat"
         android:defaultValue="true"
         android:key="downloadSheffer"
     />
     <androidx.preference.CheckBoxPreference
         android:title="@string/universal_crossword"
+        android:summary="@string/updates_mon_sat"
         android:defaultValue="true"
         android:key="downloadUniversal"
     />
