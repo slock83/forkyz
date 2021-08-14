@@ -283,11 +283,6 @@ public class Downloaders {
             downloaders.add(new IndependentDailyCrypticDownloader());
         }
 
-        if (prefs.getBoolean("downloadWsj", true)) {
-            downloaders.add(new WSJFridayDownloader());
-            downloaders.add(new WSJSaturdayDownloader());
-        }
-
         if (prefs.getBoolean("downloadJonesin", true)) {
             downloaders.add(new JonesinDownloader());
         }
@@ -311,6 +306,16 @@ public class Downloaders {
             ));
         }
 
+        if (prefs.getBoolean("downloadUniversal", true)) {
+            downloaders.add(new UclickDownloader(
+                "fcx",
+                "Universal Crossword",
+                "uclick LLC",
+                "http://www.uclick.com/client/spi/fcx/",
+                Downloader.DATE_DAILY
+            ));
+        }
+
         if (prefs.getBoolean("downloadUSAToday", true)) {
             downloaders.add(new UclickDownloader(
                 "usaon",
@@ -321,14 +326,9 @@ public class Downloaders {
             ));
         }
 
-        if (prefs.getBoolean("downloadUniversal", true)) {
-            downloaders.add(new UclickDownloader(
-                "fcx",
-                "Universal Crossword",
-                "uclick LLC",
-                "http://www.uclick.com/client/spi/fcx/",
-                Downloader.DATE_DAILY
-            ));
+        if (prefs.getBoolean("downloadWsj", true)) {
+            downloaders.add(new WSJFridayDownloader());
+            downloaders.add(new WSJSaturdayDownloader());
         }
 
         if (prefs.getBoolean("downloadWaPoClassic", true)) {
