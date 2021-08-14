@@ -187,10 +187,13 @@
     <!-- preferences weekly -->
     <string name="updates_fridays">Updates Fridays</string>
     <string name="updates_thursdays">Updates Thursdays</string>
+    <string name="updates_sundays">Updates Sundays</string>
     <string name="regular_sized">Regular Sized</string>
     <string name="large_sized">Large Sized</string>
     <string name="jonesin_crosswords">Jonesin\' Crosswords</string>
     <string name="wall_street_journal">The Wall Street Journal</string>
+    <string name="washington_post_classic">The Washington Post Classic</string>
+    <string name="washington_post_sunday">The Washington Post Sunday</string>
 
     <!--  preferences experimental -->
     <string name="cru_puzzle_workshop">Cru Puzzle Workshop</string>

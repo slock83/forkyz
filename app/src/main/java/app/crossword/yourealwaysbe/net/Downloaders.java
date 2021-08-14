@@ -295,10 +295,8 @@ public class Downloaders {
         if (prefs.getBoolean("downloadLat", true)) {
             downloaders.add(new AmuseLabsDownloader(
                 "Los Angeles Times",
-                "lat",
-                "tca",
-                "latimes",
-                Downloader.DATE_NO_SUNDAY,
+                "cdn4", "lat", "tca", "latimes",
+                Downloader.DATE_DAILY,
                 "https://www.latimes.com/subscriptions/digital.html"
             ));
         }
@@ -330,6 +328,24 @@ public class Downloaders {
                 "uclick LLC",
                 "http://www.uclick.com/client/spi/fcx/",
                 Downloader.DATE_DAILY
+            ));
+        }
+
+        if (prefs.getBoolean("downloadWaPoClassic", true)) {
+            downloaders.add(new AmuseLabsDownloader(
+                "Washington Post Classic",
+                "cdn1", "wapo", "mreagle_", "wapo-mr",
+                Downloader.DATE_SUNDAY,
+                "https://subscribe.washingtonpost.com"
+            ));
+        }
+
+        if (prefs.getBoolean("downloadWaPoSunday", true)) {
+            downloaders.add(new AmuseLabsDownloader(
+                "Washington Post Sunday",
+                "cdn1", "wapo", "ebirnholz_", "wapo-eb",
+                Downloader.DATE_SUNDAY,
+                "https://subscribe.washingtonpost.com"
             ));
         }
 

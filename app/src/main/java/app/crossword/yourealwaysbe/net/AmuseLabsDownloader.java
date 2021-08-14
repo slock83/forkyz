@@ -17,11 +17,11 @@ import app.crossword.yourealwaysbe.io.AmuseLabsJSONIO;
 
 /**
  * Amuse Labs Downloader
- * URL: https://cdn4.amuselabs.com/<shortname>/crossword?id=<idPrefix>YYMMDD&set=<setname>
+ * URL: https://<cdn>.amuselabs.com/<shortname>/crossword?id=<idPrefix>YYMMDD&set=<setname>
  */
 public class AmuseLabsDownloader extends AbstractDownloader {
     private static final String BASE_URL_FMT
-        = "https://cdn4.amuselabs.com/%s/crossword";
+        = "https://%s.amuselabs.com/%s/crossword";
     private static final String URL_SUFFIX_FMT = "?id=%s%02d%02d%02d&set=%s";
 
     private String idPrefix;
@@ -31,6 +31,7 @@ public class AmuseLabsDownloader extends AbstractDownloader {
      * Construct an Amuse Labs downloader
      *
      * @param name the friendly name for the crosswords
+     * @param cdn the cdn used for this crossword
      * @param shortname the shortname appearing in the download URL
      * @param idPrefx the prefix of the id for the URL
      * @param setName the set of crosswords it belongs to for the URL
@@ -39,6 +40,7 @@ public class AmuseLabsDownloader extends AbstractDownloader {
      */
     public AmuseLabsDownloader(
         String name,
+        String cdn,
         String shortname,
         String idPrefix,
         String setName,
@@ -46,7 +48,7 @@ public class AmuseLabsDownloader extends AbstractDownloader {
         String supportUrl
     ) {
         super(
-            String.format(BASE_URL_FMT, shortname), name, days, supportUrl, null
+            String.format(BASE_URL_FMT, cdn, shortname), name, days, supportUrl, null
         );
         this.idPrefix = idPrefix;
         this.setName = setName;
