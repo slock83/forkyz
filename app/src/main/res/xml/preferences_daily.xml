@@ -17,6 +17,11 @@
         android:key="downloadIndependentDailyCryptic"
     />
     <androidx.preference.CheckBoxPreference
+        android:title="@string/joseph_crossword"
+        android:defaultValue="true"
+        android:key="downloadJoseph"
+    />
+    <androidx.preference.CheckBoxPreference
         android:title="@string/newsday"
         android:defaultValue="true"
         android:key="downloadNewsday"
@@ -25,6 +30,11 @@
         android:title="@string/lat_crosswords"
         android:defaultValue="true"
         android:key="downloadLat"
+    />
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/sheffer_crossword"
+        android:defaultValue="true"
+        android:key="downloadSheffer"
     />
     <androidx.preference.CheckBoxPreference
         android:title="@string/universal_crossword"

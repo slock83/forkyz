@@ -287,6 +287,15 @@ public class Downloaders {
             downloaders.add(new JonesinDownloader());
         }
 
+        if (prefs.getBoolean("downloadJoseph", true)) {
+            downloaders.add(new KingDigitalDownloader(
+                "Joseph",
+                "Thomas Joseph Crossword",
+                Downloader.DATE_NO_SUNDAY,
+                "https://puzzles.kingdigital.com"
+            ));
+        }
+
         if (prefs.getBoolean("downloadLat", true)) {
             downloaders.add(new AmuseLabsDownloader(
                 "Los Angeles Times",
@@ -303,6 +312,15 @@ public class Downloaders {
                 // i can't browse this site for a more specific URL
                 // (GDPR)
                 "https://www.newsday.com"
+            ));
+        }
+
+        if (prefs.getBoolean("downloadSheffer", true)) {
+            downloaders.add(new KingDigitalDownloader(
+                "Sheffer",
+                "Sheffer Crossword",
+                Downloader.DATE_NO_SUNDAY,
+                "https://puzzles.kingdigital.com"
             ));
         }
 
