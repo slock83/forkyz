@@ -20,6 +20,8 @@ public interface ClueList extends Iterable<Clue> {
 
     public int getFirstClueNumber();
 
+    public int getLastClueNumber();
+
     /**
      * Get the next clue after the given clue number
      *

@@ -2,5 +2,6 @@
 <resources>
     <declare-styleable name="ForkyzKey">
         <attr name="keyCode" format="integer"/>
+        <attr name="specialKeyCode" format="integer"/>
     </declare-styleable>
 </resources>

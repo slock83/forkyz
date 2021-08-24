@@ -774,6 +774,9 @@ public class Playboard implements Serializable {
         return nextLetter(this.skipCompletedLetters);
     }
 
+    /**
+     * Jump to next word, regardless of movement strategy
+     */
     public Word nextWord() {
         Word previous = this.getCurrentWord();
 
@@ -796,7 +799,7 @@ public class Playboard implements Serializable {
             popNotificationDisabled();
         }
 
-        this.nextLetter();
+        MovementStrategy.MOVE_NEXT_CLUE.move(this, false);
 
         return previous;
     }
@@ -858,6 +861,9 @@ public class Playboard implements Serializable {
         return this.movementStrategy.back(this);
     }
 
+    /**
+     * Moves to start of previous word regardless of movement strategy
+     */
     public Word previousWord() {
         Word previous = this.getCurrentWord();
 
@@ -866,15 +872,20 @@ public class Playboard implements Serializable {
         int newAcross = p.across;
         int newDown = p.down;
 
-        if (previous.across) {
-            newAcross = previous.start.across - 1;
-        } else {
-            newDown = previous.start.down - 1;
+        pushNotificationDisabled();
+
+        if (previous.across && p.across != previous.start.across) {
+            this.setHighlightLetter(
+                new Position(previous.start.across, p.down)
+            );
+        } else if (!previous.across && p.down != previous.start.down) {
+            this.setHighlightLetter(
+                new Position(p.across, previous.start.down)
+            );
         }
 
-        pushNotificationDisabled();
-        this.setHighlightLetter(new Position(newAcross, newDown));
-        this.previousLetter();
+        MovementStrategy.MOVE_NEXT_CLUE.back(this);
+
         popNotificationDisabled();
 
         Word current = this.getCurrentWord();

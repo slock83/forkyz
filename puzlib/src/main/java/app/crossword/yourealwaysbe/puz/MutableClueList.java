@@ -51,6 +51,11 @@ class MutableClueList implements ClueList {
     }
 
     @Override
+    public int getLastClueNumber() {
+        return clueMap.lastEntry().getKey();
+    }
+
+    @Override
     public int getNextClueNumber(int number, boolean wrap) {
         Integer next = clueMap.higherKey(number);
         if (next == null)

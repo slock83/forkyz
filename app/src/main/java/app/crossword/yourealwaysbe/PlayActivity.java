@@ -175,6 +175,32 @@ public class PlayActivity extends PuzzleActivity
             = (ForkyzKeyboard) this.findViewById(R.id.keyboard);
         keyboardManager
             = new KeyboardManager(this, keyboardView, null);
+        keyboardView.setSpecialKeyListener(
+            new ForkyzKeyboard.SpecialKeyListener() {
+                @Override
+                public void onKeyDown(@ForkyzKeyboard.SpecialKey int key) {
+                    // ignore
+                }
+
+                @Override
+                public void onKeyUp(@ForkyzKeyboard.SpecialKey int key) {
+                    // ignore
+                    switch (key) {
+                    case ForkyzKeyboard.KEY_CHANGE_CLUE_DIRECTION:
+                        getBoard().toggleDirection();
+                        return;
+                    case ForkyzKeyboard.KEY_NEXT_CLUE:
+                        getBoard().nextWord();
+                        return;
+                    case ForkyzKeyboard.KEY_PREVIOUS_CLUE:
+                        getBoard().previousWord();
+                        return;
+                    default:
+                        // ignore
+                    }
+                }
+            }
+        );
 
         this.renderer = new PlayboardRenderer(
             board,
@@ -470,11 +496,7 @@ public class PlayActivity extends PuzzleActivity
         if (getBoard() != null) {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_SEARCH:
-                    getBoard().setMovementStrategy(
-                        MovementStrategy.MOVE_NEXT_CLUE
-                    );
                     getBoard().nextWord();
-                    getBoard().setMovementStrategy(this.getMovementStrategy());
                     handled = true;
                     break;
 

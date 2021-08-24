@@ -5,6 +5,10 @@
 
 package app.crossword.yourealwaysbe.view;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,7 +18,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -23,6 +26,7 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.annotation.IntDef;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.view.LayoutInflaterCompat;
@@ -39,12 +43,37 @@ public class ForkyzKeyboard
     private static final int KEY_REPEAT_DELAY = 300;
     private static final int KEY_REPEAT_INTERVAL = 75;
 
+    public static final int KEY_CHANGE_CLUE_DIRECTION = 0;
+    public static final int KEY_NEXT_CLUE = 1;
+    public static final int KEY_PREVIOUS_CLUE = 2;
+
+    @IntDef({KEY_CHANGE_CLUE_DIRECTION, KEY_NEXT_CLUE, KEY_PREVIOUS_CLUE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface SpecialKey { }
+
+    public interface SpecialKeyListener {
+        public void onKeyUp(@SpecialKey int key);
+        public void onKeyDown(@SpecialKey int key);
+    }
+
+    /**
+     * Encodes a particular key's action on up/down
+     *
+     * Different implementations for normal keys and special keys
+     */
+    private interface KeyActor {
+        public void fireKeyUp();
+        public void fireKeyDown();
+    }
+
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    private SparseIntArray keyCodes = new SparseIntArray();
+    private SparseArray<KeyActor> keyActors = new SparseArray<>();
     private SparseArray<Timer> keyTimers = new SparseArray<>();
     private InputConnection inputConnection;
     private int countKeysDown = 0;
+    private List<Integer> specialKeyViewIds = new ArrayList<>();
+    private SpecialKeyListener specialKeyListener = null;
 
     public ForkyzKeyboard(Context context) {
         this(context, null, 0);
@@ -75,9 +104,6 @@ public class ForkyzKeyboard
 
     @Override
     public synchronized boolean onTouch(View view, MotionEvent event) {
-        if (inputConnection == null)
-            return false;
-
         switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:
             onKeyDown(view.getId());
@@ -111,6 +137,34 @@ public class ForkyzKeyboard
      */
     public synchronized boolean hasKeysDown() { return countKeysDown > 0; }
 
+    /**
+     * Set a listener for and display special keys
+     *
+     * Special keys are hidden if they are not listened for. Set to null
+     * to hide keys.
+     */
+    public synchronized void setSpecialKeyListener(
+        SpecialKeyListener specialKeyListener
+    ) {
+        this.specialKeyListener = specialKeyListener;
+
+        if (this.specialKeyListener == null) {
+            setSpecialKeyVisibilty(View.INVISIBLE);
+            for (int viewId : specialKeyViewIds) {
+                View keyView = findViewById(viewId);
+                keyView.setOnTouchListener(null);
+                keyView.setOnClickListener(null);
+            }
+        } else {
+            setSpecialKeyVisibilty(View.VISIBLE);
+            for (int viewId : specialKeyViewIds) {
+                View keyView = findViewById(viewId);
+                keyView.setOnTouchListener(this);
+                keyView.setOnClickListener(this);
+            }
+        }
+    }
+
     private synchronized void countKeyDown() { countKeysDown++; }
     private synchronized void countKeyUp() { countKeysDown--; }
 
@@ -119,29 +173,62 @@ public class ForkyzKeyboard
             = LayoutInflater.from(context).cloneInContext(context);
         LayoutInflaterCompat.setFactory2(inflater, new FKFactory());
         inflater.inflate(R.layout.forkyz_keyboard, this, true);
+
+        // initially hide unless special key listener is set
+        setSpecialKeyVisibilty(View.INVISIBLE);
     }
 
-    private void addKeyCode(int keyId, int keyCode) {
-        keyCodes.put(keyId, keyCode);
+    private synchronized void setSpecialKeyVisibilty(int visibility) {
+        for (int viewId : specialKeyViewIds) {
+            findViewById(viewId).setVisibility(visibility);
+        }
     }
 
-    private int getKeyCode(int keyId) {
-        return keyCodes.get(keyId);
+    private synchronized void addKeyCode(int keyId, int keyCode) {
+        keyActors.put(keyId, new KeyActor() {
+            @Override
+            public synchronized void fireKeyUp() {
+                if (inputConnection != null) {
+                    inputConnection.sendKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_UP, keyCode)
+                    );
+                }
+            }
+
+            @Override
+            public synchronized void fireKeyDown() {
+                 if (inputConnection != null) {
+                    inputConnection.sendKeyEvent(
+                        new KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
+                    );
+                }
+            }
+        });
+    }
+
+    private void addSpecialKeyCode(int keyId, @SpecialKey int keyCode) {
+        specialKeyViewIds.add(keyId);
+        keyActors.put(keyId, new KeyActor() {
+            @Override
+            public synchronized void fireKeyUp() {
+                if (specialKeyListener != null) {
+                    specialKeyListener.onKeyUp(keyCode);
+                }
+            }
+
+            @Override
+            public synchronized void fireKeyDown() {
+                if (specialKeyListener != null) {
+                    specialKeyListener.onKeyDown(keyCode);
+                }
+            }
+        });
     }
 
     private synchronized void onKeyUp(int keyId) {
         countKeyUp();
         sendKeyUp(keyId);
         cancelKeyTimer(keyId);
-    }
-
-    private synchronized void sendKeyUp(int keyId) {
-        int keyCode = getKeyCode(keyId);
-        if (inputConnection != null) {
-            inputConnection.sendKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_UP, keyCode)
-            );
-        }
     }
 
     private synchronized void onKeyDown(final int keyId) {
@@ -162,15 +249,6 @@ public class ForkyzKeyboard
         setKeyTimer(keyId, timer);
     }
 
-    private synchronized void sendKeyDown(int keyId) {
-        int keyCode = getKeyCode(keyId);
-        if (inputConnection != null) {
-            inputConnection.sendKeyEvent(
-                new KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
-            );
-        }
-    }
-
     private synchronized void setKeyTimer(int keyId, Timer timer) {
         cancelKeyTimer(keyId);
         keyTimers.put(keyId, timer);
@@ -183,6 +261,28 @@ public class ForkyzKeyboard
             // no point keeping references to expired timers
             keyTimers.put(keyId, null);
         }
+    }
+
+    /**
+     * Send a key up event for the button with the view id keyId
+     *
+     * Only if an actor was initialised
+     */
+    private synchronized void sendKeyUp(int keyId) {
+        KeyActor actor = keyActors.get(keyId);
+        if (actor != null)
+            actor.fireKeyUp();
+    }
+
+    /**
+     * Send a key down event for the button with the view id keyId
+     *
+     * Only if an actor was initialised
+     */
+    private synchronized void sendKeyDown(int keyId) {
+        KeyActor actor = keyActors.get(keyId);
+        if (actor != null)
+            actor.fireKeyDown();
     }
 
     private class FKFactory implements LayoutInflater.Factory2 {
@@ -220,8 +320,21 @@ public class ForkyzKeyboard
             );
             try {
                 int keyCode = ta.getInt(R.styleable.ForkyzKey_keyCode, -1);
+                int specialKeyCode = ta.getInt(
+                    R.styleable.ForkyzKey_specialKeyCode, -1
+                );
+
                 if (keyCode > -1) {
                     ForkyzKeyboard.this.addKeyCode(view.getId(), keyCode);
+                }
+
+                if (specialKeyCode > -1) {
+                    ForkyzKeyboard.this.addSpecialKeyCode(
+                        view.getId(), specialKeyCode
+                    );
+                }
+
+                if (keyCode > -1 || specialKeyCode > -1) {
                     view.setOnTouchListener(ForkyzKeyboard.this);
                     view.setOnClickListener(ForkyzKeyboard.this);
                 }

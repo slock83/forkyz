@@ -128,22 +128,27 @@ public interface MovementStrategy extends Serializable {
         }
 
         /**
-         * Moves to the last letter of the word corresponding to the previous clue.  Does nothing
-         * if the current word is the first across or first down clue.
+         * Moves to the last letter of the word corresponding to the
+         * previous clue.  Does nothing if the current word is the first
+         * across or first down clue move to the last down or across
+         * respectively.
          */
         private void moveToPreviousWord(Playboard board) {
             Word w = board.getCurrentWord();
-            int currentClueNumber = board.getBoxes()[w.start.across][w.start.down].getClueNumber();
-            int previousClueIndex;
+            int currentClueNumber
+                = board.getBoxes()[w.start.across][w.start.down]
+                    .getClueNumber();
             Puzzle puz = board.getPuzzle();
             int previousClueNumber
                 = puz.getClues(w.across)
                     .getPreviousClueNumber(currentClueNumber, false);
+            boolean previousClueAcross = w.across;
             if (previousClueNumber < 0) {
-                // At beginning of grid - do nothing.
-                return;
+                previousClueAcross = !w.across;
+                previousClueNumber
+                    = puz.getClues(previousClueAcross).getLastClueNumber();
             }
-            board.jumpToClue(previousClueNumber, w.across);
+            board.jumpToClue(previousClueNumber, previousClueAcross);
 
             // Move to last letter.
             w = board.getCurrentWord();
