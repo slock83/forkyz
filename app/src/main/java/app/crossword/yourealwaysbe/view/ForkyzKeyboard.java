@@ -32,10 +32,14 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.view.LayoutInflaterCompat;
 
 import app.crossword.yourealwaysbe.forkyz.R;
+import java.util.logging.Logger;
 
 public class ForkyzKeyboard
     extends LinearLayout
     implements View.OnTouchListener, View.OnClickListener {
+
+    private static final Logger LOG
+        = Logger.getLogger(ForkyzKeyboard.class.getCanonicalName());
 
     private static final String FORKYZ_TEXT_KEY = "ForkyzTextKey";
     private static final String FORKYZ_IMAGE_KEY = "ForkyzImageKey";
@@ -104,17 +108,23 @@ public class ForkyzKeyboard
 
     @Override
     public synchronized boolean onTouch(View view, MotionEvent event) {
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
         case MotionEvent.ACTION_DOWN:
             onKeyDown(view.getId());
             view.setPressed(true);
             return true;
         case MotionEvent.ACTION_UP:
+        case MotionEvent.ACTION_CANCEL:
             view.setPressed(false);
             onKeyUp(view.getId());
             return true;
+        case MotionEvent.ACTION_MOVE:
+        case MotionEvent.ACTION_POINTER_UP:
+        case MotionEvent.ACTION_POINTER_DOWN:
+            // ignore these mid-gesture movements, but consume them as
+            // they are part of the gesture we're tracking
+            return true;
         }
-
         return false;
     }
 
