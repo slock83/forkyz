@@ -724,18 +724,32 @@ public class BrowseActivity extends ForkyzActivity {
             emptyMsg.setVisibility(View.GONE);
             storageMsg.setVisibility(View.GONE);
         }
+
+        showSpeedDial();
     }
 
     private void showPleaseWait() {
         pleaseWaitView.setVisibility(View.VISIBLE);
+        setSpeedDialVisibility(View.GONE);
     }
 
     private void hidePleaseWait() {
         pleaseWaitView.setVisibility(View.GONE);
+        setSpeedDialVisibility(View.VISIBLE);
     }
 
     private void setSpeedDialVisibility(int visibility) {
         buttonAdd.setVisibility(visibility);
+    }
+
+    /**
+     * Unhide the FAB if hidden
+     *
+     * Distinct from setSpeedDialVisibility in that it uses the standard
+     * scroll show/hide feature, rather than setting visibility directly
+     */
+    private void showSpeedDial() {
+        buttonAdd.show();
     }
 
     private void setupSpeedDial() {
