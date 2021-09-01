@@ -55,6 +55,7 @@
     <string name="please_allow_storage">Please allow writing to storage when prompted. Forkyz needs this permission to store downloaded crossword files and cannot work without it.</string>
     <string name="title_view_archives">Archives</string>
     <string name="title_view_crosswords">Crosswords</string>
+    <string name="puzzle_caption_with_author">%1$s by %2$s</string>
 
     <!-- clues list -->
     <string name="current_word">Current word</string>

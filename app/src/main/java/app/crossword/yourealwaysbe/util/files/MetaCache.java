@@ -22,6 +22,8 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -82,6 +84,10 @@ public class MetaCache {
 
         @ColumnInfo
         public String title;
+
+        // from db version 2
+        @ColumnInfo
+        public String author;
     }
 
     @Dao
@@ -106,17 +112,31 @@ public class MetaCache {
         public void delete(Uri... mainFileUris);
     }
 
-    @Database(entities = {CachedMeta.class}, version = 1)
+    @Database(entities = {CachedMeta.class}, version = 2)
     public static abstract class CachedMetaDB extends RoomDatabase {
         private static CachedMetaDB instance = null;
+
+        /**
+         * Version 2 adds an author column
+         *
+         * Thanks to
+         * https://medium.com/androiddevelopers/understanding-migrations-with-room-f01e04b07929
+         */
+        private static final Migration MIGRATION_l_2 = new Migration(1, 2) {
+            @Override
+            public void migrate(SupportSQLiteDatabase database) {
+                database.execSQL(
+                    "ALTER TABLE cachedMeta ADD COLUMN author TEXT"
+                );
+            }
+        };
 
         public static CachedMetaDB getInstance(Context applicationContext) {
             if (instance == null) {
                 instance = Room.databaseBuilder(
-                    applicationContext,
-                    CachedMetaDB.class,
-                    "meta-cache-db"
-                ).build();
+                    applicationContext, CachedMetaDB.class, "meta-cache-db"
+                ).addMigrations(MIGRATION_l_2)
+                .build();
             }
             return instance;
         }
@@ -138,6 +158,7 @@ public class MetaCache {
         public int getPercentFilled() { return dbRow.percentFilled; }
         public String getSource() { return dbRow.source; }
         public String getTitle() { return dbRow.title; }
+        public String getAuthor() { return dbRow.author; }
     }
 
     private Context applicationContext;
@@ -198,6 +219,7 @@ public class MetaCache {
         cm.percentFilled = puz.getPercentFilled();
         cm.source = puz.getSource();
         cm.title = puz.getTitle();
+        cm.author = puz.getAuthor();
 
         getDao().insertAll(cm);
 

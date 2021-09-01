@@ -851,18 +851,40 @@ public class BrowseActivity extends ForkyzActivity {
                 date.setVisibility(View.GONE);
             }
 
-            TextView title = (TextView) view.findViewById(R.id.puzzle_name);
+            String title = pm.getTitle();
+            String caption = pm.getCaption();
+            String author = pm.getAuthor();
 
-            title.setText(pm.getTitle());
+            TextView titleView = (TextView) view.findViewById(R.id.puzzle_name);
 
-            CircleProgressBar bar = (CircleProgressBar) view.findViewById(R.id.puzzle_progress);
+            titleView.setText(title);
+
+            CircleProgressBar bar
+                = (CircleProgressBar) view.findViewById(R.id.puzzle_progress);
 
             bar.setPercentFilled(pm.getFilled());
             bar.setComplete(pm.getComplete() == 100);
 
-            TextView caption = (TextView) view.findViewById(R.id.puzzle_caption);
+            TextView captionView
+                = (TextView) view.findViewById(R.id.puzzle_caption);
 
-            caption.setText(pm.getCaption());
+            // add author if not already in title or caption
+            // case insensitive trick:
+            // https://www.baeldung.com/java-case-insensitive-string-matching
+            boolean addAuthor
+                = author.length() > 0
+                    && !title.matches("(?i).*" + author + ".*")
+                    && !caption.matches("(?i).*" + author + ".*");
+
+            if (addAuthor) {
+                captionView.setText(
+                    view.getContext().getString(
+                        R.string.puzzle_caption_with_author, caption, author
+                    )
+                );
+            } else {
+                captionView.setText(caption);
+            }
 
             setListItemColor(view, selected.contains(pm));
         }

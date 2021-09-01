@@ -98,6 +98,11 @@ public class PuzMetaFile
         }
     }
 
+    public String getAuthor() {
+        String author = (meta == null) ? null : meta.getAuthor();
+        return (author == null) ? "" : author;
+    }
+
     @Override
     public String toString(){
         return getHandler().getUri(handle.getMainFileHandle()).toString();
