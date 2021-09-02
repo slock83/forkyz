@@ -48,7 +48,7 @@ discouraged from sending key events.
 
 ## Compilation
 
-Gradle should compile fine.
+Gradle should compile fine as long as you have Java 11 or above.
 
     $ ./gradlew assembleRelease
 
