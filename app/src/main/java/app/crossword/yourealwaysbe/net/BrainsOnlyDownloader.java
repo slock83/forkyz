@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 public class BrainsOnlyDownloader extends AbstractDownloader {
 
     private final DateTimeFormatter df
-        = DateTimeFormatter.ofPattern("yyyyMMdd");
+        = DateTimeFormatter.ofPattern("yyMMdd");
 
     public BrainsOnlyDownloader(
         String baseUrl, String fullName, String supportUrl
