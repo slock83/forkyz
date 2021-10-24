@@ -134,6 +134,15 @@
             android:entryValues="@array/keyboardShowHideValues"
         />
 
+        <androidx.preference.ListPreference
+            android:title="@string/keyboard_layout"
+            android:summary="@string/keyboard_layout_desc"
+            android:key="keyboardLayout"
+            android:defaultValue="0"
+            android:entries="@array/keyboardLayoutsLabels"
+            android:entryValues="@array/keyboardLayoutsValues"
+        />
+
         <androidx.preference.CheckBoxPreference
             android:title="@string/snap_current"
             android:defaultValue="false"

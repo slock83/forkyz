@@ -13,6 +13,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.content.Context;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.os.Handler;
 import android.os.Looper;
@@ -30,6 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.core.view.LayoutInflaterCompat;
+import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import java.util.logging.Logger;
@@ -43,6 +46,14 @@ public class ForkyzKeyboard
 
     private static final String FORKYZ_TEXT_KEY = "ForkyzTextKey";
     private static final String FORKYZ_IMAGE_KEY = "ForkyzImageKey";
+    private static final String PREF_KEYBOARD_LAYOUT = "keyboardLayout";
+    private static final String DEFAULT_KEYBOARD_LAYOUT = "0";
+    private static final int[] KEYBOARD_LAYOUTS = {
+        R.layout.forkyz_keyboard_qwerty,
+        R.layout.forkyz_keyboard_qwertz,
+        R.layout.forkyz_keyboard_dvorak,
+        R.layout.forkyz_keyboard_colemak
+    };
 
     private static final int KEY_REPEAT_DELAY = 300;
     private static final int KEY_REPEAT_INTERVAL = 75;
@@ -72,12 +83,23 @@ public class ForkyzKeyboard
 
     private Handler handler = new Handler(Looper.getMainLooper());
 
-    private SparseArray<KeyActor> keyActors = new SparseArray<>();
-    private SparseArray<Timer> keyTimers = new SparseArray<>();
+    private SparseArray<KeyActor> keyActors;
+    private SparseArray<Timer> keyTimers;
     private InputConnection inputConnection;
     private int countKeysDown = 0;
-    private List<Integer> specialKeyViewIds = new ArrayList<>();
+    private List<Integer> specialKeyViewIds;
     private SpecialKeyListener specialKeyListener = null;
+
+    private OnSharedPreferenceChangeListener prefChangeListener
+        = new OnSharedPreferenceChangeListener() {
+            public void onSharedPreferenceChanged(
+                SharedPreferences prefs, String key
+            ) {
+                if (PREF_KEYBOARD_LAYOUT.equals(key))
+                    createView(getContext());
+            }
+        };
+
 
     public ForkyzKeyboard(Context context) {
         this(context, null, 0);
@@ -92,18 +114,17 @@ public class ForkyzKeyboard
     ) {
         super(context, attrs, defStyleAttr);
         setFocusable(false);
-        init(context, attrs);
+        createView(context);
+
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .registerOnSharedPreferenceChangeListener(prefChangeListener);
     }
 
     /**
      * Call when activity paused to cancel unfinished key repeats
      */
     public synchronized void onPause() {
-        for (int i = 0; i < keyTimers.size(); i++) {
-            Timer timer = keyTimers.valueAt(i);
-            if (timer != null)
-                timer.cancel();
-        }
+        cancelKeyTimers();
     }
 
     @Override
@@ -157,7 +178,13 @@ public class ForkyzKeyboard
         SpecialKeyListener specialKeyListener
     ) {
         this.specialKeyListener = specialKeyListener;
+        setupSpecialKeys();
+    }
 
+    /**
+     * Make special keys visible, reactive if listener available
+     */
+    private synchronized void setupSpecialKeys() {
         if (this.specialKeyListener == null) {
             setSpecialKeyVisibilty(View.INVISIBLE);
             for (int viewId : specialKeyViewIds) {
@@ -178,14 +205,47 @@ public class ForkyzKeyboard
     private synchronized void countKeyDown() { countKeysDown++; }
     private synchronized void countKeyUp() { countKeysDown--; }
 
-    private void init(Context context, AttributeSet attrs) {
+    private synchronized void createView(Context context) {
+        // clear any old state (if config change)
+        cancelKeyTimers();
+        removeAllViews();
+        keyActors = new SparseArray<>();
+        keyTimers = new SparseArray<>();
+        specialKeyViewIds = new ArrayList<>();;
+
+        // inflate new state
         LayoutInflater inflater
             = LayoutInflater.from(context).cloneInContext(context);
         LayoutInflaterCompat.setFactory2(inflater, new FKFactory());
-        inflater.inflate(R.layout.forkyz_keyboard, this, true);
+        inflater.inflate(getKeyboardLayout(context), this, true);
 
         // initially hide unless special key listener is set
-        setSpecialKeyVisibilty(View.INVISIBLE);
+        setupSpecialKeys();
+    }
+
+    private int getKeyboardLayout(Context context) {
+        // Determines keyboard layout based on shared preferences
+        // I'm not fully keen on this -- it would be nice to keep app settings
+        // out of here. But the alternative of inflating with a default layout
+        // then having the KeyboardManager reinflating if needed seems like
+        // overkill.
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String keyboardLayoutString = prefs.getString(
+            PREF_KEYBOARD_LAYOUT, DEFAULT_KEYBOARD_LAYOUT
+        );
+
+        try {
+            int keyboardLayout = Integer.valueOf(keyboardLayoutString);
+
+            if (keyboardLayout < 0 || keyboardLayout >= KEYBOARD_LAYOUTS.length)
+                keyboardLayout = Integer.valueOf(DEFAULT_KEYBOARD_LAYOUT);
+
+            return KEYBOARD_LAYOUTS[keyboardLayout];
+        } catch (NumberFormatException e) {
+            return KEYBOARD_LAYOUTS[Integer.valueOf(DEFAULT_KEYBOARD_LAYOUT)];
+        }
     }
 
     private synchronized void setSpecialKeyVisibilty(int visibility) {
@@ -265,11 +325,25 @@ public class ForkyzKeyboard
     }
 
     private synchronized void cancelKeyTimer(int keyId) {
+        if (keyTimers == null)
+            return;
+
         Timer timer = keyTimers.get(keyId);
         if (timer != null) {
             timer.cancel();
             // no point keeping references to expired timers
             keyTimers.put(keyId, null);
+        }
+    }
+
+    private synchronized void cancelKeyTimers() {
+        if (keyTimers == null)
+            return;
+
+        for (int i = 0; i < keyTimers.size(); i++) {
+            Timer timer = keyTimers.valueAt(i);
+            if (timer != null)
+                timer.cancel();
         }
     }
 

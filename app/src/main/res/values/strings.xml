@@ -128,6 +128,8 @@
     <string name="cleanup_archives_desc">Determines how old an archived puzzle must be before it is deleted.</string>
     <string name="keyboard_showhide">Show/Hide In-App Keyboard</string>
     <string name="keyboard_showhide_desc">The show/hide behaviour of the in-app keyboard.</string>
+    <string name="keyboard_layout">Keyboard Layout</string>
+    <string name="keyboard_layout_desc">The layout of the in-app keyboard.</string>
     <string name="snap_current">Snap to Current Word</string>
     <string name="snap_current_desc">Toggles the auto-scrolling of the playboard to the current play position</string>
     <string name="show_length">Show Length</string>
@@ -350,4 +352,9 @@
     <string name="keyboard_show_sparingly">Show sparingly</string>
     <string name="keyboard_show_sparingly_desc">Hide keyboard on clue change</string>
     <string name="keyboard_never_show">Never show</string>
+
+    <string name="keyboard_qwerty">QWERTY</string>
+    <string name="keyboard_qwertz">QWERTZ</string>
+    <string name="keyboard_dvorak">Dvorak</string>
+    <string name="keyboard_colemak">Colemak</string>
 </resources>
