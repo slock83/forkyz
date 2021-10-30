@@ -353,6 +353,10 @@ public class Downloaders {
             ));
         }
 
+        if (prefs.getBoolean("downloadCustomDaily", true)) {
+            downloaders.add(new CustomDailyDownloader(prefs));
+        }
+
         if (prefs.getBoolean("downloadWsj", true)) {
             downloaders.add(new WSJFridayDownloader());
             downloaders.add(new WSJSaturdayDownloader());

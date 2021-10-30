@@ -50,4 +50,26 @@
         android:summary="@string/updates_mon_sat"
         android:key="downloadUSAToday"
     />
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/custom_daily"
+    >
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/custom"
+            android:defaultValue="false"
+            android:summary="@string/custom_desc"
+            android:key="downloadCustomDaily"
+        />
+        <androidx.preference.EditTextPreference
+            android:title="@string/custom_title"
+            android:summary="@string/custom_title_desc"
+            android:key="customDailyTitle"
+        />
+        <androidx.preference.EditTextPreference
+            android:title="@string/custom_link"
+            android:summary="@string/custom_link_desc"
+            android:key="customDailyLink"
+            android:inputType="textUri"
+        />
+    </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

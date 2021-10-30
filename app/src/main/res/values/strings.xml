@@ -208,6 +208,17 @@
     <string name="keglars_cryptics">Kegler\'s Kryptics</string>
     <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html\n(Please Read the help item below)</string>
     <string name="about_scrapes">About These Sources</string>
+    
+    <!-- preferences custom -->
+    <string name="custom_daily">Custom daily source</string>
+    <string name="custom_daily_title">Custom daily</string>
+    <string name="custom_weekly">Custom weekly source</string>
+    <string name="custom">Select source</string>
+    <string name="custom_desc">Specify source link below</string>
+    <string name="custom_title">Puzzle name</string>
+    <string name="custom_title_desc">Enter title for puzzle list</string>
+    <string name="custom_link">Source link</string>
+    <string name="custom_link_desc">Enter link formatted according to Java\'s DateTimeFormatter</string>
 
     <!-- menus general -->
     <string name="help">Help</string>
