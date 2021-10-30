@@ -66,9 +66,9 @@
             android:key="customDailyTitle"
         />
         <androidx.preference.EditTextPreference
-            android:title="@string/custom_link"
-            android:summary="@string/custom_link_desc"
-            android:key="customDailyLink"
+            android:title="@string/custom_url"
+            android:summary="@string/custom_url_desc"
+            android:key="customDailyUrl"
             android:inputType="textUri"
         />
     </androidx.preference.PreferenceCategory>

@@ -353,10 +353,6 @@ public class Downloaders {
             ));
         }
 
-        if (prefs.getBoolean("downloadCustomDaily", true)) {
-            downloaders.add(new CustomDailyDownloader(prefs));
-        }
-
         if (prefs.getBoolean("downloadWsj", true)) {
             downloaders.add(new WSJFridayDownloader());
             downloaders.add(new WSJSaturdayDownloader());
@@ -380,6 +376,20 @@ public class Downloaders {
             ));
         }
 
+        addCustomDownloaders(downloaders);
+
         return downloaders;
+    }
+
+    private void addCustomDownloaders(List<Downloader> downloaders) {
+        if (prefs.getBoolean("downloadCustomDaily", true)) {
+            String title = prefs.getString("customDailyTitle", "");
+            String urlDateFormatPattern
+                = prefs.getString("customDailyUrl", "");
+
+            downloaders.add(
+                new CustomDailyDownloader(title, urlDateFormatPattern)
+            );
+        }
     }
 }
