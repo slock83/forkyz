@@ -55,6 +55,11 @@ public abstract class FileHandler {
     public static final String FILE_EXT_FORKYZ = ".forkyz";
     public static final String FILE_EXT_IPUZ = ".ipuz";
 
+    // the file extensions forkyz supports as backend storage
+    public static final String[] FORKYZ_STORED_PUZZLE_EXTS = new String[] {
+        FILE_EXT_PUZ, FILE_EXT_IPUZ
+    };
+
     // used for saving meta cache to DB since we currently save puzzles
     // on the main thread (can be removed if/when a better save solution
     // is implemented)
@@ -421,13 +426,14 @@ public abstract class FileHandler {
      * @return puzzle file name or null if not a puzzle file
      */
     private String getPuzzleFileName(String fileName) {
-        if (fileName.endsWith(FILE_EXT_PUZ)) {
-            return fileName.substring(
-                0, fileName.length() - FILE_EXT_PUZ.length()
-            );
-        } else {
-            return null;
+        for (String storedExt : FORKYZ_STORED_PUZZLE_EXTS) {
+            if (fileName.endsWith(storedExt)) {
+                return fileName.substring(
+                    0, fileName.length() - storedExt.length()
+                );
+            }
         }
+        return null;
     }
 
     private synchronized Puzzle load(PuzHandle.Puz ph) throws IOException {
