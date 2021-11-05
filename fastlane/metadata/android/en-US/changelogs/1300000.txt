@@ -1,0 +1,4 @@
+<ul>
+<li>Support for QWERTZ, Colemak and Dvorak keyboard layouts.</li>
+<li>Custom daily .puz source added to downloads.</li>
+</ul>
