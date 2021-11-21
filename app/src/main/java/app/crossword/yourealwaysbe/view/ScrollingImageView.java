@@ -167,13 +167,17 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
         int currentMinY = this.getScrollY();
         int currentMaxY = this.getHeight() + this.getScrollY();
 
-        if ((x < currentMinX) || (x > currentMaxX)) {
+        if (x < currentMinX) {
+            this.scrollTo(x, this.getScrollY());
+        } else if (x > currentMaxX) {
             this.scrollTo(
                 (x > maxScrollX) ? maxScrollX : (x), this.getScrollY()
             );
         }
 
-        if ((y < currentMinY) || (y > currentMaxY)) {
+        if (y < currentMinY) {
+            this.scrollTo(this.getScrollX(), y);
+        } else if (y > currentMaxY) {
             this.scrollTo(
                 this.getScrollX(), (y > maxScrollY) ? maxScrollY : (y)
             );
