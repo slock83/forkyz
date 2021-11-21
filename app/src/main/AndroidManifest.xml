@@ -61,35 +61,42 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/app_name"
             android:theme="@style/Theme.Forkyz"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            android:exported="false"
+        >
         </activity>
         <activity
             android:name="app.crossword.yourealwaysbe.PreferencesActivity"
             android:label="@string/settings_label"
             android:theme="@style/Theme.Forkyz"
-            />
+            android:exported="false"
+        />
         <activity
             android:name="app.crossword.yourealwaysbe.ClueListActivity"
             android:label="@string/clues_list_label"
             android:theme="@style/Theme.Forkyz"
             android:configChanges="orientation"
+            android:exported="false"
         />
         <activity
             android:name="app.crossword.yourealwaysbe.NotesActivity"
             android:label="@string/notes_label"
             android:theme="@style/Theme.Forkyz"
+            android:exported="false"
         />
         <activity
             android:name="app.crossword.yourealwaysbe.HTMLActivity"
             android:label="@string/html_label"
             android:theme="@style/Theme.Forkyz"
-            />
+            android:exported="false"
+        />
         <activity
             android:name="app.crossword.yourealwaysbe.BrowseActivity"
             android:label="@string/app_name"
             android:configChanges="orientation"
             android:theme="@style/Theme.Forkyz"
             tools:ignore="AppLinkUrlError"
+            android:exported="true"
         >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -108,7 +115,9 @@
         <activity
             android:name="app.crossword.yourealwaysbe.PuzzleFinishedActivity"
             android:label="@string/puzzle_completed_label"
-            android:theme="@style/Theme.AppCompat.Dialog"/>
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:exported="false"
+        />
 
         <service
             android:name="app.crossword.yourealwaysbe.service.BackgroundDownloadService"
