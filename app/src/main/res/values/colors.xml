@@ -25,5 +25,6 @@
     <color name="progressError">#ff4a4d</color>
     <color name="keyboardDivider">#d5d5d5</color>
     <color name="speedDialTint">#ff669900</color>
+    <color name="speedDialIconTint">#fff</color>
     <color name="screenFade">#66eaeaea</color>
 </resources>

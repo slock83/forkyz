@@ -89,6 +89,7 @@
     <style name="speedDialStyle" parent="Theme.Forkyz">
         <item name="colorPrimary">@color/speedDialTint</item>
         <item name="colorAccent">@color/speedDialTint</item>
+        <item name="colorOnSecondary">@color/speedDialIconTint</item>
     </style>
 
     <style name="speedDialOverlayStyle" parent="Theme.Forkyz">
