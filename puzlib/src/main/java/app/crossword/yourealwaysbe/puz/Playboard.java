@@ -67,8 +67,7 @@ public class Playboard implements Serializable {
             }
         }
 
-        if (getCurrentBox() == null)
-            this.moveRight(false);
+        ensureClueSelected();
 
         updateHistory();
     }
@@ -1115,6 +1114,17 @@ public class Playboard implements Serializable {
             if (c != null)
                 puzzle.updateHistory(c.getNumber(), c.getIsAcross());
         }
+    }
+
+    private void ensureClueSelected() {
+        if (getCurrentBox() == null)
+            this.moveRight(false);
+
+        Box current = getCurrentBox();
+        if (isAcross() && !current.isPartOfAcross())
+            setAcross(false);
+        else if (!isAcross() && !current.isPartOfDown())
+            setAcross(true);
     }
 
     /**
