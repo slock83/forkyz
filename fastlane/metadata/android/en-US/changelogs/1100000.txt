@@ -1,0 +1,4 @@
+<ul>
+<li>Add change clue and direction buttons to keyboard.</li>
+<li>Show puzzle author on browse screen.</li>
+</ul>
