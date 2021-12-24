@@ -11,7 +11,7 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 
 @TargetApi(Build.VERSION_CODES.O)
-public class OreoUtil extends LollipopUtil {
+public class OreoUtil extends MarshmallowUtil {
 
     @Override
     public void createNotificationChannel(Context context) {

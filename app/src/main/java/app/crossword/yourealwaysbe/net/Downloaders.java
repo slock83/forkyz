@@ -14,6 +14,7 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -195,7 +196,9 @@ public class Downloaders {
             );
             Intent notificationIntent = new Intent(context, PlayActivity.class);
             PendingIntent contentIntent = PendingIntent.getActivity(
-                context, 0, notificationIntent, 0
+                context, 0, notificationIntent,
+                AndroidVersionUtils
+                    .Factory.getInstance().immutablePendingIntentFlag()
             );
 
             not.setContentText(contentText)
@@ -234,8 +237,11 @@ public class Downloaders {
     private void postDownloadedGeneral() {
         Intent notificationIntent = new Intent(Intent.ACTION_EDIT, null,
                 context, BrowseActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                notificationIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+            context, 0, notificationIntent,
+            AndroidVersionUtils
+                .Factory.getInstance().immutablePendingIntentFlag()
+        );
 
         Notification not = new NotificationCompat.Builder(context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -252,8 +258,11 @@ public class Downloaders {
     private void postDownloadedNotification(int i, String name) {
         Intent notificationIntent = new Intent(Intent.ACTION_EDIT, null,
                 context, BrowseActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                notificationIntent, 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+            context, 0, notificationIntent,
+            AndroidVersionUtils
+                .Factory.getInstance().immutablePendingIntentFlag()
+        );
 
         Notification not
             = new NotificationCompat.Builder(

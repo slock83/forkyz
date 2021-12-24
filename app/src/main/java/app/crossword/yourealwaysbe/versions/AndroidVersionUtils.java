@@ -37,6 +37,9 @@ public interface AndroidVersionUtils {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 return INSTANCE = new OreoUtil();
             }
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                return INSTANCE = new MarshmallowUtil();
+            }
             else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 return INSTANCE = new LollipopUtil();
             }
@@ -73,4 +76,6 @@ public interface AndroidVersionUtils {
     void clearBackgroundDownload(SharedPreferences prefs);
 
     void createNotificationChannel(Context context);
+
+    int immutablePendingIntentFlag();
 }

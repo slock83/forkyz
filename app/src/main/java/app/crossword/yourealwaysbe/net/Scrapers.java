@@ -8,10 +8,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.core.app.NotificationCompat;
 
-import app.crossword.yourealwaysbe.PlayActivity;
 import app.crossword.yourealwaysbe.BrowseActivity;
+import app.crossword.yourealwaysbe.PlayActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,9 @@ public class Scrapers {
                 Intent notificationIntent
                     = new Intent(context, PlayActivity.class);
                 PendingIntent contentIntent = PendingIntent.getActivity(
-                    context, 0, notificationIntent, 0
+                    context, 0, notificationIntent,
+                    AndroidVersionUtils
+                        .Factory.getInstance().immutablePendingIntentFlag()
                 );
                 not.setContentText(contentText).setContentIntent(contentIntent);
 
@@ -92,7 +95,9 @@ public class Scrapers {
             Intent.ACTION_EDIT, null, context, BrowseActivity.class
         );
         PendingIntent contentIntent = PendingIntent.getActivity(
-            context, 0, notificationIntent, 0
+            context, 0, notificationIntent,
+            AndroidVersionUtils
+                .Factory.getInstance().immutablePendingIntentFlag()
         );
 
         Notification not = new NotificationCompat.Builder(

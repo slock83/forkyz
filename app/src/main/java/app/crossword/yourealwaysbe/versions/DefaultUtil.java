@@ -25,4 +25,6 @@ public abstract class DefaultUtil implements AndroidVersionUtils {
 
     public abstract void clearBackgroundDownload(SharedPreferences prefs);
 
+    @Override
+    public abstract int immutablePendingIntentFlag();
 }

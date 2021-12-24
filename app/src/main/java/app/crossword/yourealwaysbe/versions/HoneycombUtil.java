@@ -139,5 +139,8 @@ public class HoneycombUtil extends DefaultUtil {
 
     }
 
-
+    @Override
+    public int immutablePendingIntentFlag() {
+        return 0;
+    }
 }
