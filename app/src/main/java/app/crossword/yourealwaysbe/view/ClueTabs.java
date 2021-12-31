@@ -315,7 +315,6 @@ public class ClueTabs extends LinearLayout
 
         @Override
         public void onBindViewHolder(ClueListHolder holder, int position) {
-            Playboard board = ClueTabs.this.board;
             holder.setContents(getPageType(position));
         }
 
