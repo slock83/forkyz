@@ -250,6 +250,11 @@
     <string name="info">Info</string>
     <string name="support_puzzle_source">Support Puzzle Source</string>
 
+    <!-- Clue Tabs -->
+    <string name="clue_tab_across">Across</string>
+    <string name="clue_tab_down">Down</string>
+    <string name="clue_tab_history">History</string>
+
     <!-- playboard -->
     <!-- args: description, response, across clue info, down clue info, if
     numbered, if circled, if error -->

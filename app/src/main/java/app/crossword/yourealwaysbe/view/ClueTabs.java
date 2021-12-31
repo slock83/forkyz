@@ -138,12 +138,20 @@ public class ClueTabs extends LinearLayout
             }
         );
 
+        Context context = getContext();
+
         new TabLayoutMediator(tabLayout, viewPager,
             (tab, position) -> {
                 switch (position) {
-                case ACROSS_PAGE_INDEX: tab.setText("Across"); break;
-                case DOWN_PAGE_INDEX: tab.setText("Down"); break;
-                case HISTORY_PAGE_INDEX: tab.setText("History"); break;
+                case ACROSS_PAGE_INDEX:
+                    tab.setText(context.getString(R.string.clue_tab_across));
+                    break;
+                case DOWN_PAGE_INDEX:
+                    tab.setText(context.getString(R.string.clue_tab_down));
+                    break;
+                case HISTORY_PAGE_INDEX:
+                    tab.setText(context.getString(R.string.clue_tab_history));
+                    break;
                 }
             }
         ).attach();
