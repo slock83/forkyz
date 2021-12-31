@@ -195,6 +195,7 @@ public class Playboard implements Serializable {
         Word w = new Word();
         w.start = this.getCurrentWordStart();
         w.across = this.isAcross();
+        w.number = this.getClueNumber();
         w.length = this.getWordRange();
 
         return w;
@@ -1075,6 +1076,7 @@ public class Playboard implements Serializable {
     public static class Word implements Serializable {
         public Position start;
         public boolean across;
+        public int number;
         public int length;
 
         public boolean checkInWord(int across, int down) {
@@ -1088,6 +1090,10 @@ public class Playboard implements Serializable {
 
         @Override
         public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            }
+
             if (o.getClass() != Word.class) {
                 return false;
             }

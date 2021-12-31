@@ -2,6 +2,7 @@ package app.crossword.yourealwaysbe.view;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
@@ -253,8 +254,6 @@ public class ClueTabs extends LinearLayout
         boolean wholeBoard, Word currentWord, Word previousWord
     ) {
         if (viewPager != null) {
-            viewPager.getAdapter().notifyDataSetChanged();
-
             if (isSnapToClue()) {
                 if (board.isAcross())
                     viewPager.setCurrentItem(ACROSS_PAGE_INDEX);
@@ -337,7 +336,10 @@ public class ClueTabs extends LinearLayout
         }
     }
 
-    private class ClueListHolder extends RecyclerView.ViewHolder {
+    private class ClueListHolder
+            extends RecyclerView.ViewHolder
+            implements Playboard.PlayboardListener {
+
         private RecyclerView clueList;
         private ClueListAdapter clueListAdapter;
         private LinearLayoutManager layoutManager;
@@ -348,17 +350,43 @@ public class ClueTabs extends LinearLayout
             Context context = itemView.getContext();
             clueList = view.findViewById(R.id.tabClueList);
 
-            layoutManager
-                = new LinearLayoutManager(context);
+            layoutManager = new LinearLayoutManager(context);
             clueList.setLayoutManager(layoutManager);
             clueList.setItemAnimator(new DefaultItemAnimator());
             clueList.addItemDecoration(
                 new DividerItemDecoration(context,
                                           DividerItemDecoration.VERTICAL)
             );
+
+            ClueTabs.this.board.addListener(this);
+        }
+
+
+        public void onPlayboardChange(
+            boolean wholeBoard, Word currentWord, Word previousWord
+        ) {
+            if (clueListAdapter == null)
+                return;
+
+            if (wholeBoard) {
+                clueListAdapter.notifyDataSetChanged();
+                return;
+            }
+
+            if (previousWord == null) {
+                clueListAdapter.notifyClueSelectionChange(
+                    currentWord.across, currentWord.number
+                );
+            } else {
+                clueListAdapter.notifyClueSelectionChange(
+                    currentWord.across, currentWord.number,
+                    previousWord.across, previousWord.number
+                );
+            }
         }
 
         public void setContents(PageType pageType) {
+
             Playboard board = ClueTabs.this.board;
             Puzzle puz = board.getPuzzle();
 
@@ -367,10 +395,7 @@ public class ClueTabs extends LinearLayout
                 case ACROSS:
                 case DOWN:
                     boolean across = pageType == PageType.ACROSS;
-
-                    List<Clue> clues = new ArrayList<Clue>(
-                        puz.getClues(across).getClues()
-                    );
+                    ClueList clues = puz.getClues(across);
 
                     clueListAdapter = new AcrossDownAdapter(clues, across);
                     clueList.setAdapter(clueListAdapter);
@@ -425,29 +450,68 @@ public class ClueTabs extends LinearLayout
                                                    false);
             return new ClueViewHolder(clueView, showDirection);
         }
+
+        /**
+         * Notify clue selection without previous word
+         */
+        public abstract void notifyClueSelectionChange(
+            boolean curAcross, int curNumber
+        );
+
+        public abstract void notifyClueSelectionChange(
+            boolean curAcross, int curNumber,
+            boolean prevAcross, int prevNumber
+        );
     }
 
     private class AcrossDownAdapter extends ClueListAdapter {
-        private List<Clue> clueList;
+        private ClueList clueList;
+        private List<Clue> rawClueList;
         private boolean across;
 
-        public AcrossDownAdapter(List<Clue> clueList,
-                                 boolean across) {
+        public AcrossDownAdapter(ClueList clueList, boolean across) {
             super(false);
             this.clueList = clueList;
             this.across = across;
+            this.rawClueList = new ArrayList<Clue>(clueList.getClues());
         }
 
         @Override
         public void onBindViewHolder(ClueViewHolder holder, int position) {
             // plus one because first item not shown (it is current clue)
-            Clue clue = clueList.get(position);
+            Clue clue = rawClueList.get(position);
             holder.setClue(clue);
         }
 
         @Override
         public int getItemCount() {
             return clueList.size();
+        }
+
+        @Override
+        public void notifyClueSelectionChange(
+            boolean curAcross, int curNumber
+        ) {
+            if (curAcross == across) {
+                int index = clueList.getClueIndex(curNumber);
+                if (index > -1) {
+                    notifyItemChanged(index);
+                }
+            }
+        }
+
+        @Override
+        public void notifyClueSelectionChange(
+            boolean curAcross, int curNumber,
+            boolean prevAcross, int prevNumber
+        ) {
+            if (prevAcross == across) {
+                int index = clueList.getClueIndex(prevNumber);
+                if (index > -1) {
+                    notifyItemChanged(index);
+                }
+            }
+            notifyClueSelectionChange(curAcross, curNumber);
         }
     }
 
@@ -479,6 +543,23 @@ public class ClueTabs extends LinearLayout
         @Override
         public int getItemCount() {
             return historyList.size();
+        }
+
+        @Override
+        public void notifyClueSelectionChange(
+            boolean curAcross, int curNumber
+        ) {
+            // Can't know old index of current clue without maintaining
+            // own copy of history list
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public void notifyClueSelectionChange(
+            boolean curAcross, int curNumber,
+            boolean prevAcross, int prevNumber
+        ) {
+            notifyClueSelectionChange(curAcross, curNumber);
         }
     }
 
