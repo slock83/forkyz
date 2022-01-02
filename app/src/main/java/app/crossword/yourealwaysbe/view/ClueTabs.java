@@ -478,7 +478,6 @@ public class ClueTabs extends LinearLayout
 
         @Override
         public void onBindViewHolder(ClueViewHolder holder, int position) {
-            // plus one because first item not shown (it is current clue)
             Clue clue = rawClueList.get(position);
             holder.setClue(clue);
         }
