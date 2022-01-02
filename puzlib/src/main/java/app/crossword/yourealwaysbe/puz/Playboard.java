@@ -68,8 +68,10 @@ public class Playboard implements Serializable {
         }
 
         ensureClueSelected();
-
         updateHistory();
+        // there will be no listeners at this point, but the call also
+        // does a bit of bookkeeping / setup for the next use
+        notifyChange();
     }
 
     public void setPreserveCorrectLettersInShowErrors(boolean value){
