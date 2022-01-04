@@ -111,14 +111,6 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
         return maxScale;
     }
 
-    public int getMaxScrollX() {
-        return imageView.getWidth() - this.getWidth();
-    }
-
-    public int getMaxScrollY() {
-        return imageView.getHeight() - this.getHeight();
-    }
-
     public void setMinScale(float minScale) {
         this.minScale = minScale;
     }
@@ -156,31 +148,28 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     }
 
     public void ensureVisible(Point p) {
-        int maxScrollX = this.getMaxScrollX();
-        int x = p.x;
-        int maxScrollY = this.getMaxScrollY();
+        // do not scroll before we have dimensions
+        if (this.getWidth() == 0 || this.getHeight() == 0)
+            return;
 
+        int x = p.x;
         int y = p.y;
 
-        int currentMinX = this.getScrollX();
+        int currentX = this.getScrollX();
         int currentMaxX = this.getWidth() + this.getScrollX();
-        int currentMinY = this.getScrollY();
+        int currentY = this.getScrollY();
         int currentMaxY = this.getHeight() + this.getScrollY();
 
-        if (x < currentMinX) {
-            this.scrollTo(x, this.getScrollY());
+        if (x < currentX) {
+            this.scrollTo(x, currentY);
         } else if (x > currentMaxX) {
-            this.scrollTo(
-                (x > maxScrollX) ? maxScrollX : (x), this.getScrollY()
-            );
+            this.scrollTo(x - this.getWidth(), currentY);
         }
 
-        if (y < currentMinY) {
-            this.scrollTo(this.getScrollX(), y);
+        if (y < currentY) {
+            this.scrollTo(currentX, y);
         } else if (y > currentMaxY) {
-            this.scrollTo(
-                this.getScrollX(), (y > maxScrollY) ? maxScrollY : (y)
-            );
+            this.scrollTo(currentX, y - this.getHeight());
         }
     }
 
