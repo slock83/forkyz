@@ -29,7 +29,7 @@ The majority of the links on this page come from [Michael F. Gill
 * [Neville Fogarty][neville-fogarty].
 * [Tough as Nails][tough-as-nails] -- by Stella Zawistowski.
 * [Beneath the Surface][beneath-the-surface] -- by Kyle Dolan.
-* [Cryptivore][cryptivore] -- "and other mysteries of life".
+* Cryptivore -- "and other mysteries of life" -- email cryptivoresubscription@gmail.com to subscribe.
 * [Avid Puzzler][avid-puzzler] -- by David Gold.
 * [Mad Dog Cryptics][mad-dog-cryptics] -- by Terry Brennan.
 * [Loplop Cryptics][loplop-cryptics].
