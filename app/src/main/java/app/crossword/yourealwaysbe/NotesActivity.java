@@ -126,7 +126,9 @@ public class NotesActivity extends PuzzleActivity {
                     NotesActivity.this.executeTransferResponseRequest(
                         TransferResponseRequest.BOARD_TO_SCRATCH, true
                     );
-                } else if (id == R.id.anagramSolution) {
+                } else if (
+                    id == R.id.anagramSolution || id == R.id.anagramSource
+                ) {
                     NotesActivity.this.executeTransferResponseRequest(
                         TransferResponseRequest.BOARD_TO_ANAGRAM_SOL, true
                     );
