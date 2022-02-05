@@ -89,28 +89,34 @@ public class Puzzle implements Serializable{
         }
     }
 
-    private static boolean somethingAbove(Box[][] boxes, int row, int col) {
+    private static boolean joinedAbove(Box[][] boxes, int row, int col) {
         return checkedGet(boxes, row - 1, col) != null;
     }
 
-    private static boolean somethingBelow(Box[][]boxes, int row, int col) {
+    private static boolean joinedBelow(Box[][]boxes, int row, int col) {
         return checkedGet(boxes, row + 1, col) != null;
     }
 
-    private static boolean somethingLeftOf(Box[][] boxes, int row, int col) {
+    private static boolean joinedLeft(Box[][] boxes, int row, int col) {
         return checkedGet(boxes, row, col - 1) != null;
     }
 
-    private static boolean somethingRightOf(Box[][] boxes, int row, int col) {
+    private static boolean joinedRight(Box[][] boxes, int row, int col) {
         return checkedGet(boxes, row, col + 1) != null;
     }
 
     /**
      * Will automatically fill in clue numbers
      *
-     * Follows standard crossword rules. Overrides any existing
-     * numbering on the boxes. This may be something that needs to
-     * change in future. Also sets height and width.
+     * Follows standard crossword rules: read left to right, top to
+     * bottom. The start of an across clue is when a box is not joined
+     * to something on the left, but is joined to something on the
+     * right. Similarly for down clues.
+     *
+     * This may be something that needs to change in future.
+     *
+     * Also sets height and width and fills in "is part of clue" info in
+     * boxes.
      *
      * @param boxes boxes in row, col order, null means black square.
      * Must be a true grid.
@@ -139,15 +145,15 @@ public class Puzzle implements Serializable{
                 }
 
                 boolean tickedClue = false;
-                if (!somethingAbove(boxes, row, col)) {
-                    if (somethingBelow(boxes, row, col)) {
+                if (!joinedAbove(boxes, row, col)) {
+                    if (joinedBelow(boxes, row, col)) {
                         boxes[row][col].setDown(true);
                         tickedClue = true;
                     }
                 }
 
-                if (!somethingLeftOf(boxes, row, col)) {
-                    if (somethingRightOf(boxes, row, col)) {
+                if (!joinedLeft(boxes, row, col)) {
+                    if (joinedRight(boxes, row, col)) {
                         boxes[row][col].setAcross(true);
                         tickedClue = true;
                     }
@@ -187,7 +193,6 @@ public class Puzzle implements Serializable{
             maxRowLen = java.lang.Math.max(maxRowLen, boxes[row].length);
             for (int col = 0; col < boxes[row].length; col++) {
                 if (boxes[row][col] == null) {
-                    lastAcross = -1;
                     continue;
                 }
 
@@ -201,6 +206,10 @@ public class Puzzle implements Serializable{
                     boxes[row][col].setAcrossPosition(acrossPosition);
                     acrossPosition++;
                 }
+
+                if (!joinedRight(boxes, row, col)) {
+                    lastAcross = -1;
+                }
             }
         }
 
@@ -210,7 +219,6 @@ public class Puzzle implements Serializable{
             int downPosition = -1;
             for (int row = 0; row < boxes.length; row++) {
                 if (col >= boxes[row].length || boxes[row][col] == null) {
-                    lastDown = -1;
                     continue;
                 }
 
@@ -224,9 +232,12 @@ public class Puzzle implements Serializable{
                     boxes[row][col].setDownPosition(downPosition);
                     downPosition++;
                 }
+
+                if (!joinedBelow(boxes, row, col)) {
+                    lastDown = -1;
+                }
             }
         }
-
     }
 
     public Box[][] getBoxes() {
