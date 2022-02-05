@@ -21,9 +21,9 @@ public interface MovementStrategy extends Serializable {
          */
         static boolean isLastWordInDirection(Box[][] boxes, Word w) {
             if (w.across) {
-                return (w.start.across + w.length >= boxes.length);
+                return (w.start.across + w.length >= boxes[w.start.down].length);
             }
-            return (w.start.down + w.length >= boxes[w.start.across].length);
+            return (w.start.down + w.length >= boxes.length);
         }
 
         /**
@@ -78,7 +78,7 @@ public interface MovementStrategy extends Serializable {
                     // special case if this is at the end of the board
                     Position current = board.getHighlightLetter();
                     Box[][] boxes = board.getBoxes();
-                    if (!boxes[current.across][current.down].isBlank()) {
+                    if (!boxes[current.down][current.across].isBlank()) {
                         board.setHighlightLetter(p);
                     }
                 }
@@ -108,8 +108,8 @@ public interface MovementStrategy extends Serializable {
          */
         private boolean moveToNextWord(Playboard board, boolean skipCompletedLetters) {
             Word w = board.getCurrentWord();
-            int currentClueNumber = board.getBoxes()[w.start.across][w.start.down].getClueNumber();
-            int nextClueIndex;
+            int currentClueNumber
+                = board.getBoxes()[w.start.down][w.start.across].getClueNumber();
             boolean nextClueAcross;
             Puzzle puz = board.getPuzzle();
             int nextClueNumber
@@ -136,7 +136,7 @@ public interface MovementStrategy extends Serializable {
         private void moveToPreviousWord(Playboard board) {
             Word w = board.getCurrentWord();
             int currentClueNumber
-                = board.getBoxes()[w.start.across][w.start.down]
+                = board.getBoxes()[w.start.down][w.start.across]
                     .getClueNumber();
             Puzzle puz = board.getPuzzle();
             int previousClueNumber
@@ -260,7 +260,7 @@ public interface MovementStrategy extends Serializable {
                         board.setAcross(w.across);
                     }
                     board.moveDown();
-                    while(board.getClue().getHint() == null && board.getHighlightLetter().down < board.getBoxes()[0].length){
+                    while(board.getClue().getHint() == null && board.getHighlightLetter().down < board.getPuzzle().getHeight()){
                         board.moveDown();
                     }
                     if(board.getClue().getHint() == null){
@@ -277,7 +277,7 @@ public interface MovementStrategy extends Serializable {
                         board.setAcross(w.across);
                     }
                     board.moveRight();
-                    while(board.getClue().getHint() == null && board.getHighlightLetter().across < board.getBoxes().length){
+                    while(board.getClue().getHint() == null && board.getHighlightLetter().across < board.getPuzzle().getWidth()){
                         board.moveRight();
                     }
                     if(board.getClue().getHint() == null){
@@ -323,10 +323,10 @@ public interface MovementStrategy extends Serializable {
             return w;
         }
 
-        private Box getBoxOrNull(Box[][] boxes, int x, int y){
-            if(boxes.length < x){
-                if(boxes[x].length < y){
-                    return boxes[x][y];
+        private Box getBoxOrNull(Box[][] boxes, int row, int col){
+            if(row < boxes.length){
+                if(col < boxes[row].length){
+                    return boxes[row][col];
                 }
             }
             return null;
@@ -344,9 +344,13 @@ public interface MovementStrategy extends Serializable {
             for (int i = 0; i < w.length; i++) {
                 Box nextBox;
                 if (w.across ) {
-                    nextBox = getBoxOrNull(boxes, w.start.across + i, w.start.down + 1);
+                    nextBox = getBoxOrNull(
+                        boxes, w.start.down + 1, w.start.across + i
+                    );
                 } else {
-                    nextBox = getBoxOrNull(boxes, w.start.across + 1, w.start.down + i);
+                    nextBox = getBoxOrNull(
+                        boxes, w.start.down + i, w.start.across + 1
+                    );
                 }
                 if (nextBox != null) {
                     curCount++;
@@ -374,7 +378,7 @@ public interface MovementStrategy extends Serializable {
                 Position lastPos = null;
                 if (w.across) {
                     board.moveUp();
-                    while(!board.getHighlightLetter().equals(lastPos) && board.getClue().getHint() == null && board.getHighlightLetter().down < board.getBoxes()[0].length){
+                    while(!board.getHighlightLetter().equals(lastPos) && board.getClue().getHint() == null && board.getHighlightLetter().down < board.getPuzzle().getHeight()){
                         lastPos = board.getHighlightLetter();
                         board.moveUp();
 
@@ -385,7 +389,7 @@ public interface MovementStrategy extends Serializable {
                     newWord = board.getCurrentWord();
                 } else {
                     board.moveLeft();
-                    while(!board.getHighlightLetter().equals(lastPos) && board.getClue().getHint() == null && board.getHighlightLetter().across < board.getBoxes().length){
+                    while(!board.getHighlightLetter().equals(lastPos) && board.getClue().getHint() == null && board.getHighlightLetter().across < board.getPuzzle().getWidth()){
                         lastPos = board.getHighlightLetter();
                         board.moveLeft();
                     }

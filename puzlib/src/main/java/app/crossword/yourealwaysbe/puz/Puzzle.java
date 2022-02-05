@@ -90,7 +90,7 @@ public class Puzzle implements Serializable{
         return boxes[row][col];
     }
 
-    private static boolean joinedAbove(Box[][] boxes, int row, int col) {
+    private static boolean joinedTop(Box[][] boxes, int row, int col) {
         Box boxAbove = checkedGetBox(boxes, row - 1, col);
 
         if (boxAbove == null)
@@ -99,7 +99,7 @@ public class Puzzle implements Serializable{
         return !(boxes[row][col].isBarredTop() || boxAbove.isBarredBottom());
     }
 
-    private static boolean joinedBelow(Box[][] boxes, int row, int col) {
+    private static boolean joinedBottom(Box[][] boxes, int row, int col) {
         Box boxBelow = checkedGetBox(boxes, row + 1, col);
 
         if (boxBelow == null)
@@ -130,14 +130,14 @@ public class Puzzle implements Serializable{
      * Test if box at position is same clue as the box above
      */
     public boolean joinedTop(int row, int col) {
-        return joinedAbove(boxes, row, col);
+        return joinedTop(boxes, row, col);
     }
 
     /**
      * Test if box at pos is same clue as the box below
      */
     public boolean joinedBottom(int row, int col) {
-        return joinedBelow(boxes, row, col);
+        return joinedBottom(boxes, row, col);
     }
 
     /**
@@ -233,8 +233,8 @@ public class Puzzle implements Serializable{
                 }
 
                 boolean tickedClue = false;
-                if (!joinedAbove(boxes, row, col)) {
-                    if (joinedBelow(boxes, row, col)) {
+                if (!joinedTop(boxes, row, col)) {
+                    if (joinedBottom(boxes, row, col)) {
                         boxes[row][col].setDown(true);
                         tickedClue = true;
                     }
@@ -321,7 +321,7 @@ public class Puzzle implements Serializable{
                     downPosition++;
                 }
 
-                if (!joinedBelow(boxes, row, col)) {
+                if (!joinedBottom(boxes, row, col)) {
                     lastDown = -1;
                 }
             }

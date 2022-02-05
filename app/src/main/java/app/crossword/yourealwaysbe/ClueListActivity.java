@@ -296,7 +296,7 @@ public class ClueListActivity extends PuzzleActivity
                 Position curr = board.getHighlightLetter();
 
                 if (!board.getCurrentWord().equals(w)
-                        || (board.getBoxes()[curr.across][curr.down] == null)) {
+                        || (board.getBoxes()[curr.down][curr.across] == null)) {
                     board.setHighlightLetter(last);
                 }
             }
@@ -311,7 +311,7 @@ public class ClueListActivity extends PuzzleActivity
             Position p = board.getHighlightLetter();
 
             if (!board.getCurrentWord().equals(w)
-                    || (board.getBoxes()[p.across][p.down] == null)) {
+                    || (board.getBoxes()[p.down][p.across] == null)) {
                 board.setHighlightLetter(last);
             }
 

@@ -353,7 +353,7 @@ public class NotesActivity extends PuzzleActivity {
             Position curr = getBoard().getHighlightLetter();
 
             if (!getBoard().getCurrentWord().equals(w)
-                    || (getBoard().getBoxes()[curr.across][curr.down] == null)) {
+                    || (getBoard().getBoxes()[curr.down][curr.across] == null)) {
                 getBoard().setHighlightLetter(last);
             }
 
@@ -368,7 +368,7 @@ public class NotesActivity extends PuzzleActivity {
             Position p = getBoard().getHighlightLetter();
 
             if (!getBoard().getCurrentWord().equals(w)
-                    || (getBoard().getBoxes()[p.across][p.down] == null)) {
+                    || (getBoard().getBoxes()[p.down][p.across] == null)) {
                 getBoard().setHighlightLetter(last);
             }
 
