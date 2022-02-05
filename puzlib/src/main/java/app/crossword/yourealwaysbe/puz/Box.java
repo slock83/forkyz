@@ -19,6 +19,11 @@ public class Box implements Serializable {
     private int acrossPosition;
     private int downPosition;
 
+    private boolean barTop = false;
+    private boolean barBottom = false;
+    private boolean barLeft = false;
+    private boolean barRight = false;
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -79,6 +84,18 @@ public class Box implements Serializable {
             return false;
         }
 
+        if (isBarredTop() != other.isBarredTop())
+            return false;
+
+        if (isBarredBottom() != other.isBarredBottom())
+            return false;
+
+        if (isBarredLeft() != other.isBarredLeft())
+            return false;
+
+        if (isBarredRight() != other.isBarredRight())
+            return false;
+
         return true;
     }
 
@@ -91,6 +108,10 @@ public class Box implements Serializable {
         result = (prime * result) + getClueNumber();
         result = (prime * result) + (isDown() ? 1231 : 1237);
         result = (prime * result) + (isCircled() ? 1231 : 1237);
+        result = (prime * result) + (isBarredTop() ? 1231 : 1237);
+        result = (prime * result) + (isBarredBottom() ? 1231 : 1237);
+        result = (prime * result) + (isBarredLeft() ? 1231 : 1237);
+        result = (prime * result) + (isBarredRight() ? 1231 : 1237);
         result = (prime * result) +
             ((getResponder() == null) ? 0 : getResponder().hashCode());
         result = (prime * result) + getResponse();
@@ -306,5 +327,34 @@ public class Box implements Serializable {
      */
     public int getDownPosition() {
         return downPosition;
+    }
+
+    public boolean isBarredTop() { return barTop; }
+    public boolean isBarredBottom() { return barBottom; }
+    public boolean isBarredLeft() { return barLeft; }
+    public boolean isBarredRight() { return barRight; }
+
+    /**
+     * True if box has any bars
+     */
+    public boolean isBarred() {
+        return isBarredTop() || isBarredBottom()
+            || isBarredLeft() || isBarredRight();
+    }
+
+    public void setBarredTop(boolean barTop) {
+        this.barTop = barTop;
+    }
+
+    public void setBarredBottom(boolean barBottom) {
+        this.barBottom = barBottom;
+    }
+
+    public void setBarredLeft(boolean barLeft) {
+        this.barLeft = barLeft;
+    }
+
+    public void setBarredRight(boolean barRight) {
+        this.barRight = barRight;
     }
 }

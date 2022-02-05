@@ -21,7 +21,11 @@ public class IPuzIOTest extends TestCase {
     }
 
     public static InputStream getTestPuzzle1InputStream() {
-        return JPZIOTest.class.getResourceAsStream("/test.ipuz");
+        return IPuzIOTest.class.getResourceAsStream("/test.ipuz");
+    }
+
+    public static InputStream getTestPuzzle2InputStream() {
+        return IPuzIOTest.class.getResourceAsStream("/barred-test.ipuz");
     }
 
     public static void assertIsTestPuzzle1(Puzzle puz) throws Exception {
@@ -67,6 +71,31 @@ public class IPuzIOTest extends TestCase {
             "Test clue 4 (cont. 1 Across/1 Down) "
                 + "(ref. 1&2 Across) (clues 2/1/3) (3-2-1)"
         );
+    }
+
+    public static void assertIsTestPuzzle2(Puzzle puz) throws Exception {
+        Box[][] boxes = puz.getBoxes();
+
+        assertTrue(boxes[1][1].isBarredTop());
+        assertFalse(boxes[0][2].isBarredBottom());
+        assertTrue(boxes[3][4].isBarredLeft());
+        assertFalse(boxes[3][4].isBarredRight());
+
+        assertEquals(boxes[8][3].getSolution(), 'V');
+        assertEquals(boxes[10][1].getSolution(), 'R');
+        assertEquals(boxes[1][10].getSolution(), 'W');
+
+        assertTrue(boxes[1][2].isCircled());
+        assertFalse(boxes[2][1].isCircled());
+
+        assertEquals(boxes[0][7].getPartOfAcrossClueNumber(), 5);
+        assertEquals(boxes[1][7].getPartOfDownClueNumber(), 6);
+
+        ClueList acrossClues = puz.getClues(true);
+        ClueList downClues = puz.getClues(false);
+
+        assertEquals(acrossClues.getClue(5).getHint(), "Clue 5");
+        assertEquals(downClues.getClue(2).getHint(), "Clue 2d");
     }
 
     /**
@@ -192,6 +221,73 @@ public class IPuzIOTest extends TestCase {
                 = new ByteArrayInputStream(baos.toByteArray());
 
             Puzzle puz2 = IPuzIO.readPuzzle(bais);
+
+            assertEquals(puz, puz2);
+        }
+    }
+
+    public void testIPuzBarred() throws Exception {
+        try (InputStream is = getTestPuzzle2InputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+            assertIsTestPuzzle2(puz);
+        }
+    }
+
+    public void testIPuzReadPlayWriteReadBarred() throws Exception {
+        try (InputStream is = getTestPuzzle2InputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+
+            puz.setSupportUrl("http://test.url");
+            puz.setTime(1234L);
+            puz.setPosition(new Position(1, 2));
+            puz.setAcross(false);
+
+            puz.updateHistory(3, false);
+            puz.updateHistory(1, true);
+
+            puz.setNote(
+                1,
+                new Note("test1", "test2", "test3", "test4"),
+                true
+            );
+            puz.setNote(
+                2,
+                new Note("test5", "test6\nnew line", "test7", "test8"),
+                false
+            );
+
+            Box[][] boxes = puz.getBoxes();
+
+            boxes[0][1].setResponse('X');
+            boxes[1][2].setResponse('Y');
+            boxes[0][1].setResponder("Test");
+            boxes[1][0].setCheated(true);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IPuzIO.writePuzzle(puz, baos);
+            baos.close();
+
+            ByteArrayInputStream bais
+                = new ByteArrayInputStream(baos.toByteArray());
+
+            Puzzle puz2 = IPuzIO.readPuzzle(bais);
+
+            Box[][] boxes2 = puz2.getBoxes();
+
+            assertEquals(puz2.getSupportUrl(), "http://test.url");
+            assertEquals(puz2.getTime(), 1234L);
+            assertEquals(puz.getPosition(), puz2.getPosition());
+            assertFalse(puz.getAcross());
+            assertEquals(puz.getHistory().get(0), new ClueNumDir(1, true));
+            assertEquals(puz.getHistory().get(1), new ClueNumDir(3, false));
+            assertEquals(puz.getNote(1, true).getText(), "test2");
+            assertEquals(puz.getNote(2, false).getText(), "test6\nnew line");
+            assertEquals(puz.getNote(2, false).getAnagramSource(), "test7");
+            assertEquals(boxes2[0][1].getResponse(), 'X');
+            assertEquals(boxes2[1][2].getResponse(), 'Y');
+            assertEquals(boxes2[0][1].getResponder(), "Test");
+            assertFalse(boxes2[0][1].isCheated());
+            assertTrue(boxes2[1][0].isCheated());
 
             assertEquals(puz, puz2);
         }

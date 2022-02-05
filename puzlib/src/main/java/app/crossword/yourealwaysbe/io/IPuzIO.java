@@ -83,8 +83,13 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_VALUE = "value";
     private static final String FIELD_STYLE = "style";
     private static final String FIELD_SHAPE_BG = "shapebg";
+    private static final String FIELD_BARRED = "barred";
 
     private static final String SHAPE_BG_CIRCLE = "circle";
+    private static final char BARRED_TOP = 'T';
+    private static final char BARRED_BOTTOM = 'B';
+    private static final char BARRED_LEFT = 'L';
+    private static final char BARRED_RIGHT = 'R';
 
     private static final String FIELD_CLUES_ACROSS = "Across";
     private static final String FIELD_CLUES_DOWN = "Down";
@@ -427,6 +432,30 @@ public class IPuzIO implements PuzzleParser {
             JSONObject style = json.optJSONObject(FIELD_STYLE);
             if (SHAPE_BG_CIRCLE.equals(style.optString(FIELD_SHAPE_BG))) {
                 box.setCircled(true);
+            }
+
+            String barred = style.optString(FIELD_BARRED);
+            if (barred != null) {
+                barred = barred.toUpperCase();
+                for (int i = 0; i < barred.length(); i++) {
+                    char c = barred.charAt(i);
+                    switch(c) {
+                    case BARRED_TOP:
+                        box.setBarredTop(true);
+                        break;
+                    case BARRED_BOTTOM:
+                        box.setBarredBottom(true);
+                        break;
+                    case BARRED_LEFT:
+                        box.setBarredLeft(true);
+                        break;
+                    case BARRED_RIGHT:
+                        box.setBarredRight(true);
+                        break;
+                    default:
+                        // do nothing
+                    }
+                }
             }
 
             return box;
@@ -1127,12 +1156,30 @@ public class IPuzIO implements PuzzleParser {
                 } else {
                     int clueNumber = box.getClueNumber();
 
-                    if (box.isCircled()) {
+                    if (box.isCircled() || box.isBarred()) {
                         writer.object()
                             .key(FIELD_STYLE)
-                            .object()
-                            .key(FIELD_SHAPE_BG).value(SHAPE_BG_CIRCLE)
-                            .endObject();
+                            .object();
+
+                        if (box.isCircled()) {
+                            writer.key(FIELD_SHAPE_BG).value(SHAPE_BG_CIRCLE);
+                        }
+
+                        if (box.isBarred()) {
+                            String barred = "";
+                            if (box.isBarredTop())
+                                barred += BARRED_TOP;
+                            if (box.isBarredRight())
+                                barred += BARRED_RIGHT;
+                            if (box.isBarredBottom())
+                                barred += BARRED_BOTTOM;
+                            if (box.isBarredLeft())
+                                barred += BARRED_LEFT;
+
+                            writer.key(FIELD_BARRED).value(barred.toString());
+                        }
+
+                        writer.endObject();
 
                         if (clueNumber > 0)
                             writer.key(FIELD_CELL).value(clueNumber);

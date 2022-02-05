@@ -90,19 +90,39 @@ public class Puzzle implements Serializable{
     }
 
     private static boolean joinedAbove(Box[][] boxes, int row, int col) {
-        return checkedGet(boxes, row - 1, col) != null;
+        Box boxAbove = checkedGet(boxes, row - 1, col);
+
+        if (boxAbove == null)
+            return false;
+
+        return !(boxes[row][col].isBarredTop() || boxAbove.isBarredBottom());
     }
 
     private static boolean joinedBelow(Box[][]boxes, int row, int col) {
-        return checkedGet(boxes, row + 1, col) != null;
+        Box boxBelow = checkedGet(boxes, row + 1, col);
+
+        if (boxBelow == null)
+            return false;
+
+        return !(boxes[row][col].isBarredBottom() || boxBelow.isBarredTop());
     }
 
     private static boolean joinedLeft(Box[][] boxes, int row, int col) {
-        return checkedGet(boxes, row, col - 1) != null;
+        Box boxLeft = checkedGet(boxes, row, col - 1);
+
+        if (boxLeft == null)
+            return false;
+
+        return !(boxes[row][col].isBarredLeft() || boxLeft.isBarredRight());
     }
 
     private static boolean joinedRight(Box[][] boxes, int row, int col) {
-        return checkedGet(boxes, row, col + 1) != null;
+        Box boxRight = checkedGet(boxes, row, col + 1);
+
+        if (boxRight == null)
+            return false;
+
+        return !(boxes[row][col].isBarredRight() || boxRight.isBarredLeft());
     }
 
     /**
