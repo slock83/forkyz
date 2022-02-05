@@ -228,7 +228,8 @@ public class PlayboardRenderer {
                         boxSize,
                         boxes[row][col],
                         currentWord, this.board.getHighlightLetter(),
-                        displayScratchAcross, displayScratchDown
+                        displayScratchAcross, displayScratchDown,
+                        true
                     );
                 }
             }
@@ -251,7 +252,17 @@ public class PlayboardRenderer {
         for (int i = 0; i < word.length; i++) {
             int x = i * boxSize;
             int y = 0;
-            this.drawBox(canvas, x, y, word[i].down, word[i].across, boxSize, boxes[i], null, this.board.getHighlightLetter(), displayScratchAcross, displayScratchDown);
+            this.drawBox(
+                canvas,
+                x, y,
+                word[i].down, word[i].across,
+                boxSize,
+                boxes[i],
+                null,
+                this.board.getHighlightLetter(),
+                displayScratchAcross, displayScratchDown,
+                false
+            );
         }
 
         return bitmap;
@@ -283,7 +294,8 @@ public class PlayboardRenderer {
                          boxes[i],
                          null,
                          highlight,
-                         displayScratchAcross, displayScratchDown);
+                         displayScratchAcross, displayScratchDown,
+                         false);
         }
 
         return bitmap;
@@ -499,7 +511,8 @@ public class PlayboardRenderer {
                          Box box,
                          Word currentWord,
                          Position highlight,
-                         boolean displayScratchAcross, boolean displayScratchDown) {
+                         boolean displayScratchAcross, boolean displayScratchDown,
+                         boolean drawBars) {
         int numberTextSize = boxSize / 4;
         int miniNoteTextSize = boxSize / 2;
         int noteTextSize = Math.round(boxSize * 0.6F);
@@ -544,35 +557,37 @@ public class PlayboardRenderer {
                 canvas.drawRect(r, this.white);
             }
 
-            // Bars before clue numbers
-            if (box.isBarredLeft()) {
-                Rect bar = new Rect(
-                    x + 1, y + 1, (x + barSize) - 1, (y + boxSize) - 1
-                );
-                canvas.drawRect(bar, this.blackBox);
-            }
+            // Bars before clue numbers to avoid obfuscating
+            if (drawBars) {
+                if (box.isBarredLeft()) {
+                    Rect bar = new Rect(
+                        x + 1, y + 1, (x + barSize) - 1, (y + boxSize) - 1
+                    );
+                    canvas.drawRect(bar, this.blackBox);
+                }
 
-            if (box.isBarredTop()) {
-                Rect bar = new Rect(
-                    x + 1, y + 1, (x + boxSize) - 1, (y + barSize) - 1
-                );
-                canvas.drawRect(bar, this.blackBox);
-            }
+                if (box.isBarredTop()) {
+                    Rect bar = new Rect(
+                        x + 1, y + 1, (x + boxSize) - 1, (y + barSize) - 1
+                    );
+                    canvas.drawRect(bar, this.blackBox);
+                }
 
-            if (box.isBarredRight()) {
-                Rect bar = new Rect(
-                    (x + boxSize) - barSize, y + 1,
-                    (x + boxSize) - 1, (y + barSize) - 1
-                );
-                canvas.drawRect(bar, this.blackBox);
-            }
+                if (box.isBarredRight()) {
+                    Rect bar = new Rect(
+                        (x + boxSize) - barSize, y + 1,
+                        (x + boxSize) - 1, (y + barSize) - 1
+                    );
+                    canvas.drawRect(bar, this.blackBox);
+                }
 
-            if (box.isBarredBottom()) {
-                Rect bar = new Rect(
-                    x + 1, y + boxSize - barSize,
-                    (x + boxSize) - 1, (y + barSize) - 1
-                );
-                canvas.drawRect(bar, this.blackBox);
+                if (box.isBarredBottom()) {
+                    Rect bar = new Rect(
+                        x + 1, y + boxSize - barSize,
+                        (x + boxSize) - 1, (y + barSize) - 1
+                    );
+                    canvas.drawRect(bar, this.blackBox);
+                }
             }
 
             if (drawClueNumber(box)) {
