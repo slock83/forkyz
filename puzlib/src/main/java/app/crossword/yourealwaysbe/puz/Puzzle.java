@@ -81,16 +81,17 @@ public class Puzzle implements Serializable{
         return author;
     }
 
-    private static Box checkedGet(Box[][] boxes, int row, int col) {
-        try {
-            return boxes[row][col];
-        } catch (IndexOutOfBoundsException e) {
+    private static Box checkedGetBox(Box[][] boxes, int row, int col) {
+        if (row < 0 || row >= boxes.length)
             return null;
-        }
+        if (col < 0 || col >= boxes[row].length)
+            return null;
+
+        return boxes[row][col];
     }
 
     private static boolean joinedAbove(Box[][] boxes, int row, int col) {
-        Box boxAbove = checkedGet(boxes, row - 1, col);
+        Box boxAbove = checkedGetBox(boxes, row - 1, col);
 
         if (boxAbove == null)
             return false;
@@ -98,8 +99,8 @@ public class Puzzle implements Serializable{
         return !(boxes[row][col].isBarredTop() || boxAbove.isBarredBottom());
     }
 
-    private static boolean joinedBelow(Box[][]boxes, int row, int col) {
-        Box boxBelow = checkedGet(boxes, row + 1, col);
+    private static boolean joinedBelow(Box[][] boxes, int row, int col) {
+        Box boxBelow = checkedGetBox(boxes, row + 1, col);
 
         if (boxBelow == null)
             return false;
@@ -108,7 +109,7 @@ public class Puzzle implements Serializable{
     }
 
     private static boolean joinedLeft(Box[][] boxes, int row, int col) {
-        Box boxLeft = checkedGet(boxes, row, col - 1);
+        Box boxLeft = checkedGetBox(boxes, row, col - 1);
 
         if (boxLeft == null)
             return false;
@@ -117,12 +118,79 @@ public class Puzzle implements Serializable{
     }
 
     private static boolean joinedRight(Box[][] boxes, int row, int col) {
-        Box boxRight = checkedGet(boxes, row, col + 1);
+        Box boxRight = checkedGetBox(boxes, row, col + 1);
 
         if (boxRight == null)
             return false;
 
         return !(boxes[row][col].isBarredRight() || boxRight.isBarredLeft());
+    }
+
+    /**
+     * Test if box at position is same clue as the box above
+     */
+    public boolean joinedTop(int row, int col) {
+        return joinedAbove(boxes, row, col);
+    }
+
+    /**
+     * Test if box at pos is same clue as the box below
+     */
+    public boolean joinedBottom(int row, int col) {
+        return joinedBelow(boxes, row, col);
+    }
+
+    /**
+     * Test if box at pos is same clue as the box to left
+     */
+    public boolean joinedLeft(int row, int col) {
+        return joinedLeft(boxes, row, col);
+    }
+
+    /**
+     * Test if box at pos is same clue as the box to right
+     */
+    public boolean joinedRight(int row, int col) {
+        return joinedRight(boxes, row, col);
+    }
+
+    /**
+     * If the box at the position is the start of an across clue
+     */
+    public boolean isStartAcross(int row, int col) {
+        Box b = checkedGetBox(boxes, row, col);
+        return b != null && b.isAcross();
+    }
+
+    /**
+     * If the box at the position is the start of a down clue
+     */
+    public boolean isStartDown(int row, int col) {
+        Box b = checkedGetBox(boxes, row, col);
+        return b != null && b.isDown();
+    }
+
+    /**
+     * If the box at the position is the part of an across clue
+     */
+    public boolean isPartOfAcross(int row, int col) {
+        Box b = checkedGetBox(boxes, row, col);
+        return b != null && b.isPartOfAcross();
+    }
+
+    /**
+     * If the box at the position is part of a down clue
+     */
+    public boolean isPartOfDown(int row, int col) {
+        Box b = checkedGetBox(boxes, row, col);
+        return b != null && b.isPartOfDown();
+    }
+
+    /**
+     * Return null if index out of range or not a box
+     */
+    public Box checkedGetBox(int row, int col) {
+        return checkedGetBox(boxes, row, col);
     }
 
     /**

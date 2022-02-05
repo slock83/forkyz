@@ -21,6 +21,7 @@ import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 
 import java.util.logging.Logger;
@@ -137,10 +138,11 @@ public class PlayboardRenderer {
 
     public float getDeviceMaxScale(){
         float retValue;
-        LOG.info("Board "+board.getBoxes().length+" widthPixels "+widthPixels);
+        LOG.info("Board "+board.getPuzzle().getWidth() +" widthPixels "+widthPixels);
         // inches * pixels per inch * units
         retValue = 2.2F;
-        float puzzleBaseSizeInInches = board.getBoxes().length * BASE_BOX_SIZE_INCHES;
+        float puzzleBaseSizeInInches
+            = board.getPuzzle().getWidth() * BASE_BOX_SIZE_INCHES;
         //leave a 1/16th in gutter on the puzzle.
         float fitToScreen =  (dpi * (puzzleBaseSizeInInches + 0.0625F)) / dpi;
 
@@ -179,7 +181,10 @@ public class PlayboardRenderer {
     public Bitmap draw(Word reset,
                        boolean displayScratchAcross, boolean displayScratchDown) {
         try {
+            Puzzle puz = this.board.getPuzzle();
             Box[][] boxes = this.board.getBoxes();
+            int width = puz.getWidth();
+            int height = puz.getHeight();
             boolean renderAll = reset == null;
 
             if (scale > getDeviceMaxScale()) {
@@ -194,8 +199,9 @@ public class PlayboardRenderer {
 
             if (bitmap == null) {
                 LOG.warning("New bitmap box size "+boxSize);
-                bitmap = Bitmap.createBitmap(boxes.length * boxSize,
-                        boxes[0].length * boxSize, Bitmap.Config.RGB_565);
+                bitmap = Bitmap.createBitmap(
+                    width * boxSize, height * boxSize, Bitmap.Config.RGB_565
+                );
                 bitmap.eraseColor(Color.BLACK);
                 renderAll = true;
             }
@@ -206,8 +212,8 @@ public class PlayboardRenderer {
 
             Word currentWord = this.board.getCurrentWord();
 
-            for (int col = 0; col < boxes.length; col++) {
-                for (int row = 0; row < boxes[col].length; row++) {
+            for (int row = 0; row < height; row++) {
+                for (int col = 0; col < width; col++) {
                     if (!renderAll) {
                         if (!currentWord.checkInWord(col, row) && !reset.checkInWord(col, row)) {
                             continue;
@@ -216,7 +222,14 @@ public class PlayboardRenderer {
 
                     int x = col * boxSize;
                     int y = row * boxSize;
-                    this.drawBox(canvas, x, y, row, col, boxSize, boxes[col][row], currentWord, this.board.getHighlightLetter(), displayScratchAcross, displayScratchDown);
+                    this.drawBox(
+                        canvas,
+                        x, y, row, col,
+                        boxSize,
+                        boxes[row][col],
+                        currentWord, this.board.getHighlightLetter(),
+                        displayScratchAcross, displayScratchDown
+                    );
                 }
             }
 
@@ -332,8 +345,8 @@ public class PlayboardRenderer {
     public float fitTo(int shortDimension) {
         this.bitmap = null;
         // (pixels / boxes) / (pixels per inch / inches)
-        Box[][] boxes = this.board.getBoxes();
-        int numBoxes = Math.max(boxes.length, boxes[0].length);
+        Puzzle puz = this.board.getPuzzle();
+        int numBoxes = Math.max(puz.getWidth(), puz.getHeight());
         return fitTo(shortDimension, numBoxes);
     }
 
@@ -491,6 +504,7 @@ public class PlayboardRenderer {
         int miniNoteTextSize = boxSize / 2;
         int noteTextSize = Math.round(boxSize * 0.6F);
         int letterTextSize = Math.round(boxSize * 0.7F);
+        int barSize = boxSize / 12;
 
         // scale paints
         numberText.setTextSize(numberTextSize);
@@ -528,6 +542,37 @@ public class PlayboardRenderer {
                 canvas.drawRect(r, this.cheated);
             } else {
                 canvas.drawRect(r, this.white);
+            }
+
+            // Bars before clue numbers
+            if (box.isBarredLeft()) {
+                Rect bar = new Rect(
+                    x + 1, y + 1, (x + barSize) - 1, (y + boxSize) - 1
+                );
+                canvas.drawRect(bar, this.blackBox);
+            }
+
+            if (box.isBarredTop()) {
+                Rect bar = new Rect(
+                    x + 1, y + 1, (x + boxSize) - 1, (y + barSize) - 1
+                );
+                canvas.drawRect(bar, this.blackBox);
+            }
+
+            if (box.isBarredRight()) {
+                Rect bar = new Rect(
+                    (x + boxSize) - barSize, y + 1,
+                    (x + boxSize) - 1, (y + barSize) - 1
+                );
+                canvas.drawRect(bar, this.blackBox);
+            }
+
+            if (box.isBarredBottom()) {
+                Rect bar = new Rect(
+                    x + 1, y + boxSize - barSize,
+                    (x + boxSize) - 1, (y + barSize) - 1
+                );
+                canvas.drawRect(bar, this.blackBox);
             }
 
             if (drawClueNumber(box)) {
@@ -637,17 +682,14 @@ public class PlayboardRenderer {
         if ((col != (highlight.across + 1)) || (row != highlight.down)) {
             canvas.drawLine(x, y, x, y + boxSize, boxColor);
         }
-
         // Draw top
         if ((row != (highlight.down + 1)) || (col != highlight.across)) {
             canvas.drawLine(x, y, x + boxSize, y, boxColor);
         }
-
         // Draw right
         if ((col != (highlight.across - 1)) || (row != highlight.down)) {
             canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, boxColor);
         }
-
         // Draw bottom
         if ((row != (highlight.down - 1)) || (col != highlight.across)) {
             canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, boxColor);
