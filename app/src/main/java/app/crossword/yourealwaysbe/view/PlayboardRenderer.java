@@ -489,6 +489,30 @@ public class PlayboardRenderer {
                 : R.string.cur_box_not_circled
         );
 
+        String barTop = context.getString(
+            box.isBarredTop()
+                ? R.string.cur_box_bar_top
+                : R.string.cur_box_no_bar_top
+        );
+
+        String barRight = context.getString(
+            box.isBarredRight()
+                ? R.string.cur_box_bar_right
+                : R.string.cur_box_no_bar_right
+        );
+
+        String barBottom = context.getString(
+            box.isBarredBottom()
+                ? R.string.cur_box_bar_bottom
+                : R.string.cur_box_no_bar_bottom
+        );
+
+        String barLeft = context.getString(
+            box.isBarredLeft()
+                ? R.string.cur_box_bar_left
+                : R.string.cur_box_no_bar_left
+        );
+
         String error = context.getString(
             highlightError(box, hasCursor)
                 ? R.string.cur_box_error
@@ -498,7 +522,9 @@ public class PlayboardRenderer {
        String contentDesc = context.getString(
             R.string.cur_box_desc,
             baseDescription,
-            response, acrossClueInfo, downClueInfo, number, circled, error
+            response, acrossClueInfo, downClueInfo, number,
+            circled, barTop, barRight, barBottom, barLeft,
+            error
         );
 
         return contentDesc;

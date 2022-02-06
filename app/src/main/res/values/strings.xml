@@ -257,8 +257,8 @@
 
     <!-- playboard -->
     <!-- args: description, response, across clue info, down clue info, if
-    numbered, if circled, if error -->
-    <string name="cur_box_desc">%1$s, current box %2$s%3$s%4$s%5$s%6$s%7$s</string>
+    numbered, if circled, bar top, bar right, bar bottom, bar left, if error -->
+    <string name="cur_box_desc">%1$s, current box %2$s%3$s%4$s%5$s%6$s%7$s%8$s%9$s%10$s%11$s</string>
     <!-- description only -->
     <string name="cur_box_none_selected">%1$s</string>
     <string tools:ignore="PluralsCandidate" name="cur_box_across_clue_info">, in %1$d across</string>
@@ -269,6 +269,14 @@
     <string name="cur_box_no_number"></string>
     <string name="cur_box_circled">, circled</string>
     <string name="cur_box_not_circled"></string>
+    <string name="cur_box_bar_top">, bar top</string>
+    <string name="cur_box_no_bar_top"></string>
+    <string name="cur_box_bar_right">, bar right</string>
+    <string name="cur_box_no_bar_right"></string>
+    <string name="cur_box_bar_bottom">, bar bottom</string>
+    <string name="cur_box_no_bar_bottom"></string>
+    <string name="cur_box_bar_left">, bar left</string>
+    <string name="cur_box_no_bar_left"></string>
     <string name="cur_box_error">, is error</string>
     <string name="cur_box_no_error"></string>
     <string name="cur_box_blank">blank</string>
