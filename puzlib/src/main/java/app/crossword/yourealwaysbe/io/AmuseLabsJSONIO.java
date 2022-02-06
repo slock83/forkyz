@@ -63,13 +63,17 @@ public class AmuseLabsJSONIO implements PuzzleParser {
     ) throws JSONException, AmuseLabsFormatException {
         Puzzle puz = new Puzzle();
 
-        puz.setTitle(json.getString("title"));
-        puz.setAuthor(json.getString("author"));
-        puz.setCopyright(json.getString("copyright"));
-        puz.setSource(json.getString("publisher"));
+        puz.setTitle(json.optString("title"));
+        puz.setAuthor(json.optString("author"));
+        puz.setCopyright(json.optString("copyright"));
+        puz.setSource(json.optString("publisher"));
 
-        long epochMillis = json.getLong("publishTime");
-        puz.setDate(LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24)));
+        if (json.has("publishTime")) {
+            long epochMillis = json.getLong("publishTime");
+            puz.setDate(
+                LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24))
+            );
+        }
 
         try {
             puz.setBoxes(getBoxes(json));

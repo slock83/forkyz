@@ -59,11 +59,17 @@ public class GuardianJSONIO implements PuzzleParser {
     ) throws JSONException {
         Puzzle puz = new Puzzle();
 
-        puz.setTitle(json.getString("name"));
-        puz.setAuthor(json.getJSONObject("creator").getString("name"));
+        puz.setTitle(json.optString("name"));
+        JSONObject creator = json.optJSONObject("creator");
+        if (creator != null)
+            puz.setAuthor(creator.optString("name"));
 
-        long epochMillis = json.getLong("date");
-        puz.setDate(LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24)));
+        if (json.has("date")) {
+            long epochMillis = json.getLong("date");
+            puz.setDate(
+                LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24))
+            );
+        }
 
         puz.setBoxes(getBoxes(json));
         addClues(json, puz);
