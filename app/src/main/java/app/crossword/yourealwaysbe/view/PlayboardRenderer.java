@@ -592,7 +592,7 @@ public class PlayboardRenderer {
                 if (box.isBarredRight()) {
                     Rect bar = new Rect(
                         x + boxSize - barSize, y,
-                        x + boxSize, y + barSize
+                        x + boxSize, y + boxSize
                     );
                     canvas.drawRect(bar, this.blackBox);
                 }
@@ -600,7 +600,7 @@ public class PlayboardRenderer {
                 if (box.isBarredBottom()) {
                     Rect bar = new Rect(
                         x, y + boxSize - barSize,
-                        x + boxSize, y + barSize
+                        x + boxSize, y + boxSize
                     );
                     canvas.drawRect(bar, this.blackBox);
                 }
