@@ -49,11 +49,18 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * still be playable. The Puzzle class has a checksum field that is not
  * used, and corresponds to Across Lite checksums.
  *
+ * Note: an error in the first version of this code means dates were
+ * written in British (dd/mm/yyyy) format, not US (mm/dd/yyyy). The
+ * IO_VERSION checks were added to still read old files correctly.
+ *
  * http://www.ipuz.org/
  */
 public class IPuzIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger(IPuzIO.class.getCanonicalName());
+
+    // version 1 was not tagged in file
+    private static final int IO_VERSION = 2;
 
     private static final Charset WRITE_CHARSET = Charset.forName("UTF-8");
 
@@ -140,6 +147,8 @@ public class IPuzIO implements PuzzleParser {
         = getQualifiedExtensionName("supporturl");
     private static final String FIELD_EXT_PLAY_DATA
         = getQualifiedExtensionName("playdata");
+    private static final String FIELD_EXT_IO_VERSION
+        = getQualifiedExtensionName("ioversion");
 
     private static final String FIELD_VOLATILE = "volatile";
     private static final String FIELD_IS_VOLATILE = "*";
@@ -150,7 +159,7 @@ public class IPuzIO implements PuzzleParser {
     };
 
     private static final String[] NON_VOLATILE_EXTENSIONS = {
-        FIELD_EXT_SUPPORT_URL
+        FIELD_EXT_SUPPORT_URL, FIELD_EXT_IO_VERSION
     };
 
     private static final String FIELD_BOX_EXTRAS = "boxextras";
@@ -175,8 +184,10 @@ public class IPuzIO implements PuzzleParser {
         = "anagramsolution";
 
     private static final Pattern INT_STRING_RE = Pattern.compile("\\d+");
-    private static final DateTimeFormatter DATE_FORMATTER
+    private static final DateTimeFormatter DATE_FORMATTER_V1
         = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.US);
+    private static final DateTimeFormatter DATE_FORMATTER
+        = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
 
     private static final String NULL_CLUE = "-";
     // IPuz tags not to strip from HTML (preserve line breaks)
@@ -274,9 +285,39 @@ public class IPuzIO implements PuzzleParser {
         puz.setSourceUrl(puzJson.optString(FIELD_URL));
         puz.setSource(getHtmlOptString(puzJson, FIELD_PUBLISHER));
 
+        LocalDate date = parseDate(puzJson);
+        if (date != null)
+            puz.setDate(date);
+    }
+
+    /**
+     * Parse date field (depends on IO version!)
+     *
+     * I put day/month the wrong way around in initial version :/
+     *
+     * @return null if no date
+     */
+    private static LocalDate parseDate(JSONObject puzJson) {
         String date = puzJson.optString(FIELD_DATE);
-        if (date != null && date.length() > 0)
-            puz.setDate(LocalDate.parse(date, DATE_FORMATTER));
+        if (date == null || date.isEmpty())
+            return null;
+
+        if (getIOVersion(puzJson) == 1)
+            return LocalDate.parse(date, DATE_FORMATTER_V1);
+        else
+            return LocalDate.parse(date, DATE_FORMATTER);
+    }
+
+    /**
+     * The Forkyz IO version
+     *
+     * 0 if no Forkyz data specified, otherwise 1 or above
+     */
+    private static int getIOVersion(JSONObject puzJson) {
+        if (puzJson.has(FIELD_EXT_IO_VERSION))
+            return puzJson.getInt(FIELD_EXT_IO_VERSION);
+        else
+            return puzJson.has(FIELD_EXT_PLAY_DATA) ? 1 : 0;
     }
 
     /**
@@ -1325,6 +1366,7 @@ public class IPuzIO implements PuzzleParser {
         writeExtensionVolatility(writer);
 
         writer.keyValueNonNull(FIELD_EXT_SUPPORT_URL, puz.getSupportUrl());
+        writer.keyValueNonNull(FIELD_EXT_IO_VERSION, IO_VERSION);
 
         writer.key(FIELD_EXT_PLAY_DATA)
             .object();

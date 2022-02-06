@@ -237,7 +237,7 @@ public abstract class FileHandler {
      *
      * @return null if could not be loaded
      */
-    public PuzMetaFile loadPuzMetaFile(PuzHandle puzHandle) throws IOException {
+    public synchronized PuzMetaFile loadPuzMetaFile(PuzHandle puzHandle) throws IOException {
         Puzzle puz = load(puzHandle);
 
         if (puz == null)

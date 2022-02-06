@@ -62,7 +62,7 @@ public class PuzMetaFile
     }
 
     public LocalDate getDate() {
-        if (meta == null) {
+        if (meta == null || meta.getDate() == null) {
             return getHandler().getModifiedDate(handle.getMainFileHandle());
         } else {
             return meta.getDate();

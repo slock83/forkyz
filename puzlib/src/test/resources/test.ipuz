@@ -7,7 +7,7 @@
     "notes": "Test notes<br/>Two lines of <b>notes</b>",
     "url": "https://testurl.com",
     "publisher": "Test publisher",
-    "date": "01/02/2003",
+    "date": "02/01/2003",
     "dimensions": { "width": 3, "height": 2 },
     "puzzle": [
         [ 1, 2, "#" ],
