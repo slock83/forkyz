@@ -532,6 +532,26 @@ public class PlayboardRenderer {
 
         Paint thisLetter;
 
+        Paint boxColor = (((highlight.across == col) && (highlight.down == row)) && (currentWord != null))
+                ? this.currentLetterBox : this.blackLine;
+
+        // Draw left
+        if ((col != (highlight.across + 1)) || (row != highlight.down)) {
+            canvas.drawLine(x, y, x, y + boxSize, boxColor);
+        }
+        // Draw top
+        if ((row != (highlight.down + 1)) || (col != highlight.across)) {
+            canvas.drawLine(x, y, x + boxSize, y, boxColor);
+        }
+        // Draw right
+        if ((col != (highlight.across - 1)) || (row != highlight.down)) {
+            canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, boxColor);
+        }
+        // Draw bottom
+        if ((row != (highlight.down - 1)) || (col != highlight.across)) {
+            canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, boxColor);
+        }
+
         Rect r = new Rect(x + 1, y + 1, (x + boxSize) - 1, (y + boxSize) - 1);
 
         if (box == null) {
@@ -560,31 +580,27 @@ public class PlayboardRenderer {
             // Bars before clue numbers to avoid obfuscating
             if (drawBars) {
                 if (box.isBarredLeft()) {
-                    Rect bar = new Rect(
-                        x + 1, y + 1, (x + barSize) - 1, (y + boxSize) - 1
-                    );
+                    Rect bar = new Rect(x, y, x + barSize, y + boxSize);
                     canvas.drawRect(bar, this.blackBox);
                 }
 
                 if (box.isBarredTop()) {
-                    Rect bar = new Rect(
-                        x + 1, y + 1, (x + boxSize) - 1, (y + barSize) - 1
-                    );
+                    Rect bar = new Rect(x, y, x + boxSize, y + barSize);
                     canvas.drawRect(bar, this.blackBox);
                 }
 
                 if (box.isBarredRight()) {
                     Rect bar = new Rect(
-                        (x + boxSize) - barSize, y + 1,
-                        (x + boxSize) - 1, (y + barSize) - 1
+                        x + boxSize - barSize, y,
+                        x + boxSize, y + barSize
                     );
                     canvas.drawRect(bar, this.blackBox);
                 }
 
                 if (box.isBarredBottom()) {
                     Rect bar = new Rect(
-                        x + 1, y + boxSize - barSize,
-                        (x + boxSize) - 1, (y + barSize) - 1
+                        x, y + boxSize - barSize,
+                        x + boxSize, y + barSize
                     );
                     canvas.drawRect(bar, this.blackBox);
                 }
@@ -688,26 +704,6 @@ public class PlayboardRenderer {
                             noteText);
                 }
             }
-        }
-
-        Paint boxColor = (((highlight.across == col) && (highlight.down == row)) && (currentWord != null))
-                ? this.currentLetterBox : this.blackLine;
-
-        // Draw left
-        if ((col != (highlight.across + 1)) || (row != highlight.down)) {
-            canvas.drawLine(x, y, x, y + boxSize, boxColor);
-        }
-        // Draw top
-        if ((row != (highlight.down + 1)) || (col != highlight.across)) {
-            canvas.drawLine(x, y, x + boxSize, y, boxColor);
-        }
-        // Draw right
-        if ((col != (highlight.across - 1)) || (row != highlight.down)) {
-            canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, boxColor);
-        }
-        // Draw bottom
-        if ((row != (highlight.down - 1)) || (col != highlight.across)) {
-            canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, boxColor);
         }
     }
 
