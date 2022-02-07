@@ -544,6 +544,7 @@ public class PlayboardRenderer {
         int noteTextSize = Math.round(boxSize * 0.6F);
         int letterTextSize = Math.round(boxSize * 0.7F);
         int barSize = boxSize / 12;
+        int numberOffset = barSize;
 
         // scale paints
         numberText.setTextSize(numberTextSize);
@@ -633,7 +634,12 @@ public class PlayboardRenderer {
             }
 
             if (drawClueNumber(box)) {
-                canvas.drawText(Integer.toString(box.getClueNumber()), x + 2, y + numberTextSize + 2, this.numberText);
+                canvas.drawText(
+                    Integer.toString(box.getClueNumber()),
+                    x + numberOffset,
+                    y + numberTextSize + numberOffset,
+                    this.numberText
+                );
             }
 
             // Draw circle
