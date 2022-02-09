@@ -7,7 +7,8 @@ issue on our GitHub page][issues] if you would like to add a source or
 make a correction.
 
 Forkyz will attempt to open any file you give it, but look out for
-Across Lite (.puz) or JPZ in particular.
+Across Lite (.puz) or JPZ in particular. IPuz support is partial and
+aims to cover block and bar puzzles.
 
 The majority of the links on this page come from [Michael F. Gill
 (Mokelfish)'s list of puzzles][monkelfish].
