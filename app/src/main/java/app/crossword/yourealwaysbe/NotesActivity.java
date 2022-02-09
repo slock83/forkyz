@@ -15,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import androidx.fragment.app.DialogFragment;
@@ -59,6 +60,7 @@ public class NotesActivity extends PuzzleActivity {
     private BoardEditText scratchView;
     private BoardEditText anagramSourceView;
     private BoardEditText anagramSolView;
+    private CheckBox flagClue;
     private PlayboardRenderer renderer;
 
     private Random rand = new Random();
@@ -239,6 +241,8 @@ public class NotesActivity extends PuzzleActivity {
             }
         });
 
+        flagClue = (CheckBox) findViewById(R.id.flagClue);
+
         ForkyzKeyboard keyboardView
             = (ForkyzKeyboard) findViewById(R.id.keyboard);
         keyboardManager = new KeyboardManager(this, keyboardView, imageView);
@@ -281,6 +285,8 @@ public class NotesActivity extends PuzzleActivity {
             boolean across = getBoard().isAcross();
             puz.setNote(number, note, across);
         }
+
+        puz.flagClue(getBoard().getClue(), flagClue.isChecked());
 
         super.onPause();
 
@@ -510,6 +516,8 @@ public class NotesActivity extends PuzzleActivity {
         anagramSolView.setLength(curWordLen);
         scratchView.setLength(curWordLen);
         anagramSourceView.setLength(curWordLen);
+
+        flagClue.setChecked(puz.isFlagged(clue));
 
         keyboardManager.onResume();
 

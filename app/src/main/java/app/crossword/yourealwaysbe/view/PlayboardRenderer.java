@@ -47,6 +47,7 @@ public class PlayboardRenderer {
     private final Paint red = new Paint();
     private final Paint redHighlight = new Paint();
     private final Paint white = new Paint();
+    private final Paint flag = new Paint();
     private Bitmap bitmap;
     private Playboard board;
     private float dpi;
@@ -62,6 +63,7 @@ public class PlayboardRenderer {
     private final int cheatedColor;
     private final int boardLetterColor;
     private final int boardNoteColor;
+    private final int flagColor;
 
     // colors are gotten from context
     public PlayboardRenderer(Playboard board,
@@ -88,6 +90,8 @@ public class PlayboardRenderer {
             = ContextCompat.getColor(context, R.color.boardLetterColor);
         boardNoteColor
             = ContextCompat.getColor(context, R.color.boardNoteColor);
+        flagColor
+            = ContextCompat.getColor(context, R.color.flagColor);
 
         blackLine.setColor(blankColor);
         blackLine.setStrokeWidth(2.0F);
@@ -134,6 +138,8 @@ public class PlayboardRenderer {
         redHighlight.setTypeface(Typeface.SANS_SERIF);
 
         cheated.setColor(cheatedColor);
+
+        flag.setColor(flagColor);
     }
 
     public float getDeviceMaxScale(){
@@ -530,6 +536,12 @@ public class PlayboardRenderer {
         return contentDesc;
     }
 
+    /**
+     * Draw an individual box
+     *
+     * @param fullBoard whether to draw details that only make sense when the
+     * full board can be seen.
+     */
     private void drawBox(Canvas canvas,
                          int x, int y,
                          int row, int col,
@@ -538,7 +550,7 @@ public class PlayboardRenderer {
                          Word currentWord,
                          Position highlight,
                          boolean displayScratchAcross, boolean displayScratchDown,
-                         boolean drawBars) {
+                         boolean fullBoard) {
         int numberTextSize = boxSize / 4;
         int miniNoteTextSize = boxSize / 2;
         int noteTextSize = Math.round(boxSize * 0.6F);
@@ -605,7 +617,7 @@ public class PlayboardRenderer {
             }
 
             // Bars before clue numbers to avoid obfuscating
-            if (drawBars) {
+            if (fullBoard) {
                 if (box.isBarredLeft()) {
                     Rect bar = new Rect(x, y, x + barSize, y + boxSize);
                     canvas.drawRect(bar, this.blackBox);
@@ -634,12 +646,46 @@ public class PlayboardRenderer {
             }
 
             if (drawClueNumber(box)) {
+                int clueNumber = box.getClueNumber();
                 canvas.drawText(
-                    Integer.toString(box.getClueNumber()),
+                    Integer.toString(clueNumber),
                     x + numberOffset,
                     y + numberTextSize + numberOffset,
                     this.numberText
                 );
+
+                Puzzle puz = board.getPuzzle();
+
+                if (fullBoard) {
+                    if (box.isDown()) {
+                        if (puz.isFlagged(clueNumber, false)) {
+                            int numDigits = Math.abs(clueNumber == 0
+                                ? 1
+                                : (int) Math.floor(Math.log10(clueNumber)) + 1
+                            );
+                            int numWidth = numDigits * numberTextSize / 2;
+                            Rect bar = new Rect(
+                                x + numberOffset + numWidth + barSize,
+                                y + 1 * barSize,
+                                x + boxSize - barSize,
+                                y + 2 * barSize
+                            );
+                            canvas.drawRect(bar, this.flag);
+                        }
+                    }
+
+                    if (box.isAcross()) {
+                        if (puz.isFlagged(clueNumber, true)) {
+                            Rect bar = new Rect(
+                                x + 1 * barSize,
+                                y + barSize + numberOffset + numberTextSize,
+                                x + 2 * barSize,
+                                y + boxSize - barSize
+                            );
+                            canvas.drawRect(bar, this.flag);
+                        }
+                    }
+                }
             }
 
             // Draw circle

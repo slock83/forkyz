@@ -5,10 +5,12 @@ import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -28,7 +30,6 @@ public class Puzzle implements Serializable{
     private String title;
     private MutableClueList acrossClues = new MutableClueList();
     private MutableClueList downClues = new MutableClueList();
-    private int numberOfClues;
     private LocalDate pubdate = LocalDate.now();
     private String source;
     private String sourceUrl = "";
@@ -49,6 +50,8 @@ public class Puzzle implements Serializable{
     private SortedMap<Integer, Note> downNotes = new TreeMap<>();
 
     private LinkedList<ClueNumDir> historyList = new LinkedList<>();
+
+    private Set<ClueNumDir> flaggedClues = new HashSet<>();
 
     // Temporary fields used for unscrambling.
     public int[] unscrambleKey;
@@ -830,6 +833,9 @@ public class Puzzle implements Serializable{
             return false;
         }
 
+        if (!flaggedClues.equals(other.flaggedClues))
+            return false;
+
         return true;
     }
 
@@ -849,6 +855,7 @@ public class Puzzle implements Serializable{
         result = (prime * result) + width;
         result = (prime *result) + acrossNotes.hashCode();
         result = (prime *result) + downNotes.hashCode();
+        result = (prime * result) + flaggedClues.hashCode();
 
         return result;
     }
@@ -882,6 +889,46 @@ public class Puzzle implements Serializable{
 
     public List<ClueNumDir> getHistory() {
         return historyList;
+    }
+
+    /**
+     * Flag or unflag clue
+     */
+    public void flagClue(ClueNumDir clueNumDir, boolean flag) {
+        if (flag)
+            flaggedClues.add(clueNumDir);
+        else
+            flaggedClues.remove(clueNumDir);
+    }
+
+    /**
+     * Flag or unflag clue
+     */
+    public void flagClue(Clue clue, boolean flag) {
+        flagClue(clue.getNumber(), clue.getIsAcross(), flag);
+    }
+
+    /**
+     * Flag or unflag clue
+     */
+    public void flagClue(int number, boolean across, boolean flag) {
+        flagClue(new ClueNumDir(number, across), flag);
+    }
+
+    public boolean isFlagged(ClueNumDir clueNumDir) {
+        return flaggedClues.contains(clueNumDir);
+    }
+
+    public boolean isFlagged(Clue clue) {
+        return isFlagged(new ClueNumDir(clue.getNumber(), clue.getIsAcross()));
+    }
+
+    public boolean isFlagged(int number, boolean across) {
+        return isFlagged(new ClueNumDir(number, across));
+    }
+
+    public Iterable<ClueNumDir> getFlaggedClues() {
+        return flaggedClues;
     }
 
     public static class ClueNumDir {

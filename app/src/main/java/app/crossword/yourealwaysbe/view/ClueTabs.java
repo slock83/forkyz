@@ -570,12 +570,14 @@ public class ClueTabs extends LinearLayout
 
     private class ClueViewHolder extends RecyclerView.ViewHolder {
         private CheckedTextView clueView;
+        private View flagView;
         private Clue clue;
         private boolean showDirection;
 
         public ClueViewHolder(View view, boolean showDirection) {
             super(view);
             this.clueView = view.findViewById(R.id.clue_text_view);
+            this.flagView = view.findViewById(R.id.clue_flag_view);
             this.showDirection = showDirection;
 
             this.clueView.setOnClickListener(new View.OnClickListener() {
@@ -627,6 +629,13 @@ public class ClueTabs extends LinearLayout
                     board.isAcross() == clue.getIsAcross()
                         && selectedClueNumber == clue.getNumber()
                 );
+
+                Puzzle puz = board.getPuzzle();
+                if (puz != null && puz.isFlagged(clue)) {
+                    flagView.setVisibility(View.VISIBLE);
+                } else {
+                    flagView.setVisibility(View.INVISIBLE);
+                }
             }
         }
 

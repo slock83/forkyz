@@ -164,6 +164,8 @@ public class IPuzIOTest extends TestCase {
                 new Note("test5", "test6\nnew line", "test7", "test8"),
                 false
             );
+            puz.flagClue(3, true, true);
+            puz.flagClue(1, false, true);
 
             Box[][] boxes = puz.getBoxes();
 
@@ -197,6 +199,9 @@ public class IPuzIOTest extends TestCase {
             assertEquals(boxes2[0][1].getResponder(), "Test");
             assertFalse(boxes2[0][1].isCheated());
             assertTrue(boxes2[1][0].isCheated());
+            assertTrue(puz.isFlagged(1, false));
+            assertTrue(puz.isFlagged(3, true));
+            assertFalse(puz.isFlagged(1, true));
 
             assertEquals(puz, puz2);
         }

@@ -182,6 +182,7 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_CLUE_NOTE_ANAGRAM_SRC = "anagramsource";
     private static final String FIELD_CLUE_NOTE_ANAGRAM_SOL
         = "anagramsolution";
+    private static final String FIELD_FLAGGED_CLUES = "flaggedclues";
 
     private static final Pattern INT_STRING_RE = Pattern.compile("\\d+");
     private static final DateTimeFormatter DATE_FORMATTER_V1
@@ -937,6 +938,7 @@ public class IPuzIO implements PuzzleParser {
         readPosition(playData, puz);
         readClueHistory(playData, puz);
         readClueNotes(playData, puz);
+        readFlaggedClues(playData, puz);
 
         if (playData.has(FIELD_COMPLETION_TIME))
             puz.setTime(playData.getLong(FIELD_COMPLETION_TIME));
@@ -1066,6 +1068,20 @@ public class IPuzIO implements PuzzleParser {
                     );
                 }
             }
+        }
+    }
+
+    private static void readFlaggedClues(JSONObject playData, Puzzle puz) {
+        if (!playData.has(FIELD_FLAGGED_CLUES))
+            return;
+
+        JSONArray flagsJson = playData.getJSONArray(FIELD_FLAGGED_CLUES);
+
+        for (int i = 0; i < flagsJson.length(); i++) {
+            JSONObject cndJson = flagsJson.getJSONObject(i);
+            ClueNumDir cnd = decodeClueNumDir(cndJson);
+            if (cnd != null)
+                puz.flagClue(cnd, true);
         }
     }
 
@@ -1376,6 +1392,7 @@ public class IPuzIO implements PuzzleParser {
         writePosition(puz, writer);
         writeClueHistory(puz, writer);
         writeClueNotes(puz, writer);
+        writeFlaggedClues(puz, writer);
 
         writer.keyValueNonNull(1, FIELD_COMPLETION_TIME, puz.getTime())
             .keyValueNonNull(1, FIELD_PCNT_FILLED, puz.getPercentFilled())
@@ -1427,6 +1444,25 @@ public class IPuzIO implements PuzzleParser {
                     .endObject();
                 writer.newLine();
             }
+        }
+
+        writer.indent(1)
+            .endArray();
+        writer.newLine();
+    }
+
+    private static void writeFlaggedClues(
+        Puzzle puz, FormatableJSONWriter writer
+    ) throws IOException {
+        writer.indent(1)
+            .key(FIELD_FLAGGED_CLUES)
+            .array();
+        writer.newLine();
+
+        for (ClueNumDir cnd : puz.getFlaggedClues()) {
+            writer.indent(2);
+            writeClueNumDir(cnd, writer);
+            writer.newLine();
         }
 
         writer.indent(1)
