@@ -50,6 +50,8 @@ The majority of the links on this page come from [Michael F. Gill
 * [Hub Crosswords][hubcrosswords] -- Sunday-sized crosswords from Emily
   Cox, Henry Rathvon, and Brendan Emmett Quigley. Puzzles released via
   Patreon.
+* [Square Chase][squarechase] -- bar puzzles via Patreon, tested with
+  Forkyz.
 
 [monkelfish]: http://bbtp.net/puzzle/links.html
 [issues]: https://github.com/yourealwaysbe/forkyz/issues
@@ -80,4 +82,4 @@ The majority of the links on this page come from [Michael F. Gill
 [communicrossings]: https://communicrossings.com/crosswords-weyer
 [diary]: https://crosswordfiend.com/
 [hubcrosswords]: https://www.patreon.com/hubcrosswords
-
+[squarechase]: https://www.patreon.com/squarechase
