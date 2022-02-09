@@ -192,9 +192,8 @@ public abstract class PuzzleActivity
     protected String getLongClueText(Clue clue, int wordLen) {
         boolean showCount = prefs.getBoolean("showCount", false);
 
-        String hint = (clue == null)
-            ? getString(R.string.unknown_hint)
-            : clue.getHint();
+        if (clue == null)
+            return getString(R.string.unknown_hint);
 
         if (showCount) {
             int clueFormat = clue.getIsAcross()
