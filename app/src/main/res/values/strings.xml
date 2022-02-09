@@ -71,8 +71,11 @@
 
     <!-- clue formats -->
     <string name="clue_format_no_direction_short">%1$d. %2$s</string>
+    <string name="clue_format_no_direction_short_with_count">%1$d. %2$s [%3$d]</string>
     <string name="clue_format_across_short">%1$da. %2$s</string>
     <string name="clue_format_down_short">%1$dd. %2$s</string>
+    <string name="clue_format_across_short_with_count">%1$da. %2$s [%3$d]</string>
+    <string name="clue_format_down_short_with_count">%1$dd. %2$s [%3$d]</string>
     <string name="clue_format_across_long">(across) %1$d. %2$s</string>
     <string name="clue_format_down_long">(down) %1$d. %2$s</string>
     <string name="clue_format_across_long_with_length">(across) %1$d. %2$s [%3$d]</string>

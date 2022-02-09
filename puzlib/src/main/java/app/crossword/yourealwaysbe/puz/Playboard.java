@@ -16,6 +16,8 @@ public class Playboard implements Serializable {
 
     private Map<Integer, Position> acrossWordStarts = new HashMap<Integer, Position>();
     private Map<Integer, Position> downWordStarts = new HashMap<Integer, Position>();
+    private Map<Position, Integer> acrossWordRanges = new HashMap<>();
+    private Map<Position, Integer> downWordRanges = new HashMap<>();
     private MovementStrategy movementStrategy = MovementStrategy.MOVE_NEXT_ON_AXIS;
     private Position highlightLetter = new Position(0, 0);
     private Puzzle puzzle;
@@ -492,21 +494,43 @@ public class Playboard implements Serializable {
         return result;
     }
 
-    public int getWordRange(Position start, boolean across) {
-        int row = start.down;
-        int col = start.across;
+    public int getWordRange(int number, boolean isAcross) {
+        Position start = isAcross
+            ? acrossWordStarts.get(number)
+            : downWordStarts.get(number);
 
-        if (across) {
-            while (puzzle.joinedRight(row, col)) {
-                col += 1;
+        if(start == null)
+            return 0;
+        else
+            return getWordRange(start, isAcross);
+    }
+
+    public int getWordRange(Position start, boolean across) {
+        Map<Position, Integer> rangeMap =
+            across ? acrossWordRanges : downWordRanges;
+
+        Integer range = rangeMap.get(start);
+
+        if (range == null) {
+            int row = start.down;
+            int col = start.across;
+
+            if (across) {
+                while (puzzle.joinedRight(row, col)) {
+                    col += 1;
+                }
+                range = col - start.across + 1;
+            } else {
+                while (puzzle.joinedBottom(row, col)) {
+                    row += 1;
+                }
+                range = row - start.down + 1;
             }
-            return col - start.across + 1;
-        } else {
-            while (puzzle.joinedBottom(row, col)) {
-                row += 1;
-            }
-            return row - start.down + 1;
+
+            rangeMap.put(start, range);
         }
+
+        return range;
     }
 
     public int getWordRange() {

@@ -272,6 +272,12 @@ public class ClueTabs extends LinearLayout
         return forceSnap || prefs.getBoolean("snapClue", false);
     }
 
+    private boolean isShowCount() {
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(getContext());
+        return prefs.getBoolean("showCount", false);
+    }
+
     private void notifyListenersClueClick(Clue clue) {
         for (ClueTabsListener listener : listeners)
             listener.onClueTabsClick(clue, this);
@@ -599,25 +605,7 @@ public class ClueTabs extends LinearLayout
 
             Playboard board = ClueTabs.this.board;
 
-            this.clue = clue;
-
-            String clueText;
-            if (showDirection) {
-                int clueFormat = clue.getIsAcross()
-                    ? R.string.clue_format_across_short
-                    : R.string.clue_format_down_short;
-                clueText = ClueTabs.this.getContext().getString(
-                    clueFormat,
-                    clue.getNumber(), clue.getHint()
-                );
-            } else {
-                clueText = ClueTabs.this.getContext().getString(
-                    R.string.clue_format_no_direction_short,
-                    clue.getNumber(), clue.getHint()
-                );
-            }
-
-            clueView.setText(clueText);
+            clueView.setText(getClueText(clue));
 
             int color = R.color.textColorPrimary;
             if (
@@ -639,6 +627,48 @@ public class ClueTabs extends LinearLayout
                     board.isAcross() == clue.getIsAcross()
                         && selectedClueNumber == clue.getNumber()
                 );
+            }
+        }
+
+        private String getClueText(Clue clue) {
+            Playboard board = ClueTabs.this.board;
+            int number = clue.getNumber();
+            String hint = clue.getHint();
+            boolean across = clue.getIsAcross();
+
+            this.clue = clue;
+
+            if (showDirection) {
+                if (isShowCount()) {
+                    int clueFormat = across
+                        ? R.string.clue_format_across_short_with_count
+                        : R.string.clue_format_down_short_with_count;
+                    return ClueTabs.this.getContext().getString(
+                        clueFormat,
+                        number, hint, board.getWordRange(number, across)
+                    );
+                } else {
+                    int clueFormat = across
+                        ? R.string.clue_format_across_short
+                        : R.string.clue_format_down_short;
+                    return ClueTabs.this.getContext().getString(
+                        clueFormat,
+                        number, hint
+                    );
+                }
+            } else {
+                if (isShowCount()) {
+                    return ClueTabs.this.getContext().getString(
+                        R.string.clue_format_no_direction_short_with_count,
+                        number, hint, board.getWordRange(number, across)
+                    );
+
+                } else {
+                    return ClueTabs.this.getContext().getString(
+                        R.string.clue_format_no_direction_short,
+                        number, hint
+                    );
+                }
             }
         }
     }
