@@ -198,8 +198,8 @@ public abstract class PuzzleActivity
 
         if (showCount) {
             int clueFormat = clue.getIsAcross()
-                ? R.string.clue_format_across_long_with_length
-                : R.string.clue_format_down_long_with_length;
+                ? R.string.clue_format_across_long_with_count
+                : R.string.clue_format_down_long_with_count;
             return getString(
                 clueFormat, clue.getNumber(), clue.getHint(), wordLen
             );

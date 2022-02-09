@@ -78,8 +78,8 @@
     <string name="clue_format_down_short_with_count">%1$dd. %2$s [%3$d]</string>
     <string name="clue_format_across_long">(across) %1$d. %2$s</string>
     <string name="clue_format_down_long">(down) %1$d. %2$s</string>
-    <string name="clue_format_across_long_with_length">(across) %1$d. %2$s [%3$d]</string>
-    <string name="clue_format_down_long_with_length">(down) %1$d. %2$s [%3$d]</string>
+    <string name="clue_format_across_long_with_count">(across) %1$d. %2$s [%3$d]</string>
+    <string name="clue_format_down_long_with_count">(down) %1$d. %2$s [%3$d]</string>
 
     <!-- Puzzle Info Dialog -->
     <string name="tap_to_show_full_notes_no_text">(Tap to show full notes.)</string>
