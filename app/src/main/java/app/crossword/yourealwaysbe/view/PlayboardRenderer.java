@@ -54,16 +54,6 @@ public class PlayboardRenderer {
     private float scale = 1.0F;
     private boolean hintHighlight;
     private int widthPixels;
-    private final int boxColor;
-    private final int blankColor;
-    private final int errorColor;
-    private final int errorHighlightColor;
-    private final int currentWordHighlightColor;
-    private final int currentLetterHighlightColor;
-    private final int cheatedColor;
-    private final int boardLetterColor;
-    private final int boardNoteColor;
-    private final int flagColor;
 
     // colors are gotten from context
     public PlayboardRenderer(Playboard board,
@@ -74,24 +64,23 @@ public class PlayboardRenderer {
         this.board = board;
         this.hintHighlight = hintHighlight;
 
-        blankColor = ContextCompat.getColor(context, R.color.blankColor);
-        boxColor = ContextCompat.getColor(context, R.color.boxColor);
-        currentWordHighlightColor
+        int blankColor = ContextCompat.getColor(context, R.color.blankColor);
+        int boxColor = ContextCompat.getColor(context, R.color.boxColor);
+        int currentWordHighlightColor
             = ContextCompat.getColor(context, R.color.currentWordHighlightColor);
-        currentLetterHighlightColor
+        int currentLetterHighlightColor
             = ContextCompat.getColor(context, R.color.currentLetterHighlightColor);
-        errorColor
+        int errorColor
             = ContextCompat.getColor(context, R.color.errorColor);
-        errorHighlightColor
+        int errorHighlightColor
             = ContextCompat.getColor(context, R.color.errorHighlightColor);
-        cheatedColor
+        int cheatedColor
             = ContextCompat.getColor(context, R.color.cheatedColor);
-        boardLetterColor
+        int boardLetterColor
             = ContextCompat.getColor(context, R.color.boardLetterColor);
-        boardNoteColor
+        int boardNoteColor
             = ContextCompat.getColor(context, R.color.boardNoteColor);
-        flagColor
-            = ContextCompat.getColor(context, R.color.flagColor);
+        int flagColor = ContextCompat.getColor(context, R.color.flagColor);
 
         blackLine.setColor(blankColor);
         blackLine.setStrokeWidth(2.0F);
