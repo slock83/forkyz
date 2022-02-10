@@ -67,6 +67,8 @@ public interface MovementStrategy extends Serializable {
 
             Position p = board.getHighlightLetter();
             Word w = board.getCurrentWord();
+            boolean across = board.isAcross();
+
             if (Common.isWordEnd(p, w)) {
                 return w;
             } else {
@@ -74,6 +76,7 @@ public interface MovementStrategy extends Serializable {
                 Word newWord = board.getCurrentWord();
                 if (!newWord.equals(w)) {
                     board.setHighlightLetter(p);
+                    board.setAcross(across);
                 } else if (skipCompletedLetters && Common.isLastWordInDirection(board, w)) {
                     // special case if this is at the end of the board
                     Position current = board.getHighlightLetter();
