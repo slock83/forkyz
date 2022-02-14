@@ -12,6 +12,7 @@
         android:layout_height="1dip"
         android:background="@color/keyboardDivider"
     />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -357,4 +358,28 @@
             app:keyCode="22"
         />
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/hide_row"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/keyboardHideBg"
+    >
+        <ImageButton
+            android:id="@+id/key_hide"
+            android:layout_width="wrap_content"
+            android:layout_height="40sp"
+            android:paddingLeft="10sp"
+            android:paddingStart="10sp"
+            android:paddingRight="10sp"
+            android:paddingEnd="10sp"
+            android:layout_marginLeft="20sp"
+            android:layout_marginStart="20sp"
+            app:srcCompat="@drawable/ic_keyboard_hide"
+            android:contentDescription="@string/hide_keyboard"
+            android:tint="@color/keyboardHide"
+        />
+    </LinearLayout>
+
 </LinearLayout>

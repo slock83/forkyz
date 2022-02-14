@@ -23,7 +23,7 @@ public class KeyboardManager {
     private int blockHideDepth = 0;
 
     private enum KeyboardMode {
-        ALWAYS_SHOW, HIDE_BACK, SHOW_SPARINGLY, NEVER_SHOW
+        ALWAYS_SHOW, HIDE_MANUAL, SHOW_SPARINGLY, NEVER_SHOW
     }
 
     /**
@@ -53,7 +53,7 @@ public class KeyboardManager {
      * Call this from the activities onResume method
      */
     public void onResume() {
-        // do nothing
+        setHideRowVisibility();
     }
 
     /**
@@ -110,7 +110,8 @@ public class KeyboardManager {
     public boolean hideKeyboard(boolean force) {
         KeyboardMode mode = getKeyboardMode();
         boolean prefHide =
-            mode != KeyboardMode.ALWAYS_SHOW && mode != KeyboardMode.HIDE_BACK;
+            mode != KeyboardMode.ALWAYS_SHOW
+                && mode != KeyboardMode.HIDE_MANUAL;
         boolean softHide =
             prefHide && !keyboardView.hasKeysDown() && !isBlockHide();
         boolean doHide = force || softHide;
@@ -131,8 +132,10 @@ public class KeyboardManager {
      */
     public boolean handleBackKey() {
         boolean force = getKeyboardMode() != KeyboardMode.ALWAYS_SHOW;
-        return keyboardView.getVisibility() == View.VISIBLE
-            && hideKeyboard(force);
+        boolean toHide =
+            keyboardView.getVisibility() == View.VISIBLE
+                && !isKeyboardHideButton();
+        return toHide && hideKeyboard(force);
     }
 
     /**
@@ -152,7 +155,7 @@ public class KeyboardManager {
 
     private KeyboardMode getKeyboardMode() {
         String never = activity.getString(R.string.keyboard_never_show);
-        String back = activity.getString(R.string.keyboard_hide_back);
+        String back = activity.getString(R.string.keyboard_hide_manual);
         String spare = activity.getString(R.string.keyboard_show_sparingly);
         String always = activity.getString(R.string.keyboard_always_show);
 
@@ -161,10 +164,26 @@ public class KeyboardManager {
         if (never.equals(modePref))
             return KeyboardMode.NEVER_SHOW;
         else if (back.equals(modePref))
-            return KeyboardMode.HIDE_BACK;
+            return KeyboardMode.HIDE_MANUAL;
         else if (always.equals(modePref))
             return KeyboardMode.ALWAYS_SHOW;
         else
             return KeyboardMode.SHOW_SPARINGLY;
+    }
+
+    private void setHideRowVisibility() {
+        if (isKeyboardHideButton()) {
+            KeyboardMode mode = getKeyboardMode();
+            keyboardView.setShowHideButton(
+                mode == KeyboardMode.HIDE_MANUAL
+                    || mode == KeyboardMode.SHOW_SPARINGLY
+            );
+        } else {
+            keyboardView.setShowHideButton(false);
+        }
+    }
+
+    private boolean isKeyboardHideButton() {
+        return prefs.getBoolean("keyboardHideButton", false);
     }
 }

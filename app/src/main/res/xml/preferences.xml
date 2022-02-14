@@ -129,7 +129,7 @@
             android:title="@string/keyboard_showhide"
             android:summary="@string/keyboard_showhide_desc"
             android:key="keyboardShowHide"
-            android:defaultValue="@string/keyboard_hide_back"
+            android:defaultValue="@string/keyboard_hide_manual"
             android:entries="@array/keyboardShowHideLabels"
             android:entryValues="@array/keyboardShowHideValues"
         />
@@ -141,6 +141,13 @@
             android:defaultValue="0"
             android:entries="@array/keyboardLayoutsLabels"
             android:entryValues="@array/keyboardLayoutsValues"
+        />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/keyboard_hide_button"
+            android:defaultValue="false"
+            android:summary="@string/keyboard_hide_button_desc"
+            android:key="keyboardHideButton"
         />
 
         <androidx.preference.CheckBoxPreference

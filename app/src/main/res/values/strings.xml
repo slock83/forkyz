@@ -169,6 +169,8 @@
     <string name="about_forkyz">About Forkyz</string>
     <string name="release_notes">Release Notes</string>
     <string name="license">License</string>
+    <string name="keyboard_hide_button">Keyboard Hide Button</string>
+    <string name="keyboard_hide_button_desc">Show a keyboard hide button instead of using the navigation back button.</string>
 
     <!-- preferences download -->
     <string name="download_wifi_only">Download over Wifi only</string>
@@ -373,9 +375,10 @@
     <string name="change_direction">Change clue direction</string>
     <string name="next_clue">Next clue</string>
     <string name="prev_clue">Previous clue</string>
+    <string name="hide_keyboard">Hide keyboard</string>
 
     <string name="keyboard_always_show">Always show</string>
-    <string name="keyboard_hide_back">Hide keyboard with back button</string>
+    <string name="keyboard_hide_manual">Hide keyboard manually</string>
     <string name="keyboard_show_sparingly">Show sparingly</string>
     <string name="keyboard_show_sparingly_desc">Hide keyboard on clue change</string>
     <string name="keyboard_never_show">Never show</string>

@@ -26,6 +26,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.IntDef;
@@ -62,7 +63,11 @@ public class ForkyzKeyboard
     public static final int KEY_NEXT_CLUE = 1;
     public static final int KEY_PREVIOUS_CLUE = 2;
 
-    @IntDef({KEY_CHANGE_CLUE_DIRECTION, KEY_NEXT_CLUE, KEY_PREVIOUS_CLUE})
+    @IntDef({
+        KEY_CHANGE_CLUE_DIRECTION,
+        KEY_NEXT_CLUE,
+        KEY_PREVIOUS_CLUE
+    })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SpecialKey { }
 
@@ -99,7 +104,6 @@ public class ForkyzKeyboard
                     createView(getContext());
             }
         };
-
 
     public ForkyzKeyboard(Context context) {
         this(context, null, 0);
@@ -182,6 +186,14 @@ public class ForkyzKeyboard
     }
 
     /**
+     * Whether to show or hide the keyboard hide button row
+     */
+    public synchronized void setShowHideButton(boolean show) {
+        View hideRow = findViewById(R.id.hide_row);
+        hideRow.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    /**
      * Make special keys visible, reactive if listener available
      */
     private synchronized void setupSpecialKeys() {
@@ -221,6 +233,13 @@ public class ForkyzKeyboard
 
         // initially hide unless special key listener is set
         setupSpecialKeys();
+
+        ImageButton hideButton = (ImageButton) findViewById(R.id.key_hide);
+        hideButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                ForkyzKeyboard.this.setVisibility(View.GONE);
+            }
+        });
     }
 
     private int getKeyboardLayout(Context context) {
