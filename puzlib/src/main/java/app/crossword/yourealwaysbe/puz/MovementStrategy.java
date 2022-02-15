@@ -35,6 +35,15 @@ public interface MovementStrategy extends Serializable {
                 (!w.across && p.down == w.start.down + w.length - 1)
             ;
         }
+
+        /**
+         * @return if @param Position (p) is the first position in @param Word (w)
+         */
+        static boolean isWordStart(Position p, Word w) {
+            return (w.across && p.across == w.start.across)
+                || (!w.across && p.down == w.start.down)
+            ;
+        }
     }
 
     MovementStrategy MOVE_NEXT_ON_AXIS = new MovementStrategy() {
@@ -246,54 +255,14 @@ public interface MovementStrategy extends Serializable {
             Position p = board.getHighlightLetter();
 
             if (Common.isWordEnd(p, w)) {
-                //reset the position to the beginning in order to calculate the parallel word
-                Word newWord;
-                Box[][] boxes = board.getBoxes();
-                boolean isLastWordInDirection = Common.isLastWordInDirection(boxes, w);
-                if (!isLastWordInDirection) {
-                    board.setHighlightLetter(w.start);
+                Word newWord = moveToParallelWord(board, w);
+                // check if new word needs skipping too
+                if (!w.equals(newWord)) {
+                    Box currentBox = board.getCurrentBox();
+                    if (board.skipCurrentBox(currentBox, skipCompletedLetters)) {
+                        move(board, skipCompletedLetters);
+                    }
                 }
-                if (w.across) {
-                    if (!isLastWordInDirection) {
-                        int indexOfLargestWhitespace = getIndexOfLargestWhitespace(boxes, w);
-
-                        board.setHighlightLetter(new Position(w.start.across + indexOfLargestWhitespace, w.start.down));
-                        //setHighlightLetter alters the across state when indexOfLargestWhitespace == 0, no need
-                        // to check for it, we already know this is an across
-                        board.setAcross(w.across);
-                    }
-                    board.moveDown();
-                    while(board.getClue().getHint() == null && board.getHighlightLetter().down < board.getPuzzle().getHeight()){
-                        board.moveDown();
-                    }
-                    if(board.getClue().getHint() == null){
-                        board.toggleDirection();
-                    }
-                    newWord = board.getCurrentWord();
-                } else {
-                    if (!isLastWordInDirection) {
-                        int indexOfLargestWhitespace = getIndexOfLargestWhitespace(boxes, w);
-
-                        board.setHighlightLetter(new Position(w.start.across, w.start.down + indexOfLargestWhitespace));
-                        //setHighlightLetter alters the across state when indexOfLargestWhitespace == 0, no need
-                        // to check for it, we already know this is an across
-                        board.setAcross(w.across);
-                    }
-                    board.moveRight();
-                    while(board.getClue().getHint() == null && board.getHighlightLetter().across < board.getPuzzle().getWidth()){
-                        board.moveRight();
-                    }
-                    if(board.getClue().getHint() == null){
-                        board.toggleDirection();
-                    }
-                    newWord = board.getCurrentWord();
-
-                }
-                if (!newWord.equals(w)) {
-                    board.setHighlightLetter(newWord.start);
-                    board.setAcross(w.across);
-                }
-
             } else {
                 MOVE_NEXT_ON_AXIS.move(board, skipCompletedLetters);
                 Word newWord = board.getCurrentWord();
@@ -326,94 +295,141 @@ public interface MovementStrategy extends Serializable {
             return w;
         }
 
-        private Box getBoxOrNull(Box[][] boxes, int row, int col){
-            if(row < boxes.length){
-                if(col < boxes[row].length){
-                    return boxes[row][col];
+        /**
+         * Move to nearest word in same direction that is alongside w
+         *
+         * Or leave unchanged if no suitable word found. Starts
+         * scanning from the nearest edge of the board.
+         *
+         * @return new word highlighted
+         */
+        private Word moveToParallelWord(Playboard board, Word w) {
+            Box[][] boxes = board.getBoxes();
+            boolean biasStart = getWordBias(board, w);
+
+            if (w.across) {
+                // scan from row below underneath the word until another
+                // across word found
+                for (int row = w.start.down + 1; row < boxes.length; row++) {
+                    for (int offCol = 0; offCol < w.length; offCol++) {
+                        int col = biasStart
+                            ? w.start.across + offCol
+                            : w.start.across + w.length - offCol - 1;
+                        Box box = boxes[row][col];
+                        if (box != null && box.isPartOfAcross()) {
+                            board.jumpToClue(
+                                box.getPartOfAcrossClueNumber(), true
+                            );
+                            return board.getCurrentWord();
+                        }
+                    }
+                }
+            } else {
+                // scan from col after the word in same rows until another
+                // down word found
+                int width = board.getPuzzle().getWidth();
+                for (int col = w.start.across + 1; col < width; col++) {
+                    for (int offRow = 0; offRow < w.length; offRow++) {
+                        int row = biasStart
+                            ? w.start.down + offRow
+                            : w.start.down + w.length - offRow - 1;
+                        Box box = boxes[row][col];
+                        if (box != null && box.isPartOfDown()) {
+                            board.jumpToClue(
+                                box.getPartOfDownClueNumber(), false
+                            );
+                            return board.getCurrentWord();
+                        }
+                    }
                 }
             }
-            return null;
+
+            return w;
         }
 
         /**
-         * find the index of the next parallel section where the most whitespaces match
-         * Precondition: the current word is not on the last row (otherwise there will be an ArrayIndexOutOfBounds)
+         * If word is nearer start or end of board
          */
-        private int getIndexOfLargestWhitespace(Box[][] boxes, Word w) {
-            int indexOfLargestWhitespace = 0;
-            int largestWhitespace = 0;
-            int curCount = 0;
-            int curIndex = 0;
-            for (int i = 0; i < w.length; i++) {
-                Box nextBox;
-                if (w.across ) {
-                    nextBox = getBoxOrNull(
-                        boxes, w.start.down + 1, w.start.across + i
-                    );
-                } else {
-                    nextBox = getBoxOrNull(
-                        boxes, w.start.down + i, w.start.across + 1
-                    );
-                }
-                if (nextBox != null) {
-                    curCount++;
-                    if (curCount == 1) {
-                        curIndex = i;
-                    }
-                } else {
-                    curCount = 0;
-                }
-                if (curCount > largestWhitespace) {
-                    largestWhitespace = curCount;
-                    indexOfLargestWhitespace = curIndex;
-                }
+        private boolean getWordBias(Playboard board, Word w) {
+            int startOffset;
+            int endOffset;
+
+            if (w.across) {
+                int width = board.getPuzzle().getWidth();
+                startOffset = w.start.across;
+                endOffset = width - (w.start.across + w.length);
+            } else {
+                int height = board.getPuzzle().getHeight();
+                startOffset = w.start.down;
+                endOffset = height - (w.start.down + w.length);
             }
-            return indexOfLargestWhitespace;
+
+            return startOffset <= endOffset;
         }
 
         @Override
         public Word back(Playboard board) {
             Word w = board.getCurrentWord();
             Position p = board.getHighlightLetter();
-            if ((w.across && p.across == w.start.across)
-                    || (!w.across && p.down == w.start.down)) {
-                Word newWord;
-                Position lastPos = null;
-                if (w.across) {
-                    board.moveUp();
-                    while(!board.getHighlightLetter().equals(lastPos) && board.getClue().getHint() == null && board.getHighlightLetter().down < board.getPuzzle().getHeight()){
-                        lastPos = board.getHighlightLetter();
-                        board.moveUp();
 
-                    }
-                    if(board.getClue().getHint() == null){
-                        board.toggleDirection();
-                    }
-                    newWord = board.getCurrentWord();
-                } else {
-                    board.moveLeft();
-                    while(!board.getHighlightLetter().equals(lastPos) && board.getClue().getHint() == null && board.getHighlightLetter().across < board.getPuzzle().getWidth()){
-                        lastPos = board.getHighlightLetter();
-                        board.moveLeft();
-                    }
-                    if(board.getClue().getHint() == null){
-                        board.toggleDirection();
-                    }
-                    newWord = board.getCurrentWord();
-
-                }
-                if (!newWord.equals(w)) {
-
-                    Position newPos = new Position(newWord.start.across + (newWord.across ? newWord.length -1 : 0), newWord.start.down + (newWord.across ? 0 : newWord.length -1));
-
-                    board.setHighlightLetter(newPos);
-                    board.setAcross(w.across);
-                }
-
+            if (Common.isWordStart(p, w)) {
+                moveToParallelWordBack(board, w);
             } else {
                 Word newWord = MOVE_NEXT_ON_AXIS.back(board);
                 if (!newWord.equals(w)) {
                     board.setHighlightLetter(newWord.start);
+                }
+            }
+
+            return w;
+        }
+
+        /**
+         * Move to nearest word in same direction that is back and
+         * alongside w
+         *
+         * Or leave unchanged if no suitable word found. Starts
+         * scanning from the nearest edge of the board.
+         *
+         * @return new word highlighted
+         */
+        private Word moveToParallelWordBack(Playboard board, Word w) {
+            Box[][] boxes = board.getBoxes();
+            boolean biasStart = getWordBias(board, w);
+
+            if (w.across) {
+                // scan from row below underneath the word until another
+                // across word found
+                for (int row = w.start.down - 1; row >= 0; row -= 1) {
+                    for (int offCol = 0; offCol < w.length; offCol++) {
+                        int col = biasStart
+                            ? w.start.across + offCol
+                            : w.start.across + w.length - offCol - 1;
+                        Box box = boxes[row][col];
+                        if (box != null && box.isPartOfAcross()) {
+                            board.jumpToClueEnd(
+                                box.getPartOfAcrossClueNumber(), true
+                            );
+                            return board.getCurrentWord();
+                        }
+                    }
+                }
+            } else {
+                // scan from col after the word in same rows until another
+                // down word found
+                for (int col = w.start.across - 1; col >= 0; col -= 1) {
+                    for (int offRow = 0; offRow < w.length; offRow++) {
+                        int row = biasStart
+                            ? w.start.down + offRow
+                            : w.start.down + w.length - offRow - 1;
+                        Box box = boxes[row][col];
+                        if (box != null && box.isPartOfDown()) {
+                            board.jumpToClueEnd(
+                                box.getPartOfDownClueNumber(), false
+                            );
+                            return board.getCurrentWord();
+                        }
+                    }
                 }
             }
 

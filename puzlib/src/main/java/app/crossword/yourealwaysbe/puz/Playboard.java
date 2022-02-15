@@ -640,6 +640,38 @@ public class Playboard implements Serializable {
         }
     }
 
+    /**
+     * Ignored if clueNumber does not exist
+     */
+    public void jumpToClueEnd(int clueNumber, boolean across) {
+        try {
+            pushNotificationDisabled();
+
+            Position pos = null;
+
+            int length = this.getWordRange(clueNumber, across);
+
+            if (across) {
+                Position start = this.acrossWordStarts.get(clueNumber);
+                pos = new Position(start.across + length - 1, start.down);
+            } else {
+                Position start = this.downWordStarts.get(clueNumber);
+                pos = new Position(start.across, start.down + length - 1);
+            }
+
+            if (pos != null) {
+                this.setHighlightLetter(pos);
+                this.setAcross(across);
+            }
+
+            popNotificationDisabled();
+
+            if (pos != null)
+                notifyChange();
+        } catch (Exception e) {
+        }
+    }
+
     public Word moveDown() {
         return this.moveDown(false);
     }
