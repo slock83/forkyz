@@ -34,6 +34,8 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     private boolean haveAdded = false;
     private boolean allowOverScroll = true;
     private int boardStickyBorder;
+    private int gestureStartX;
+    private int gestureStartY;
 
     public ScrollingImageView(Context context, AttributeSet as) {
         super(context, as);
@@ -141,9 +143,23 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
+        switch (ev.getActionMasked()) {
+        case MotionEvent.ACTION_DOWN:
+            onTouchStart();
+            break;
+        case MotionEvent.ACTION_UP:
+            onTouchEnd();
+            break;
+        case MotionEvent.ACTION_CANCEL:
+            onTouchCancel();
+            break;
+        }
+
         if (aux != null)
             aux.onTouchEvent(ev);
+
         gestureDetector.onTouchEvent(ev);
+
         return true;
     }
 
@@ -360,6 +376,34 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
         this.scaleScrollLocation = null;
         runningScale = 1.0f;
+    }
+
+    /**
+     * Bookkeeping for gesture start
+     *
+     * Stores scroll location so it can be restored on cancel
+     */
+    private void onTouchStart() {
+        gestureStartX = getScrollX();
+        gestureStartY = getScrollY();
+    }
+
+    /**
+     * Bookkeeping for gesture end
+     *
+     * Currently does nothing
+     */
+    private void onTouchEnd() {
+        // pass
+    }
+
+    /**
+     * Bookkeeping for gesture cancel
+     *
+     * Undoes scroll actions if the scroll was ultimately cancelled
+     */
+    private void onTouchCancel() {
+        scrollTo(gestureStartX, gestureStartY);
     }
 
     public interface AuxTouchHandler {
