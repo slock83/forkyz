@@ -5,9 +5,10 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import androidx.core.view.GestureDetectorCompat;
 
 public abstract class ScrollDetector extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
-    private final GestureDetector mDetector;
+    private final GestureDetectorCompat mDetector;
     private final int mSlop;
 
     private float mDownY;
@@ -23,7 +24,7 @@ public abstract class ScrollDetector extends GestureDetector.SimpleOnGestureList
     }
 
     public ScrollDetector(Context context) {
-        mDetector = new GestureDetector(context, this);
+        mDetector = new GestureDetectorCompat(context, this);
         mSlop = getSlop(context);
     }
 
@@ -40,7 +41,8 @@ public abstract class ScrollDetector extends GestureDetector.SimpleOnGestureList
     @Override
     public boolean onDown(MotionEvent e) {
         mDownY = e.getY();
-        return false;
+        // this should always return rue
+        return true;
     }
 
     @Override

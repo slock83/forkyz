@@ -8,13 +8,13 @@ import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector.OnGestureListener;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import androidx.core.view.GestureDetectorCompat;
 
 public class ScrollingImageView extends FrameLayout implements OnGestureListener {
     private static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
@@ -23,7 +23,7 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
     private AuxTouchHandler aux = null;
     private ClickListener ctxListener;
-    private GestureDetector gestureDetector;
+    private GestureDetectorCompat gestureDetector;
     private ImageView imageView;
     private ScaleListener scaleListener = null;
     private ScrollLocation scaleScrollLocation;
@@ -37,7 +37,7 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
     public ScrollingImageView(Context context, AttributeSet as) {
         super(context, as);
-        gestureDetector = new GestureDetector(context, this);
+        gestureDetector = new GestureDetectorCompat(context, this);
         gestureDetector.setIsLongpressEnabled(true);
         imageView = new ImageView(context);
 
@@ -174,7 +174,8 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     }
 
     public boolean onDown(MotionEvent e) {
-        return false;
+        // this should always return true
+        return true;
     }
 
     public boolean onFling(
