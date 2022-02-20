@@ -139,9 +139,12 @@ public class ForkyzKeyboard
             view.setPressed(true);
             return true;
         case MotionEvent.ACTION_UP:
-        case MotionEvent.ACTION_CANCEL:
             view.setPressed(false);
             onKeyUp(view.getId());
+            return true;
+        case MotionEvent.ACTION_CANCEL:
+            view.setPressed(false);
+            onKeyCancel(view.getId());
             return true;
         case MotionEvent.ACTION_MOVE:
         case MotionEvent.ACTION_POINTER_UP:
@@ -317,6 +320,11 @@ public class ForkyzKeyboard
     private synchronized void onKeyUp(int keyId) {
         countKeyUp();
         sendKeyUp(keyId);
+        cancelKeyTimer(keyId);
+    }
+
+    private synchronized void onKeyCancel(int keyId) {
+        countKeyUp();
         cancelKeyTimer(keyId);
     }
 
