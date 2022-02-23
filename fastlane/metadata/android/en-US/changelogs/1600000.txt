@@ -1,0 +1,7 @@
+<ul>
+<li>Initial support for bar puzzles in IPuz format (tested on Square Chase puzzles only).</li>
+<li>Add "flag clue" feature.</li>
+<li>Add hide button option for keyboard (good for gesture navigation).</li>
+<li>Display word count in clue list when option set.</li>
+<li>Recode parallel movement strategy.</li>
+</ul>
