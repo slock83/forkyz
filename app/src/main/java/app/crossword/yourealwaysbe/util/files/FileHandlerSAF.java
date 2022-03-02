@@ -31,8 +31,6 @@ public class FileHandlerSAF extends FileHandler {
         = "safCrosswordsFolderUri";
     private static final String SAF_ARCHIVE_URI_PREF
         = "safArchiveFolderUri";
-    private static final String SAF_TEMP_URI_PREF
-        = "safTempFolderUri";
 
     private static final String ARCHIVE_NAME = "archive";
     private static final String TEMP_NAME = "temp";
@@ -40,7 +38,6 @@ public class FileHandlerSAF extends FileHandler {
     private Uri rootUri;
     private Uri crosswordsFolderUri;
     private Uri archiveFolderUri;
-    private Uri tempFolderUri;
 
     public static class Meta {
         private String name;
@@ -69,20 +66,17 @@ public class FileHandlerSAF extends FileHandler {
      * @param crosswordsFolderUri the document uri for the crosswords
      * folder
      * @param archiveFolderUri the document uri for the archive folder
-     * @param tempFolderUri the document uri for the temp folder
      */
     public FileHandlerSAF(
         Context context,
         Uri rootUri,
         Uri crosswordsFolderUri,
-        Uri archiveFolderUri,
-        Uri tempFolderUri
+        Uri archiveFolderUri
     ) {
         super(context);
         this.rootUri = rootUri;
         this.crosswordsFolderUri = crosswordsFolderUri;
         this.archiveFolderUri = archiveFolderUri;
-        this.tempFolderUri = tempFolderUri;
     }
 
     @Override
@@ -248,8 +242,7 @@ public class FileHandlerSAF extends FileHandler {
         ContentResolver resolver = getContentResolver();
         try {
             return exists(resolver, crosswordsFolderUri)
-                && exists(resolver, archiveFolderUri)
-                && exists(resolver, tempFolderUri);
+                && exists(resolver, archiveFolderUri);
         } catch (UnsupportedOperationException e) {
             LOGGER.severe("Unsupported operation accessing SAF");
             e.printStackTrace();
@@ -316,7 +309,6 @@ public class FileHandlerSAF extends FileHandler {
 
             Uri crosswordsFolderUri = dirUri;
             Uri archiveFolderUri = null;
-            Uri tempFolderUri = null;
 
             // first iterate over directory looking for subdirs with the
             // right name.
@@ -348,11 +340,6 @@ public class FileHandlerSAF extends FileHandler {
                                 = DocumentsContract.buildDocumentUriUsingTree(
                                     rootUri, id
                                 );
-                        } else if (TEMP_NAME.equals(name)) {
-                            tempFolderUri
-                                = DocumentsContract.buildDocumentUriUsingTree(
-                                    rootUri, id
-                                );
                         }
                     }
                 }
@@ -366,16 +353,8 @@ public class FileHandlerSAF extends FileHandler {
                 );
             }
 
-            if (tempFolderUri == null) {
-                tempFolderUri = DocumentsContract.createDocument(
-                    resolver, dirUri, Document.MIME_TYPE_DIR, TEMP_NAME
-                );
-            }
-
             // if all ok, save to prefs and keep permission
-            if (crosswordsFolderUri != null
-                    && archiveFolderUri != null
-                    && tempFolderUri != null) {
+            if (crosswordsFolderUri != null && archiveFolderUri != null) {
 
                 // persist permissions
                 int takeFlags = (
@@ -395,15 +374,12 @@ public class FileHandlerSAF extends FileHandler {
                 editor.putString(
                     SAF_ARCHIVE_URI_PREF, archiveFolderUri.toString()
                 );
-                editor.putString(
-                    SAF_TEMP_URI_PREF, tempFolderUri.toString()
-                );
                 editor.apply();
 
                 return new FileHandlerSAF(
                     applicationContext,
                     rootUri,
-                    crosswordsFolderUri, archiveFolderUri, tempFolderUri
+                    crosswordsFolderUri, archiveFolderUri
                 );
             }
         } catch (Exception e) {
@@ -434,28 +410,23 @@ public class FileHandlerSAF extends FileHandler {
             = prefs.getString(SAF_CROSSWORDS_URI_PREF, null);
         String archiveFolder
             = prefs.getString(SAF_ARCHIVE_URI_PREF, null);
-        String tempFolder
-            = prefs.getString(SAF_TEMP_URI_PREF, null);
 
         if (rootFolder != null
                 && crosswordsFolder != null
-                && archiveFolder != null
-                && tempFolder != null) {
+                && archiveFolder != null) {
             Uri rootFolderUri = Uri.parse(rootFolder);
             Uri crosswordsFolderUri = Uri.parse(crosswordsFolder);
             Uri archiveFolderUri = Uri.parse(archiveFolder);
-            Uri tempFolderUri = Uri.parse(tempFolder);
 
             ContentResolver resolver = applicationContext.getContentResolver();
 
             try {
                 if (exists(resolver, crosswordsFolderUri)
-                        && exists(resolver, archiveFolderUri)
-                        && exists(resolver, tempFolderUri)) {
+                        && exists(resolver, archiveFolderUri)) {
                     fileHandler = new FileHandlerSAF(
                         applicationContext,
                         rootFolderUri,
-                        crosswordsFolderUri, archiveFolderUri, tempFolderUri
+                        crosswordsFolderUri, archiveFolderUri
                     );
                 }
             } catch (SecurityException e) {
