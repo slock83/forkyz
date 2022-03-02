@@ -486,6 +486,9 @@ public class FileHandlerSAF extends FileHandler {
             )
         ) {
             return c.getCount() > 0;
+        } catch (IllegalArgumentException e) {
+            // if the file does not exist, this is thrown
+            return false;
         }
     }
 
