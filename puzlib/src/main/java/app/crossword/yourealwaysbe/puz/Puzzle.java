@@ -94,39 +94,43 @@ public class Puzzle implements Serializable{
     }
 
     private static boolean joinedTop(Box[][] boxes, int row, int col) {
+        Box boxCur = checkedGetBox(boxes, row, col);
         Box boxAbove = checkedGetBox(boxes, row - 1, col);
 
-        if (boxAbove == null)
+        if (boxAbove == null || boxCur == null)
             return false;
 
-        return !(boxes[row][col].isBarredTop() || boxAbove.isBarredBottom());
+        return !(boxCur.isBarredTop() || boxAbove.isBarredBottom());
     }
 
     private static boolean joinedBottom(Box[][] boxes, int row, int col) {
+        Box boxCur = checkedGetBox(boxes, row, col);
         Box boxBelow = checkedGetBox(boxes, row + 1, col);
 
-        if (boxBelow == null)
+        if (boxBelow == null || boxCur == null)
             return false;
 
-        return !(boxes[row][col].isBarredBottom() || boxBelow.isBarredTop());
+        return !(boxCur.isBarredBottom() || boxBelow.isBarredTop());
     }
 
     private static boolean joinedLeft(Box[][] boxes, int row, int col) {
+        Box boxCur = checkedGetBox(boxes, row, col);
         Box boxLeft = checkedGetBox(boxes, row, col - 1);
 
-        if (boxLeft == null)
+        if (boxLeft == null || boxCur == null)
             return false;
 
-        return !(boxes[row][col].isBarredLeft() || boxLeft.isBarredRight());
+        return !(boxCur.isBarredLeft() || boxLeft.isBarredRight());
     }
 
     private static boolean joinedRight(Box[][] boxes, int row, int col) {
+        Box boxCur = checkedGetBox(boxes, row, col);
         Box boxRight = checkedGetBox(boxes, row, col + 1);
 
-        if (boxRight == null)
+        if (boxRight == null || boxCur == null)
             return false;
 
-        return !(boxes[row][col].isBarredRight() || boxRight.isBarredLeft());
+        return !(boxCur.isBarredRight() || boxRight.isBarredLeft());
     }
 
     /**
