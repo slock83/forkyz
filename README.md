@@ -11,6 +11,7 @@ implementing my own customisations.
 
 Additions:
 
+* Support for bar puzzles (in IPuz format).
 * Updated file handling compatible with Android 11.
 * Import of puzzles as well as download.
 * Backend file format changed to IPuz.
