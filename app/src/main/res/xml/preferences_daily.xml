@@ -23,11 +23,6 @@
         android:key="downloadJoseph"
     />
     <androidx.preference.CheckBoxPreference
-        android:title="@string/lat_crosswords"
-        android:defaultValue="true"
-        android:key="downloadLat"
-    />
-    <androidx.preference.CheckBoxPreference
         android:title="@string/newsday"
         android:defaultValue="true"
         android:key="downloadNewsday"

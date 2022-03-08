@@ -31,12 +31,6 @@
             android:key="downloadWsj"
         />
         <androidx.preference.CheckBoxPreference
-            android:title="@string/washington_post_classic"
-            android:defaultValue="true"
-            android:summary="@string/updates_sundays"
-            android:key="downloadWaPoClassic"
-        />
-        <androidx.preference.CheckBoxPreference
             android:title="@string/washington_post_sunday"
             android:defaultValue="true"
             android:summary="@string/updates_sundays"

@@ -305,15 +305,6 @@ public class Downloaders {
             ));
         }
 
-        if (prefs.getBoolean("downloadLat", true)) {
-            downloaders.add(new AmuseLabsDownloader(
-                context.getString(R.string.lat_crosswords),
-                "cdn4", "lat", "tca", "latimes",
-                Downloader.DATE_DAILY,
-                "https://www.latimes.com/subscriptions/digital.html"
-            ));
-        }
-
         if (prefs.getBoolean("downloadNewsday", true)) {
             downloaders.add(new BrainsOnlyDownloader(
                 "https://brainsonly.com/servlets-newsday-crossword/newsdaycrossword?date=",
@@ -365,15 +356,6 @@ public class Downloaders {
         if (prefs.getBoolean("downloadWsj", true)) {
             downloaders.add(new WSJFridayDownloader());
             downloaders.add(new WSJSaturdayDownloader());
-        }
-
-        if (prefs.getBoolean("downloadWaPoClassic", true)) {
-            downloaders.add(new AmuseLabsDownloader(
-                context.getString(R.string.washington_post_classic),
-                "cdn1", "wapo", "mreagle_", "wapo-mr",
-                Downloader.DATE_SUNDAY,
-                "https://subscribe.washingtonpost.com"
-            ));
         }
 
         if (prefs.getBoolean("downloadWaPoSunday", true)) {
