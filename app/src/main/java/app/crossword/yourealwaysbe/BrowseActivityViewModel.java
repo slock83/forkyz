@@ -344,33 +344,60 @@ public class BrowseActivityViewModel extends ViewModel {
      * shown in the case that the import succeeds or forceReload is true.
      */
     public void importURI(Uri uri, boolean forceReload) {
+        importURIs(Collections.singletonList(uri), forceReload);
+    }
+
+    /**
+     * Import files from uri to crosswords folder
+     *
+     * Triggers refresh of puzzle list if crosswords folder is currently
+     * shown in the case that the import succeeds or forceReload is set
+     */
+    public void importURIs(List<Uri> uris, boolean forceReload) {
         threadWithUILock(() -> {
             ForkyzApplication application = ForkyzApplication.getInstance();
             ContentResolver resolver = application.getContentResolver();
 
-            final PuzHandle ph = PuzzleImporter.importUri(resolver, uri);
+            boolean someFailed = false;
+            boolean someSucceeded = false;
+            boolean needsFullReload = forceReload;
 
-            if (!getIsViewArchive()) {
-                if (forceReload) {
-                    startLoadFiles();
-                } else if (ph != null) {
+            for (Uri uri : uris) {
+                if (uri == null)
+                    continue;
+
+                PuzHandle ph = PuzzleImporter.importUri(resolver, uri);
+
+                someFailed |= (ph == null);
+                someSucceeded |= (ph != null);
+
+                if (!getIsViewArchive() && ph != null && !needsFullReload) {
                     try {
                         PuzMetaFile pm = getFileHandler().loadPuzMetaFile(ph);
                         addPuzzleToList(pm);
                     } catch (IOException e) {
                         // fall back to full reload
-                        startLoadFiles();
+                        needsFullReload = true;
                     }
                 }
             }
 
-            handler.post(() -> {
-                String msg = application.getString(
-                    ph != null ? R.string.import_success : R.string.import_failure
-                );
-                Toast t = Toast.makeText(application, msg, Toast.LENGTH_SHORT);
-                t.show();
-            });
+            if (needsFullReload)
+                startLoadFiles();
+
+            if (someSucceeded || someFailed) {
+                final boolean finalSomeFailed = someFailed;
+
+                handler.post(() -> {
+                    String msg = application.getString(
+                        finalSomeFailed
+                            ? R.string.import_failure
+                            : R.string.import_success
+                    );
+                    Toast t = Toast.makeText(application, msg, Toast.LENGTH_SHORT);
+                    t.show();
+                });
+            }
         });
     }
 
