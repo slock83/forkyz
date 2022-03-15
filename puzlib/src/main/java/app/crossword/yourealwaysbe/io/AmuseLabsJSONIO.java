@@ -166,10 +166,12 @@ public class AmuseLabsJSONIO implements PuzzleParser {
             JSONObject entry = entries.getJSONObject(i);
 
             int num = entry.getInt("clueNum");
-            boolean across = entry.getBoolean("acrossNotDown");
-            String clue = entry.getJSONObject("clue").getString("clue");
+            if (num > 0) {
+                boolean across = entry.getBoolean("acrossNotDown");
+                String clue = entry.getJSONObject("clue").getString("clue");
 
-            puz.addClue(new Clue(num, across, clue));
+                puz.addClue(new Clue(num, across, clue));
+            }
         }
     }
 }
