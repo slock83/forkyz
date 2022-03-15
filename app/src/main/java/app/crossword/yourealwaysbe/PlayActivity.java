@@ -33,6 +33,7 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.DialogFragment;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -974,8 +975,9 @@ public class PlayActivity extends PuzzleActivity
 
         Clue c = getBoard().getClue();
         if (c != null) {
-            this.clue.setText(getLongClueText(
-                c, getBoard().getCurrentWord().length
+            this.clue.setText(HtmlCompat.fromHtml(
+                getLongClueText(c, getBoard().getCurrentWord().length),
+                0
             ));
         }
 

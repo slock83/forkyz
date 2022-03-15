@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -607,7 +608,7 @@ public class ClueTabs extends LinearLayout
 
             Playboard board = ClueTabs.this.board;
 
-            clueView.setText(getClueText(clue));
+            clueView.setText(HtmlCompat.fromHtml(getClueText(clue), 0));
 
             int color = R.color.textColorPrimary;
             if (
