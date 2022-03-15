@@ -201,138 +201,49 @@ public class Puzzle implements Serializable{
     }
 
     /**
-     * Will automatically fill in clue numbers
+     * Set boxes for puzzle
      *
-     * Follows standard crossword rules: read left to right, top to
+     * "Standard" crossword numbering rules: read left to right, top to
      * bottom. The start of an across clue is when a box is not joined
      * to something on the left, but is joined to something on the
      * right. Similarly for down clues.
      *
-     * This may be something that needs to change in future.
-     *
      * Also sets height and width and fills in "is part of clue" info in
-     * boxes.
+     * boxes. This includes whether the numbered cells are the start of
+     * an across or down clue. TODO: since the clues aren't given at the
+     * same time, this method assumes if a cell has a number and is
+     * joined in a direction, it also has a clue in that direction. May
+     * need to set boxes and clues at same time.
      *
      * @param boxes boxes in row, col order, null means black square.
      * Must be a true grid.
+     * @param autoNumber assign numbers to boxes using standard method
+     * rather than any existing numbering
      * @throws IllegalArgumentException if the boxes are not a grid, or
-     * contain numbering inconsistent with the "standard" crossword
-     * numbering system.
+     * contain autoNumber true but any existing numbering inconsistent
+     * with the "standard" crossword numbering system.
      */
-    public void setBoxes(Box[][] boxes) {
+    public void setBoxes(Box[][] boxes, boolean autoNumber) {
         this.boxes = boxes;
-
-        int clueCount = 1;
 
         this.height = boxes.length;
         this.width = height > 0 ? boxes[0].length : 0;
 
+        // check is grid
         for (int row = 0; row < boxes.length; row++) {
             if (boxes[row].length != width) {
                 throw new IllegalArgumentException(
                     "Boxes do not form a grid"
                 );
             }
-
-            for (int col = 0; col < boxes[row].length; col++) {
-                if (boxes[row][col] == null) {
-                    continue;
-                }
-
-                boolean tickedClue = false;
-                if (!joinedTop(boxes, row, col)) {
-                    if (joinedBottom(boxes, row, col)) {
-                        boxes[row][col].setDown(true);
-                        tickedClue = true;
-                    }
-                }
-
-                if (!joinedLeft(boxes, row, col)) {
-                    if (joinedRight(boxes, row, col)) {
-                        boxes[row][col].setAcross(true);
-                        tickedClue = true;
-                    }
-                }
-
-                int boxNumber = boxes[row][col].getClueNumber();
-
-                if (tickedClue) {
-                    if (boxNumber > 0 && boxNumber != clueCount) {
-                        throw new IllegalArgumentException(
-                            "Box clue number " + boxNumber
-                                + " does not match expected "
-                                + clueCount
-                        );
-                    }
-
-                    boxes[row][col].setClueNumber(clueCount);
-                    clueCount++;
-                } else {
-                    if (boxNumber > 0) {
-                        throw new IllegalArgumentException(
-                            "Box at row " + row
-                                + " and col " + col
-                                + " numbered " + boxNumber
-                                + " expected not to be numbered"
-                        );
-                    }
-                }
-            }
         }
 
-        // set partOfAcross numbers
-        int maxRowLen = -1;
-        for (int row = 0; row < boxes.length; row++) {
-            int lastAcross = -1;
-            int acrossPosition = -1;
-            maxRowLen = java.lang.Math.max(maxRowLen, boxes[row].length);
-            for (int col = 0; col < boxes[row].length; col++) {
-                if (boxes[row][col] == null) {
-                    continue;
-                }
+        if (autoNumber)
+            autoNumberBoxes(boxes);
 
-                if (boxes[row][col].isAcross()) {
-                    lastAcross = boxes[row][col].getClueNumber();
-                    acrossPosition = 0;
-                }
-
-                if (lastAcross > 0) {
-                    boxes[row][col].setPartOfAcrossClueNumber(lastAcross);
-                    boxes[row][col].setAcrossPosition(acrossPosition);
-                    acrossPosition++;
-                }
-
-                if (!joinedRight(boxes, row, col)) {
-                    lastAcross = -1;
-                }
-            }
-        }
-
-        // set partOfDown numbers
-        for (int col = 0; col < maxRowLen; col++) {
-            int lastDown = -1;
-            int downPosition = -1;
-            for (int row = 0; row < boxes.length; row++) {
-                if (col >= boxes[row].length || boxes[row][col] == null) {
-                    continue;
-                }
-
-                if (boxes[row][col].isDown()) {
-                    lastDown = boxes[row][col].getClueNumber();
-                    downPosition = 0;
-                }
-
-                if (lastDown > -1) {
-                    boxes[row][col].setPartOfDownClueNumber(lastDown);
-                    boxes[row][col].setDownPosition(downPosition);
-                    downPosition++;
-                }
-
-                if (!joinedBottom(boxes, row, col)) {
-                    lastDown = -1;
-                }
-            }
-        }
+        setAcrossDown(boxes);
+        setPartOfAcrossClueNumbers(boxes);
+        setPartOfDownClueNumbers(boxes, this.width);
     }
 
     public Box[][] getBoxes() {
@@ -342,7 +253,7 @@ public class Puzzle implements Serializable{
     /**
      * Assumes height and width has been set
      *
-     * See setBoxes for more details
+     * See setBoxes for more details, uses autoNumber=true
      */
     public void setBoxesFromList(Box[] boxesList, int width, int height) {
         int i = 0;
@@ -354,7 +265,7 @@ public class Puzzle implements Serializable{
             }
         }
 
-        setBoxes(boxes);
+        setBoxes(boxes, true);
     }
 
     public Box[] getBoxesList() {
@@ -933,6 +844,147 @@ public class Puzzle implements Serializable{
 
     public Iterable<ClueNumDir> getFlaggedClues() {
         return flaggedClues;
+    }
+
+    /**
+     * Number boxes according to standard system
+     *
+     * @throws IllegalArgumentException if mismatch with existing
+     * numbers
+     */
+    private static void autoNumberBoxes(Box[][] boxes)
+            throws IllegalArgumentException {
+
+        int clueCount = 1;
+
+        for (int row = 0; row < boxes.length; row++) {
+            for (int col = 0; col < boxes[row].length; col++) {
+                if (boxes[row][col] == null) {
+                    continue;
+                }
+
+                boolean isStart = isStartClue(boxes, row, col, true)
+                    || isStartClue(boxes, row, col, false);
+
+                int boxNumber = boxes[row][col].getClueNumber();
+
+                if (isStart) {
+                    if (boxNumber > 0 && boxNumber != clueCount) {
+                        throw new IllegalArgumentException(
+                            "Box clue number " + boxNumber
+                                + " does not match expected "
+                                + clueCount
+                        );
+                    }
+
+                    boxes[row][col].setClueNumber(clueCount);
+                    clueCount++;
+                } else {
+                    if (boxNumber > 0) {
+                        throw new IllegalArgumentException(
+                            "Box at row " + row
+                                + " and col " + col
+                                + " numbered " + boxNumber
+                                + " expected not to be numbered"
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Set isAcross/isDown info on boxes
+     *
+     * TODO: Makes big assumption that a number that is joined in either
+     * direction has a clue in that direction. A better solution would
+     * make boxes and clues be set at the same time
+     */
+    private static void setAcrossDown(Box[][] boxes) {
+        for (int row = 0; row < boxes.length; row++) {
+            for (int col = 0; col < boxes[row].length; col++) {
+                if (boxes[row][col] == null) {
+                    continue;
+                }
+                if (boxes[row][col].getClueNumber() > 0) {
+                    if (isStartClue(boxes, row, col, true)) {
+                        boxes[row][col].setAcross(true);
+                    }
+                    if (isStartClue(boxes, row, col, false)) {
+                        boxes[row][col].setDown(true);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void setPartOfAcrossClueNumbers(Box[][] boxes) {
+        for (int row = 0; row < boxes.length; row++) {
+            int lastAcross = -1;
+            int acrossPosition = -1;
+            for (int col = 0; col < boxes[row].length; col++) {
+                if (boxes[row][col] == null) {
+                    continue;
+                }
+
+                if (boxes[row][col].isAcross()) {
+                    lastAcross = boxes[row][col].getClueNumber();
+                    acrossPosition = 0;
+                }
+
+                if (lastAcross > 0) {
+                    boxes[row][col].setPartOfAcrossClueNumber(lastAcross);
+                    boxes[row][col].setAcrossPosition(acrossPosition);
+                    acrossPosition++;
+                }
+
+                if (!joinedRight(boxes, row, col)) {
+                    lastAcross = -1;
+                }
+            }
+        }
+    }
+
+    private static void setPartOfDownClueNumbers(Box[][] boxes, int width) {
+        for (int col = 0; col < width; col++) {
+            int lastDown = -1;
+            int downPosition = -1;
+            for (int row = 0; row < boxes.length; row++) {
+                if (col >= boxes[row].length || boxes[row][col] == null) {
+                    continue;
+                }
+
+                if (boxes[row][col].isDown()) {
+                    lastDown = boxes[row][col].getClueNumber();
+                    downPosition = 0;
+                }
+
+                if (lastDown > -1) {
+                    boxes[row][col].setPartOfDownClueNumber(lastDown);
+                    boxes[row][col].setDownPosition(downPosition);
+                    downPosition++;
+                }
+
+                if (!joinedBottom(boxes, row, col)) {
+                    lastDown = -1;
+                }
+            }
+        }
+    }
+
+    /**
+     * True if box is start of clue in standard numbering system
+     */
+    private static boolean isStartClue(
+        Box[][] boxes, int row, int col, boolean across
+    ) {
+        if (across) {
+            return !joinedLeft(boxes, row, col)
+                && joinedRight(boxes, row, col);
+        } else {
+            return !joinedTop(boxes, row, col)
+                && joinedBottom(boxes, row, col);
+        }
     }
 
     public static class ClueNumDir {

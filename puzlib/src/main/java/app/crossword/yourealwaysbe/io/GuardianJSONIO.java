@@ -71,7 +71,7 @@ public class GuardianJSONIO implements PuzzleParser {
             );
         }
 
-        puz.setBoxes(getBoxes(json));
+        puz.setBoxes(getBoxes(json), false);
         addClues(json, puz);
 
         return puz;

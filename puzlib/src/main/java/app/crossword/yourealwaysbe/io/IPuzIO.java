@@ -383,7 +383,7 @@ public class IPuzIO implements PuzzleParser {
         readSolution(puzJson, boxes);
 
         try {
-            puz.setBoxes(boxes);
+            puz.setBoxes(boxes, false);
         } catch (IllegalArgumentException e) {
             throw new IPuzFormatException(
                 "Boxes not compatible: " + e.getMessage()

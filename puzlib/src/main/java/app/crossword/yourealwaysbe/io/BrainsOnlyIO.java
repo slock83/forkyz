@@ -79,7 +79,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                 boxes[down][across] = b;
             }
         }
-        puz.setBoxes(boxes);
+        puz.setBoxes(boxes, true);
         readLineAtOffset(reader, 0);
         ArrayList<String> acrossClues = new ArrayList<String>();
         for(String clue = readLineAtOffset(reader, 0); !"".equals(clue); clue = readLineAtOffset(reader, 0)){

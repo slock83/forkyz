@@ -168,7 +168,7 @@ public class IO implements PuzzleParser {
             }
         }
 
-        puz.setBoxes(boxes);
+        puz.setBoxes(boxes, true);
 
         puz.setTitle(readNullTerminatedString(input));
         puz.setAuthor(readNullTerminatedString(input));

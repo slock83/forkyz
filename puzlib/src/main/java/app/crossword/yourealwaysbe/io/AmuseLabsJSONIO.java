@@ -76,7 +76,7 @@ public class AmuseLabsJSONIO implements PuzzleParser {
         }
 
         try {
-            puz.setBoxes(getBoxes(json));
+            puz.setBoxes(getBoxes(json), false);
         } catch (IllegalArgumentException e) {
             throw new AmuseLabsFormatException("Could not set grid boxes from data file: " + e.getMessage());
         }

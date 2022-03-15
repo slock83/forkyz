@@ -109,7 +109,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
             }
         }
 
-        puz.setBoxes(boxes);
+        puz.setBoxes(boxes, true);
 
         // Process clues.
         line = line.substring(1);

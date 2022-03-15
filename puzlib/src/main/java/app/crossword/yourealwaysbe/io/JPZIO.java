@@ -459,7 +459,7 @@ public class JPZIO implements PuzzleParser {
         puz.setTitle(handler.getTitle());
         puz.setAuthor(handler.getCreator());
         puz.setCopyright(handler.getCopyright());
-        puz.setBoxes(handler.getBoxes());
+        puz.setBoxes(handler.getBoxes(), false);
 
         setClues(puz, handler);
         setNote(puz, handler);
