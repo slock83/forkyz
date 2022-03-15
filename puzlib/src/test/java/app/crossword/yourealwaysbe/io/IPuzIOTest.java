@@ -114,7 +114,7 @@ public class IPuzIOTest extends TestCase {
 
         assertEquals(
             acrossClues.getClue(1).getHint(),
-            "Test clue 1\nA clue!"
+            "Test <b>clue</b> 1<br>A clue&excl;"
         );
     }
 

@@ -717,7 +717,7 @@ public class IPuzIO implements PuzzleParser {
                 );
             }
             Object clueNumObj = clueArray.get(0);
-            String hint = unHtmlString(clueArray.getString(1));
+            String hint = clueArray.getString(1);
 
             return buildClue(clueNumObj, across, hint, null);
         } else if (clueObj instanceof JSONObject) {
@@ -739,7 +739,7 @@ public class IPuzIO implements PuzzleParser {
             // build hint, bake in additional info
             StringBuilder hint = new StringBuilder();
 
-            hint.append(getHtmlOptString(clueJson, FIELD_CLUE_HINT));
+            hint.append(clueJson.getString(FIELD_CLUE_HINT));
 
             JSONArray conts = clueJson.optJSONArray(FIELD_CLUE_CONTINUED);
             if (conts != null && conts.length() > 0) {
@@ -1364,7 +1364,7 @@ public class IPuzIO implements PuzzleParser {
             writer.indent(2)
                 .array()
                 .value(clue.getNumber())
-                .value(hint == null ? NULL_CLUE : htmlString(hint))
+                .value(hint == null ? NULL_CLUE : hint)
                 .endArray();
             writer.newLine();
         }
