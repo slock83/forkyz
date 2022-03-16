@@ -10,8 +10,8 @@ import junit.framework.TestCase;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 public class IPuzIOTest extends TestCase {
@@ -148,7 +148,7 @@ public class IPuzIOTest extends TestCase {
 
             puz.setSupportUrl("http://test.url");
             puz.setTime(1234L);
-            puz.setPosition(new Position(1, 2));
+            puz.setPosition(new Position(2, 1));
             puz.setAcross(false);
 
             puz.updateHistory(3, true);

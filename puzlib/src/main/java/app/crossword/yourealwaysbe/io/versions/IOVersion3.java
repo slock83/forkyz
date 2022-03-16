@@ -1,6 +1,6 @@
 package app.crossword.yourealwaysbe.io.versions;
 
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 
@@ -25,7 +25,7 @@ public class IOVersion3 extends IOVersion2 {
         PuzzleMeta meta = super.readMeta(dis);
         int x = dis.readInt();
         int y = dis.readInt();
-        meta.position = new Position(x, y);
+        meta.position = new Position(y, x);
         meta.across = dis.read() == 1;
         return meta;
     }
@@ -36,8 +36,8 @@ public class IOVersion3 extends IOVersion2 {
         super.writeMeta(puz, dos);
         Position p = puz.getPosition();
         if (p != null) {
-            dos.writeInt(p.across);
-            dos.writeInt(p.down);
+            dos.writeInt(p.getCol());
+            dos.writeInt(p.getRow());
         } else {
             dos.writeInt(0);
             dos.writeInt(0);

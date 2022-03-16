@@ -1,6 +1,6 @@
 package app.crossword.yourealwaysbe.puz;
 
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 
 import java.io.Serializable;
@@ -21,9 +21,12 @@ public interface MovementStrategy extends Serializable {
          */
         static boolean isLastWordInDirection(Box[][] boxes, Word w) {
             if (w.across) {
-                return (w.start.across + w.length >= boxes[w.start.down].length);
+                return (
+                    w.start.getCol() + w.length
+                    >= boxes[w.start.getRow()].length
+                );
             }
-            return (w.start.down + w.length >= boxes.length);
+            return (w.start.getRow() + w.length >= boxes.length);
         }
 
         /**
@@ -31,8 +34,8 @@ public interface MovementStrategy extends Serializable {
          */
         static boolean isWordEnd(Position p, Word w) {
             return
-                (w.across && p.across == w.start.across + w.length - 1) ||
-                (!w.across && p.down == w.start.down + w.length - 1)
+                (w.across && p.getCol() == w.start.getCol() + w.length - 1) ||
+                (!w.across && p.getRow() == w.start.getRow() + w.length - 1)
             ;
         }
 
@@ -40,8 +43,8 @@ public interface MovementStrategy extends Serializable {
          * @return if @param Position (p) is the first position in @param Word (w)
          */
         static boolean isWordStart(Position p, Word w) {
-            return (w.across && p.across == w.start.across)
-                || (!w.across && p.down == w.start.down)
+            return (w.across && p.getCol() == w.start.getCol())
+                || (!w.across && p.getRow() == w.start.getRow())
             ;
         }
     }
@@ -90,7 +93,7 @@ public interface MovementStrategy extends Serializable {
                     // special case if this is at the end of the board
                     Position current = board.getHighlightLetter();
                     Box[][] boxes = board.getBoxes();
-                    if (!boxes[current.down][current.across].isBlank()) {
+                    if (!boxes[current.getRow()][current.getCol()].isBlank()) {
                         board.setHighlightLetter(p);
                     }
                 }
@@ -120,8 +123,8 @@ public interface MovementStrategy extends Serializable {
          */
         private boolean moveToNextWord(Playboard board, boolean skipCompletedLetters) {
             Word w = board.getCurrentWord();
-            int currentClueNumber
-                = board.getBoxes()[w.start.down][w.start.across].getClueNumber();
+            Box box = board.getBoxes()[w.start.getRow()][w.start.getCol()];
+            int currentClueNumber = box.getClueNumber();
             boolean nextClueAcross;
             Puzzle puz = board.getPuzzle();
             int nextClueNumber
@@ -148,7 +151,7 @@ public interface MovementStrategy extends Serializable {
         private void moveToPreviousWord(Playboard board) {
             Word w = board.getCurrentWord();
             int currentClueNumber
-                = board.getBoxes()[w.start.down][w.start.across]
+                = board.getBoxes()[w.start.getRow()][w.start.getCol()]
                     .getClueNumber();
             Puzzle puz = board.getPuzzle();
             int previousClueNumber
@@ -166,9 +169,13 @@ public interface MovementStrategy extends Serializable {
             w = board.getCurrentWord();
             Position newPos;
             if (w.across) {
-                newPos = new Position(w.start.across + w.length - 1, w.start.down);
+                newPos = new Position(
+                    w.start.getRow(), w.start.getCol() + w.length - 1
+                );
             } else {
-                newPos = new Position(w.start.across, w.start.down + w.length - 1);
+                newPos = new Position(
+                    w.start.getRow() + w.length - 1, w.start.getCol()
+                );
             }
             board.setHighlightLetter(newPos);
         }
@@ -182,16 +189,26 @@ public interface MovementStrategy extends Serializable {
             Box[] wordBoxes = board.getCurrentWordBoxes();
 
             if(w.across) {
-                for(int x = p.across; x < w.start.across + w.length; x++) {
-                    if(!board.skipCurrentBox(wordBoxes[x - w.start.across], skipCompletedLetters)) {
-                        board.setHighlightLetter(new Position(x, p.down));
+                for(int x = p.getCol() ; x < w.start.getCol() + w.length; x++) {
+                    boolean skip = board.skipCurrentBox(
+                        wordBoxes[x - w.start.getCol()], skipCompletedLetters
+                    );
+                    if(!skip) {
+                        board.setHighlightLetter(
+                            new Position(p.getRow(), x)
+                        );
                         return true;
                     }
                 }
             } else {
-                for(int y = p.down; y < w.start.down + w.length; y++) {
-                    if(!board.skipCurrentBox(wordBoxes[y - w.start.down], skipCompletedLetters)) {
-                        board.setHighlightLetter(new Position(p.across, y));
+                for(int y = p.getRow(); y < w.start.getRow() + w.length; y++) {
+                    boolean skip = board.skipCurrentBox(
+                        wordBoxes[y - w.start.getRow()], skipCompletedLetters
+                    );
+                    if(!skip) {
+                        board.setHighlightLetter(
+                            new Position(y, p.getCol())
+                        );
                         return true;
                     }
                 }
@@ -219,7 +236,9 @@ public interface MovementStrategy extends Serializable {
                 nextPos = board.getHighlightLetter();
             } else {
                 // In middle of word - move to the next unfilled letter.
-                nextPos = w.across ? new Position(p.across + 1, p.down) : new Position(p.across, p.down + 1);
+                nextPos = w.across
+                    ? new Position(p.getRow(), p.getCol() + 1)
+                    : new Position(p.getRow() + 1, p.getCol());
             }
             while(!(moveToNextBlank(board, nextPos, skipCompletedLetters))) {
                 if(moveToNextWord(board, skipCompletedLetters)) {
@@ -234,8 +253,8 @@ public interface MovementStrategy extends Serializable {
         public Word back(Playboard board) {
             Position p = board.getHighlightLetter();
             Word w = board.getCurrentWord();
-            if ((w.across && p.across == w.start.across)
-                    || (!w.across && p.down == w.start.down)) {
+            if ((w.across && p.getCol() == w.start.getCol())
+                    || (!w.across && p.getRow() == w.start.getRow())) {
                 // At beginning of word - move to previous clue.
                 moveToPreviousWord(board);
             } else {
@@ -267,8 +286,10 @@ public interface MovementStrategy extends Serializable {
                 MOVE_NEXT_ON_AXIS.move(board, skipCompletedLetters);
                 Word newWord = board.getCurrentWord();
                 if (!newWord.equals(w)) {
-                    Position end = new Position(w.start.across + (w.across ? w.length -1: 0),
-                            w.start.down + (w.across? 0 : w.length -1));
+                    Position end = new Position(
+                        w.start.getRow() + (w.across ? 0 : w.length - 1),
+                        w.start.getCol() + (w.across ? w.length - 1: 0)
+                    );
                     board.setHighlightLetter(end);
                     this.move(board, skipCompletedLetters);
                 } else {
@@ -282,9 +303,11 @@ public interface MovementStrategy extends Serializable {
                         }
                     } else {
                         Position newPos = board.getHighlightLetter();
-                        if (p.across == newPos.across && p.down == newPos.down && !Common.isWordEnd(board.getHighlightLetter(), w)) {
-                            Position end = new Position(w.start.across + (w.across ? w.length -1: 0),
-                                    w.start.down + (w.across? 0 : w.length -1));
+                        if (p.equals(newPos) && !Common.isWordEnd(board.getHighlightLetter(), w)) {
+                            Position end = new Position(
+                                w.start.getRow() + (w.across ? 0 : w.length - 1),
+                                w.start.getCol() + (w.across ? w.length - 1: 0)
+                            );
                             board.setHighlightLetter(end);
                             this.move(board, skipCompletedLetters);
                         }
@@ -310,11 +333,11 @@ public interface MovementStrategy extends Serializable {
             if (w.across) {
                 // scan from row below underneath the word until another
                 // across word found
-                for (int row = w.start.down + 1; row < boxes.length; row++) {
+                for (int row = w.start.getRow() + 1; row < boxes.length; row++) {
                     for (int offCol = 0; offCol < w.length; offCol++) {
                         int col = biasStart
-                            ? w.start.across + offCol
-                            : w.start.across + w.length - offCol - 1;
+                            ? w.start.getCol() + offCol
+                            : w.start.getCol() + w.length - offCol - 1;
                         Box box = boxes[row][col];
                         if (box != null && box.isPartOfAcross()) {
                             board.jumpToClue(
@@ -328,11 +351,11 @@ public interface MovementStrategy extends Serializable {
                 // scan from col after the word in same rows until another
                 // down word found
                 int width = board.getPuzzle().getWidth();
-                for (int col = w.start.across + 1; col < width; col++) {
+                for (int col = w.start.getCol() + 1; col < width; col++) {
                     for (int offRow = 0; offRow < w.length; offRow++) {
                         int row = biasStart
-                            ? w.start.down + offRow
-                            : w.start.down + w.length - offRow - 1;
+                            ? w.start.getRow() + offRow
+                            : w.start.getRow() + w.length - offRow - 1;
                         Box box = boxes[row][col];
                         if (box != null && box.isPartOfDown()) {
                             board.jumpToClue(
@@ -356,12 +379,12 @@ public interface MovementStrategy extends Serializable {
 
             if (w.across) {
                 int width = board.getPuzzle().getWidth();
-                startOffset = w.start.across;
-                endOffset = width - (w.start.across + w.length);
+                startOffset = w.start.getCol();
+                endOffset = width - (w.start.getCol() + w.length);
             } else {
                 int height = board.getPuzzle().getHeight();
-                startOffset = w.start.down;
-                endOffset = height - (w.start.down + w.length);
+                startOffset = w.start.getRow();
+                endOffset = height - (w.start.getRow() + w.length);
             }
 
             return startOffset <= endOffset;
@@ -400,11 +423,11 @@ public interface MovementStrategy extends Serializable {
             if (w.across) {
                 // scan from row below underneath the word until another
                 // across word found
-                for (int row = w.start.down - 1; row >= 0; row -= 1) {
+                for (int row = w.start.getRow() - 1; row >= 0; row -= 1) {
                     for (int offCol = 0; offCol < w.length; offCol++) {
                         int col = biasStart
-                            ? w.start.across + offCol
-                            : w.start.across + w.length - offCol - 1;
+                            ? w.start.getCol() + offCol
+                            : w.start.getCol() + w.length - offCol - 1;
                         Box box = boxes[row][col];
                         if (box != null && box.isPartOfAcross()) {
                             board.jumpToClueEnd(
@@ -417,11 +440,11 @@ public interface MovementStrategy extends Serializable {
             } else {
                 // scan from col after the word in same rows until another
                 // down word found
-                for (int col = w.start.across - 1; col >= 0; col -= 1) {
+                for (int col = w.start.getCol() - 1; col >= 0; col -= 1) {
                     for (int offRow = 0; offRow < w.length; offRow++) {
                         int row = biasStart
-                            ? w.start.down + offRow
-                            : w.start.down + w.length - offRow - 1;
+                            ? w.start.getRow() + offRow
+                            : w.start.getRow() + w.length - offRow - 1;
                         Box box = boxes[row][col];
                         if (box != null && box.isPartOfDown()) {
                             board.jumpToClueEnd(

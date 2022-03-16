@@ -1,14 +1,14 @@
 package app.crossword.yourealwaysbe.puz;
 
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.SortedMap;
@@ -53,6 +53,9 @@ public class Puzzle implements Serializable{
 
     private Set<ClueNumDir> flaggedClues = new HashSet<>();
 
+    private Map<Integer, Position> wordStarts
+        = new HashMap<Integer, Position>();
+
     // Temporary fields used for unscrambling.
     public int[] unscrambleKey;
     public byte[] unscrambleTmp;
@@ -63,6 +66,7 @@ public class Puzzle implements Serializable{
             this.acrossClues.addClue(clue);
         else
             this.downClues.addClue(clue);
+        addClueToBoxes(clue);
     }
 
     /**
@@ -82,6 +86,31 @@ public class Puzzle implements Serializable{
 
     public String getAuthor() {
         return author;
+    }
+
+    /**
+     * Get start of clue position
+     *
+     * @return null if no such clue
+     */
+    public Position getWordStart(int clueNum, boolean across) {
+        Position start = wordStarts.get(clueNum);
+
+        if (start == null)
+            return null;
+
+        Box box = boxes[start.getRow()][start.getCol()];
+
+        if (box == null)
+            return null;
+
+        if (across && box.isAcross())
+            return start;
+
+        if (!across && box.isDown())
+            return start;
+
+        return null;
     }
 
     private static Box checkedGetBox(Box[][] boxes, int row, int col) {
@@ -210,10 +239,7 @@ public class Puzzle implements Serializable{
      *
      * Also sets height and width and fills in "is part of clue" info in
      * boxes. This includes whether the numbered cells are the start of
-     * an across or down clue. TODO: since the clues aren't given at the
-     * same time, this method assumes if a cell has a number and is
-     * joined in a direction, it also has a clue in that direction. May
-     * need to set boxes and clues at same time.
+     * an across or down clue.
      *
      * @param boxes boxes in row, col order, null means black square.
      * Must be a true grid.
@@ -241,9 +267,8 @@ public class Puzzle implements Serializable{
         if (autoNumber)
             autoNumberBoxes(boxes);
 
-        setAcrossDown(boxes);
-        setPartOfAcrossClueNumbers(boxes);
-        setPartOfDownClueNumbers(boxes, this.width);
+        loadWordStarts();
+        addCluesToBoxes();
     }
 
     public Box[][] getBoxes() {
@@ -894,88 +919,11 @@ public class Puzzle implements Serializable{
     }
 
     /**
-     * Set isAcross/isDown info on boxes
-     *
-     * TODO: Makes big assumption that a number that is joined in either
-     * direction has a clue in that direction. A better solution would
-     * make boxes and clues be set at the same time
-     */
-    private static void setAcrossDown(Box[][] boxes) {
-        for (int row = 0; row < boxes.length; row++) {
-            for (int col = 0; col < boxes[row].length; col++) {
-                if (boxes[row][col] == null) {
-                    continue;
-                }
-                if (boxes[row][col].getClueNumber() > 0) {
-                    if (isStartClue(boxes, row, col, true)) {
-                        boxes[row][col].setAcross(true);
-                    }
-                    if (isStartClue(boxes, row, col, false)) {
-                        boxes[row][col].setDown(true);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void setPartOfAcrossClueNumbers(Box[][] boxes) {
-        for (int row = 0; row < boxes.length; row++) {
-            int lastAcross = -1;
-            int acrossPosition = -1;
-            for (int col = 0; col < boxes[row].length; col++) {
-                if (boxes[row][col] == null) {
-                    continue;
-                }
-
-                if (boxes[row][col].isAcross()) {
-                    lastAcross = boxes[row][col].getClueNumber();
-                    acrossPosition = 0;
-                }
-
-                if (lastAcross > 0) {
-                    boxes[row][col].setPartOfAcrossClueNumber(lastAcross);
-                    boxes[row][col].setAcrossPosition(acrossPosition);
-                    acrossPosition++;
-                }
-
-                if (!joinedRight(boxes, row, col)) {
-                    lastAcross = -1;
-                }
-            }
-        }
-    }
-
-    private static void setPartOfDownClueNumbers(Box[][] boxes, int width) {
-        for (int col = 0; col < width; col++) {
-            int lastDown = -1;
-            int downPosition = -1;
-            for (int row = 0; row < boxes.length; row++) {
-                if (col >= boxes[row].length || boxes[row][col] == null) {
-                    continue;
-                }
-
-                if (boxes[row][col].isDown()) {
-                    lastDown = boxes[row][col].getClueNumber();
-                    downPosition = 0;
-                }
-
-                if (lastDown > -1) {
-                    boxes[row][col].setPartOfDownClueNumber(lastDown);
-                    boxes[row][col].setDownPosition(downPosition);
-                    downPosition++;
-                }
-
-                if (!joinedBottom(boxes, row, col)) {
-                    lastDown = -1;
-                }
-            }
-        }
-    }
-
-    /**
      * True if box is start of clue in standard numbering system
+     *
+     * Regardless of whether there is actually a clue in the puzzle
      */
-    private static boolean isStartClue(
+    public static boolean isStartClue(
         Box[][] boxes, int row, int col, boolean across
     ) {
         if (across) {
@@ -984,6 +932,82 @@ public class Puzzle implements Serializable{
         } else {
             return !joinedTop(boxes, row, col)
                 && joinedBottom(boxes, row, col);
+        }
+    }
+
+    /**
+     * Go through boxes and add numbered positions to wordStarts
+     */
+    private void loadWordStarts() {
+        for (int row = 0; row < boxes.length; row++) {
+            for (int col = 0; col < boxes[row].length; col++) {
+                Box box = boxes[row][col];
+                if (box != null) {
+                    int clueNum = box.getClueNumber();
+                    if (clueNum > 0)
+                        wordStarts.put(clueNum, new Position(row, col));
+                }
+            }
+        }
+    }
+
+    /**
+     * Goes through existing clues and makes sure info in boxes
+     *
+     * E.g. clue starts are marked in the boxes, and
+     * ispartofacross/down. Assumes wordStarts loaded.
+     */
+    private void addCluesToBoxes() {
+        for (Clue clue : getClues(true))
+            addClueToBoxes(clue);
+        for (Clue clue : getClues(false))
+            addClueToBoxes(clue);
+    }
+
+    /**
+     * Marks clue on current boxes
+     *
+     * E.g. set box as start of the clue or part of the clue
+     */
+    private void addClueToBoxes(Clue clue) {
+        int number = clue.getNumber();
+
+        Position start = wordStarts.get(number);
+
+        // ignore if not in the boxes
+        if (start == null)
+            return;
+
+        int row = start.getRow();
+        int col = start.getCol();
+
+        Box box = boxes[row][col];
+
+        if (box == null)
+            return; // should not happen
+
+        // set start of across/down
+        // then mark boxes in word as part of clue
+        if (clue.getIsAcross()) {
+            box.setAcross(true);
+
+            int off = -1;
+            do {
+                off += 1;
+                Box midBox = boxes[row][col + off];
+                midBox.setPartOfAcrossClueNumber(number);
+                midBox.setAcrossPosition(off);
+            } while (joinedRight(boxes, row, col + off));
+        } else {
+            box.setDown(true);
+
+            int off = -1;
+            do {
+                off += 1;
+                Box midBox = boxes[row + off][col];
+                midBox.setPartOfDownClueNumber(number);
+                midBox.setDownPosition(off);
+            } while (joinedBottom(boxes, row + off, col));
         }
     }
 
@@ -1013,6 +1037,43 @@ public class Puzzle implements Serializable{
 
         public String toString() {
             return clueNumber + (across ? "a" : "d");
+        }
+    }
+
+    public static class Position implements Serializable {
+        private int row;
+        private int col;
+
+        public Position(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+
+        public int getRow() { return row; }
+        public int getCol() { return col; }
+
+        public void setRow(int row) { this.row = row; }
+        public void setCol(int col) { this.col = col; }
+
+        @Override
+        public boolean equals(Object o) {
+            if ((o == null) || (o.getClass() != this.getClass())) {
+                return false;
+            }
+
+            Position p = (Position) o;
+
+            return ((p.col == this.col) && (p.row == this.row));
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(new int[] {row, col});
+        }
+
+        @Override
+        public String toString() {
+            return "(" + this.row+ ", " + this.col + ")";
         }
     }
 }

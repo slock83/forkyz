@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.IOTest;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 
 /**
  *
@@ -38,57 +38,57 @@ public class PlayboardTest extends TestCase {
 
          Playboard board = new Playboard(puz);
          board.setHighlightLetter(new Position(5, 5));
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
          board.moveUp(false);
 
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(4, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(4, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(3, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(3, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(2, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(2, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(2, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(2, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(2, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(2, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
 
          System.out.println("----------");
          board.setHighlightLetter(new Position(4,4));
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(4, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(4, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(2, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(2, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(1, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(1, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(0, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(0, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(0, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(0, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
-         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().down][board.getHighlightLetter().across].getSolution());
-         assertEquals(0, board.getHighlightLetter().down);
+         System.out.println("ON: "+board.getBoxes()[board.getHighlightLetter().getRow()][board.getHighlightLetter().getCol()].getSolution());
+         assertEquals(0, board.getHighlightLetter().getRow());
          board.moveUp(false);
 
 

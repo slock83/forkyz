@@ -18,9 +18,9 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 
@@ -210,7 +210,7 @@ public class PlayboardRenderer {
             for (int row = 0; row < height; row++) {
                 for (int col = 0; col < width; col++) {
                     if (!renderAll) {
-                        if (!currentWord.checkInWord(col, row) && !reset.checkInWord(col, row)) {
+                        if (!currentWord.checkInWord(row, col) && !reset.checkInWord(row, col)) {
                             continue;
                         }
                     }
@@ -250,7 +250,7 @@ public class PlayboardRenderer {
             this.drawBox(
                 canvas,
                 x, y,
-                word[i].down, word[i].across,
+                word[i].getRow(), word[i].getCol(),
                 boxSize,
                 boxes[i],
                 null,
@@ -307,7 +307,7 @@ public class PlayboardRenderer {
         int col = p.x / boxSize;
         int row = p.y / boxSize;
 
-        return new Position(col, row);
+        return new Position(row, col);
     }
 
     public int findBoxNoScale(Point p) {
@@ -318,8 +318,8 @@ public class PlayboardRenderer {
 
     public Point findPointBottomRight(Position p) {
         int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
-        int x = (p.across * boxSize) + boxSize;
-        int y = (p.down * boxSize) + boxSize;
+        int x = (p.getCol() * boxSize) + boxSize;
+        int y = (p.getRow() * boxSize) + boxSize;
 
         return new Point(x, y);
     }
@@ -331,16 +331,16 @@ public class PlayboardRenderer {
         int downLen = word.across ? 1 : word.length;
 
         int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
-        int x = (p.across * boxSize) + acrossLen * boxSize;
-        int y = (p.down * boxSize) + downLen * boxSize;
+        int x = (p.getCol() * boxSize) + acrossLen * boxSize;
+        int y = (p.getRow() * boxSize) + downLen * boxSize;
 
         return new Point(x, y);
     }
 
     public Point findPointTopLeft(Position p) {
         int boxSize = (int) (BASE_BOX_SIZE_INCHES  * dpi * scale);
-        int x = p.across * boxSize;
-        int y = p.down * boxSize;
+        int x = p.getCol() * boxSize;
+        int y = p.getRow() * boxSize;
 
         return new Point(x, y);
     }
@@ -554,29 +554,29 @@ public class PlayboardRenderer {
         redHighlight.setTextSize(letterTextSize);
         white.setTextSize(letterTextSize);
 
-        boolean inCurrentWord = (currentWord != null) && currentWord.checkInWord(col, row);
+        boolean inCurrentWord = (currentWord != null) && currentWord.checkInWord(row, col);
         boolean isHighlighted
-            = (highlight.across == col) && (highlight.down == row);
+            = (highlight.getCol() == col) && (highlight.getRow() == row);
 
         Paint thisLetter;
 
-        Paint boxColor = (((highlight.across == col) && (highlight.down == row)) && (currentWord != null))
+        Paint boxColor = (((highlight.getCol() == col) && (highlight.getRow() == row)) && (currentWord != null))
                 ? this.currentLetterBox : this.blackLine;
 
         // Draw left
-        if ((col != (highlight.across + 1)) || (row != highlight.down)) {
+        if ((col != (highlight.getCol() + 1)) || (row != highlight.getRow())) {
             canvas.drawLine(x, y, x, y + boxSize, boxColor);
         }
         // Draw top
-        if ((row != (highlight.down + 1)) || (col != highlight.across)) {
+        if ((row != (highlight.getRow() + 1)) || (col != highlight.getCol())) {
             canvas.drawLine(x, y, x + boxSize, y, boxColor);
         }
         // Draw right
-        if ((col != (highlight.across - 1)) || (row != highlight.down)) {
+        if ((col != (highlight.getCol() - 1)) || (row != highlight.getRow())) {
             canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, boxColor);
         }
         // Draw bottom
-        if ((row != (highlight.down - 1)) || (col != highlight.across)) {
+        if ((row != (highlight.getRow() - 1)) || (col != highlight.getCol())) {
             canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, boxColor);
         }
 
@@ -595,7 +595,7 @@ public class PlayboardRenderer {
                 canvas.drawRect(r, this.currentLetterHighlight);
             } else if (isHighlighted && highlightError) {
                 canvas.drawRect(r, this.redHighlight);
-            } else if ((currentWord != null) && currentWord.checkInWord(col, row)) {
+            } else if ((currentWord != null) && currentWord.checkInWord(row, col)) {
                 canvas.drawRect(r, this.currentWordHighlight);
             } else if (highlightError) {
                 canvas.drawRect(r, this.red);

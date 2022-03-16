@@ -97,7 +97,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                 if (
                     boxes[h][w] != null
                         && boxes[h][w].getClueNumber() > 0
-                        && boxes[h][w].isAcross()
+                        && Puzzle.isStartClue(boxes, h, w, true)
                 ){
                     puz.addClue(new Clue(
                         boxes[h][w].getClueNumber(),
@@ -115,7 +115,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                 if(
                     boxes[h][w] != null
                         && boxes[h][w].getClueNumber() > 0
-                        && boxes[h][w].isDown()
+                        && Puzzle.isStartClue(boxes, h, w, false)
                 ){
                     puz.addClue(new Clue(
                         boxes[h][w].getClueNumber(),

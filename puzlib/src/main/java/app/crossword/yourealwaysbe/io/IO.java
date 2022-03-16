@@ -182,12 +182,12 @@ public class IO implements PuzzleParser {
 
                 int clueNumber = boxes[x][y].getClueNumber();
 
-                if (boxes[x][y].isAcross() && (clueNumber != 0)) {
+                if (Puzzle.isStartClue(boxes, x, y, true) && (clueNumber != 0)) {
                     String value = readNullTerminatedString(input);
                     puz.addClue(new Clue(clueNumber, true, value));
                 }
 
-                if (boxes[x][y].isDown() && (boxes[x][y].getClueNumber() != 0)) {
+                if (Puzzle.isStartClue(boxes, x, y, false) && (clueNumber != 0)) {
                     String value = readNullTerminatedString(input);
                     puz.addClue(new Clue(clueNumber, false, value));
                 }

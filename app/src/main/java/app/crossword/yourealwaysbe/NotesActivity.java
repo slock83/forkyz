@@ -25,9 +25,9 @@ import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.view.BoardEditText.BoardEditFilter;
@@ -142,19 +142,19 @@ public class NotesActivity extends PuzzleActivity {
                 NotesActivity.this.keyboardManager.showKeyboard(imageView);
 
                 Word current = getBoard().getCurrentWord();
-                int newAcross = current.start.across;
-                int newDown = current.start.down;
-                int box = renderer.findBox(e).across;
+                int newRow = current.start.getRow();
+                int newCol = current.start.getCol();
+                int box = renderer.findBox(e).getCol();
 
                 if (box < current.length) {
                     if (getBoard().isAcross()) {
-                        newAcross += box;
+                        newCol += box;
                     } else {
-                        newDown += box;
+                        newRow += box;
                     }
                 }
 
-                Position newPos = new Position(newAcross, newDown);
+                Position newPos = new Position(newRow, newCol);
 
                 if (!newPos.equals(getBoard().getHighlightLetter())) {
                     getBoard().setHighlightLetter(newPos);
@@ -311,9 +311,10 @@ public class NotesActivity extends PuzzleActivity {
     private boolean onMiniboardKeyUp(int keyCode, KeyEvent event) {
         Word w = getBoard().getCurrentWord();
         boolean across = w.across;
-        Position last = new Position(w.start.across
-                + (w.across ? (w.length - 1) : 0), w.start.down
-                + ((!w.across) ? (w.length - 1) : 0));
+        Position last = new Position(
+            w.start.getRow() + ((!w.across) ? (w.length - 1) : 0),
+            w.start.getCol() + (w.across ? (w.length - 1) : 0)
+        );
 
         switch (keyCode) {
         case KeyEvent.KEYCODE_MENU:
@@ -348,7 +349,7 @@ public class NotesActivity extends PuzzleActivity {
 
             Position p = getBoard().getHighlightLetter();
 
-            if (!w.checkInWord(p.across, p.down)) {
+            if (!w.checkInWord(p.getRow(), p.getCol())) {
                 getBoard().setHighlightLetter(w.start);
             }
 
@@ -358,9 +359,11 @@ public class NotesActivity extends PuzzleActivity {
             getBoard().playLetter(' ');
 
             Position curr = getBoard().getHighlightLetter();
+            int row = curr.getRow();
+            int col = curr.getCol();
 
             if (!getBoard().getCurrentWord().equals(w)
-                    || (getBoard().getBoxes()[curr.down][curr.across] == null)) {
+                    || (getBoard().getBoxes()[row][col] == null)) {
                 getBoard().setHighlightLetter(last);
             }
 
@@ -373,9 +376,11 @@ public class NotesActivity extends PuzzleActivity {
             getBoard().playLetter(c);
 
             Position p = getBoard().getHighlightLetter();
+            int row = p.getRow();
+            int col = p.getCol();
 
             if (!getBoard().getCurrentWord().equals(w)
-                    || (getBoard().getBoxes()[p.down][p.across] == null)) {
+                    || (getBoard().getBoxes()[row][col] == null)) {
                 getBoard().setHighlightLetter(last);
             }
 

@@ -40,9 +40,9 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.MovementStrategy;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
@@ -743,7 +743,7 @@ public class PlayActivity extends PuzzleActivity
         // hide keyboard when moving to a new word
         Position newPos = getBoard().getHighlightLetter();
         if ((previousWord == null) ||
-            !previousWord.checkInWord(newPos.across, newPos.down)) {
+            !previousWord.checkInWord(newPos.getRow(), newPos.getCol())) {
             keyboardManager.hideKeyboard();
         }
 
@@ -906,7 +906,7 @@ public class PlayActivity extends PuzzleActivity
         if (board != null) {
             Position newPos = board.getHighlightLetter();
             if ((previous != null) &&
-                previous.checkInWord(newPos.across, newPos.down)) {
+                previous.checkInWord(newPos.getRow(), newPos.getCol())) {
                 keyboardManager.showKeyboard(boardView);
             } else {
                 keyboardManager.hideKeyboard();

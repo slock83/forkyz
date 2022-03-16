@@ -12,9 +12,9 @@ import android.view.MenuItem;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.view.ClueTabs;
@@ -95,19 +95,19 @@ public class ClueListActivity extends PuzzleActivity
                 Word current = board.getCurrentWord();
                 boolean across = board.isAcross();
 
-                int newAcross = current.start.across;
-                int newDown = current.start.down;
-                int box = renderer.findBox(e).across;
+                int newRow = current.start.getRow();
+                int newCol = current.start.getCol();
+                int box = renderer.findBox(e).getCol();
 
                 if (box < current.length) {
                     if (across) {
-                        newAcross += box;
+                        newCol += box;
                     } else {
-                        newDown += box;
+                        newRow += box;
                     }
                 }
 
-                Position newPos = new Position(newAcross, newDown);
+                Position newPos = new Position(newRow, newCol);
 
                 if (!newPos.equals(board.getHighlightLetter())) {
                     board.setHighlightLetter(newPos);
@@ -223,9 +223,10 @@ public class ClueListActivity extends PuzzleActivity
         int curClueNumber = board.getClueNumber();
         Word w = board.getCurrentWord();
         boolean across = w.across;
-        Position last = new Position(w.start.across
-                + (across ? (w.length - 1) : 0), w.start.down
-                + ((!across) ? (w.length - 1) : 0));
+        Position last = new Position(
+            w.start.getRow() + ((!across) ? (w.length - 1) : 0),
+            w.start.getCol() + (across ? (w.length - 1) : 0)
+        );
 
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
@@ -283,7 +284,7 @@ public class ClueListActivity extends PuzzleActivity
 
             Position p = board.getHighlightLetter();
 
-            if (!w.checkInWord(p.across, p.down)) {
+            if (!w.checkInWord(p.getRow(), p.getCol())) {
                 board.setHighlightLetter(w.start);
             }
 
@@ -294,9 +295,11 @@ public class ClueListActivity extends PuzzleActivity
                 board.playLetter(' ');
 
                 Position curr = board.getHighlightLetter();
+                int row = curr.getRow();
+                int col = curr.getCol();
 
                 if (!board.getCurrentWord().equals(w)
-                        || (board.getBoxes()[curr.down][curr.across] == null)) {
+                        || (board.getBoxes()[row][col] == null)) {
                     board.setHighlightLetter(last);
                 }
             }
@@ -309,9 +312,11 @@ public class ClueListActivity extends PuzzleActivity
             board.playLetter(c);
 
             Position p = board.getHighlightLetter();
+            int row = p.getRow();
+            int col = p.getCol();
 
             if (!board.getCurrentWord().equals(w)
-                    || (board.getBoxes()[p.down][p.across] == null)) {
+                    || (board.getBoxes()[row][col] == null)) {
                 board.setHighlightLetter(last);
             }
 
@@ -356,7 +361,7 @@ public class ClueListActivity extends PuzzleActivity
         if (board != null) {
             Position newPos = board.getHighlightLetter();
             if ((previousWord != null) &&
-                previousWord.checkInWord(newPos.across, newPos.down)) {
+                previousWord.checkInWord(newPos.getRow(), newPos.getCol())) {
                 keyboardManager.showKeyboard(imageView);
             } else {
                 keyboardManager.hideKeyboard();

@@ -30,7 +30,7 @@ import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -1006,7 +1006,7 @@ public class IPuzIO implements PuzzleParser {
 
             if (0 <= row && row <= puz.getHeight()
                     && 0 <= col && col <= puz.getWidth()) {
-                puz.setPosition(new Position(col, row));
+                puz.setPosition(new Position(row, col));
                 puz.setAcross(across);
             }
         }
@@ -1519,8 +1519,8 @@ public class IPuzIO implements PuzzleParser {
         writer.indent(1)
             .key(FIELD_POSITION)
             .object()
-            .key(FIELD_POSITION_ROW).value(pos.down)
-            .key(FIELD_POSITION_COL).value(pos.across)
+            .key(FIELD_POSITION_ROW).value(pos.getRow())
+            .key(FIELD_POSITION_COL).value(pos.getCol())
             .key(FIELD_POSITION_ACROSS).value(puz.getAcross())
             .endObject();
         writer.newLine();

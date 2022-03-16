@@ -10,10 +10,10 @@ import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import androidx.preference.PreferenceManager;
 
-import app.crossword.yourealwaysbe.puz.Playboard;
-import app.crossword.yourealwaysbe.puz.Playboard.Position;
-import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 
 public class BoardEditText extends ScrollingImageView {
     private static final Logger LOG = Logger.getLogger(BoardEditText.class.getCanonicalName());
@@ -36,7 +36,7 @@ public class BoardEditText extends ScrollingImageView {
         public char filter(char oldChar, char newChar, int pos);
     }
 
-    private Position selection = new Position(-1, 0);
+    private Position selection = new Position(0, -1);
     private Box[] boxes;
     private PlayboardRenderer renderer;
     // surely a better way...
@@ -83,9 +83,9 @@ public class BoardEditText extends ScrollingImageView {
             public void onTap(Point e) {
                 BoardEditText.this.requestFocus();
 
-                int box = renderer.findBox(e).across;
+                int box = renderer.findBox(e).getCol();
                 if (boxes != null && box < boxes.length) {
-                    selection.across = box;
+                    selection.setCol(box);
                 }
                 BoardEditText.this.render();
 
@@ -106,12 +106,12 @@ public class BoardEditText extends ScrollingImageView {
     ) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         if (!gainFocus) {
-            selection.across = -1;
+            selection.setCol(-1);
             render();
         } else if (boxes != null) {
-            if (selection.across < 0
-                    || selection.across >= boxes.length) {
-                selection.across = 0;
+            if (selection.getCol() < 0
+                    || selection.getCol() >= boxes.length) {
+                selection.setCol(0);
                 render();
             }
         }
@@ -224,37 +224,43 @@ public class BoardEditText extends ScrollingImageView {
         case KeyEvent.KEYCODE_MENU:
             return false;
 
-        case KeyEvent.KEYCODE_DPAD_LEFT:
-            if (selection.across > 0) {
-                selection.across--;
-                this.render();
-            }
-            return true;
-
-        case KeyEvent.KEYCODE_DPAD_RIGHT:
-            if (boxes != null && selection.across < boxes.length - 1) {
-                selection.across++;
-                this.render();
+        case KeyEvent.KEYCODE_DPAD_LEFT: {
+                int col = selection.getCol();
+                if (col > 0) {
+                    selection.setCol(col - 1);
+                    this.render();
+                }
+                return true;
             }
 
-            return true;
+        case KeyEvent.KEYCODE_DPAD_RIGHT: {
+                int col = selection.getCol();
+                if (boxes != null && col < boxes.length - 1) {
+                    selection.setCol(col + 1);
+                    this.render();
+                }
+
+                return true;
+            }
 
         case KeyEvent.KEYCODE_DEL:
             if (boxes != null) {
-                if (boxes[selection.across].isBlank() && selection.across > 0)
-                    selection.across--;
+                int col = selection.getCol();
+                if (boxes[col].isBlank() && col > 0)
+                    selection.setCol(col - 1);
                 if (canDelete(selection))
-                    boxes[selection.across].setBlank();
+                    boxes[selection.getCol()].setBlank();
                 this.render();
             }
             return true;
 
         case KeyEvent.KEYCODE_SPACE:
             if (boxes != null && canDelete(selection)) {
-                boxes[selection.across].setBlank();
+                int col = selection.getCol();
+                boxes[col].setBlank();
 
-                if (selection.across < boxes.length - 1) {
-                    selection.across++;
+                if (col < boxes.length - 1) {
+                    selection.setCol(col + 1);
                 }
 
                 this.render();
@@ -268,21 +274,24 @@ public class BoardEditText extends ScrollingImageView {
             c = filterReplacement(c, selection);
 
             if (c != '\0') {
-                boxes[selection.across].setResponse(c);
+                int col = selection.getCol();
 
-                if (selection.across < boxes.length - 1) {
-                    selection.across++;
+                boxes[col].setResponse(c);
 
-                    int nextPos = selection.across;
+                if (col < boxes.length - 1) {
+                    col += 1;
+                    int nextPos = col;
 
                     while (getBoard().isSkipCompletedLetters() &&
-                           boxes[selection.across].getResponse() != ' ' &&
-                           selection.across < boxes.length - 1) {
-                        selection.across++;
+                           boxes[col].getResponse() != ' ' &&
+                           col < boxes.length - 1) {
+                        col += 1;
                     }
 
-                    if (boxes[selection.across].getResponse() != ' ')
-                        selection.across = nextPos;
+                    selection.setCol(col);
+
+                    if (boxes[col].getResponse() != ' ')
+                        selection.setCol(nextPos);
                 }
 
                 this.render();
@@ -299,7 +308,7 @@ public class BoardEditText extends ScrollingImageView {
         setBitmap(renderer.drawBoxes(boxes, selection, displayScratch, displayScratch));
         setContentDescription(
             renderer.getContentDescription(
-                contentDescriptionBase, boxes, selection.across, true
+                contentDescriptionBase, boxes, selection.getCol(), true
             )
         );
     }
@@ -308,13 +317,13 @@ public class BoardEditText extends ScrollingImageView {
         if (filters == null)
             return true;
 
-        if (boxes == null || pos.across < 0 || pos.across >= boxes.length)
+        if (boxes == null || pos.getCol() < 0 || pos.getCol() >= boxes.length)
             return false;
 
-        char oldChar = boxes[pos.across].getResponse();
+        char oldChar = boxes[pos.getCol()].getResponse();
 
         for (BoardEditFilter filter : filters) {
-            if (filter != null && !filter.delete(oldChar, pos.across)) {
+            if (filter != null && !filter.delete(oldChar, pos.getCol())) {
                 return false;
             }
         }
@@ -326,14 +335,14 @@ public class BoardEditText extends ScrollingImageView {
         if (filters == null)
             return newChar;
 
-        if (boxes == null || pos.across < 0 || pos.across >= boxes.length)
+        if (boxes == null || pos.getCol() < 0 || pos.getCol() >= boxes.length)
             return '\0';
 
-        char oldChar = boxes[pos.across].getResponse();
+        char oldChar = boxes[pos.getCol()].getResponse();
 
         for (BoardEditFilter filter : filters) {
             if (filter != null) {
-                newChar = filter.filter(oldChar, newChar, pos.across);
+                newChar = filter.filter(oldChar, newChar, pos.getCol());
             }
         }
 
