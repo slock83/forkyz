@@ -75,7 +75,8 @@ class MutableClueList implements ClueList {
 
     @Override
     public int getClueIndex(int number) {
-        return getIndexCache().get(number);
+        Integer idx = getIndexCache().get(number);
+        return (idx == null) ? -1 : idx;
     }
 
     @Override

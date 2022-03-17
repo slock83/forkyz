@@ -974,19 +974,19 @@ public class PlayActivity extends PuzzleActivity
         }
 
         Clue c = getBoard().getClue();
-        if (c != null) {
-            this.clue.setText(HtmlCompat.fromHtml(
-                getLongClueText(c, getBoard().getCurrentWord().length),
-                0
-            ));
-        }
+        this.clue.setText(HtmlCompat.fromHtml(
+            getLongClueText(c, getBoard().getCurrentWord().length),
+            0
+        ));
 
         this.boardView.requestFocus();
     }
 
     private void launchNotes() {
-        Intent i = new Intent(this, NotesActivity.class);
-        this.startActivity(i);
+        if (getBoard().getClue() != null) {
+            Intent i = new Intent(this, NotesActivity.class);
+            this.startActivity(i);
+        }
     }
 
     private void launchClueList() {

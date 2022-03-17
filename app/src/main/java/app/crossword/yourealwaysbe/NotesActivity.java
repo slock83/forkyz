@@ -272,22 +272,26 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     public void onPause() {
-        EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
-        String text = notesBox.getText().toString();
+        Clue clue = getBoard().getClue();
 
-        String scratch = scratchView.toString();
-        String anagramSource = anagramSourceView.toString();
-        String anagramSolution = anagramSolView.toString();
+        if (clue != null) {
+            EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
+            String text = notesBox.getText().toString();
 
-        Puzzle puz = getPuzzle();
-        if (puz != null) {
-            Note note = new Note(scratch, text, anagramSource, anagramSolution);
-            int number = getBoard().getClueNumber();
-            boolean across = getBoard().isAcross();
-            puz.setNote(number, note, across);
+            String scratch = scratchView.toString();
+            String anagramSource = anagramSourceView.toString();
+            String anagramSolution = anagramSolView.toString();
+
+            Puzzle puz = getPuzzle();
+            if (puz != null) {
+                Note note = new Note(scratch, text, anagramSource, anagramSolution);
+                int number = getBoard().getClueNumber();
+                boolean across = getBoard().isAcross();
+                puz.setNote(number, note, across);
+            }
+
+            puz.flagClue(clue, flagClue.isChecked());
         }
-
-        puz.flagClue(getBoard().getClue(), flagClue.isChecked());
 
         super.onPause();
 
@@ -406,12 +410,14 @@ public class NotesActivity extends PuzzleActivity {
         Puzzle puz = board.getPuzzle();
         Clue clue = board.getClue();
 
-        if (board == null || puz == null) {
+        if (board == null || puz == null || clue == null) {
             LOG.info(
                 "NotesActivity resumed but no Puzzle or Clue selected, "
                     + "finishing."
             );
             finish();
+            // finish doesn't finish right away
+            return;
         }
 
         DisplayMetrics metrics = getResources().getDisplayMetrics();

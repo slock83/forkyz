@@ -391,8 +391,10 @@ public class ClueListActivity extends PuzzleActivity
     }
 
     private void launchNotes() {
-        Intent i = new Intent(this, NotesActivity.class);
-        ClueListActivity.this.startActivity(i);
+        if (getBoard().getClue() != null) {
+            Intent i = new Intent(this, NotesActivity.class);
+            ClueListActivity.this.startActivity(i);
+        }
     }
 
     private void selectFirstClue() {

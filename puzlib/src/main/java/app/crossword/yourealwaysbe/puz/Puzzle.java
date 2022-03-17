@@ -260,6 +260,13 @@ public class Puzzle implements Serializable{
     }
 
     /**
+     * Return null if index out of range or not a box
+     */
+    public Box checkedGetBox(Position p) {
+        return checkedGetBox(boxes, p.getRow(), p.getCol());
+    }
+
+    /**
      * Set boxes for puzzle
      *
      * "Standard" crossword numbering rules: read left to right, top to
@@ -880,7 +887,8 @@ public class Puzzle implements Serializable{
      * Flag or unflag clue
      */
     public void flagClue(Clue clue, boolean flag) {
-        flagClue(clue.getNumber(), clue.getIsAcross(), flag);
+        if (clue != null)
+            flagClue(clue.getNumber(), clue.getIsAcross(), flag);
     }
 
     /**

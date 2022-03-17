@@ -104,8 +104,13 @@ public class Playboard implements Serializable {
      */
     public int getClueNumber() {
         Position start = this.getCurrentWordStart();
-        Box box = puzzle.checkedGetBox(start.getRow(), start.getCol());
-        return box == null ? -1 : box.getClueNumber();
+        Box box = puzzle.checkedGetBox(start);
+        if (box == null) {
+            return -1;
+        } else {
+            int clueNum = box.getClueNumber();
+            return clueNum == 0 ? -1 : clueNum;
+        }
     }
 
     /**
@@ -304,15 +309,13 @@ public class Playboard implements Serializable {
 
     public Word setHighlightLetter(Position highlightLetter) {
         Word w = this.getCurrentWord();
-        int col = highlightLetter.getCol();
-        int row = highlightLetter.getRow();
 
         pushNotificationDisabled();
 
         if (highlightLetter.equals(this.highlightLetter)) {
             toggleDirection();
         } else {
-            Box box = puzzle.checkedGetBox(row, col);
+            Box box = puzzle.checkedGetBox(highlightLetter);
             if (box != null) {
                 this.highlightLetter = highlightLetter;
 
@@ -320,8 +323,12 @@ public class Playboard implements Serializable {
                     this.puzzle.setPosition(highlightLetter);
                 }
 
-                if ((isAcross() && !box.isPartOfAcross()) ||
-                    (!isAcross() && !box.isPartOfDown())) {
+                boolean partAcross = box.isPartOfAcross();
+                boolean partDown = box.isPartOfDown();
+
+                // toggle if we'll find a clue
+                if ((isAcross() && !partAcross && partDown) ||
+                    (!isAcross() && !partDown && partAcross)) {
                     toggleDirection();
                 }
             }
@@ -335,12 +342,12 @@ public class Playboard implements Serializable {
     }
 
     /**
-     * Returns true if the position is part of a word (not blank cell)
+     * Returns true if the position is part of a word
+     *
+     * Words may be single cells that are not part of any clue
      */
     public boolean isInWord(Position p) {
-        int col = p.getCol();
-        int row = p.getRow();
-        return puzzle.checkedGetBox(row, col) != null;
+        return puzzle.checkedGetBox(p) != null;
     }
 
     public Position getHighlightLetter() {
@@ -502,16 +509,19 @@ public class Playboard implements Serializable {
             int row = start.getRow();
             int col = start.getCol();
 
-            if (across) {
+            if (across && puzzle.isPartOfAcross(row, col)) {
                 while (puzzle.joinedRight(row, col)) {
                     col += 1;
                 }
                 range = col - start.getCol() + 1;
-            } else {
+            } else if (!across && puzzle.isPartOfDown(row, col)) {
                 while (puzzle.joinedBottom(row, col)) {
                     row += 1;
                 }
                 range = row - start.getRow() + 1;
+            } else {
+                // not part of a clue, just a floating box
+                range = 1;
             }
 
             rangeMap.put(start, range);
@@ -674,7 +684,7 @@ public class Playboard implements Serializable {
         if (next.getRow() >= puzzle.getHeight())
             return original;
 
-        Box value = puzzle.checkedGetBox(next.getRow(), next.getCol());
+        Box value = puzzle.checkedGetBox(next);
 
         if ((value == null) || skipCurrentBox(value, skipCompleted)) {
             next = moveDown(next, skipCompleted);
@@ -698,7 +708,7 @@ public class Playboard implements Serializable {
         if (next.getCol() < 0)
             return original;
 
-        Box value = puzzle.checkedGetBox(next.getRow(), next.getCol());
+        Box value = puzzle.checkedGetBox(next);
 
         if ((value == null) || skipCurrentBox(value, skipCompleted)) {
             next = moveLeft(next, skipCompleted);
@@ -730,7 +740,7 @@ public class Playboard implements Serializable {
         if (next.getCol() >= puzzle.getWidth())
             return original;
 
-        Box value = puzzle.checkedGetBox(next.getRow(), next.getCol());
+        Box value = puzzle.checkedGetBox(next);
 
         if ((value == null) || skipCurrentBox(value, skipCompleted)) {
             next = moveRight(next, skipCompleted);
@@ -754,7 +764,7 @@ public class Playboard implements Serializable {
         if (next.getRow() < 0)
             return original;
 
-        Box value = puzzle.checkedGetBox(next.getRow(),  next.getCol());
+        Box value = puzzle.checkedGetBox(next);
 
         if ((value == null) || skipCurrentBox(value, skipCompleted)) {
             next = moveUp(next, skipCompleted);
@@ -813,9 +823,7 @@ public class Playboard implements Serializable {
     }
 
     public Word playLetter(char letter) {
-        Box b = puzzle.checkedGetBox(
-            highlightLetter.getRow(), highlightLetter.getCol()
-        );
+        Box b = puzzle.checkedGetBox(highlightLetter);
 
         if (b == null) {
             return null;
@@ -838,9 +846,7 @@ public class Playboard implements Serializable {
     }
 
     public void playScratchLetter(char letter) {
-        Box b = puzzle.checkedGetBox(
-            highlightLetter.getRow(), highlightLetter.getCol()
-        );
+        Box b = puzzle.checkedGetBox(highlightLetter);
 
         if (b == null) {
             return;
@@ -881,9 +887,6 @@ public class Playboard implements Serializable {
 
         Position p = this.getHighlightLetter();
 
-        int newCol = p.getCol();
-        int newRow = p.getRow();
-
         pushNotificationDisabled();
 
         if (previous.across && p.getCol() != previous.start.getCol()) {
@@ -909,9 +912,7 @@ public class Playboard implements Serializable {
     }
 
     public Position revealLetter() {
-        Box b = puzzle.checkedGetBox(
-            this.highlightLetter.getRow(), this.highlightLetter.getCol()
-        );
+        Box b = puzzle.checkedGetBox(highlightLetter);
 
         if ((b != null) && (b.getSolution() != b.getResponse())) {
             b.setCheated(true);
@@ -919,7 +920,7 @@ public class Playboard implements Serializable {
 
             notifyChange();
 
-            return this.highlightLetter;
+            return highlightLetter;
         }
 
         return null;
@@ -1011,10 +1012,7 @@ public class Playboard implements Serializable {
 
     public Word toggleDirection() {
         Word w = this.getCurrentWord();
-        Position cur = getHighlightLetter();
-        int row = cur.getRow();
-        int col = cur.getCol();
-        Box box = puzzle.checkedGetBox(row, col);
+        Box box = puzzle.checkedGetBox(getHighlightLetter());
 
         if ((across && box.isPartOfDown()) ||
             (!across && box.isPartOfAcross())) {
@@ -1057,6 +1055,12 @@ public class Playboard implements Serializable {
             notificationDisabledDepth -= 1;
     }
 
+    /**
+     * A word on the grid
+     *
+     * Cells that are no part of a clue will be treated as "words" with
+     * clue number -1 and length 1.
+     */
     public static class Word implements Serializable {
         public Position start;
         public boolean across;
