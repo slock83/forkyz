@@ -1,0 +1,1328 @@
+{
+  "version": "http://ipuz.org/v2",
+  "kind": [
+    "http://ipuz.org/crossword#1"
+  ],
+  "dimensions": {
+    "width": 13,
+    "height": 13
+  },
+  "showenumerations": false,
+  "title": "IPuz with odd features",
+  "author": "Structure from a Steve Mossberg puzzle",
+  "date": "03/15/2022",
+  "intro": "Weird features: unnumbered words, clues in non-standards lists, colors",
+  "copyright": "Test",
+  "puzzle": [
+    [
+      {
+        "style": {},
+        "cell": 1
+      },
+      {
+        "style": {},
+        "cell": 2
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": 3
+      },
+      {
+        "style": {},
+        "cell": 4
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": 5
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": 6
+      },
+      {
+        "style": {},
+        "cell": 7
+      },
+      {
+        "style": {},
+        "cell": 8
+      },
+      {
+        "style": {
+          "shapebg": "circle"
+        },
+        "cell": 9
+      }
+    ],
+    [
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": 10
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": 11
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": 12
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 13
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": 14
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "barred": "L"
+        },
+        "cell": 15
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": 16
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": 17
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 18
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": 19
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 20
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "barred": "T"
+        },
+        "cell": 21
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {
+          "color": "DCDCDC",
+          "shapebg": "circle"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": 22
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": 23
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "T"
+        },
+        "cell": 24
+      }
+    ],
+    [
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": 25
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": 26
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "barred": "TL"
+        },
+        "cell": 27
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": 28
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": 29
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": 30
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 31
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 32
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": 33
+      },
+      {
+        "style": {},
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 34
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {
+          "shapebg": "circle"
+        },
+        "cell": 35
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 36
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": 37
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "color": "DCDCDC",
+          "barred": "L"
+        },
+        "cell": 38
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "shapebg": "circle"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      }
+    ],
+    [
+      {
+        "style": {},
+        "cell": 39
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "L"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "TL"
+        },
+        "cell": 40
+      },
+      {
+        "style": {
+          "shapebg": "circle",
+          "color": "DCDCDC"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      },
+      {
+        "style": {},
+        "cell": ":"
+      },
+      {
+        "style": {
+          "barred": "T"
+        },
+        "cell": ":"
+      }
+    ]
+  ],
+  "empty": ":",
+  "clues": {
+    "Clues:OddOnes": [
+      {
+        "clue": "Odd first"
+      },
+      {
+        "clue": "Odd second"
+      },
+      {
+        "clue": "Odd third"
+      },
+      {
+        "clue": "Odd fourth"
+      },
+      {
+        "clue": "Odd fifth"
+      },
+      {
+        "clue": "Odd sixth"
+      },
+      {
+        "clue": "Odd seventh"
+      }
+    ],
+  "Across": [
+    {
+      "number": 1,
+      "clue": "Clue 1"
+    },
+    {
+      "number": 6,
+      "clue": "Clue 6"
+    },
+    {
+      "number": 11,
+      "clue": "Clue 11"
+    },
+    {
+      "number": 13,
+      "clue": "Clue 13"
+    },
+    {
+      "number": 14,
+      "clue": "Clue 14"
+    },
+    {
+      "number": 15,
+      "clue": "Clue 15"
+    },
+    {
+      "number": 16,
+      "clue": "Clue 16"
+    },
+    {
+      "number": 17,
+      "clue": "Clue 17"
+    },
+    {
+      "number": 18,
+      "clue": "Clue 18"
+    },
+    {
+      "number": 19,
+      "clue": "Clue 19"
+    },
+    {
+      "number": 20,
+      "clue": "Clue 20"
+    },
+    {
+      "number": 25,
+      "clue": "Clue 25"
+    },
+    {
+      "number": 28,
+      "clue": "Clue 28"
+    },
+    {
+      "number": 29,
+      "clue": "Clue 29"
+    },
+    {
+      "number": 32,
+      "clue": "Clue 32"
+    },
+    {
+      "number": 34,
+      "clue": "Clue 34"
+    },
+    {
+      "number": 35,
+      "clue": "Clue 35"
+    },
+    {
+      "number": 36,
+      "clue": "Clue 36"
+    },
+    {
+      "number": 37,
+      "clue": "Clue 37"
+    },
+    {
+      "number": 38,
+      "clue": "Clue 38"
+    },
+    {
+      "number": 39,
+      "clue": "Clue 39"
+    },
+    {
+      "number": 40,
+      "clue": "Clue 40"
+    }
+  ],
+  "Down": [
+    {
+      "number": 2,
+      "clue": "Clue 2,"
+    },
+    {
+      "number": 3,
+      "clue": "Clue 3,"
+    },
+    {
+      "number": 4,
+      "clue": "'Clue 4,"
+    },
+    {
+      "number": 5,
+      "clue": "Clue 5,"
+    },
+    {
+      "number": 7,
+      "clue": "Clue 7,"
+    },
+    {
+      "number": 8,
+      "clue": "Clue 8,"
+    },
+    {
+      "number": 9,
+      "clue": "Clue 9,"
+    },
+    {
+      "number": 10,
+      "clue": "Clue 10"
+    },
+    {
+      "number": 12,
+      "clue": "Clue 12"
+    },
+    {
+      "number": 13,
+      "clue": "Clue 13"
+    },
+    {
+      "number": 21,
+      "clue": "Clue 21"
+    },
+    {
+      "number": 22,
+      "clue": "Clue 22"
+    },
+    {
+      "number": 23,
+      "clue": "Clue 23"
+    },
+    {
+      "number": 24,
+      "clue": "Clue 24"
+    },
+    {
+      "number": 25,
+      "clue": "Clue 25"
+    },
+    {
+      "number": 26,
+      "clue": "Clue 26"
+    },
+    {
+      "number": 27,
+      "clue": "Clue 27"
+    },
+    {
+      "number": 30,
+      "clue": "Clue 30"
+    },
+    {
+      "number": 31,
+      "clue": "Clue 31"
+    },
+    {
+      "number": 33,
+      "clue": "Clue 33"
+    }
+  ]},
+  "solution": [
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ],
+    [
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X",
+      "X"
+    ]
+  ]
+}

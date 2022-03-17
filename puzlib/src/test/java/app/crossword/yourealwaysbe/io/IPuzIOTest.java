@@ -4,10 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
@@ -26,6 +29,10 @@ public class IPuzIOTest extends TestCase {
 
     public static InputStream getTestPuzzle2InputStream() {
         return IPuzIOTest.class.getResourceAsStream("/barred-test.ipuz");
+    }
+
+    public static InputStream getTestPuzzleExtrasInputStream() {
+        return IPuzIOTest.class.getResourceAsStream("/extras.ipuz");
     }
 
     public static void assertIsTestPuzzle1(Puzzle puz) throws Exception {
@@ -97,6 +104,25 @@ public class IPuzIOTest extends TestCase {
         assertEquals(acrossClues.getClue(5).getHint(), "Clue 5");
         assertEquals(downClues.getClue(2).getHint(), "Clue 2d");
     }
+
+    public static void assertIsTestPuzzleExtras(Puzzle puz) throws Exception {
+        Box[][] boxes = puz.getBoxes();
+
+        assertEquals(boxes[0][6].getClueNumber(), 0);
+        assertEquals(boxes[0][8].getClueNumber(), 5);
+        assertEquals(boxes[6][0].getClueNumber(), 0);
+        assertEquals(boxes[7][0].getClueNumber(), 25);
+
+        Set<String> extraLists = puz.getExtraClueListNames();
+        assertEquals(extraLists.size(), 1);
+        assertTrue(extraLists.contains("OddOnes"));
+
+        List<Clue> oddClues = puz.getExtraClues("OddOnes");
+
+        assertEquals(oddClues.get(5).getHint(), "Odd sixth");
+        assertEquals(oddClues.get(0).getHint(), "Odd first");
+    }
+
 
     /**
      * Test HTML in various parts of puzzle
@@ -293,6 +319,30 @@ public class IPuzIOTest extends TestCase {
             assertEquals(boxes2[0][1].getResponder(), "Test");
             assertFalse(boxes2[0][1].isCheated());
             assertTrue(boxes2[1][0].isCheated());
+
+            assertEquals(puz, puz2);
+        }
+    }
+
+    public void testIPuzExtras() throws Exception {
+        try (InputStream is = getTestPuzzleExtrasInputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+            assertIsTestPuzzleExtras(puz);
+        }
+    }
+
+    public void testIPuzWriteReadExtras() throws Exception {
+        try (InputStream is = getTestPuzzleExtrasInputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IPuzIO.writePuzzle(puz, baos);
+            baos.close();
+
+            ByteArrayInputStream bais
+                = new ByteArrayInputStream(baos.toByteArray());
+
+            Puzzle puz2 = IPuzIO.readPuzzle(bais);
 
             assertEquals(puz, puz2);
         }

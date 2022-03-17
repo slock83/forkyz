@@ -2,6 +2,7 @@ package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ public class Puzzle implements Serializable{
     private String title;
     private MutableClueList acrossClues = new MutableClueList();
     private MutableClueList downClues = new MutableClueList();
+    private Map<String, List<Clue>> extraClues = new HashMap<>();
     private LocalDate pubdate = LocalDate.now();
     private String source;
     private String sourceUrl = "";
@@ -70,6 +72,18 @@ public class Puzzle implements Serializable{
     }
 
     /**
+     * Add a clue belonging to a non-standard clue list
+     *
+     * We assume across/down but can display extra ones with limited
+     * functionality.
+     */
+    public void addExtraClue(String listName, Clue clue) {
+        if (!extraClues.containsKey(listName))
+            extraClues.put(listName, new ArrayList<Clue>());
+        extraClues.get(listName).add(clue);
+    }
+
+    /**
      * Get clue lists
      *
      * Note: no reason to assume there is a numbered clue for every
@@ -78,6 +92,22 @@ public class Puzzle implements Serializable{
      */
     public ClueList getClues(boolean across) {
         return across ? this.acrossClues : this.downClues;
+    }
+
+    /**
+     * Clues that are in a non-standard list
+     *
+     * @return null if list does not exist
+     */
+    public List<Clue> getExtraClues(String listName) {
+        return extraClues.get(listName);
+    }
+
+    /**
+     * Get list of names of all non-standard clue lists
+     */
+    public Set<String> getExtraClueListNames() {
+        return extraClues.keySet();
     }
 
     public void setAuthor(String author) {
@@ -701,6 +731,10 @@ public class Puzzle implements Serializable{
             return false;
         }
 
+        if (!extraClues.equals(other.extraClues)) {
+            return false;
+        }
+
         if (author == null) {
             if (other.author != null) {
                 return false;
@@ -796,6 +830,7 @@ public class Puzzle implements Serializable{
         result = (prime *result) + acrossNotes.hashCode();
         result = (prime *result) + downNotes.hashCode();
         result = (prime * result) + flaggedClues.hashCode();
+        result = (prime * result) + extraClues.hashCode();
 
         return result;
     }
