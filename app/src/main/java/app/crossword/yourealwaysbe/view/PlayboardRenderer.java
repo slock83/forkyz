@@ -602,7 +602,12 @@ public class PlayboardRenderer {
             } else if (this.hintHighlight && box.isCheated()) {
                 canvas.drawRect(r, this.cheated);
             } else {
-                canvas.drawRect(r, this.white);
+                if (!box.hasColor()) {
+                    canvas.drawRect(r, this.white);
+                } else {
+                    Paint paint = getRelativePaint(this.white, box.getColor());
+                    canvas.drawRect(r, paint);
+                }
             }
 
             // Bars before clue numbers to avoid obfuscating
@@ -786,5 +791,42 @@ public class PlayboardRenderer {
 
     private boolean drawClueNumber(Box box) {
         return box.isAcross() || box.isDown();
+    }
+
+    /**
+     * Return a new paint based on color
+     *
+     * For use when "inverting" a color to appear on the board. Relative
+     * vs. a pure white background is the pure color. Vs. a pure black
+     * background in the inverted color. Somewhere in between is
+     * somewhere in between.
+     *
+     * @param base the standard background color
+     * @param color 24-bit 0x00rrggbb "pure" color
+     */
+    private Paint getRelativePaint(Paint base, int pureColor) {
+        int baseCol = base.getColor();
+
+        // the android color library is compatible with 0x00rrggbb
+        int mixedR = mixColors(Color.red(baseCol), Color.red(pureColor));
+        int mixedG = mixColors(Color.green(baseCol), Color.green(pureColor));
+        int mixedB = mixColors(Color.blue(baseCol), Color.blue(pureColor));
+
+        Paint mixedPaint = new Paint(base);
+        mixedPaint.setColor(Color.rgb(mixedR, mixedG, mixedB));
+
+        return mixedPaint;
+    }
+
+    /**
+     * Tint a 0-255 pure color against a base
+     *
+     * See getRelativePaint
+     */
+    private int mixColors(int base, int pure) {
+        double baseBias = base / 255.0;
+        return (int)(
+            (baseBias * pure) + ((1- baseBias) * (255 - pure))
+        );
     }
 }
