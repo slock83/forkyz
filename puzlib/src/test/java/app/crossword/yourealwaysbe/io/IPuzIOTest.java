@@ -1,5 +1,6 @@
 package app.crossword.yourealwaysbe.io;
 
+import java.awt.Color;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -112,6 +113,14 @@ public class IPuzIOTest extends TestCase {
         assertEquals(boxes[0][8].getClueNumber(), 5);
         assertEquals(boxes[6][0].getClueNumber(), 0);
         assertEquals(boxes[7][0].getClueNumber(), 25);
+
+        assertFalse(boxes[2][0].hasColor());
+        assertFalse(boxes[8][10].hasColor());
+        assertTrue(boxes[6][0].hasColor());
+        assertTrue(boxes[10][6].hasColor());
+        int grey = Integer.valueOf("DCDCDC", 16);
+        assertEquals(boxes[6][0].getColor(), grey);
+        assertEquals(boxes[10][6].getColor(), grey);
 
         Set<String> extraLists = puz.getExtraClueListNames();
         assertEquals(extraLists.size(), 1);

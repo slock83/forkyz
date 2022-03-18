@@ -1,10 +1,12 @@
 package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Box implements Serializable {
     public static final char BLANK = ' ';
     private static final int NOCLUE = -1;
+    private static final int NOCOLOR = -1;
 
     private String responder;
     private boolean across;
@@ -23,6 +25,9 @@ public class Box implements Serializable {
     private boolean barBottom = false;
     private boolean barLeft = false;
     private boolean barRight = false;
+
+    // 24-bit representation 0x00rrggbb
+    private int color = NOCOLOR;
 
     @Override
     public boolean equals(Object obj) {
@@ -96,6 +101,9 @@ public class Box implements Serializable {
         if (isBarredRight() != other.isBarredRight())
             return false;
 
+        if (getColor() != other.getColor())
+            return false;
+
         return true;
     }
 
@@ -118,6 +126,7 @@ public class Box implements Serializable {
         result = (prime * result) + getSolution();
         result = (prime * result) + getPartOfAcrossClueNumber();
         result = (prime * result) + getPartOfDownClueNumber();
+        result = (prime * result) + getColor();
 
         return result;
     }
@@ -356,5 +365,19 @@ public class Box implements Serializable {
 
     public void setBarredRight(boolean barRight) {
         this.barRight = barRight;
+    }
+
+    public boolean hasColor() { return color != NOCOLOR; }
+
+    /**
+     * 24-bit 0x00rrggbb when has color
+     */
+    public int getColor() { return color; }
+
+    /**
+     * Set as 24-bit 0x00rrggbb
+     */
+    public void setColor(int color) {
+        this.color = color;
     }
 }

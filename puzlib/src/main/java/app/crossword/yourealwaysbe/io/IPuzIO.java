@@ -93,6 +93,9 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_VALUE = "value";
     private static final String FIELD_STYLE = "style";
     private static final String FIELD_SHAPE_BG = "shapebg";
+    private static final String FIELD_COLOR = "color";
+    private static final int HEX_CODE_LEN = 6;
+    private static final String HEX_COLOR_FORMAT = "%0" + HEX_CODE_LEN + "X";
     private static final String FIELD_BARRED = "barred";
 
     private static final String SHAPE_BG_CIRCLE = "circle";
@@ -477,8 +480,16 @@ public class IPuzIO implements PuzzleParser {
             }
 
             JSONObject style = json.optJSONObject(FIELD_STYLE);
-            if (SHAPE_BG_CIRCLE.equals(style.optString(FIELD_SHAPE_BG))) {
-                box.setCircled(true);
+
+            if (style != null) {
+                if (SHAPE_BG_CIRCLE.equals(style.optString(FIELD_SHAPE_BG))) {
+                    box.setCircled(true);
+                }
+                String color = style.optString(FIELD_COLOR);
+                // not supporting numbered "unique" colors for now
+                if (color != null && color.length() == HEX_CODE_LEN) {
+                    box.setColor(hexToColor(color));
+                }
             }
 
             String barred = style.optString(FIELD_BARRED);
@@ -1193,10 +1204,15 @@ public class IPuzIO implements PuzzleParser {
                 } else {
                     int clueNumber = box.getClueNumber();
 
-                    if (box.isCircled() || box.isBarred()) {
+                    if (box.isCircled() || box.isBarred() || box.hasColor()) {
                         writer.object()
                             .key(FIELD_STYLE)
                             .object();
+
+                        if (box.hasColor()) {
+                            writer.key(FIELD_COLOR)
+                                .value(colorToHex(box.getColor()));
+                        }
 
                         if (box.isCircled()) {
                             writer.key(FIELD_SHAPE_BG).value(SHAPE_BG_CIRCLE);
@@ -1591,6 +1607,23 @@ public class IPuzIO implements PuzzleParser {
      */
     private static String getQualifiedExtensionName(String fieldName) {
         return EXT_NAMESPACE + ":" + fieldName;
+    }
+
+    /**
+     * Convert dddddd to 0x00dddddd
+     */
+    private static int hexToColor(String hex) {
+        return Integer.valueOf(hex, 16);
+    }
+
+    /**
+     * Convert a color to dddddd
+     */
+    private static String colorToHex(int color) {
+        // ignore alpha channel
+        return String.format(
+            HEX_COLOR_FORMAT, color & 0x00ffffff
+        );
     }
 
     /**
