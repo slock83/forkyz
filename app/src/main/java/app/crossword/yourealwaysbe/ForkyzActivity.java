@@ -1,7 +1,7 @@
 package app.crossword.yourealwaysbe;
 
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -10,10 +10,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Spanned;
 import android.util.DisplayMetrics;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -126,5 +128,9 @@ public class ForkyzActivity extends AppCompatActivity {
         p.setTextAlign(Paint.Align.CENTER);
         canvas.drawText(character, size/2, size - size / 9, p );
         return bitmap;
+    }
+
+    protected static Spanned smartHtml(String text) {
+        return text == null ? null : HtmlCompat.fromHtml(text, 0);
     }
 }

@@ -18,7 +18,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.DialogFragment;
 
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -435,9 +434,7 @@ public class NotesActivity extends PuzzleActivity {
         if (scale > 1)
             renderer.setScale((float) 1);
 
-        clueLine.setText(HtmlCompat.fromHtml(
-            getLongClueText(clue, curWordLen), 0
-        ));
+        clueLine.setText(smartHtml(getLongClueText(clue, curWordLen)));
 
         // set up and erase any previous data
         notesBox.setText("");

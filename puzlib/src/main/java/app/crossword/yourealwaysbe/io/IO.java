@@ -16,6 +16,8 @@ import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 
+import static app.crossword.yourealwaysbe.util.HtmlUtil.unHtmlString;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -411,15 +413,15 @@ public class IO implements PuzzleParser {
             }
         }
 
-        writeNullTerminatedString(tmpDos, puz.getTitle());
-        writeNullTerminatedString(tmpDos, puz.getAuthor());
-        writeNullTerminatedString(tmpDos, puz.getCopyright());
+        writeNullTerminatedString(tmpDos, unHtmlString(puz.getTitle()));
+        writeNullTerminatedString(tmpDos, unHtmlString(puz.getAuthor()));
+        writeNullTerminatedString(tmpDos, unHtmlString(puz.getCopyright()));
 
         for (String clue : getRawClues(puz)) {
-            writeNullTerminatedString(tmpDos, clue);
+            writeNullTerminatedString(tmpDos, unHtmlString(clue));
         }
 
-        writeNullTerminatedString(tmpDos, puz.getNotes());
+        writeNullTerminatedString(tmpDos, unHtmlString(puz.getNotes()));
 
         if (hasGEXT) {
             tmpDos.writeBytes(GEXT_MARKER);

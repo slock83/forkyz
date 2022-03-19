@@ -36,7 +36,7 @@ public class IPuzIOTest extends TestCase {
     }
 
     public static void assertIsTestPuzzle1(Puzzle puz) throws Exception {
-        assertEquals(puz.getTitle(), "Test & puzzle");
+        assertEquals(puz.getTitle(), "Test &amp; puzzle");
         assertEquals(puz.getAuthor(), "Test author");
         assertEquals(puz.getCopyright(), "Test copyright");
         assertEquals(puz.getSourceUrl(), "https://testurl.com");
@@ -140,9 +140,13 @@ public class IPuzIOTest extends TestCase {
     }
 
     public static void assertIsTestPuzzleHTML(Puzzle puz) throws Exception {
-        assertEquals(puz.getTitle(), "Test & puzzle\nFor testing");
-        assertEquals(puz.getAuthor(), "Test author\nForTest");
-        assertEquals(puz.getSource(), "Test \u00A0\u00A0publisher\ntesttest");
+        assertEquals(puz.getTitle(), "<b>Test</b> &amp; puzzle<br>For testing");
+        assertEquals(
+            puz.getAuthor(), "Test author<br><b>For<sup>Test</sup></b>"
+        );
+        assertEquals(
+            puz.getSource(), "Test &nbsp;&nbsp;publisher<br>test<i>test</i>"
+        );
 
         ClueList acrossClues = puz.getClues(true);
 

@@ -33,7 +33,6 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.DialogFragment;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -974,9 +973,8 @@ public class PlayActivity extends PuzzleActivity
         }
 
         Clue c = getBoard().getClue();
-        this.clue.setText(HtmlCompat.fromHtml(
-            getLongClueText(c, getBoard().getCurrentWord().length),
-            0
+        this.clue.setText(smartHtml(
+            getLongClueText(c, getBoard().getCurrentWord().length)
         ));
 
         this.boardView.requestFocus();
@@ -1052,14 +1050,14 @@ public class PlayActivity extends PuzzleActivity
             Puzzle puz = activity.getPuzzle();
             if (puz != null) {
                 TextView title = view.findViewById(R.id.puzzle_info_title);
-                title.setText(puz.getTitle());
+                title.setText(smartHtml(puz.getTitle()));
 
                 TextView author = view.findViewById(R.id.puzzle_info_author);
-                author .setText(puz.getAuthor());
+                author.setText(puz.getAuthor());
 
                 TextView copyright
                     = view.findViewById(R.id.puzzle_info_copyright);
-                copyright.setText(puz.getCopyright());
+                copyright.setText(smartHtml(puz.getCopyright()));
 
                 TextView time = view.findViewById(R.id.puzzle_info_time);
 
@@ -1116,8 +1114,8 @@ public class PlayActivity extends PuzzleActivity
             final String text = split[0].trim();
 
             if (text.length() > 0) {
-                view.setText(getString(
-                    R.string.tap_to_show_full_notes_with_text, text
+                view.setText(smartHtml(
+                    getString(R.string.tap_to_show_full_notes_with_text, text)
                 ));
             } else {
                 view.setText(getString(
@@ -1137,9 +1135,11 @@ public class PlayActivity extends PuzzleActivity
                                 R.string.tap_to_hide_full_notes_no_text
                             ));
                         } else {
-                            tv.setText(getString(
-                                R.string.tap_to_hide_full_notes_with_text,
-                                notes
+                            tv.setText(smartHtml(
+                                getString(
+                                    R.string.tap_to_hide_full_notes_with_text,
+                                    notes
+                                )
                             ));
                         }
                     } else {
@@ -1148,9 +1148,11 @@ public class PlayActivity extends PuzzleActivity
                                 R.string.tap_to_show_full_notes_no_text
                             ));
                         } else {
-                            tv.setText(getString(
-                                R.string.tap_to_show_full_notes_with_text,
-                                text
+                            tv.setText(smartHtml(
+                                getString(
+                                    R.string.tap_to_show_full_notes_with_text,
+                                    text
+                                )
                             ));
                         }
                     }

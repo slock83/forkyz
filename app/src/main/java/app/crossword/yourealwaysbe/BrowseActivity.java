@@ -895,7 +895,7 @@ public class BrowseActivity extends ForkyzActivity {
 
             TextView titleView = (TextView) view.findViewById(R.id.puzzle_name);
 
-            titleView.setText(title);
+            titleView.setText(smartHtml(title));
 
             CircleProgressBar bar
                 = (CircleProgressBar) view.findViewById(R.id.puzzle_progress);
@@ -915,13 +915,13 @@ public class BrowseActivity extends ForkyzActivity {
                     && !caption.matches("(?i).*" + author + ".*");
 
             if (addAuthor) {
-                captionView.setText(
+                captionView.setText(smartHtml(
                     view.getContext().getString(
                         R.string.puzzle_caption_with_author, caption, author
                     )
-                );
+                ));
             } else {
-                captionView.setText(caption);
+                captionView.setText(smartHtml(caption));
             }
 
             setListItemColor(view, selected.contains(pm));

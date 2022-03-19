@@ -4,6 +4,8 @@ import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
+import static app.crossword.yourealwaysbe.util.HtmlUtil.htmlString;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -48,8 +50,10 @@ public class BrainsOnlyIO implements PuzzleParser {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         String title = readLineAtOffset(reader, 4);
         int startIndex = title.indexOf(" ") + 1;
-        puz.setTitle(title.substring(startIndex >= 0 ? startIndex : 0));
-        puz.setAuthor(readLineAtOffset(reader, 1));
+        puz.setTitle(htmlString(
+            title.substring(startIndex >= 0 ? startIndex : 0)
+        ));
+        puz.setAuthor(htmlString(readLineAtOffset(reader, 1)));
 
         int width = Integer.parseInt(readLineAtOffset(reader, 1));
         int height = Integer.parseInt(readLineAtOffset(reader, 1));
@@ -102,7 +106,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                     puz.addClue(new Clue(
                         boxes[h][w].getClueNumber(),
                         true,
-                        acrossClues.get(acrossIdx)
+                        htmlString(acrossClues.get(acrossIdx))
                     ));
                     acrossIdx += 1;
                 }
@@ -120,7 +124,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                     puz.addClue(new Clue(
                         boxes[h][w].getClueNumber(),
                         false,
-                        downClues.get(downIdx)
+                        htmlString(downClues.get(downIdx))
                     ));
                     downIdx += 1;
                 }

@@ -145,6 +145,8 @@ public class JPZIO implements PuzzleParser {
                         || name.equalsIgnoreCase("copyright")
                         || name.equalsIgnoreCase("description")) {
                     charBuffer.delete(0, charBuffer.length());
+                } else {
+                    charBuffer.append("<" + tagName + ">");
                 }
             }
 
@@ -171,6 +173,8 @@ public class JPZIO implements PuzzleParser {
                     copyright = charData;
                 } else if (name.equalsIgnoreCase("description")) {
                     description = charData;
+                } else {
+                    charBuffer.append("</" + tagName + ">");
                 }
             }
         };
@@ -271,6 +275,8 @@ public class JPZIO implements PuzzleParser {
                             // clue appears in characters between start
                             // and end
                         }
+                    } else {
+                        charBuffer.append("<" + tagName + ">");
                     }
                 } catch (NumberFormatException e) {
                     LOG.severe("Could not read JPZ XML cell data: " + e);
@@ -319,6 +325,8 @@ public class JPZIO implements PuzzleParser {
                     inClueNum = -1;
                     inClueFormat = "";
                     inComplexClueFormat = "";
+                } else {
+                    charBuffer.append("</" + tagName + ">");
                 }
             }
 
@@ -511,28 +519,22 @@ public class JPZIO implements PuzzleParser {
             notes.append(description);
 
         if (acrossNumToCitationMap.size() > 0) {
-            if (notes.length() > 0)
-                notes.append("\n\n");
-
-            notes.append("Across:\n\n");
+            notes.append("<h1>Across:</h1>");
 
             for(int clueNum = 1; clueNum <= maxClueNum; clueNum++) {
                 String citation = acrossNumToCitationMap.get(clueNum);
                 if (citation != null)
-                    notes.append(String.format("%d: %s\n", clueNum, citation));
+                    notes.append(String.format("<p>%d: %s</p>", clueNum, citation));
             }
         }
 
         if (downNumToCitationMap.size() > 0) {
-            if (notes.length() > 0)
-                notes.append("\n\n");
-
-            notes.append("\nDown:\n\n");
+            notes.append("<h1>Down:</h1>");
 
             for(int clueNum = 1; clueNum <= maxClueNum; clueNum++) {
                 String citation = downNumToCitationMap.get(clueNum);
                 if (citation != null)
-                    notes.append(String.format("%d: %s\n", clueNum, citation));
+                    notes.append(String.format("<p>%d: %s</p>", clueNum, citation));
             }
         }
 
@@ -575,7 +577,7 @@ public class JPZIO implements PuzzleParser {
             );
             ByteArrayOutputStream replaced = new ByteArrayOutputStream();
             BufferedWriter out = new BufferedWriter(
-                    new OutputStreamWriter(replaced)
+                new OutputStreamWriter(replaced)
             );
         ) {
             while (in.hasNextLine()) {

@@ -17,6 +17,12 @@ import java.util.TreeMap;
 
 import java.util.logging.Logger;
 
+/**
+ * Represent a puzzle
+ *
+ * String should use HTML for formatting (including new lines), except
+ * Note objects which do not support it.
+ */
 public class Puzzle implements Serializable{
     private static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
 
@@ -716,6 +722,7 @@ public class Puzzle implements Serializable{
 
     @Override
     public boolean equals(Object obj) {
+
         if (this == obj) {
             return true;
         }

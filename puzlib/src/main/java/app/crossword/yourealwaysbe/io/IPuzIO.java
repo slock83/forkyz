@@ -19,10 +19,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.text.StringEscapeUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,6 +32,9 @@ import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+
+import static app.crossword.yourealwaysbe.util.HtmlUtil.htmlString;
+import static app.crossword.yourealwaysbe.util.HtmlUtil.unHtmlString;
 
 /**
  * Read IPuz from a stream.
@@ -199,11 +198,6 @@ public class IPuzIO implements PuzzleParser {
         }));
 
     private static final String NULL_CLUE = "-";
-    // IPuz tags not to strip from HTML (preserve line breaks)
-    private static final Whitelist JSOUP_CLEAN_WHITELIST = new Whitelist();
-    static {
-        JSOUP_CLEAN_WHITELIST.addTags("br");
-    }
 
     /**
      * An unfancy exception indicating error while parsing
@@ -271,12 +265,12 @@ public class IPuzIO implements PuzzleParser {
      * Meta-data stuff, like title, copyright, etc.
      */
     private static void readMetaData(JSONObject puzJson, Puzzle puz) {
-        puz.setTitle(getHtmlOptString(puzJson, FIELD_TITLE));
-        puz.setAuthor(getHtmlOptString(puzJson, FIELD_AUTHOR));
+        puz.setTitle(puzJson.optString(FIELD_TITLE));
+        puz.setAuthor(puzJson.optString(FIELD_AUTHOR));
         puz.setCopyright(puzJson.optString(FIELD_COPYRIGHT));
 
-        String intro = getHtmlOptString(puzJson, FIELD_INTRO);
-        String notes = getHtmlOptString(puzJson, FIELD_NOTES);
+        String intro = puzJson.optString(FIELD_INTRO);
+        String notes = puzJson.optString(FIELD_NOTES);
 
         StringBuilder fullNotes = new StringBuilder();
 
@@ -285,14 +279,14 @@ public class IPuzIO implements PuzzleParser {
 
         if (notes != null && notes.length() > 0) {
             if (fullNotes.length() > 0)
-                fullNotes.append("\n\n");
+                fullNotes.append("<br/><br/>");
             fullNotes.append(notes);
         }
 
         puz.setNotes(fullNotes.toString());
 
         puz.setSourceUrl(puzJson.optString(FIELD_URL));
-        puz.setSource(getHtmlOptString(puzJson, FIELD_PUBLISHER));
+        puz.setSource(puzJson.optString(FIELD_PUBLISHER));
 
         LocalDate date = parseDate(puzJson);
         if (date != null)
@@ -334,44 +328,13 @@ public class IPuzIO implements PuzzleParser {
      *
      * Strips any HTML elements from it.
      */
-    private static String getHtmlOptString(JSONObject json, String field) {
+    private static String unHtmlOptString(JSONObject json, String field) {
         String value = json.optString(field);
 
         if (value == null || value.length() == 0)
             return null;
 
         return unHtmlString(value);
-    }
-
-    /**
-     * Remove IPuz HTML from a string
-     * @return decoded string or null if value was null
-     */
-    private static String unHtmlString(String value) {
-        if (value == null)
-            return null;
-
-        // this is a bit hacky: any break tag is normalised to "\r?\n<br>"
-        // by the clean method, we remove the \r\ns and turn <br> into \n
-        return StringEscapeUtils.unescapeHtml4(
-            Jsoup.clean(value, JSOUP_CLEAN_WHITELIST)
-                .replace("\r", "")
-                .replace("\n", "")
-                .replace("<br>", "\n")
-        );
-    }
-
-    /**
-     * Return IPuz HTML encoding of string
-     * @return encoded string or null if value was null
-     */
-    private static String htmlString(String value) {
-        if (value == null)
-            return null;
-
-        return StringEscapeUtils.escapeHtml4(value)
-            .replace("\r", "")
-            .replace("\n", "<br/>");
     }
 
     /**
@@ -1042,7 +1005,7 @@ public class IPuzIO implements PuzzleParser {
                 String scratch
                     = noteJson.optString(FIELD_CLUE_NOTE_SCRATCH, null);
                 String text
-                    = getHtmlOptString(noteJson, FIELD_CLUE_NOTE_TEXT);
+                    = unHtmlOptString(noteJson, FIELD_CLUE_NOTE_TEXT);
                 String anagramSrc
                     = noteJson.optString(FIELD_CLUE_NOTE_ANAGRAM_SRC, null);
                 String anagramSol
@@ -1145,12 +1108,12 @@ public class IPuzIO implements PuzzleParser {
     private static void writeMetaData(Puzzle puz, FormatableJSONWriter writer)
             throws IOException {
         writer
-            .keyValueNonNull(FIELD_TITLE, htmlString(puz.getTitle()))
-            .keyValueNonNull(FIELD_AUTHOR, htmlString(puz.getAuthor()))
+            .keyValueNonNull(FIELD_TITLE, puz.getTitle())
+            .keyValueNonNull(FIELD_AUTHOR, puz.getAuthor())
             .keyValueNonNull(FIELD_COPYRIGHT, puz.getCopyright())
-            .keyValueNonNull(FIELD_NOTES, htmlString(puz.getNotes()))
+            .keyValueNonNull(FIELD_NOTES, puz.getNotes())
             .keyValueNonNull(FIELD_URL, puz.getSourceUrl())
-            .keyValueNonNull(FIELD_PUBLISHER, htmlString(puz.getSource()));
+            .keyValueNonNull(FIELD_PUBLISHER, puz.getSource());
 
         LocalDate date = puz.getDate();
         if (date != null)

@@ -25,7 +25,7 @@ public class BrainsOnlyIOTest  extends TestCase {
     public static void assertIsTestPuzzle1(Puzzle puz) {
         assertEquals("SODA SPEAK", puz.getTitle());
         assertEquals(
-            "S.N. & Robert Francis, edited by Stanley Newman",
+            "S.N. &amp; Robert Francis, edited by Stanley Newman",
             puz.getAuthor()
         );
 
