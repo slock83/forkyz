@@ -205,6 +205,10 @@ public class IPuzIOTest extends TestCase {
             puz.flagClue(3, true, true);
             puz.flagClue(1, false, true);
 
+            puz.setPlayerNote(
+                new Note("scratch", "a note", "anagsrc", "anagsol")
+            );
+
             Box[][] boxes = puz.getBoxes();
 
             boxes[0][1].setResponse('X');

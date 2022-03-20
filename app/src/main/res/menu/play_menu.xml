@@ -12,8 +12,19 @@
     <item
         android:id="@+id/play_menu_notes"
         android:icon="@android:drawable/ic_menu_agenda"
-        android:title="@string/notes"
-    />
+        android:title="@string/menu_notes"
+    >
+        <menu>
+            <item
+                android:id="@+id/play_menu_clue_notes"
+                android:title="@string/menu_notes_clue"
+            />
+            <item
+                android:id="@+id/play_menu_player_notes"
+                android:title="@string/menu_notes_player"
+            />
+        </menu>
+    </item>
     <item
         android:id="@+id/play_menu_zoom"
         android:title="@string/zoom"

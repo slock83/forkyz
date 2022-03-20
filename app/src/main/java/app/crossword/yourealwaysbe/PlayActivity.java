@@ -259,7 +259,7 @@ public class PlayActivity extends PuzzleActivity
                         boolean displayScratch = prefs.getBoolean("displayScratch", false);
                         renderer.draw(w, displayScratch, displayScratch);
 
-                        launchNotes();
+                        launchClueNotes();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -660,8 +660,11 @@ public class PlayActivity extends PuzzleActivity
             } else if (id == R.id.play_menu_clues) {
                 PlayActivity.this.launchClueList();
                 return true;
-            } else if (id == R.id.play_menu_notes) {
-                launchNotes();
+            } else if (id == R.id.play_menu_clue_notes) {
+                launchClueNotes();
+                return true;
+            } else if (id == R.id.play_menu_player_notes) {
+                launchPuzzleNotes();
                 return true;
             } else if (id == R.id.play_menu_help) {
                 Intent helpIntent = new Intent(
@@ -699,7 +702,7 @@ public class PlayActivity extends PuzzleActivity
     @Override
     public void onClueTabsClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
-        if (board != null) {
+        if (board != null && clue.hasNumber()) {
             Word old = board.getCurrentWord();
             board.jumpToClue(clue.getNumber(), clue.getIsAcross());
             displayKeyboard(old);
@@ -710,8 +713,12 @@ public class PlayActivity extends PuzzleActivity
     public void onClueTabsLongClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
         if (board != null) {
-            board.jumpToClue(clue.getNumber(), clue.getIsAcross());
-            launchNotes();
+            if (clue.hasNumber()) {
+                board.jumpToClue(clue.getNumber(), clue.getIsAcross());
+                launchClueNotes();
+            } else {
+                launchPuzzleNotes();
+            }
         }
     }
 
@@ -980,11 +987,16 @@ public class PlayActivity extends PuzzleActivity
         this.boardView.requestFocus();
     }
 
-    private void launchNotes() {
-        if (getBoard().getClue() != null) {
-            Intent i = new Intent(this, NotesActivity.class);
-            this.startActivity(i);
-        }
+    private void launchClueNotes() {
+        Intent i = new Intent(this, NotesActivity.class);
+        i.putExtra(NotesActivity.PUZZLE_NOTES, false);
+        this.startActivity(i);
+    }
+
+    private void launchPuzzleNotes() {
+        Intent i = new Intent(this, NotesActivity.class);
+        i.putExtra(NotesActivity.PUZZLE_NOTES, true);
+        this.startActivity(i);
     }
 
     private void launchClueList() {

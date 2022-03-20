@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class PuzzleMeta implements Serializable {
 
@@ -24,6 +25,7 @@ public class PuzzleMeta implements Serializable {
     public List<ClueNumDir> historyList;
     public Note[] acrossNotes;
     public Note[] downNotes;
+    public Note playerNote;
 
     public String toString() {
         return new StringBuilder("author: ")
@@ -54,6 +56,8 @@ public class PuzzleMeta implements Serializable {
                 .append(Arrays.toString(acrossNotes))
                 .append(" down notes: ")
                 .append(Arrays.toString(downNotes))
+                .append(" player notes: ")
+                .append(playerNote)
                 .toString();
     }
 
@@ -83,6 +87,8 @@ public class PuzzleMeta implements Serializable {
             return false;
         if (!Arrays.equals(downNotes, that.downNotes))
             return false;
+        if (Objects.equals(playerNote, that.playerNote))
+            return false;
         return !(position != null ? !position.equals(that.position) : that.position != null);
     }
 
@@ -102,6 +108,7 @@ public class PuzzleMeta implements Serializable {
         result = 31 * result + (historyList != null ? historyList.hashCode() : 0);
         result = 31 * result + (acrossNotes != null ? Arrays.hashCode(acrossNotes) : 0);
         result = 31 * result + (downNotes != null ? Arrays.hashCode(downNotes) : 0);
+        result = 31 * result + Objects.hashCode(playerNote);
         return result;
     }
 }

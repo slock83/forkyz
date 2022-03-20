@@ -42,6 +42,11 @@ public class NotesActivity extends PuzzleActivity {
         NotesActivity.class.getCanonicalName()
     );
 
+    /**
+     * Start with intent extra indicating if clue notes or puzzle notes
+     */
+    public static final String PUZZLE_NOTES = "puzzleNotes";
+
     private static final String TRANSFER_RESPONSE_REQUEST_KEY
         = "transferResponseRequest";
 
@@ -54,6 +59,7 @@ public class NotesActivity extends PuzzleActivity {
 
     protected KeyboardManager keyboardManager;
     private TextView clueLine;
+    private TextView imageViewLabel;
     private ScrollingImageView imageView;
     private CharSequence imageViewDescriptionBase;
     private EditText notesBox;
@@ -117,7 +123,8 @@ public class NotesActivity extends PuzzleActivity {
             );
         }
 
-        imageView = (ScrollingImageView) this.findViewById(R.id.miniboard);
+        imageViewLabel = this.findViewById(R.id.boardLab);
+        imageView = this.findViewById(R.id.miniboard);
         imageViewDescriptionBase = imageView.getContentDescription();
         imageView.setAllowOverScroll(false);
         this.imageView.setContextMenuListener(new ClickListener() {
@@ -271,24 +278,24 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     public void onPause() {
+        Puzzle puz = getPuzzle();
         Clue clue = getBoard().getClue();
 
-        if (clue != null) {
-            EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
-            String text = notesBox.getText().toString();
+        EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
+        String text = notesBox.getText().toString();
 
-            String scratch = scratchView.toString();
-            String anagramSource = anagramSourceView.toString();
-            String anagramSolution = anagramSolView.toString();
+        String scratch = scratchView.toString();
+        String anagramSource = anagramSourceView.toString();
+        String anagramSolution = anagramSolView.toString();
 
-            Puzzle puz = getPuzzle();
-            if (puz != null) {
-                Note note = new Note(scratch, text, anagramSource, anagramSolution);
-                int number = getBoard().getClueNumber();
-                boolean across = getBoard().isAcross();
-                puz.setNote(number, note, across);
-            }
+        Note note = new Note(scratch, text, anagramSource, anagramSolution);
 
+        if (isPuzzleNotes()) {
+            puz.setPlayerNote(note);
+        } else {
+            int number = getBoard().getClueNumber();
+            boolean across = getBoard().isAcross();
+            puz.setNote(number, note, across);
             puz.flagClue(clue, flagClue.isChecked());
         }
 
@@ -409,9 +416,9 @@ public class NotesActivity extends PuzzleActivity {
         Puzzle puz = board.getPuzzle();
         Clue clue = board.getClue();
 
-        if (board == null || puz == null || clue == null) {
+        if (board == null || puz == null) {
             LOG.info(
-                "NotesActivity resumed but no Puzzle or Clue selected, "
+                "NotesActivity resumed but no Puzzle selected, "
                     + "finishing."
             );
             finish();
@@ -428,13 +435,31 @@ public class NotesActivity extends PuzzleActivity {
             this
         );
 
-        final int curWordLen = getBoard().getCurrentWord().length;
+        final int curWordLen = isPuzzleNotes()
+            ? Math.max(puz.getWidth(), puz.getHeight())
+            : getBoard().getCurrentWord().length;
+
+        Note note;
+        int clueVisibility;
+
+        if (isPuzzleNotes()) {
+            clueLine.setText(getString(R.string.player_notes));
+            note = puz.getPlayerNote();
+            clueVisibility = View.GONE;
+        } else {
+            clueLine.setText(smartHtml(getLongClueText(clue, curWordLen)));
+            note = puz.getNote(clue.getNumber(), clue.getIsAcross());
+            flagClue.setChecked(puz.isFlagged(clue));
+            clueVisibility = View.VISIBLE;
+        }
+
+        imageViewLabel.setVisibility(clueVisibility);
+        imageView.setVisibility(clueVisibility);
+        flagClue.setVisibility(clueVisibility);
 
         double scale = renderer.fitTo(metrics.widthPixels, curWordLen);
         if (scale > 1)
             renderer.setScale((float) 1);
-
-        clueLine.setText(smartHtml(getLongClueText(clue, curWordLen)));
 
         // set up and erase any previous data
         notesBox.setText("");
@@ -497,7 +522,6 @@ public class NotesActivity extends PuzzleActivity {
 
         anagramSolView.setFilters(new BoardEditFilter[]{solFilter});
 
-        Note note = puz.getNote(clue.getNumber(), clue.getIsAcross());
         if (note != null) {
             notesBox.setText(note.getText());
 
@@ -528,23 +552,26 @@ public class NotesActivity extends PuzzleActivity {
         scratchView.setLength(curWordLen);
         anagramSourceView.setLength(curWordLen);
 
-        flagClue.setChecked(puz.isFlagged(clue));
-
         keyboardManager.onResume();
 
         this.render();
     }
 
     protected void render() {
-        boolean displayScratch = prefs.getBoolean("displayScratch", false);
-        boolean displayScratchAcross = displayScratch && !getBoard().isAcross();
-        boolean displayScratchDown = displayScratch && getBoard().isAcross();
-        this.imageView.setBitmap(
-            renderer.drawWord(displayScratchAcross, displayScratchDown)
-        );
-        this.imageView.setContentDescription(
-            renderer.getContentDescription(this.imageViewDescriptionBase)
-        );
+        if (!isPuzzleNotes()) {
+            boolean displayScratch
+                = prefs.getBoolean("displayScratch", false);
+            boolean displayScratchAcross
+                = displayScratch && !getBoard().isAcross();
+            boolean displayScratchDown
+                = displayScratch && getBoard().isAcross();
+            this.imageView.setBitmap(
+                renderer.drawWord(displayScratchAcross, displayScratchDown)
+            );
+            this.imageView.setContentDescription(
+                renderer.getContentDescription(this.imageViewDescriptionBase)
+            );
+        }
     }
 
     private void moveScratchToNote() {
@@ -759,5 +786,10 @@ public class NotesActivity extends PuzzleActivity {
                 imm.hideSoftInputFromWindow(notesBox.getWindowToken(), 0);
             }
         }
+    }
+
+    private boolean isPuzzleNotes() {
+        return getIntent().getBooleanExtra(PUZZLE_NOTES, false)
+            || getBoard().getClue() == null;
     }
 }

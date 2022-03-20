@@ -56,6 +56,7 @@ public class Puzzle implements Serializable{
 
     private SortedMap<Integer, Note> acrossNotes = new TreeMap<>();
     private SortedMap<Integer, Note> downNotes = new TreeMap<>();
+    private Note playerNote;
 
     private LinkedList<ClueNumDir> historyList = new LinkedList<>();
 
@@ -648,6 +649,14 @@ public class Puzzle implements Serializable{
             downNotes.put(clueNum, note);
     }
 
+    public Note getPlayerNote() {
+        return playerNote;
+    }
+
+    public void setPlayerNote(Note note) {
+        this.playerNote = note;
+    }
+
     /**
      * Returns true if some box has a solution set
      */
@@ -824,6 +833,9 @@ public class Puzzle implements Serializable{
         if (!flaggedClues.equals(other.flaggedClues))
             return false;
 
+        if (!Objects.equals(playerNote, other.playerNote))
+            return false;
+
         return true;
     }
 
@@ -845,6 +857,7 @@ public class Puzzle implements Serializable{
         result = (prime *result) + downNotes.hashCode();
         result = (prime * result) + flaggedClues.hashCode();
         result = (prime * result) + extraClues.hashCode();
+        result = (prime * result) + Objects.hashCode(playerNote);
 
         return result;
     }

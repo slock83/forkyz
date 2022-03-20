@@ -681,16 +681,14 @@ public class ClueTabs extends LinearLayout
             this.clueView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (onBoard)
-                        ClueTabs.this.notifyListenersClueClick(clue);
+                    ClueTabs.this.notifyListenersClueClick(clue);
                 }
             });
 
             this.clueView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    if (onBoard)
-                        ClueTabs.this.notifyListenersClueLongClick(clue);
+                    ClueTabs.this.notifyListenersClueLongClick(clue);
                     return true;
                 }
             });

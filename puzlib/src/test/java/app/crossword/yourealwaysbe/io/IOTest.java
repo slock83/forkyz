@@ -6,6 +6,7 @@
 package app.crossword.yourealwaysbe.io;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -17,11 +18,11 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueList;
+import app.crossword.yourealwaysbe.puz.Note;
+import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
-import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 
 /**
  *
@@ -134,6 +135,11 @@ public class IOTest extends TestCase {
                 p.setDate(LocalDate.now());
                 p.setSource("Unit Test");
 
+                // play
+                puz.setPlayerNote(
+                    new Note("scratch", "a note", "anagsrc", "anagsol")
+                );
+
                 File metaFile = new File(
                     tmp.getParentFile(),
                     tmp.getName().substring(
@@ -150,12 +156,13 @@ public class IOTest extends TestCase {
                 }
 
                 try (
-                    InputStream ism = new FileInputStream(metaFile)
+                    DataInputStream isp2
+                        = new DataInputStream(new FileInputStream(tmp));
+                    DataInputStream ism =
+                        new DataInputStream(new FileInputStream(metaFile))
                 ) {
-                    PuzzleMeta m = IO.readMeta(ism);
-                    System.out.println(
-                        m.title +"\n"+m.source+"\n"+m.percentComplete
-                    );
+                    Puzzle pin = IO.load(isp2, ism);
+                    assertEquals(p, pin);
                 }
             }
         }

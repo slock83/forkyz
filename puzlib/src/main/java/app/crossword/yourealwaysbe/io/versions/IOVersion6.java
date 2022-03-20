@@ -55,22 +55,27 @@ public class IOVersion6 extends IOVersion5 {
         Note[] notes = new Note[numNotes];
 
         for (int x = 0; x < numNotes; x++) {
-            String scratch = IO.readNullTerminatedString(input);
-            String text = IO.readNullTerminatedString(input);
-            String anagramSrc = IO.readNullTerminatedString(input);
-            String anagramSol = IO.readNullTerminatedString(input);
-            if (scratch != null
-                    || text != null
-                    || anagramSrc != null
-                    || anagramSol != null) {
-                notes[x] = new Note(scratch, text, anagramSrc, anagramSol);
-            }
+            notes[x] = readNote(input);
         }
 
         if (isAcross)
             meta.acrossNotes = notes;
         else
             meta.downNotes = notes;
+    }
+
+    static Note readNote(DataInputStream dis) throws IOException {
+        String scratch = IO.readNullTerminatedString(dis);
+        String text = IO.readNullTerminatedString(dis);
+        String anagramSrc = IO.readNullTerminatedString(dis);
+        String anagramSol = IO.readNullTerminatedString(dis);
+        if (scratch != null
+                || text != null
+                || anagramSrc != null
+                || anagramSol != null) {
+            return new Note(scratch, text, anagramSrc, anagramSol);
+        }
+        return null;
     }
 
     private static void saveNotes(
@@ -89,26 +94,30 @@ public class IOVersion6 extends IOVersion5 {
 
         for (ClueNumDir cnd : puz.getClueNumDirs()) {
             if (cnd.getAcross() == isAcross) {
-                String scratch = null;
-                String text = null;
-                String anagramSrc = null;
-                String anagramSol = null;
-
                 Note note = puz.getNote(cnd.getClueNumber(), isAcross);
-
-                if (note != null) {
-                    scratch = note.getCompressedScratch();
-                    text = note.getText();
-                    anagramSrc = note.getCompressedAnagramSource();
-                    anagramSol = note.getCompressedAnagramSolution();
-                }
-
-                IO.writeNullTerminatedString(dos, scratch);
-                IO.writeNullTerminatedString(dos, text);
-                IO.writeNullTerminatedString(dos, anagramSrc);
-                IO.writeNullTerminatedString(dos, anagramSol);
+                writeNote(note, dos);
             }
         }
+    }
+
+    static void writeNote(Note note, DataOutputStream dos)
+            throws IOException {
+        String scratch = null;
+        String text = null;
+        String anagramSrc = null;
+        String anagramSol = null;
+
+        if (note != null) {
+            scratch = note.getCompressedScratch();
+            text = note.getText();
+            anagramSrc = note.getCompressedAnagramSource();
+            anagramSol = note.getCompressedAnagramSolution();
+        }
+
+        IO.writeNullTerminatedString(dos, scratch);
+        IO.writeNullTerminatedString(dos, text);
+        IO.writeNullTerminatedString(dos, anagramSrc);
+        IO.writeNullTerminatedString(dos, anagramSol);
     }
 
     private void applyNotes(Puzzle puz, Note[] notes, boolean isAcross) {

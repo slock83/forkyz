@@ -7,6 +7,7 @@ import app.crossword.yourealwaysbe.io.versions.IOVersion4;
 import app.crossword.yourealwaysbe.io.versions.IOVersion5;
 import app.crossword.yourealwaysbe.io.versions.IOVersion6;
 import app.crossword.yourealwaysbe.io.versions.IOVersion7;
+import app.crossword.yourealwaysbe.io.versions.IOVersion8;
 import app.crossword.yourealwaysbe.io.versions.IOVersion;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -518,8 +519,8 @@ public class IO implements PuzzleParser {
 
     public static void writeCustom(Puzzle puz, DataOutputStream os)
             throws IOException {
-        os.write(7);
-        IOVersion v = new IOVersion7();
+        os.write(8);
+        IOVersion v = new IOVersion8();
         v.write(puz, os);
     }
 
@@ -722,6 +723,8 @@ public class IO implements PuzzleParser {
             return new IOVersion6();
         case 7:
             return new IOVersion7();
+        case 8:
+            return new IOVersion8();
         default:
             throw new IOException("UnknownVersion " + version);
         }

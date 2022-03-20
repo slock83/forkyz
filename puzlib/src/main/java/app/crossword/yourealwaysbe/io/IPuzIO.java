@@ -27,7 +27,6 @@ import org.json.JSONWriter;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
-import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
@@ -170,11 +169,12 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_CLUE_HISTORY = "cluehistory";
     private static final String FIELD_CLUE_ACROSS = "across";
     private static final String FIELD_CLUE_NOTES = "cluenotes";
+    private static final String FIELD_PLAYER_NOTE = "playernote";
     private static final String FIELD_CLUE_NOTE_CLUE = "clue";
-    private static final String FIELD_CLUE_NOTE_SCRATCH = "scratch";
-    private static final String FIELD_CLUE_NOTE_TEXT = "text";
-    private static final String FIELD_CLUE_NOTE_ANAGRAM_SRC = "anagramsource";
-    private static final String FIELD_CLUE_NOTE_ANAGRAM_SOL
+    private static final String FIELD_NOTE_SCRATCH = "scratch";
+    private static final String FIELD_NOTE_TEXT = "text";
+    private static final String FIELD_NOTE_ANAGRAM_SRC = "anagramsource";
+    private static final String FIELD_NOTE_ANAGRAM_SOL
         = "anagramsolution";
     private static final String FIELD_FLAGGED_CLUES = "flaggedclues";
 
@@ -892,6 +892,7 @@ public class IPuzIO implements PuzzleParser {
         readPosition(playData, puz);
         readClueHistory(playData, puz);
         readClueNotes(playData, puz);
+        readPlayerNote(playData, puz);
         readFlaggedClues(playData, puz);
 
         if (playData.has(FIELD_COMPLETION_TIME))
@@ -1003,13 +1004,13 @@ public class IPuzIO implements PuzzleParser {
 
             if (cnd != null) {
                 String scratch
-                    = noteJson.optString(FIELD_CLUE_NOTE_SCRATCH, null);
+                    = noteJson.optString(FIELD_NOTE_SCRATCH, null);
                 String text
-                    = unHtmlOptString(noteJson, FIELD_CLUE_NOTE_TEXT);
+                    = unHtmlOptString(noteJson, FIELD_NOTE_TEXT);
                 String anagramSrc
-                    = noteJson.optString(FIELD_CLUE_NOTE_ANAGRAM_SRC, null);
+                    = noteJson.optString(FIELD_NOTE_ANAGRAM_SRC, null);
                 String anagramSol
-                    = noteJson.optString(FIELD_CLUE_NOTE_ANAGRAM_SOL, null);
+                    = noteJson.optString(FIELD_NOTE_ANAGRAM_SOL, null);
 
                 if (scratch != null
                         || text != null
@@ -1022,6 +1023,34 @@ public class IPuzIO implements PuzzleParser {
                     );
                 }
             }
+        }
+    }
+
+    /**
+     * Read player note
+     */
+    private static void readPlayerNote(JSONObject playData, Puzzle puz) {
+        if (!playData.has(FIELD_PLAYER_NOTE))
+            return;
+
+        JSONObject noteJson = playData.getJSONObject(FIELD_PLAYER_NOTE);
+
+        String scratch
+            = noteJson.optString(FIELD_NOTE_SCRATCH, null);
+        String text
+            = unHtmlOptString(noteJson, FIELD_NOTE_TEXT);
+        String anagramSrc
+            = noteJson.optString(FIELD_NOTE_ANAGRAM_SRC, null);
+        String anagramSol
+            = noteJson.optString(FIELD_NOTE_ANAGRAM_SOL, null);
+
+        if (scratch != null
+                || text != null
+                || anagramSrc != null
+                || anagramSol != null) {
+            puz.setPlayerNote(
+                new Note(scratch, text, anagramSrc, anagramSol)
+            );
         }
     }
 
@@ -1368,6 +1397,7 @@ public class IPuzIO implements PuzzleParser {
         writePosition(puz, writer);
         writeClueHistory(puz, writer);
         writeClueNotes(puz, writer);
+        writePlayerNote(puz, writer);
         writeFlaggedClues(puz, writer);
 
         writer.keyValueNonNull(1, FIELD_COMPLETION_TIME, puz.getTime())
@@ -1401,19 +1431,19 @@ public class IPuzIO implements PuzzleParser {
                 writer.newLine()
                     .keyValueNonNull(
                         3,
-                        FIELD_CLUE_NOTE_SCRATCH,
+                        FIELD_NOTE_SCRATCH,
                         note.getCompressedScratch()
                     ).keyValueNonNull(
                         3,
-                        FIELD_CLUE_NOTE_TEXT,
+                        FIELD_NOTE_TEXT,
                         htmlString(note.getText())
                     ).keyValueNonNull(
                         3,
-                        FIELD_CLUE_NOTE_ANAGRAM_SRC,
+                        FIELD_NOTE_ANAGRAM_SRC,
                         note.getCompressedAnagramSource()
                     ).keyValueNonNull(
                         3,
-                        FIELD_CLUE_NOTE_ANAGRAM_SOL,
+                        FIELD_NOTE_ANAGRAM_SOL,
                         note.getCompressedAnagramSolution()
                     );
                 writer.indent(2)
@@ -1425,6 +1455,42 @@ public class IPuzIO implements PuzzleParser {
         writer.indent(1)
             .endArray();
         writer.newLine();
+    }
+
+/**
+     * Add player Note object
+     */
+    private static void writePlayerNote(Puzzle puz, FormatableJSONWriter writer)
+            throws IOException {
+        writer.newLine();
+
+        Note note = puz.getPlayerNote();
+        if (note != null && !note.isEmpty()) {
+            writer.indent(1)
+                .key(FIELD_PLAYER_NOTE)
+                .object();
+            writer.newLine()
+                .keyValueNonNull(
+                    2,
+                    FIELD_NOTE_SCRATCH,
+                    note.getCompressedScratch()
+                ).keyValueNonNull(
+                    2,
+                    FIELD_NOTE_TEXT,
+                    htmlString(note.getText())
+                ).keyValueNonNull(
+                    2,
+                    FIELD_NOTE_ANAGRAM_SRC,
+                    note.getCompressedAnagramSource()
+                ).keyValueNonNull(
+                    2,
+                    FIELD_NOTE_ANAGRAM_SOL,
+                    note.getCompressedAnagramSolution()
+                );
+            writer.indent(1)
+                .endObject();
+            writer.newLine();
+        }
     }
 
     private static void writeFlaggedClues(

@@ -42,8 +42,11 @@ public class ClueListActivity extends PuzzleActivity
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.clue_list_menu_notes) {
-            launchNotes();
+        } else if (id == R.id.clue_list_menu_clue_notes) {
+            launchClueNotes();
+            return true;
+        } else if (id == R.id.clue_list_menu_puzzle_notes) {
+            launchPuzzleNotes();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -83,7 +86,7 @@ public class ClueListActivity extends PuzzleActivity
         this.imageView.setContextMenuListener(new ClickListener() {
             public void onContextMenu(Point e) {
                 onTap(e);
-                launchNotes();
+                launchClueNotes();
             }
 
             public void onTap(Point e) {
@@ -178,7 +181,7 @@ public class ClueListActivity extends PuzzleActivity
     @Override
     public void onClueTabsClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
-        if (board != null) {
+        if (board != null && clue.hasNumber()) {
             Word old = board.getCurrentWord();
             board.jumpToClue(clue.getNumber(), clue.getIsAcross());
             displayKeyboard(old);
@@ -189,8 +192,12 @@ public class ClueListActivity extends PuzzleActivity
     public void onClueTabsLongClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
         if (board != null) {
-            board.jumpToClue(clue.getNumber(), clue.getIsAcross());
-            launchNotes();
+            if (clue.hasNumber()) {
+                board.jumpToClue(clue.getNumber(), clue.getIsAcross());
+                launchClueNotes();
+            } else {
+                launchPuzzleNotes();
+            }
         }
     }
 
@@ -390,11 +397,16 @@ public class ClueListActivity extends PuzzleActivity
             this.renderer.setScale((float) 1);
     }
 
-    private void launchNotes() {
-        if (getBoard().getClue() != null) {
-            Intent i = new Intent(this, NotesActivity.class);
-            ClueListActivity.this.startActivity(i);
-        }
+    private void launchClueNotes() {
+        Intent i = new Intent(this, NotesActivity.class);
+        i.putExtra(NotesActivity.PUZZLE_NOTES, false);
+        ClueListActivity.this.startActivity(i);
+    }
+
+    private void launchPuzzleNotes() {
+        Intent i = new Intent(this, NotesActivity.class);
+        i.putExtra(NotesActivity.PUZZLE_NOTES, true);
+        ClueListActivity.this.startActivity(i);
     }
 
     private void selectFirstClue() {

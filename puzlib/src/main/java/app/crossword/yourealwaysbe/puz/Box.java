@@ -1,7 +1,6 @@
 package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 public class Box implements Serializable {
     public static final char BLANK = ' ';
