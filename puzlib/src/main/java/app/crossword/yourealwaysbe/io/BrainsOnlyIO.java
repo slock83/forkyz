@@ -12,6 +12,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
@@ -24,6 +25,7 @@ import java.util.ArrayList;
  */
 public class BrainsOnlyIO implements PuzzleParser {
 
+    private static final Charset CHARSET = Charset.forName("ISO-8859-1");
 
     public static boolean convertBrainsOnly(InputStream is, DataOutputStream os, LocalDate date){
         try {
@@ -47,7 +49,9 @@ public class BrainsOnlyIO implements PuzzleParser {
     public static Puzzle parse(InputStream is) throws IOException {
         Puzzle puz = new Puzzle();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        BufferedReader reader = new BufferedReader(
+            new InputStreamReader(is, CHARSET)
+        );
         String title = readLineAtOffset(reader, 4);
         int startIndex = title.indexOf(" ") + 1;
         puz.setTitle(htmlString(
