@@ -88,8 +88,8 @@
     <!-- Puzzle Info Dialog -->
     <string name="tap_to_show_full_notes_no_text">(Tap to show full notes.)</string>
     <string name="tap_to_hide_full_notes_no_text">(Tap to hide full notes.)</string>
-    <string name="tap_to_show_full_notes_with_text">%1$s\n(Tap to show full notes.)</string>
-    <string name="tap_to_hide_full_notes_with_text">%1$s\n(Tap to hide full notes.)</string>
+    <string name="tap_to_show_full_notes_with_text">%1$s&lt;br&gt;(Tap to show full notes.)</string>
+    <string name="tap_to_hide_full_notes_with_text">%1$s&lt;br&gt;(Tap to hide full notes.)</string>
 
     <!-- preferences -->
     <string name="storage_location">Storage Location</string>
