@@ -128,7 +128,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
                 i++;
             }
             String clue = line.substring(i+2).trim();
-            puz.addClue(new Clue(clueNum, true, clue));
+            puz.addClue(new Clue(clueNum, Clue.ACROSS, clue));
             if (!scanner.hasNextLine()) {
                 System.err.println("Unexpected EOF - Across clues.");
                 return null;
@@ -156,7 +156,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
                 i++;
             }
             String clue = line.substring(i+2).trim();
-            puz.addClue(new Clue(clueNum, false, clue));
+            puz.addClue(new Clue(clueNum, Clue.DOWN, clue));
             if(!finished) {
                 if (!scanner.hasNextLine()) {
                     System.err.println("Unexpected EOF - Down clues.");

@@ -87,14 +87,14 @@ public class UclickXMLIO implements PuzzleParser {
                 try {
                     puz.addClue(new Clue(
                         clueNum,
-                        true,
+                        Clue.ACROSS,
                         URLDecoder.decode(
                             attributes.getValue("c"), CHARSET_NAME
                         )
                     ));
                 } catch (UnsupportedEncodingException e) {
                     puz.addClue(
-                        new Clue(clueNum, true, attributes.getValue("c"))
+                        new Clue(clueNum, Clue.ACROSS, attributes.getValue("c"))
                     );
                 }
             } else if (inDown) {
@@ -105,14 +105,14 @@ public class UclickXMLIO implements PuzzleParser {
                 try {
                     puz.addClue(new Clue(
                         clueNum,
-                        false,
+                        Clue.DOWN,
                         URLDecoder.decode(
                             attributes.getValue("c"), CHARSET_NAME
                         )
                     ));
                 } catch (UnsupportedEncodingException e) {
                     puz.addClue(
-                        new Clue(clueNum, false, attributes.getValue("c"))
+                        new Clue(clueNum, Clue.DOWN, attributes.getValue("c"))
                     );
                 }
             } else if (name.equalsIgnoreCase("title")) {

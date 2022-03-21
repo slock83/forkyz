@@ -134,10 +134,12 @@ public class GuardianJSONIO implements PuzzleParser {
             JSONObject entry = entries.getJSONObject(i);
 
             int num = entry.getInt("number");
-            boolean across = entry.getString("direction").equals("across");
+            String listName = entry.getString("direction").equals("across")
+                ? Clue.ACROSS
+                : Clue.DOWN;
             String clue = entry.getString("clue");
 
-            puz.addClue(new Clue(num, across, clue));
+            puz.addClue(new Clue(num, listName, clue));
         }
     }
 

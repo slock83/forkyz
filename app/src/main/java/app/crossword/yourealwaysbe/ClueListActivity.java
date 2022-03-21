@@ -181,9 +181,15 @@ public class ClueListActivity extends PuzzleActivity
     @Override
     public void onClueTabsClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
-        if (board != null && clue.hasNumber()) {
+        if (board == null)
+            return;
+
+        if (!clue.hasNumber())
+            return;
+
+        if (clue.isAcross() || clue.isDown()) {
             Word old = board.getCurrentWord();
-            board.jumpToClue(clue.getNumber(), clue.getIsAcross());
+            board.jumpToClue(clue.getNumber(), clue.isAcross());
             displayKeyboard(old);
         }
     }
@@ -191,13 +197,17 @@ public class ClueListActivity extends PuzzleActivity
     @Override
     public void onClueTabsLongClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
-        if (board != null) {
-            if (clue.hasNumber()) {
-                board.jumpToClue(clue.getNumber(), clue.getIsAcross());
-                launchClueNotes();
-            } else {
-                launchPuzzleNotes();
-            }
+        if (board == null)
+            return;
+
+        if (getPuzzle().isNotableClue(clue)) {
+            if (clue.isAcross() && clue.hasNumber())
+                board.jumpToClue(clue.getNumber(), true);
+            else if (clue.isDown() && clue.hasNumber())
+                board.jumpToClue(clue.getNumber(), false);
+            launchClueNotes();
+        } else {
+            launchPuzzleNotes();
         }
     }
 

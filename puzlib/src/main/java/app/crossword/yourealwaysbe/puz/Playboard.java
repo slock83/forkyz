@@ -114,16 +114,20 @@ public class Playboard implements Serializable {
     }
 
     /**
-     * Returns -1 if no current clue
+     * Returns -1 if no current clue selected
      */
     public int getCurrentClueIndex() {
         Clue clue = getClue();
         if (clue != null) {
-            return puzzle.getClues(clue.getIsAcross())
-                .getClueIndex(clue.getNumber());
-        } else {
-            return -1;
+            if (clue.isAcross()) {
+                return puzzle.getClues(true)
+                    .getClueIndex(clue.getNumber());
+            } else if (clue.isDown()) {
+                return puzzle.getClues(false)
+                    .getClueIndex(clue.getNumber());
+            }
         }
+        return -1;
     }
 
     public Note getNote() {
@@ -1109,11 +1113,17 @@ public class Playboard implements Serializable {
     }
 
     private void updateHistory() {
-        if (puzzle != null) {
-            Clue c = getClue();
-            if (c != null)
-                puzzle.updateHistory(c.getNumber(), c.getIsAcross());
-        }
+        if (puzzle == null)
+            return;
+
+        Clue c = getClue();
+        if (c == null)
+            return;
+
+        if (c.isAcross())
+            puzzle.updateHistory(c.getNumber(), true);
+        else if (c.isDown())
+            puzzle.updateHistory(c.getNumber(), false);
     }
 
     private void ensureClueSelected() {

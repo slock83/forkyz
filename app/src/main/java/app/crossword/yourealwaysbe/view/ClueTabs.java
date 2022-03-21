@@ -711,14 +711,12 @@ public class ClueTabs extends LinearLayout
 
             int color = R.color.textColorPrimary;
 
-            if (board != null
-                    && onBoard
-                    && clue.hasNumber()
-                    && board.isFilledClueNum(
-                        clue.getNumber(), clue.getIsAcross()
-                    )
-            ) {
-                color = R.color.textColorFilled;
+            if (board != null && onBoard && clue.hasNumber()) {
+                int number = clue.getNumber();
+                if (clue.isAcross() && board.isFilledClueNum(number, true))
+                    color = R.color.textColorFilled;
+                else if (clue.isDown() && board.isFilledClueNum(number, false))
+                    color = R.color.textColorFilled;
             }
 
             clueView.setTextColor(ContextCompat.getColor(
@@ -728,10 +726,12 @@ public class ClueTabs extends LinearLayout
             if (board != null) {
                 if (onBoard && clue.hasNumber()) {
                     int selectedClueNumber = board.getClueNumber();
-                    clueView.setChecked(
-                        board.isAcross() == clue.getIsAcross()
-                            && selectedClueNumber == clue.getNumber()
-                    );
+                    if (clue.isAcross() || clue.isDown()) {
+                        clueView.setChecked(
+                            selectedClueNumber == clue.getNumber()
+                            && board.isAcross() == clue.isAcross()
+                        );
+                    }
                 }
 
                 Puzzle puz = board.getPuzzle();
@@ -751,10 +751,11 @@ public class ClueTabs extends LinearLayout
 
             if (clue.hasNumber()) {
                 int number = clue.getNumber();
-                boolean across = clue.getIsAcross();
+                boolean hasCount = clue.isAcross() || clue.isDown();
 
                 if (showDirection) {
-                    if (isShowCount()) {
+                    if (hasCount && isShowCount()) {
+                        boolean across = clue.isAcross();
                         int clueFormat = across
                             ? R.string.clue_format_across_short_with_count
                             : R.string.clue_format_down_short_with_count;
@@ -763,21 +764,24 @@ public class ClueTabs extends LinearLayout
                             number, hint, board.getWordRange(number, across)
                         );
                     } else {
-                        int clueFormat = across
-                            ? R.string.clue_format_across_short
-                            : R.string.clue_format_down_short;
+                        int clueFormat
+                            = R.string.clue_format_no_direction_short;
+                        if (clue.isAcross())
+                            clueFormat = R.string.clue_format_across_short;
+                        else if (clue.isDown())
+                            clueFormat = R.string.clue_format_down_short;
                         return ClueTabs.this.getContext().getString(
                             clueFormat,
                             number, hint
                         );
                     }
                 } else {
-                    if (isShowCount()) {
+                    if (hasCount && isShowCount()) {
+                        boolean across = clue.isAcross();
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_no_direction_short_with_count,
                             number, hint, board.getWordRange(number, across)
                         );
-
                     } else {
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_no_direction_short,

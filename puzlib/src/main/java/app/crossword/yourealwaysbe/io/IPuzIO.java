@@ -647,16 +647,14 @@ public class IPuzIO implements PuzzleParser {
         for (int i = 0; i < jsonClues.length(); i++) {
             Object clueObj = jsonClues.get(i);
             // all clues not across until proven otherwise by list name
-            Clue clue = getClue(clueObj, false, showEnumerations);
+            String newListName = displayName;
+            if (FIELD_CLUES_ACROSS.equals(dirName))
+                newListName = Clue.ACROSS;
+            else if (FIELD_CLUES_DOWN.equals(dirName))
+                newListName = Clue.DOWN;
+            Clue clue = getClue(clueObj, newListName, showEnumerations);
             if (clue != null) {
-                if (FIELD_CLUES_ACROSS.equals(dirName)) {
-                    clue.setIsAcross(true);
-                    puz.addClue(clue);
-                } else if (FIELD_CLUES_DOWN.equals(dirName)) {
-                    puz.addClue(clue);
-                } else {
-                    puz.addExtraClue(displayName, clue);
-                }
+                puz.addClue(clue);
             }
         }
     }
@@ -665,12 +663,15 @@ public class IPuzIO implements PuzzleParser {
      * Convert a JSON object clue into a Clue
      *
      * Adds enumeration to hint if showEnumerations is true
+     *
+     * @param listName the name of the list the clue belongs to
+     * (Clue.ACROSS/DOWN for standard)
      */
     private static Clue getClue(
-        Object clueObj, boolean across, boolean showEnumerations
+        Object clueObj, String listName, boolean showEnumerations
     ) throws IPuzFormatException {
         if (clueObj instanceof String) {
-            return new Clue(false, (String) clueObj);
+            return new Clue(listName, (String) clueObj);
         } else if (clueObj instanceof JSONArray) {
             JSONArray clueArray = (JSONArray) clueObj;
             if (clueArray.length() != 2) {
@@ -681,7 +682,7 @@ public class IPuzIO implements PuzzleParser {
             Object clueNumObj = clueArray.get(0);
             String hint = clueArray.getString(1);
 
-            return buildClue(clueNumObj, across, hint, null);
+            return buildClue(clueNumObj, listName, hint, null);
         } else if (clueObj instanceof JSONObject) {
             JSONObject clueJson = (JSONObject) clueObj;
 
@@ -709,7 +710,7 @@ public class IPuzIO implements PuzzleParser {
                 ? clueJson.optString(FIELD_ENUMERATION)
                 : null;
 
-            return buildClue(clueNumObj, across, hint.toString(), enumeration);
+            return buildClue(clueNumObj, listName, hint.toString(), enumeration);
         } else {
             throw new IPuzFormatException(
                 "Unsupported clue format " + clueObj.getClass() + ": " + clueObj
@@ -753,7 +754,7 @@ public class IPuzIO implements PuzzleParser {
      * @param enumeration null or empty if no enumeration to be shown in clue
      */
     private static Clue buildClue(
-        Object clueNumObj, boolean across, String hint, String enumeration
+        Object clueNumObj, String listName, String hint, String enumeration
     ) throws IPuzFormatException {
         int number = getClueNumber(clueNumObj);
 
@@ -768,9 +769,9 @@ public class IPuzIO implements PuzzleParser {
         }
 
         if (number < 0)
-            return new Clue(across, hint);
+            return new Clue(listName, hint);
         else
-            return new Clue(number, across, hint);
+            return new Clue(number, listName, hint);
     }
 
     /**

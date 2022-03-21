@@ -70,28 +70,29 @@ public class Puzzle implements Serializable{
     public byte[] unscrambleTmp;
     public byte[] unscrambleBuf;
 
-    public void addClue(Clue clue) {
-        if (clue.getIsAcross())
-            this.acrossClues.addClue(clue);
-        else
-            this.downClues.addClue(clue);
-        addClueToBoxes(clue);
-    }
-
     /**
-     * Add a clue belonging to a non-standard clue list
+     * Add a clue
      *
-     * We assume across/down but can display extra ones with limited
-     * functionality.
+     * List name Clue.ACROSS/DOWN added to board, other clues put into
+     * "extra" clue lists
      */
-    public void addExtraClue(String listName, Clue clue) {
-        if (!extraClues.containsKey(listName))
-            extraClues.put(listName, new ArrayList<Clue>());
-        extraClues.get(listName).add(clue);
+    public void addClue(Clue clue) {
+        if (clue.isAcross()) {
+            acrossClues.addClue(clue);
+            addClueToBoxes(clue);
+        } else if (clue.isDown()) {
+            downClues.addClue(clue);
+            addClueToBoxes(clue);
+        } else {
+            String listName = clue.getListName();
+            if (!extraClues.containsKey(listName))
+                extraClues.put(listName, new ArrayList<Clue>());
+            extraClues.get(listName).add(clue);
+        }
     }
 
     /**
-     * Get clue lists
+     * Get across/down clue lists
      *
      * Note: no reason to assume there is a numbered clue for every
      * numbered position on the board. This is not always the case when
@@ -102,7 +103,7 @@ public class Puzzle implements Serializable{
     }
 
     /**
-     * Clues that are in a non-standard list
+     * Clues that are in a non-standard list (not across/down)
      *
      * @return null if list does not exist
      */
@@ -905,14 +906,23 @@ public class Puzzle implements Serializable{
 
     /**
      * Flag or unflag clue
+     *
+     * Only works for across/down clues
      */
     public void flagClue(Clue clue, boolean flag) {
-        if (clue != null)
-            flagClue(clue.getNumber(), clue.getIsAcross(), flag);
+        if (clue == null)
+            return;
+
+        if (clue.isAcross())
+            flagClue(clue.getNumber(), true, flag);
+        else if (clue.isDown())
+            flagClue(clue.getNumber(), false, flag);
     }
 
     /**
      * Flag or unflag clue
+     *
+     * Only works for across/down clues
      */
     public void flagClue(int number, boolean across, boolean flag) {
         flagClue(new ClueNumDir(number, across), flag);
@@ -922,16 +932,39 @@ public class Puzzle implements Serializable{
         return flaggedClues.contains(clueNumDir);
     }
 
+    /**
+     * Always false for non across/down clues
+     */
     public boolean isFlagged(Clue clue) {
-        return isFlagged(new ClueNumDir(clue.getNumber(), clue.getIsAcross()));
+        if (clue == null)
+            return false;
+        if (clue.isAcross())
+            return isFlagged(new ClueNumDir(clue.getNumber(), true));
+        if (clue.isDown())
+            return isFlagged(new ClueNumDir(clue.getNumber(), false));
+        return false;
     }
 
+    /**
+     * Dir assumed down if across is false
+     */
     public boolean isFlagged(int number, boolean across) {
         return isFlagged(new ClueNumDir(number, across));
     }
 
     public Iterable<ClueNumDir> getFlaggedClues() {
         return flaggedClues;
+    }
+
+    /**
+     * Returns true if the clue can have its own note
+     *
+     * Currently only supported for across/down clues
+     */
+    public boolean isNotableClue(Clue clue) {
+        if (clue == null)
+            return false;
+        return clue.isAcross() || clue.isDown();
     }
 
     /**
@@ -1030,7 +1063,9 @@ public class Puzzle implements Serializable{
     /**
      * Marks clue on current boxes
      *
-     * E.g. set box as start of the clue or part of the clue
+     * E.g. set box as start of the clue or part of the clue.
+     *
+     * Only supports across/down clues
      */
     private void addClueToBoxes(Clue clue) {
         int number = clue.getNumber();
@@ -1051,7 +1086,7 @@ public class Puzzle implements Serializable{
 
         // set start of across/down
         // then mark boxes in word as part of clue
-        if (clue.getIsAcross()) {
+        if (clue.isAcross()) {
             box.setAcross(true);
 
             int off = -1;
@@ -1061,7 +1096,7 @@ public class Puzzle implements Serializable{
                 midBox.setPartOfAcrossClueNumber(number);
                 midBox.setAcrossPosition(off);
             } while (joinedRight(boxes, row, col + off));
-        } else {
+        } else if (clue.isDown()) {
             box.setDown(true);
 
             int off = -1;

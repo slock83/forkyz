@@ -196,16 +196,22 @@ public abstract class PuzzleActivity
             return getString(R.string.unknown_hint);
 
         if (showCount) {
-            int clueFormat = clue.getIsAcross()
-                ? R.string.clue_format_across_long_with_count
-                : R.string.clue_format_down_long_with_count;
+            int clueFormat = R.string.clue_format_no_direction_long_with_count;
+            if (clue.isAcross())
+                clueFormat = R.string.clue_format_across_long_with_count;
+            else if (clue.isDown())
+                clueFormat = R.string.clue_format_down_long_with_count;
+
             return getString(
                 clueFormat, clue.getNumber(), clue.getHint(), wordLen
             );
         } else {
-            int clueFormat = clue.getIsAcross()
-                ? R.string.clue_format_across_long
-                : R.string.clue_format_down_long;
+            int clueFormat = R.string.clue_format_no_direction_long;
+            if (clue.isAcross())
+                clueFormat = R.string.clue_format_across_long;
+            else if (clue.isDown())
+                clueFormat = R.string.clue_format_down_long;
+
             return getString(
                 clueFormat, clue.getNumber(), clue.getHint()
             );

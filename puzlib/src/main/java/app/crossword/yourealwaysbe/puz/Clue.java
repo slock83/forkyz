@@ -5,32 +5,44 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Clue implements Serializable {
+    public static final String ACROSS = "Across";
+    public static final String DOWN = "Down";
+
     // to support non-standard clue lists without numbers
     private static final int NO_NUMBER = -1;
 
     private int number = NO_NUMBER;
-    private boolean isAcross;
+    private String listName;
     private String hint;
 
-    public Clue(int number, boolean isAcross, String hint) {
+    /**
+     * Construct a clue
+     *
+     * Use listName Clue.ACROSS/DOWN for standard directions, else
+     * direction can be custom
+     */
+    public Clue(int number, String listName, String hint) {
         this.number = number;
-        this.isAcross = isAcross;
+        this.listName = listName;
         this.hint = hint;
     }
 
-    public Clue(boolean isAcross, String hint) {
-        this.number = number;
-        this.isAcross = isAcross;
-        this.hint = hint;
+    /**
+     * Construct a numberless clue
+     */
+    public Clue(String listName, String hint) {
+        this(NO_NUMBER, listName, hint);
     }
 
     public boolean hasNumber() { return getNumber() != NO_NUMBER; }
     public int getNumber() { return number; }
-    public boolean getIsAcross() { return isAcross; }
+    public String getListName() { return listName; }
+    public boolean isAcross() { return ACROSS.equals(listName); }
+    public boolean isDown() { return DOWN.equals(listName); }
     public String getHint() { return hint; }
 
-    public void setIsAcross(boolean isAcross) {
-        this.isAcross = isAcross;
+    public void setListName(String listName) {
+        this.listName = listName;
     }
 
     @Override
@@ -43,7 +55,7 @@ public class Clue implements Serializable {
         if (this.getNumber() != other.getNumber())
             return false;
 
-        if (this.getIsAcross() != other.getIsAcross())
+        if (!Objects.equals(this.getListName(), other.getListName()))
             return false;
 
         if (!Objects.equals(this.getHint(), other.getHint()))
@@ -54,13 +66,12 @@ public class Clue implements Serializable {
 
     @Override
     public int hashCode() {
-        return getNumber();
+        return Objects.hash(getNumber(), getHint());
     }
 
     @Override
     public String toString() {
-        String dir = getIsAcross() ? "a" : "d";
-        return getNumber() + dir + ". " + getHint();
+        return getNumber() + ":" + getListName() + ". " + getHint();
     }
 }
 

@@ -702,23 +702,34 @@ public class PlayActivity extends PuzzleActivity
     @Override
     public void onClueTabsClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
-        if (board != null && clue.hasNumber()) {
-            Word old = board.getCurrentWord();
-            board.jumpToClue(clue.getNumber(), clue.getIsAcross());
-            displayKeyboard(old);
-        }
+        if (board == null)
+            return;
+
+        if (!clue.isAcross() && !clue.isDown())
+            return;
+
+        Word old = board.getCurrentWord();
+        if (clue.isAcross())
+            board.jumpToClue(clue.getNumber(), true);
+        else if (clue.isDown())
+            board.jumpToClue(clue.getNumber(), true);
+        displayKeyboard(old);
     }
 
     @Override
     public void onClueTabsLongClick(Clue clue, ClueTabs view) {
         Playboard board = getBoard();
-        if (board != null) {
-            if (clue.hasNumber()) {
-                board.jumpToClue(clue.getNumber(), clue.getIsAcross());
-                launchClueNotes();
-            } else {
-                launchPuzzleNotes();
-            }
+        if (board == null)
+            return;
+
+        if (getPuzzle().isNotableClue(clue)) {
+            if (clue.isAcross() && clue.hasNumber())
+                board.jumpToClue(clue.getNumber(), true);
+            else if (clue.isDown() && clue.hasNumber())
+                board.jumpToClue(clue.getNumber(), false);
+            launchClueNotes();
+        } else {
+            launchPuzzleNotes();
         }
     }
 

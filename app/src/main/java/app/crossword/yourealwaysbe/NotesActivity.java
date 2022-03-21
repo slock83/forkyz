@@ -447,8 +447,18 @@ public class NotesActivity extends PuzzleActivity {
             note = puz.getPlayerNote();
             clueVisibility = View.GONE;
         } else {
+            if (!clue.isAcross() && !clue.isDown()) {
+                LOG.severe(
+                    "NotesActivity does not support notes on clues "
+                    + "that are not across or down. Finishing."
+                );
+                finish();
+                // finish doesn't finish right away
+                return;
+            }
+
             clueLine.setText(smartHtml(getLongClueText(clue, curWordLen)));
-            note = puz.getNote(clue.getNumber(), clue.getIsAcross());
+            note = puz.getNote(clue.getNumber(), clue.isAcross());
             flagClue.setChecked(puz.isFlagged(clue));
             clueVisibility = View.VISIBLE;
         }
@@ -789,7 +799,9 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     private boolean isPuzzleNotes() {
+        Clue clue = getBoard().getClue();
         return getIntent().getBooleanExtra(PUZZLE_NOTES, false)
-            || getBoard().getClue() == null;
+            || clue == null
+            || !getPuzzle().isNotableClue(clue);
     }
 }

@@ -495,13 +495,13 @@ public class JPZIO implements PuzzleParser {
             = handler.getAcrossNumToClueMap();
 
         for (Map.Entry<Integer, String> entry : acrossNumToClueMap.entrySet()) {
-            puz.addClue(new Clue(entry.getKey(), true, entry.getValue()));
+            puz.addClue(new Clue(entry.getKey(), Clue.ACROSS, entry.getValue()));
         }
 
         Map<Integer, String> downNumToClueMap = handler.getDownNumToClueMap();
 
         for (Map.Entry<Integer, String> entry : downNumToClueMap.entrySet()) {
-            puz.addClue(new Clue(entry.getKey(), false, entry.getValue()));
+            puz.addClue(new Clue(entry.getKey(), Clue.DOWN, entry.getValue()));
         }
     }
 

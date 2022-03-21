@@ -109,7 +109,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                 ){
                     puz.addClue(new Clue(
                         boxes[h][w].getClueNumber(),
-                        true,
+                        Clue.ACROSS,
                         htmlString(acrossClues.get(acrossIdx))
                     ));
                     acrossIdx += 1;
@@ -127,7 +127,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                 ){
                     puz.addClue(new Clue(
                         boxes[h][w].getClueNumber(),
-                        false,
+                        Clue.DOWN,
                         htmlString(downClues.get(downIdx))
                     ));
                     downIdx += 1;

@@ -187,12 +187,12 @@ public class IO implements PuzzleParser {
 
                 if (Puzzle.isStartClue(boxes, x, y, true) && (clueNumber != 0)) {
                     String value = readNullTerminatedString(input);
-                    puz.addClue(new Clue(clueNumber, true, value));
+                    puz.addClue(new Clue(clueNumber, Clue.ACROSS, value));
                 }
 
                 if (Puzzle.isStartClue(boxes, x, y, false) && (clueNumber != 0)) {
                     String value = readNullTerminatedString(input);
-                    puz.addClue(new Clue(clueNumber, false, value));
+                    puz.addClue(new Clue(clueNumber, Clue.DOWN, value));
                 }
             }
         }
