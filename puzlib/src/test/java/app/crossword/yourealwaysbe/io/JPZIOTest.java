@@ -47,6 +47,15 @@ public class JPZIOTest extends TestCase {
         assertEquals(boxes[14][5], null);
         assertEquals(boxes[3][6].getSolution(), 'N');
 
+        assertTrue(boxes[2][2].isBarredTop());
+        assertFalse(boxes[3][2].isBarredTop());
+        assertTrue(boxes[5][2].isBarredRight());
+        assertFalse(boxes[5][2].isBarredLeft());
+        assertTrue(boxes[6][2].isBarredBottom());
+        assertFalse(boxes[6][2].isBarredLeft());
+        assertTrue(boxes[7][2].isBarredLeft());
+        assertFalse(boxes[7][2].isBarredRight());
+
         ClueList acrossClues = puz.getClues(true);
         ClueList downClues = puz.getClues(false);
 

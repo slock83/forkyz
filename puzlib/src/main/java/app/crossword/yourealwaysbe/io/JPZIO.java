@@ -197,36 +197,64 @@ public class JPZIO implements PuzzleParser {
                             = Integer.parseInt(attributes.getValue("height"));
                         JPZXMLParser.this.boxes = new Box[height][width];
                     } else if (name.equalsIgnoreCase("cell")) {
-                        int x = Integer.parseInt(attributes.getValue("x")) - 1;
-                        int y = Integer.parseInt(attributes.getValue("y")) - 1;
-                        String solution = attributes.getValue("solution");
-                        String number = attributes.getValue("number");
-                        if (solution != null &&
-                            0 <= x && x < JPZXMLParser.this.getWidth() &&
-                            0 <= y && y < JPZXMLParser.this.getHeight()) {
-                            Box box = new Box();
-
-                            if (solution.length() > 0)
-                                box.setSolution(solution.charAt(0));
-                            box.setBlank();
-
-                            if (number != null) {
-                                int clueNumber = Integer.parseInt(number);
-                                box.setClueNumber(clueNumber);
-                                maxClueNum = Math.max(maxClueNum, clueNumber);
-                            }
-
-                            String shape
-                                = attributes.getValue("background-shape");
-                            if ("circle".equalsIgnoreCase(shape)) {
-                                box.setCircled(true);
-                            }
-
-                            JPZXMLParser.this.boxes[y][x] = box;
-                        }
+                        parseCell(attributes);
                     }
                 } catch (NumberFormatException e) {
                     LOG.severe("Could not read JPZ XML cell data: " + e);
+                }
+            }
+
+            private void parseCell(Attributes attributes) {
+                int x = Integer.parseInt(attributes.getValue("x")) - 1;
+                int y = Integer.parseInt(attributes.getValue("y")) - 1;
+                String solution = attributes.getValue("solution");
+                String number = attributes.getValue("number");
+                if (solution != null &&
+                    0 <= x && x < JPZXMLParser.this.getWidth() &&
+                    0 <= y && y < JPZXMLParser.this.getHeight()) {
+                    Box box = new Box();
+
+                    if (solution.length() > 0)
+                        box.setSolution(solution.charAt(0));
+                    box.setBlank();
+
+                    if (number != null) {
+                        int clueNumber = Integer.parseInt(number);
+                        box.setClueNumber(clueNumber);
+                        maxClueNum = Math.max(maxClueNum, clueNumber);
+                    }
+
+                    String shape
+                        = attributes.getValue("background-shape");
+                    if ("circle".equalsIgnoreCase(shape)) {
+                        box.setCircled(true);
+                    }
+
+                    String color
+                        = attributes.getValue("background-color");
+                    // if is hex color
+                    if (color != null
+                            && color.startsWith("#")
+                            && color.length() == 7) {
+                        try {
+                            box.setColor(Integer.valueOf(
+                                color.substring(1), 16
+                            ));
+                        } catch (NumberFormatException e) {
+                            // oh well, we tried
+                        }
+                    }
+
+                    String topBar = attributes.getValue("top-bar");
+                    box.setBarredTop("true".equalsIgnoreCase(topBar));
+                    String bottomBar = attributes.getValue("bottom-bar");
+                    box.setBarredBottom("true".equalsIgnoreCase(bottomBar));
+                    String leftBar = attributes.getValue("left-bar");
+                    box.setBarredLeft("true".equalsIgnoreCase(leftBar));
+                    String rightBar = attributes.getValue("right-bar");
+                    box.setBarredRight("true".equalsIgnoreCase(rightBar));
+
+                    JPZXMLParser.this.boxes[y][x] = box;
                 }
             }
         };
