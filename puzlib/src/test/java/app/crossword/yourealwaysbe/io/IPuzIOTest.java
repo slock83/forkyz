@@ -11,10 +11,10 @@ import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Position;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 public class IPuzIOTest extends TestCase {
@@ -231,8 +231,8 @@ public class IPuzIOTest extends TestCase {
             assertEquals(puz2.getTime(), 1234L);
             assertEquals(puz.getPosition(), puz2.getPosition());
             assertFalse(puz.getAcross());
-            assertEquals(puz.getHistory().get(0), new ClueNumDir(1, false));
-            assertEquals(puz.getHistory().get(1), new ClueNumDir(3, true));
+            assertEquals(puz.getHistory().get(0), new ClueID(1, false));
+            assertEquals(puz.getHistory().get(1), new ClueID(3, true));
             assertEquals(puz.getNote(1, true).getText(), "test2");
             assertEquals(puz.getNote(2, false).getText(), "test6\nnew line");
             assertEquals(puz.getNote(2, false).getAnagramSource(), "test7");
@@ -325,8 +325,8 @@ public class IPuzIOTest extends TestCase {
             assertEquals(puz2.getTime(), 1234L);
             assertEquals(puz.getPosition(), puz2.getPosition());
             assertFalse(puz.getAcross());
-            assertEquals(puz.getHistory().get(0), new ClueNumDir(1, true));
-            assertEquals(puz.getHistory().get(1), new ClueNumDir(3, false));
+            assertEquals(puz.getHistory().get(0), new ClueID(1, true));
+            assertEquals(puz.getHistory().get(1), new ClueID(3, false));
             assertEquals(puz.getNote(1, true).getText(), "test2");
             assertEquals(puz.getNote(2, false).getText(), "test6\nnew line");
             assertEquals(puz.getNote(2, false).getAnagramSource(), "test7");

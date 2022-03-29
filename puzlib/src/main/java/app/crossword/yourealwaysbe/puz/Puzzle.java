@@ -27,7 +27,7 @@ public class Puzzle implements Serializable{
     private static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
 
     @FunctionalInterface
-    public static interface ClueNumDirConsumer {
+    public static interface ClueIDConsumer {
         public void accept(int number, boolean across) throws Exception;
     }
 
@@ -58,9 +58,9 @@ public class Puzzle implements Serializable{
     private SortedMap<Integer, Note> downNotes = new TreeMap<>();
     private Note playerNote;
 
-    private LinkedList<ClueNumDir> historyList = new LinkedList<>();
+    private LinkedList<ClueID> historyList = new LinkedList<>();
 
-    private Set<ClueNumDir> flaggedClues = new HashSet<>();
+    private Set<ClueID> flaggedClues = new HashSet<>();
 
     private Map<Integer, Position> wordStarts
         = new HashMap<Integer, Position>();
@@ -356,10 +356,10 @@ public class Puzzle implements Serializable{
      *
      * Left to right, top to bottom, across before down
      */
-    public Iterable<ClueNumDir> getClueNumDirs() {
-        return new Iterable<ClueNumDir>() {
-            public Iterator<ClueNumDir> iterator() {
-                return new Iterator<ClueNumDir>() {
+    public Iterable<ClueID> getClueIDs() {
+        return new Iterable<ClueID>() {
+            public Iterator<ClueID> iterator() {
+                return new Iterator<ClueID>() {
                     private final int width = getWidth();
                     private final int height = getHeight();
                     private final Box[][] boxes = getBoxes();
@@ -378,9 +378,9 @@ public class Puzzle implements Serializable{
                     }
 
                     @Override
-                    public ClueNumDir next() {
+                    public ClueID next() {
                         int number = boxes[row][col].getClueNumber();
-                        ClueNumDir result = new ClueNumDir(number, across);
+                        ClueID result = new ClueID(number, across);
                         moveOneStep();
                         moveToNext();
                         return result;
@@ -871,7 +871,7 @@ public class Puzzle implements Serializable{
 
     public void updateHistory(int clueNumber, boolean across) {
         if (getClues(across).hasClue(clueNumber)) {
-            ClueNumDir item = new ClueNumDir(clueNumber, across);
+            ClueID item = new ClueID(clueNumber, across);
             // if a new item, not equal to most recent
             if (historyList.isEmpty() ||
                 !item.equals(historyList.getFirst())) {
@@ -881,23 +881,23 @@ public class Puzzle implements Serializable{
         }
     }
 
-    public void setHistory(List<ClueNumDir> newHistory) {
+    public void setHistory(List<ClueID> newHistory) {
         historyList.clear();
-        for (ClueNumDir item : newHistory) {
+        for (ClueID item : newHistory) {
             int number = item.getClueNumber();
             if (getClues(item.getAcross()).hasClue(number))
                 historyList.add(item);
         }
     }
 
-    public List<ClueNumDir> getHistory() {
+    public List<ClueID> getHistory() {
         return historyList;
     }
 
     /**
      * Flag or unflag clue
      */
-    public void flagClue(ClueNumDir clueNumDir, boolean flag) {
+    public void flagClue(ClueID clueNumDir, boolean flag) {
         if (flag)
             flaggedClues.add(clueNumDir);
         else
@@ -925,10 +925,10 @@ public class Puzzle implements Serializable{
      * Only works for across/down clues
      */
     public void flagClue(int number, boolean across, boolean flag) {
-        flagClue(new ClueNumDir(number, across), flag);
+        flagClue(new ClueID(number, across), flag);
     }
 
-    public boolean isFlagged(ClueNumDir clueNumDir) {
+    public boolean isFlagged(ClueID clueNumDir) {
         return flaggedClues.contains(clueNumDir);
     }
 
@@ -939,9 +939,9 @@ public class Puzzle implements Serializable{
         if (clue == null)
             return false;
         if (clue.isAcross())
-            return isFlagged(new ClueNumDir(clue.getNumber(), true));
+            return isFlagged(new ClueID(clue.getNumber(), true));
         if (clue.isDown())
-            return isFlagged(new ClueNumDir(clue.getNumber(), false));
+            return isFlagged(new ClueID(clue.getNumber(), false));
         return false;
     }
 
@@ -949,10 +949,10 @@ public class Puzzle implements Serializable{
      * Dir assumed down if across is false
      */
     public boolean isFlagged(int number, boolean across) {
-        return isFlagged(new ClueNumDir(number, across));
+        return isFlagged(new ClueID(number, across));
     }
 
-    public Iterable<ClueNumDir> getFlaggedClues() {
+    public Iterable<ClueID> getFlaggedClues() {
         return flaggedClues;
     }
 
@@ -1106,35 +1106,6 @@ public class Puzzle implements Serializable{
                 midBox.setPartOfDownClueNumber(number);
                 midBox.setDownPosition(off);
             } while (joinedBottom(boxes, row + off, col));
-        }
-    }
-
-    public static class ClueNumDir {
-        private int clueNumber;
-        private boolean across;
-
-        public ClueNumDir(int clueNumber, boolean across) {
-            this.clueNumber = clueNumber;
-            this.across = across;
-        }
-
-        public int getClueNumber() { return clueNumber; }
-        public boolean getAcross() { return across; }
-
-        public boolean equals(Object o) {
-            if (o instanceof ClueNumDir) {
-                ClueNumDir other = (ClueNumDir) o;
-                return clueNumber == other.clueNumber && across == other.across;
-            }
-            return false;
-        }
-
-        public int hashCode() {
-            return Objects.hash(clueNumber, across);
-        }
-
-        public String toString() {
-            return clueNumber + (across ? "a" : "d");
         }
     }
 }

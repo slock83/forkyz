@@ -2,10 +2,10 @@ package app.crossword.yourealwaysbe.view;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.WeakSet;
 
@@ -573,16 +573,16 @@ public class ClueTabs extends LinearLayout
     public class HistoryListAdapter
            extends ClueListAdapter {
 
-        private List<ClueNumDir> historyList;
+        private List<ClueID> historyList;
 
-        public HistoryListAdapter(List<ClueNumDir> historyList) {
+        public HistoryListAdapter(List<ClueID> historyList) {
             super(true, true);
             this.historyList = historyList;
         }
 
         @Override
         public void onBindViewHolder(ClueViewHolder holder, int position) {
-            ClueNumDir item = historyList.get(position);
+            ClueID item = historyList.get(position);
             Playboard board = ClueTabs.this.board;
             if (board != null) {
                 int number = item.getClueNumber();

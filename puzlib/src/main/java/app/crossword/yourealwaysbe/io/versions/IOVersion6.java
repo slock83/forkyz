@@ -1,8 +1,8 @@
 package app.crossword.yourealwaysbe.io.versions;
 
 import app.crossword.yourealwaysbe.io.IO;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 
@@ -83,7 +83,7 @@ public class IOVersion6 extends IOVersion5 {
     ) throws IOException {
 
         int size = 0;
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
+        for (ClueID cnd : puz.getClueIDs()) {
             if (cnd.getAcross() == isAcross)
                 size += 1;
         }
@@ -92,7 +92,7 @@ public class IOVersion6 extends IOVersion5 {
         // positions
         dos.writeInt(size);
 
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
+        for (ClueID cnd : puz.getClueIDs()) {
             if (cnd.getAcross() == isAcross) {
                 Note note = puz.getNote(cnd.getClueNumber(), isAcross);
                 writeNote(note, dos);
@@ -123,7 +123,7 @@ public class IOVersion6 extends IOVersion5 {
     private void applyNotes(Puzzle puz, Note[] notes, boolean isAcross) {
         if (notes != null) {
             int idx = 0;
-            for (ClueNumDir cnd : puz.getClueNumDirs()) {
+            for (ClueID cnd : puz.getClueIDs()) {
                 int number = cnd.getClueNumber();
                 boolean across = cnd.getAcross();
 

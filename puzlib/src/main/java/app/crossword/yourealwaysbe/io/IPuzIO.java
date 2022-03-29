@@ -27,9 +27,9 @@ import org.json.JSONWriter;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Position;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 import static app.crossword.yourealwaysbe.util.HtmlUtil.htmlString;
@@ -977,11 +977,11 @@ public class IPuzIO implements PuzzleParser {
 
         JSONArray historyJson = playData.getJSONArray(FIELD_CLUE_HISTORY);
 
-        LinkedList<ClueNumDir> history = new LinkedList<>();
+        LinkedList<ClueID> history = new LinkedList<>();
 
         for (int i = 0; i < historyJson.length(); i++) {
             JSONObject itemJson = historyJson.getJSONObject(i);
-            ClueNumDir cnd = decodeClueNumDir(itemJson);
+            ClueID cnd = decodeClueID(itemJson);
             if (cnd != null)
                 history.add(cnd);
         }
@@ -1001,7 +1001,7 @@ public class IPuzIO implements PuzzleParser {
         for (int i = 0; i < notesJson.length(); i++) {
             JSONObject noteJson = notesJson.getJSONObject(i);
             JSONObject cndJson = noteJson.optJSONObject(FIELD_CLUE_NOTE_CLUE);
-            ClueNumDir cnd = decodeClueNumDir(cndJson);
+            ClueID cnd = decodeClueID(cndJson);
 
             if (cnd != null) {
                 String scratch
@@ -1063,18 +1063,18 @@ public class IPuzIO implements PuzzleParser {
 
         for (int i = 0; i < flagsJson.length(); i++) {
             JSONObject cndJson = flagsJson.getJSONObject(i);
-            ClueNumDir cnd = decodeClueNumDir(cndJson);
+            ClueID cnd = decodeClueID(cndJson);
             if (cnd != null)
                 puz.flagClue(cnd, true);
         }
     }
 
     /**
-     * Read a JSON representation of ClueNumDir to ClueNumDir
+     * Read a JSON representation of ClueID to ClueID
      *
      * @return null if not right
      */
-    private static ClueNumDir decodeClueNumDir(JSONObject cnd) {
+    private static ClueID decodeClueID(JSONObject cnd) {
         if (cnd == null)
             return null;
         if (JSONObject.NULL.equals(cnd))
@@ -1085,7 +1085,7 @@ public class IPuzIO implements PuzzleParser {
         int number = cnd.getInt(FIELD_CLUE_NUMBER);
         boolean across = cnd.getBoolean(FIELD_CLUE_ACROSS);
 
-        return new ClueNumDir(number, across);
+        return new ClueID(number, across);
     }
 
     /**
@@ -1420,7 +1420,7 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
+        for (ClueID cnd : puz.getClueIDs()) {
             Note note = puz.getNote(cnd.getClueNumber(), cnd.getAcross());
             if (note != null && !note.isEmpty()) {
                 writer.indent(2)
@@ -1428,7 +1428,7 @@ public class IPuzIO implements PuzzleParser {
                 writer.newLine()
                     .indent(3)
                     .key(FIELD_CLUE_NOTE_CLUE);
-                writeClueNumDir(cnd, writer);
+                writeClueID(cnd, writer);
                 writer.newLine()
                     .keyValueNonNull(
                         3,
@@ -1502,9 +1502,9 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (ClueNumDir cnd : puz.getFlaggedClues()) {
+        for (ClueID cnd : puz.getFlaggedClues()) {
             writer.indent(2);
-            writeClueNumDir(cnd, writer);
+            writeClueID(cnd, writer);
             writer.newLine();
         }
 
@@ -1514,10 +1514,10 @@ public class IPuzIO implements PuzzleParser {
     }
 
     /**
-     * Write a ClueNumDir on one line as a JSONObject
+     * Write a ClueID on one line as a JSONObject
      */
-    private static void writeClueNumDir(
-        ClueNumDir cnd, FormatableJSONWriter writer
+    private static void writeClueID(
+        ClueID cnd, FormatableJSONWriter writer
     ) throws IOException {
         writer.object()
             .key(FIELD_CLUE_NUMBER).value(cnd.getClueNumber())
@@ -1530,7 +1530,7 @@ public class IPuzIO implements PuzzleParser {
      */
     private static void writeClueHistory(Puzzle puz, FormatableJSONWriter writer)
             throws IOException {
-        List<ClueNumDir> history = puz.getHistory();
+        List<ClueID> history = puz.getHistory();
         if (history.isEmpty())
             return;
 
@@ -1539,9 +1539,9 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (ClueNumDir item : puz.getHistory()) {
+        for (ClueID item : puz.getHistory()) {
             writer.indent(2);
-            writeClueNumDir(item, writer);
+            writeClueID(item, writer);
             writer.newLine();
         }
 

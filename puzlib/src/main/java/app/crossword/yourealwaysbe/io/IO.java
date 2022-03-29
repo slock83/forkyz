@@ -11,9 +11,9 @@ import app.crossword.yourealwaysbe.io.versions.IOVersion8;
 import app.crossword.yourealwaysbe.io.versions.IOVersion;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 
@@ -662,7 +662,7 @@ public class IO implements PuzzleParser {
                                         DataInputStream input)
             throws IOException {
 
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
+        for (ClueID cnd : puz.getClueIDs()) {
             int number = cnd.getClueNumber();
             boolean across = cnd.getAcross();
 
@@ -744,7 +744,7 @@ public class IO implements PuzzleParser {
         ClueList acrossClues = puz.getClues(true);
         ClueList downClues = puz.getClues(false);
 
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
+        for (ClueID cnd : puz.getClueIDs()) {
             int clueNum = cnd.getClueNumber();
             boolean across = cnd.getAcross();
 
