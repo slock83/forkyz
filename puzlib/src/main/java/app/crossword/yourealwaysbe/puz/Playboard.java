@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import app.crossword.yourealwaysbe.util.WeakSet;
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 
 public class Playboard implements Serializable {
     private static final Logger LOG = Logger.getLogger(Playboard.class.getCanonicalName());

@@ -13,7 +13,7 @@ import androidx.preference.PreferenceManager;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Playboard;
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
+import app.crossword.yourealwaysbe.puz.Position;
 
 public class BoardEditText extends ScrollingImageView {
     private static final Logger LOG = Logger.getLogger(BoardEditText.class.getCanonicalName());

@@ -13,8 +13,8 @@ import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 public class IPuzIOTest extends TestCase {

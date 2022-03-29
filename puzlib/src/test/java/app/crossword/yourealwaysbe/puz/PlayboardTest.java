@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.IOTest;
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 
 /**
  *

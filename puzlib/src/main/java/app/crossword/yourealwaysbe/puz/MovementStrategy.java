@@ -1,6 +1,5 @@
 package app.crossword.yourealwaysbe.puz;
 
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 
 import java.io.Serializable;
