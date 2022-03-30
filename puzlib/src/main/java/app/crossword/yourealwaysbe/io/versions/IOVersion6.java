@@ -82,9 +82,11 @@ public class IOVersion6 extends IOVersion5 {
         DataOutputStream dos, Puzzle puz, boolean isAcross
     ) throws IOException {
 
+        String desiredList = isAcross ? ClueID.ACROSS : ClueID.DOWN;
+
         int size = 0;
-        for (ClueID cnd : puz.getClueIDs()) {
-            if (cnd.getAcross() == isAcross)
+        for (ClueID cid : puz.getBoardClueIDs()) {
+            if (desiredList.equals(cid.getListName()))
                 size += 1;
         }
 
@@ -92,9 +94,9 @@ public class IOVersion6 extends IOVersion5 {
         // positions
         dos.writeInt(size);
 
-        for (ClueID cnd : puz.getClueIDs()) {
-            if (cnd.getAcross() == isAcross) {
-                Note note = puz.getNote(cnd.getClueNumber(), isAcross);
+        for (ClueID cid : puz.getBoardClueIDs()) {
+            if (desiredList.equals(cid.getListName())) {
+                Note note = puz.getNote(cid);
                 writeNote(note, dos);
             }
         }
@@ -122,16 +124,14 @@ public class IOVersion6 extends IOVersion5 {
 
     private void applyNotes(Puzzle puz, Note[] notes, boolean isAcross) {
         if (notes != null) {
+            String desiredList = isAcross ? ClueID.ACROSS : ClueID.DOWN;
             int idx = 0;
-            for (ClueID cnd : puz.getClueIDs()) {
-                int number = cnd.getClueNumber();
-                boolean across = cnd.getAcross();
-
-                if (across == isAcross) {
+            for (ClueID cid : puz.getBoardClueIDs()) {
+                if (desiredList.equals(cid.getListName())) {
                     if (idx < notes.length) {
                         Note n = notes[idx];
                         if (n != null)
-                            puz.setNote(number, n, isAcross);
+                            puz.setNote(cid, n);
                         idx += 1;
                     } else {
                         LOG.info(

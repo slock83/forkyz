@@ -34,8 +34,7 @@ The majority of the links on this page come from [Michael F. Gill
 * [Hub Crosswords][hubcrosswords] -- Sunday-sized crosswords from Emily
   Cox, Henry Rathvon, and Brendan Emmett Quigley. Puzzles released via
   Patreon.
-* [Jeff Davidson][jeff-davidson] -- the JPZ downloads tend to use
-  features not supported by Forkyz, but the PUZ downloads work fine.
+* [Jeff Davidson][jeff-davidson] -- crosswords, rows gardens, crosswordles...
 * [JimJar's Cryptopica][jimjar].
 * [Keglar's Cryptics][keglar] -- homepage of Ron Sweet, block puzzles
   compatible with Forkyz.

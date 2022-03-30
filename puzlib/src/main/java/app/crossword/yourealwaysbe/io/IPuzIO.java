@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,9 +26,13 @@ import org.json.JSONWriter;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
+import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
+import app.crossword.yourealwaysbe.puz.Zone;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import static app.crossword.yourealwaysbe.util.HtmlUtil.htmlString;
 import static app.crossword.yourealwaysbe.util.HtmlUtil.unHtmlString;
@@ -111,10 +113,10 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_CLUE_CONTINUED = "continued";
     private static final String FIELD_CLUE_REFERENCES = "references";
     private static final String FIELD_CLUE_DIRECTION = "direction";
+    private static final String FIELD_CLUE_CELLS = "cells";
 
     private static final String FIELD_ENUMERATION = "enumeration";
 
-    private static final String FIELD_ORIGIN = "origin";
     private static final String FIELD_BLOCK = "block";
     private static final String FIELD_EMPTY = "empty";
 
@@ -166,8 +168,10 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_POSITION_ROW = "row";
     private static final String FIELD_POSITION_COL = "col";
     private static final String FIELD_POSITION_ACROSS = "across";
+    private static final String FIELD_POSITION_CLUEID = "clueid";
     private static final String FIELD_CLUE_HISTORY = "cluehistory";
     private static final String FIELD_CLUE_ACROSS = "across";
+    private static final String FIELD_CLUE_LISTNAME = "listname";
     private static final String FIELD_CLUE_NOTES = "cluenotes";
     private static final String FIELD_PLAYER_NOTE = "playernote";
     private static final String FIELD_CLUE_NOTE_CLUE = "clue";
@@ -178,13 +182,13 @@ public class IPuzIO implements PuzzleParser {
         = "anagramsolution";
     private static final String FIELD_FLAGGED_CLUES = "flaggedclues";
 
-    private static final Pattern INT_STRING_RE = Pattern.compile("\\d+");
     private static final DateTimeFormatter DATE_FORMATTER_V1
         = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.US);
     private static final DateTimeFormatter DATE_FORMATTER
         = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
 
-    private static final String FIELD_CLUES_DIRECTIONS_CLUES = "Clues";
+    private static final String FIELD_CLUES_CLUES = "Clues";
+    private static final String FIELD_CLUES_ZONES = "Clues";
     private static final Set<String> FIELD_CLUES_DIRECTIONS
         = new HashSet<>(Arrays.asList(new String[] {
             "Across",
@@ -193,8 +197,8 @@ public class IPuzIO implements PuzzleParser {
             "Diagonal Up",
             "Diagonal Down Left",
             "Diagonal Up Left",
-            "Zones",
-            FIELD_CLUES_DIRECTIONS_CLUES
+            FIELD_CLUES_ZONES,
+            FIELD_CLUES_CLUES
         }));
 
     private static final String NULL_CLUE = "-";
@@ -218,14 +222,13 @@ public class IPuzIO implements PuzzleParser {
             checkIPuzVersion(json);
             checkIPuzKind(json);
 
-            Puzzle puz = new Puzzle();
+            PuzzleBuilder builder = new PuzzleBuilder(readBoxes(json));
 
-            readMetaData(json, puz);
-            readBoxes(json, puz);
-            readClues(json, puz);
-            readExtensions(json, puz);
+            readMetaData(json, builder);
+            readClues(json, builder);
+            readExtensions(json, builder);
 
-            return puz;
+            return builder.getPuzzle();
         } catch (IPuzFormatException | JSONException e) {
             LOG.severe("Could not read IPuz file: " + e);
             return null;
@@ -264,10 +267,12 @@ public class IPuzIO implements PuzzleParser {
      *
      * Meta-data stuff, like title, copyright, etc.
      */
-    private static void readMetaData(JSONObject puzJson, Puzzle puz) {
-        puz.setTitle(optStringNull(puzJson, FIELD_TITLE));
-        puz.setAuthor(optStringNull(puzJson, FIELD_AUTHOR));
-        puz.setCopyright(optStringNull(puzJson, FIELD_COPYRIGHT));
+    private static void readMetaData(
+        JSONObject puzJson, PuzzleBuilder builder
+    ) {
+        builder.setTitle(optStringNull(puzJson, FIELD_TITLE))
+            .setAuthor(optStringNull(puzJson, FIELD_AUTHOR))
+            .setCopyright(optStringNull(puzJson, FIELD_COPYRIGHT));
 
         String intro = optStringNull(puzJson, FIELD_INTRO);
         String notes = optStringNull(puzJson, FIELD_NOTES);
@@ -283,14 +288,13 @@ public class IPuzIO implements PuzzleParser {
             fullNotes.append(notes);
         }
 
-        puz.setNotes(fullNotes.toString());
-
-        puz.setSourceUrl(optStringNull(puzJson, FIELD_URL));
-        puz.setSource(optStringNull(puzJson, FIELD_PUBLISHER));
+        builder.setNotes(fullNotes.toString())
+            .setSourceUrl(optStringNull(puzJson, FIELD_URL))
+            .setSource(optStringNull(puzJson, FIELD_PUBLISHER));
 
         LocalDate date = parseDate(puzJson);
         if (date != null)
-            puz.setDate(date);
+            builder.setDate(date);
     }
 
     /**
@@ -338,9 +342,11 @@ public class IPuzIO implements PuzzleParser {
     }
 
     /**
-     * Read fully populated Box objects from JSON into puz
+     * Read fully populated Box objects from JSON
+     *
+     * Will always return some boxes, or throw a JSON exception
      */
-    private static void readBoxes(JSONObject puzJson, Puzzle puz)
+    private static Box[][] readBoxes(JSONObject puzJson)
             throws IPuzFormatException {
         JSONObject dimensions = puzJson.getJSONObject(FIELD_DIMENSIONS);
 
@@ -353,13 +359,7 @@ public class IPuzIO implements PuzzleParser {
         readSaved(puzJson, boxes);
         readSolution(puzJson, boxes);
 
-        try {
-            puz.setBoxes(boxes, false);
-        } catch (IllegalArgumentException e) {
-            throw new IPuzFormatException(
-                "Boxes not compatible: " + e.getMessage()
-            );
-        }
+        return boxes;
     }
 
     /**
@@ -480,14 +480,14 @@ public class IPuzIO implements PuzzleParser {
             }
 
             return box;
-        } else if (cell.equals(block.toString())) {
+        } else if (cell.toString().equals(block.toString())) {
             return null;
-        } else if (cell.equals(empty.toString())) {
+        } else if (cell.toString().equals(empty.toString())) {
             return new Box();
         } else {
             try {
                 Box box = new Box();
-                box.setClueNumber(Integer.valueOf(cell.toString()));
+                box.setClueNumber(cell.toString());
                 return box;
             } catch (NumberFormatException e) {
                 throw new IPuzFormatException(
@@ -610,7 +610,7 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read clues into puz
      */
-    private static void readClues(JSONObject puzJson, Puzzle puz)
+    private static void readClues(JSONObject puzJson, PuzzleBuilder builder)
             throws IPuzFormatException {
         // default to true as it is safest
         boolean showEnumerations = puzJson.optBoolean(
@@ -626,7 +626,7 @@ public class IPuzIO implements PuzzleParser {
                 clues.getJSONArray(listName),
                 names.getString(i),
                 showEnumerations,
-                puz
+                builder
             );
         }
     }
@@ -638,7 +638,7 @@ public class IPuzIO implements PuzzleParser {
      */
     private static void addClues(
         JSONArray jsonClues, String listName, boolean showEnumerations,
-        Puzzle puz
+        PuzzleBuilder builder
     ) throws IPuzFormatException {
         String[] splitName = listName.split(":");
         String dirName = splitName[0];
@@ -647,14 +647,21 @@ public class IPuzIO implements PuzzleParser {
         for (int i = 0; i < jsonClues.length(); i++) {
             Object clueObj = jsonClues.get(i);
             // all clues not across until proven otherwise by list name
-            String newListName = displayName;
-            if (FIELD_CLUES_ACROSS.equals(dirName))
-                newListName = Clue.ACROSS;
-            else if (FIELD_CLUES_DOWN.equals(dirName))
-                newListName = Clue.DOWN;
-            Clue clue = getClue(clueObj, newListName, showEnumerations);
-            if (clue != null) {
-                puz.addClue(clue);
+            IPuzClue ipc = getClue(clueObj, showEnumerations);
+            // TODO: support zoning of more than just across/down
+            if (ipc != null) {
+                if (FIELD_CLUES_ACROSS.equals(dirName)) {
+                    builder.addAcrossClue(ipc.getClueNumber(), ipc.getHint());
+                } else if (FIELD_CLUES_DOWN.equals(dirName)) {
+                    builder.addDownClue(ipc.getClueNumber(), ipc.getHint());
+                } else {
+                    builder.addClue(new Clue(
+                        ipc.getClueNumber(),
+                        displayName,
+                        ipc.getHint(),
+                        ipc.getZone()
+                    ));
+                }
             }
         }
     }
@@ -665,13 +672,12 @@ public class IPuzIO implements PuzzleParser {
      * Adds enumeration to hint if showEnumerations is true
      *
      * @param listName the name of the list the clue belongs to
-     * (Clue.ACROSS/DOWN for standard)
      */
-    private static Clue getClue(
-        Object clueObj, String listName, boolean showEnumerations
+    private static IPuzClue getClue(
+        Object clueObj, boolean showEnumerations
     ) throws IPuzFormatException {
         if (clueObj instanceof String) {
-            return new Clue(listName, (String) clueObj);
+            return new IPuzClue((String) clueObj);
         } else if (clueObj instanceof JSONArray) {
             JSONArray clueArray = (JSONArray) clueObj;
             if (clueArray.length() != 2) {
@@ -682,13 +688,13 @@ public class IPuzIO implements PuzzleParser {
             Object clueNumObj = clueArray.get(0);
             String hint = clueArray.getString(1);
 
-            return buildClue(clueNumObj, listName, hint, null);
+            return buildClue(clueNumObj, hint, null, null);
         } else if (clueObj instanceof JSONObject) {
             JSONObject clueJson = (JSONObject) clueObj;
 
             // get clue number, sometimes nested
             Object clueNumObj = clueJson.opt(FIELD_CLUE_NUMBER);
-            if (getClueNumber(clueNumObj) < 0)
+            if (getClueNumber(clueNumObj) == null)
                 clueNumObj = clueJson.opt(FIELD_CLUE_NUMBERS);
 
             // build hint, bake in additional info
@@ -710,12 +716,39 @@ public class IPuzIO implements PuzzleParser {
                 ? optStringNull(clueJson, FIELD_ENUMERATION)
                 : null;
 
-            return buildClue(clueNumObj, listName, hint.toString(), enumeration);
+            Zone zone = getClueZone(clueJson);
+
+            return buildClue(clueNumObj, hint.toString(), enumeration, zone);
         } else {
             throw new IPuzFormatException(
                 "Unsupported clue format " + clueObj.getClass() + ": " + clueObj
             );
         }
+    }
+
+    /**
+     * Read zone info from clue json
+     *
+     * @return null if no info
+     */
+    private static Zone getClueZone(JSONObject clueJson) {
+        if (clueJson == null)
+            return null;
+
+        JSONArray cells = clueJson.optJSONArray(FIELD_CLUE_CELLS);
+        if (cells == null)
+            return null;
+
+        Zone zone = new Zone();
+
+        for (int i = 0; i < cells.length(); i++) {
+            JSONArray cell = cells.getJSONArray(i);
+            zone.addPosition(new Position(
+                cell.getInt(1) - 1, cell.getInt(0) - 1
+            ));
+        }
+
+        return zone;
     }
 
     /**
@@ -752,11 +785,12 @@ public class IPuzIO implements PuzzleParser {
      *
      * @param clueNumObj the ClueNum object in JSON
      * @param enumeration null or empty if no enumeration to be shown in clue
+     * @param zone the zone of the clue or null
      */
-    private static Clue buildClue(
-        Object clueNumObj, String listName, String hint, String enumeration
+    private static IPuzClue buildClue(
+        Object clueNumObj, String hint, String enumeration, Zone zone
     ) throws IPuzFormatException {
-        int number = getClueNumber(clueNumObj);
+        String number = getClueNumber(clueNumObj);
 
         if (isComplexClueNumber(clueNumObj)) {
             String numString = getComplexClueNumString(clueNumObj);
@@ -768,10 +802,7 @@ public class IPuzIO implements PuzzleParser {
             hint += " (" + enumeration + ")";
         }
 
-        if (number < 0)
-            return new Clue(listName, hint);
-        else
-            return new Clue(number, listName, hint);
+        return new IPuzClue(number, hint, zone);
     }
 
     /**
@@ -787,10 +818,8 @@ public class IPuzIO implements PuzzleParser {
         if (clueNumObj instanceof Number)
             return false;
 
-        if (clueNumObj instanceof String) {
-            String numString = (String) clueNumObj;
-            return !numString.matches("^\\d+$");
-        }
+        if (clueNumObj instanceof String)
+            return false;
 
         if (clueNumObj instanceof JSONArray) {
             return true;
@@ -808,32 +837,26 @@ public class IPuzIO implements PuzzleParser {
      * integer in the string. If a JSONArray return the first item in
      * the array from which a number can be extracted.
      *
-     * Else return -1 (including if null passed).
+     * Else return null (including if null passed).
      */
-    private static int getClueNumber(Object clueNumObj) {
+    private static String getClueNumber(Object clueNumObj) {
         if (clueNumObj instanceof Number)
-            return ((Number) clueNumObj).intValue();
+            return String.valueOf(((Number) clueNumObj).intValue());
 
-        if (clueNumObj instanceof String) {
-            String numString = (String) clueNumObj;
-
-            Matcher intMatch = INT_STRING_RE.matcher(numString);
-
-            if (intMatch.find())
-                return Integer.valueOf(intMatch.group());
-        }
+        if (clueNumObj instanceof String)
+            return (String) clueNumObj;
 
         if (clueNumObj instanceof JSONArray) {
             JSONArray clueNums = (JSONArray) clueNumObj;
 
             for (Object subNumObj : clueNums) {
-                int subNum = getClueNumber(subNumObj);
-                if (subNum >= 0)
+                String subNum = getClueNumber(subNumObj);
+                if (subNum != null)
                     return subNum;
             }
         }
 
-        return -1;
+        return null;
     }
 
     /**
@@ -870,16 +893,17 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read non-standard IPuz fields into puzzle
      */
-    private static void readExtensions(JSONObject puzJson, Puzzle puz)
-            throws IPuzFormatException {
+    private static void readExtensions(
+        JSONObject puzJson, PuzzleBuilder builder
+    ) throws IPuzFormatException {
         String supportUrl = optStringNull(puzJson, FIELD_EXT_SUPPORT_URL);
         if (supportUrl != null)
-            puz.setSupportUrl(supportUrl);
+            builder.setSupportUrl(supportUrl);
 
         JSONObject playData = puzJson.optJSONObject(FIELD_EXT_PLAY_DATA);
 
         if (playData != null && !JSONObject.NULL.equals(playData))
-            readPlayData(playData, puz);
+            readPlayData(playData, builder);
     }
 
     /**
@@ -887,20 +911,21 @@ public class IPuzIO implements PuzzleParser {
      *
      * @param playData the playData field of the puz json
      */
-    private static void readPlayData(JSONObject playData, Puzzle puz)
-            throws IPuzFormatException {
-        readBoxExtras(playData, puz);
-        readPosition(playData, puz);
-        readClueHistory(playData, puz);
-        readClueNotes(playData, puz);
-        readPlayerNote(playData, puz);
-        readFlaggedClues(playData, puz);
+    private static void readPlayData(
+        JSONObject playData, PuzzleBuilder builder
+    ) throws IPuzFormatException {
+        readBoxExtras(playData, builder);
+        readPosition(playData, builder);
+        readClueHistory(playData, builder);
+        readClueNotes(playData, builder);
+        readPlayerNote(playData, builder);
+        readFlaggedClues(playData, builder);
 
         if (playData.has(FIELD_COMPLETION_TIME))
-            puz.setTime(playData.getLong(FIELD_COMPLETION_TIME));
+            builder.setTime(playData.getLong(FIELD_COMPLETION_TIME));
 
         if (playData.has(FIELD_UPDATABLE))
-            puz.setUpdatable(playData.getBoolean(FIELD_UPDATABLE));
+            builder.setUpdatable(playData.getBoolean(FIELD_UPDATABLE));
     }
 
     /**
@@ -908,23 +933,23 @@ public class IPuzIO implements PuzzleParser {
      *
      * Assumes boxes have been set on puz
      */
-    private static void readBoxExtras(JSONObject playData, Puzzle puz) {
+    private static void readBoxExtras(
+        JSONObject playData, PuzzleBuilder builder
+    ) {
         if (!playData.has(FIELD_BOX_EXTRAS))
             return;
 
         JSONArray cellsJson = playData.getJSONArray(FIELD_BOX_EXTRAS);
 
-        Box[][] boxes = puz.getBoxes();
-
-        int numRows = Math.min(cellsJson.length(), boxes.length);
+        int numRows = Math.min(cellsJson.length(), builder.getHeight());
 
         for (int row = 0; row < numRows; row++) {
             JSONArray rowJson = cellsJson.getJSONArray(row);
 
-            int numCols = Math.min(rowJson.length(), boxes[row].length);
+            int numCols = Math.min(rowJson.length(), builder.getWidth());
 
             for (int col = 0; col < numCols; col++) {
-                Box box = boxes[row][col];
+                Box box = builder.getBox(row, col);
                 if (box != null) {
                     JSONObject boxJson = rowJson.getJSONObject(col);
 
@@ -946,24 +971,45 @@ public class IPuzIO implements PuzzleParser {
      *
      * Assumes puz.getWidth() and puz.getHeight() returns accurate data
      */
-    private static void readPosition(JSONObject playData, Puzzle puz) {
+    private static void readPosition(
+        JSONObject playData, PuzzleBuilder builder
+    ) throws IPuzFormatException {
         if (!playData.has(FIELD_POSITION))
             return;
 
         JSONObject positionJson = playData.getJSONObject(FIELD_POSITION);
 
-        if (positionJson.has(FIELD_POSITION_ROW)
-                && positionJson.has(FIELD_POSITION_COL)
-                && positionJson.has(FIELD_POSITION_ACROSS)) {
-
+        if (
+            positionJson.has(FIELD_POSITION_ROW)
+            && positionJson.has(FIELD_POSITION_COL)
+        ) {
             int row = positionJson.optInt(FIELD_POSITION_ROW, -1);
             int col = positionJson.optInt(FIELD_POSITION_COL, -1);
-            boolean across = positionJson.getBoolean(FIELD_POSITION_ACROSS);
+            Position pos = new Position(row, col);
 
-            if (0 <= row && row <= puz.getHeight()
-                    && 0 <= col && col <= puz.getWidth()) {
-                puz.setPosition(new Position(row, col));
-                puz.setAcross(across);
+            if (
+                0 <= row && row <= builder.getHeight()
+                && 0 <= col && col <= builder.getWidth()
+            ) {
+                builder.setPosition(pos);
+            }
+
+            // old style: has an across boolean for across/down only
+            // new style: has current clue id
+            if (positionJson.has(FIELD_POSITION_ACROSS)) {
+                // old style
+                String list
+                    = positionJson.getBoolean(FIELD_POSITION_ACROSS)
+                    ? ClueID.ACROSS
+                    : ClueID.DOWN;
+                Box box = builder.getBox(pos);
+                ClueID cid
+                    = (box == null) ? null : box.getIsPartOfClue(list);
+                builder.setCurrentClueID(cid);
+            } else if (positionJson.has(FIELD_POSITION_CLUEID)) {
+                JSONObject cidJson
+                    = positionJson.getJSONObject(FIELD_POSITION_CLUEID);
+                builder.setCurrentClueID(decodeClueID(cidJson));
             }
         }
     }
@@ -971,7 +1017,9 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Reads clue history from playData
      */
-    private static void readClueHistory(JSONObject playData, Puzzle puz) {
+    private static void readClueHistory(
+        JSONObject playData, PuzzleBuilder builder
+    ) throws IPuzFormatException {
         if (!playData.has(FIELD_CLUE_HISTORY))
             return;
 
@@ -981,18 +1029,20 @@ public class IPuzIO implements PuzzleParser {
 
         for (int i = 0; i < historyJson.length(); i++) {
             JSONObject itemJson = historyJson.getJSONObject(i);
-            ClueID cnd = decodeClueID(itemJson);
-            if (cnd != null)
-                history.add(cnd);
+            ClueID cid = decodeClueID(itemJson);
+            if (cid != null)
+                history.add(cid);
         }
 
-        puz.setHistory(history);
+        builder.setHistory(history);
     }
 
     /**
      * Read notes from playData
      */
-    private static void readClueNotes(JSONObject playData, Puzzle puz) {
+    private static void readClueNotes(
+        JSONObject playData, PuzzleBuilder builder
+    ) throws IPuzFormatException {
         if (!playData.has(FIELD_CLUE_NOTES))
             return;
 
@@ -1001,9 +1051,9 @@ public class IPuzIO implements PuzzleParser {
         for (int i = 0; i < notesJson.length(); i++) {
             JSONObject noteJson = notesJson.getJSONObject(i);
             JSONObject cndJson = noteJson.optJSONObject(FIELD_CLUE_NOTE_CLUE);
-            ClueID cnd = decodeClueID(cndJson);
+            ClueID cid = decodeClueID(cndJson);
 
-            if (cnd != null) {
+            if (cid != null) {
                 String scratch
                     = noteJson.optString(FIELD_NOTE_SCRATCH, null);
                 String text
@@ -1017,10 +1067,9 @@ public class IPuzIO implements PuzzleParser {
                         || text != null
                         || anagramSrc != null
                         || anagramSol != null) {
-                    puz.setNote(
-                        cnd.getClueNumber(),
-                        new Note(scratch, text, anagramSrc, anagramSol),
-                        cnd.getAcross()
+                    builder.setNote(
+                        cid,
+                        new Note(scratch, text, anagramSrc, anagramSol)
                     );
                 }
             }
@@ -1030,7 +1079,9 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read player note
      */
-    private static void readPlayerNote(JSONObject playData, Puzzle puz) {
+    private static void readPlayerNote(
+        JSONObject playData, PuzzleBuilder builder
+    ) {
         if (!playData.has(FIELD_PLAYER_NOTE))
             return;
 
@@ -1049,13 +1100,15 @@ public class IPuzIO implements PuzzleParser {
                 || text != null
                 || anagramSrc != null
                 || anagramSol != null) {
-            puz.setPlayerNote(
+            builder.setPlayerNote(
                 new Note(scratch, text, anagramSrc, anagramSol)
             );
         }
     }
 
-    private static void readFlaggedClues(JSONObject playData, Puzzle puz) {
+    private static void readFlaggedClues(
+        JSONObject playData, PuzzleBuilder builder
+    ) throws IPuzFormatException {
         if (!playData.has(FIELD_FLAGGED_CLUES))
             return;
 
@@ -1065,7 +1118,7 @@ public class IPuzIO implements PuzzleParser {
             JSONObject cndJson = flagsJson.getJSONObject(i);
             ClueID cnd = decodeClueID(cndJson);
             if (cnd != null)
-                puz.flagClue(cnd, true);
+                builder.flagClue(cnd, true);
         }
     }
 
@@ -1074,18 +1127,36 @@ public class IPuzIO implements PuzzleParser {
      *
      * @return null if not right
      */
-    private static ClueID decodeClueID(JSONObject cnd) {
-        if (cnd == null)
+    private static ClueID decodeClueID(JSONObject cid)
+            throws IPuzFormatException {
+        if (cid == null)
             return null;
-        if (JSONObject.NULL.equals(cnd))
+        if (JSONObject.NULL.equals(cid))
             return null;
-        if (!cnd.has(FIELD_CLUE_NUMBER) || !cnd.has(FIELD_CLUE_ACROSS))
+        if (!cid.has(FIELD_CLUE_NUMBER))
+            return null;
+        // new format has listname, old has across
+        if (!(cid.has(FIELD_CLUE_LISTNAME) || cid.has(FIELD_CLUE_ACROSS)))
             return null;
 
-        int number = cnd.getInt(FIELD_CLUE_NUMBER);
-        boolean across = cnd.getBoolean(FIELD_CLUE_ACROSS);
+        String number = cid.optString(FIELD_CLUE_NUMBER);
+        if (number == null)
+            number = String.valueOf(cid.getInt(FIELD_CLUE_NUMBER));
 
-        return new ClueID(number, across);
+        String listName;
+        // old version used to have across boolean rather than list name
+        if (cid.has(FIELD_CLUE_ACROSS)) {
+            boolean across = cid.getBoolean(FIELD_CLUE_ACROSS);
+            listName = across ? ClueID.ACROSS : ClueID.DOWN;
+        } else if (cid.has(FIELD_CLUE_LISTNAME)) {
+            listName = cid.getString(FIELD_CLUE_LISTNAME);
+        } else {
+            throw new IPuzFormatException(
+                "Clue ID " + cid + " has no associated list"
+            );
+        }
+
+        return new ClueID(number, listName);
     }
 
     /**
@@ -1195,7 +1266,7 @@ public class IPuzIO implements PuzzleParser {
                 if (box == null) {
                     writer.value(DEFAULT_BLOCK);
                 } else {
-                    int clueNumber = box.getClueNumber();
+                    String clueNumber = box.getClueNumber();
 
                     if (box.isCircled() || box.isBarred() || box.hasColor()) {
                         writer.object()
@@ -1227,13 +1298,13 @@ public class IPuzIO implements PuzzleParser {
 
                         writer.endObject();
 
-                        if (clueNumber > 0)
+                        if (clueNumber != null)
                             writer.key(FIELD_CELL).value(clueNumber);
                         else
                             writer.key(FIELD_CELL).value(DEFAULT_EMPTY_WRITE);
 
                         writer.endObject();
-                    } else if (clueNumber > 0) {
+                    } else if (clueNumber != null) {
                         writer.value(clueNumber);
                     } else {
                         writer.value(DEFAULT_EMPTY_WRITE);
@@ -1330,15 +1401,35 @@ public class IPuzIO implements PuzzleParser {
             .object();
         writer.newLine();
 
-        writeClueList(FIELD_CLUES_ACROSS, puz.getClues(true), writer);
-        writeClueList(FIELD_CLUES_DOWN, puz.getClues(false), writer);
+        for (String listName : puz.getClueListNames()) {
+            ClueList clues = puz.getClues(listName);
+            String direction = null;
 
-        for (String listName : puz.getExtraClueListNames()) {
-            // assume unrecognised fields are all Clues:xxx
-            String fullListName = listName;
-            if (!FIELD_CLUES_DIRECTIONS.contains(listName))
-                fullListName = FIELD_CLUES_DIRECTIONS_CLUES + ":" + listName;
-            writeClueList(fullListName, puz.getExtraClues(listName), writer);
+            // check if a standard direction, else write as "zones" or
+            // "clues" list
+
+            if (isAcrossList(puz, clues)) {
+                direction = FIELD_CLUES_ACROSS;
+            } else if (isDownList(puz, clues)) {
+                direction = FIELD_CLUES_DOWN;
+            } else if (isZonesList(clues)) {
+                direction = FIELD_CLUES_ZONES;
+            }
+            // TODO: other directions
+
+            if (direction != null) {
+                String fullListName = listName;
+                if (!direction.equals(fullListName))
+                    fullListName = direction + ":" + listName;
+                boolean zones = FIELD_CLUES_ZONES.equals(direction);
+                writeClueList(fullListName, clues, zones, writer);
+            } else {
+                // assume unrecognised fields are all Clues:xxx
+                String fullListName = listName;
+                if (!FIELD_CLUES_CLUES.equals(listName))
+                    fullListName = FIELD_CLUES_CLUES + ":" + listName;
+                writeClueList(fullListName, clues, false, writer);
+            }
         }
 
         writer.endObject();
@@ -1349,28 +1440,63 @@ public class IPuzIO implements PuzzleParser {
      * Convert a clues list into a json array and return it
      */
     private static void writeClueList(
-        String fieldName, Iterable<Clue> clues, FormatableJSONWriter writer
+        String fieldName,
+        Iterable<Clue> clues,
+        boolean withZones,
+        FormatableJSONWriter writer
     ) throws IOException {
         writer.indent(1)
             .key(fieldName)
             .array();
         writer.newLine();
 
-        System.out.println("Writes " + clues);
         for (Clue clue : clues) {
-            System.out.println("Write " + clue + " " + clue.hasNumber());
             String hint = clue.getHint();
             if (hint == null)
                 hint = NULL_CLUE;
 
             writer.indent(2);
-            if (clue.hasNumber()) {
-                writer.array()
-                    .value(clue.getNumber())
-                    .value(hint)
-                    .endArray();
+            if (withZones) {
+                writer.object();
+                writer.newLine();
+
+                if (clue.hasClueNumber()) {
+                    writer.indent(3)
+                        .key(FIELD_CLUE_NUMBER)
+                        .value(clue.getClueNumber());
+                    writer.newLine();
+                }
+
+                writer.indent(3)
+                    .key(FIELD_CLUE_HINT)
+                    .value(clue.getHint());
+                writer.newLine();
+
+                if (clue.hasZone()) {
+                    writer.indent(3)
+                        .key(FIELD_CLUE_CELLS)
+                        .array();
+                    Zone zone = clue.getZone();
+                    for (Position pos : zone) {
+                        writer.array()
+                            .value(pos.getCol() + 1)
+                            .value(pos.getRow() + 1)
+                            .endArray();
+                    }
+                    writer.endArray();
+                    writer.newLine();
+                }
+                writer.indent(2)
+                    .endObject();
             } else {
-                writer.value(hint);
+                if (clue.hasClueNumber()) {
+                    writer.array()
+                        .value(clue.getClueNumber())
+                        .value(hint)
+                        .endArray();
+                } else {
+                    writer.value(hint);
+                }
             }
             writer.newLine();
         }
@@ -1378,6 +1504,123 @@ public class IPuzIO implements PuzzleParser {
         writer.indent(1)
             .endArray();
         writer.newLine();
+    }
+
+    /**
+     * Check all clues follow "across rules"
+     *
+     * I.e. start at the right number, then go right until the box is no
+     * longer joined to the right.
+     */
+    private static boolean isAcrossList(Puzzle puz, ClueList clues) {
+        for (Clue clue : clues) {
+            if (!clue.hasZone())
+                return false;
+
+            Zone zone = clue.getZone();
+            if (zone.isEmpty())
+                return false;
+
+            Position start = zone.getPosition(0);
+            Box box = puz.checkedGetBox(start);
+
+            if (box == null)
+                return false;
+            if (!box.hasClueNumber())
+                return false;
+            if (!box.getClueNumber().equals(clue.getClueNumber()))
+                return false;
+
+            for (int i = 1; i < zone.size(); i++) {
+                Position prev = zone.getPosition(i - 1);
+                Position cur = zone.getPosition(i);
+
+                if (prev.getRow() != cur.getRow())
+                    return false;
+                if (prev.getCol() + 1 != cur.getCol())
+                    return false;
+
+                box = puz.checkedGetBox(cur);
+                if (box == null)
+                    return false;
+
+                boolean joined = PuzzleUtils.joinedRight(
+                    puz, prev.getRow(),  prev.getCol()
+                );
+
+                if (!joined)
+                    return false;
+            }
+
+            Position end = zone.getPosition(zone.size() - 1);
+            boolean joined = PuzzleUtils.joinedRight(
+                puz, end.getRow(), end.getCol()
+            );
+            if (joined)
+                return false;
+        }
+        return true;
+    }
+
+    private static boolean isDownList(Puzzle puz, ClueList clues) {
+        for (Clue clue : clues) {
+            if (!clue.hasZone())
+                return false;
+
+            Zone zone = clue.getZone();
+            if (zone.isEmpty())
+                return false;
+
+            Position start = zone.getPosition(0);
+            Box box = puz.checkedGetBox(start);
+
+            if (box == null)
+                return false;
+            if (!box.hasClueNumber())
+                return false;
+            if (!box.getClueNumber().equals(clue.getClueNumber()))
+                return false;
+
+            for (int i = 1; i < zone.size(); i++) {
+                Position prev = zone.getPosition(i - 1);
+                Position cur = zone.getPosition(i);
+
+                if (prev.getRow() + 1 != cur.getRow())
+                    return false;
+                if (prev.getCol() != cur.getCol())
+                    return false;
+
+                box = puz.checkedGetBox(cur);
+                if (box == null)
+                    return false;
+
+                boolean joined = PuzzleUtils.joinedBottom(
+                    puz, prev.getRow(),  prev.getCol()
+                );
+
+                if (!joined)
+                    return false;
+            }
+
+            Position end = zone.getPosition(zone.size() - 1);
+            boolean joined = PuzzleUtils.joinedBottom(
+                puz, end.getRow(), end.getCol()
+            );
+            if (joined)
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * True if any clue has a non-empty zone
+     */
+    private static boolean isZonesList(ClueList clues) {
+        for (Clue clue : clues) {
+            if (clue.hasZone() && !clue.getZone().isEmpty())
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -1420,15 +1663,15 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (ClueID cnd : puz.getClueIDs()) {
-            Note note = puz.getNote(cnd.getClueNumber(), cnd.getAcross());
+        for (ClueID cid : puz.getAllClues()) {
+            Note note = puz.getNote(cid);
             if (note != null && !note.isEmpty()) {
                 writer.indent(2)
                     .object();
                 writer.newLine()
                     .indent(3)
                     .key(FIELD_CLUE_NOTE_CLUE);
-                writeClueID(cnd, writer);
+                writeClueID(cid, writer);
                 writer.newLine()
                     .keyValueNonNull(
                         3,
@@ -1463,8 +1706,6 @@ public class IPuzIO implements PuzzleParser {
      */
     private static void writePlayerNote(Puzzle puz, FormatableJSONWriter writer)
             throws IOException {
-        writer.newLine();
-
         Note note = puz.getPlayerNote();
         if (note != null && !note.isEmpty()) {
             writer.indent(1)
@@ -1517,12 +1758,14 @@ public class IPuzIO implements PuzzleParser {
      * Write a ClueID on one line as a JSONObject
      */
     private static void writeClueID(
-        ClueID cnd, FormatableJSONWriter writer
+        ClueID cid, FormatableJSONWriter writer
     ) throws IOException {
-        writer.object()
-            .key(FIELD_CLUE_NUMBER).value(cnd.getClueNumber())
-            .key(FIELD_CLUE_ACROSS).value(cnd.getAcross())
-            .endObject();
+        if (cid != null) {
+            writer.object()
+                .key(FIELD_CLUE_NUMBER).value(cid.getClueNumber())
+                .key(FIELD_CLUE_LISTNAME).value(cid.getListName())
+                .endObject();
+        }
     }
 
     /**
@@ -1563,9 +1806,13 @@ public class IPuzIO implements PuzzleParser {
             .key(FIELD_POSITION)
             .object()
             .key(FIELD_POSITION_ROW).value(pos.getRow())
-            .key(FIELD_POSITION_COL).value(pos.getCol())
-            .key(FIELD_POSITION_ACROSS).value(puz.getAcross())
-            .endObject();
+            .key(FIELD_POSITION_COL).value(pos.getCol());
+        ClueID cid = puz.getCurrentClueID();
+        if (cid != null) {
+            writer.key(FIELD_POSITION_CLUEID);
+            writeClueID(cid, writer);
+        }
+        writer.endObject();
         writer.newLine();
     }
 
@@ -1707,5 +1954,29 @@ public class IPuzIO implements PuzzleParser {
                 writer.append("\t");
             return this;
         }
+    }
+
+    private static class IPuzClue {
+        private String number;
+        private String hint;
+        private Zone zone;
+
+        public IPuzClue(String number, String hint, Zone zone) {
+            this.number = number;
+            this.hint = hint;
+            this.zone = zone;
+        }
+
+        public IPuzClue(String number, String hint) {
+            this(number, hint, null);
+        }
+
+        public IPuzClue(String hint) {
+            this(null, hint, null);
+        }
+
+        public String getClueNumber() { return number; }
+        public String getHint() { return hint; }
+        public Zone getZone() { return zone; }
     }
 }

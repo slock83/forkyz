@@ -6,6 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Used only for .puz file IO, not to be confused with PuzMetaFile
+ *
+ * TODO: rename!
+ */
 public class PuzzleMeta implements Serializable {
 
     public String author;

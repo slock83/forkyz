@@ -12,7 +12,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Spanned;
 import android.util.DisplayMetrics;
-import android.view.ViewConfiguration;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
@@ -24,7 +23,6 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.util.files.FileHandlerSAF;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
-import java.lang.reflect.Field;
 import java.util.logging.Logger;
 
 public class ForkyzActivity extends AppCompatActivity {
@@ -63,19 +61,6 @@ public class ForkyzActivity extends AppCompatActivity {
         final FileHandler fileHandler = getFileHandler();
 
         doOrientation();
-    }
-
-    protected void showMenuAlways(){
-        try {
-            ViewConfiguration config = ViewConfiguration.get(this);
-            Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-            if(menuKeyField != null) {
-                menuKeyField.setAccessible(true);
-                menuKeyField.setBoolean(config, false);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

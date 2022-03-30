@@ -18,10 +18,9 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 /**
@@ -57,10 +56,10 @@ public class IOTest extends TestCase {
 
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
-        assertEquals(1, boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isAcross());
-        assertEquals(true, boxes[0][0].isDown());
-        assertEquals(false, boxes[0][3].isAcross());
+        assertEquals("1", boxes[0][0].getClueNumber());
+        assertEquals(true, boxes[0][0].isStartOf(ClueID.ACROSS));
+        assertEquals(true, boxes[0][0].isStartOf(ClueID.DOWN));
+        assertEquals(false, boxes[0][3].isStartOf(ClueID.ACROSS));
 
         assertEquals(boxes[0][0].getSolution(), 'R');
         assertEquals(boxes[5][14], null);
@@ -68,19 +67,19 @@ public class IOTest extends TestCase {
         assertEquals(boxes[14][5].getSolution(), 'T');
         assertEquals(boxes[3][6].getSolution(), 'E');
 
-        ClueList acrossClues = puz.getClues(true);
-        ClueList downClues = puz.getClues(false);
+        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
+        ClueList downClues = puz.getClues(ClueID.DOWN);
 
-        assertEquals(acrossClues.getClue(1).getHint(), "Bring to perfection");
-        assertEquals(acrossClues.getClue(23).getHint(), "Surprised reaction");
+        assertEquals(acrossClues.getClue("1").getHint(), "Bring to perfection");
+        assertEquals(acrossClues.getClue("23").getHint(), "Surprised reaction");
         assertEquals(
-            downClues.getClue(5).getHint(),
+            downClues.getClue("5").getHint(),
             "Sch. whose sports teams are the Violets"
         );
-        assertEquals(downClues.getClue(6).getHint(), "Not work at all");
-        assertEquals(downClues.getClue(7).getHint(), "Kale kin");
+        assertEquals(downClues.getClue("6").getHint(), "Not work at all");
+        assertEquals(downClues.getClue("7").getHint(), "Kale kin");
         assertEquals(
-            downClues.getClue(13).getHint(),
+            downClues.getClue("13").getHint(),
             "President who was born a King"
         );
     }
@@ -116,15 +115,6 @@ public class IOTest extends TestCase {
                 InputStream is2 = new FileInputStream(tmp)
             ) {
                 Puzzle puz2 = IO.loadNative(is2);
-                Box[][] b1 = puz.getBoxes();
-                Box[][] b2 = puz2.getBoxes();
-
-                for(int x=0; x < b1.length; x++ ){
-                    for(int y=0; y<b1[x].length; y++){
-                        System.out.println(b1[x][y] +" == "+ b2[x][y] );
-                    }
-                }
-
                 assertEquals(puz, puz2);
             }
 
@@ -201,28 +191,7 @@ public class IOTest extends TestCase {
                 IOTest.class.getResourceAsStream("/puz_110523margulies.puz")
         ) {
             Puzzle p = IO.loadNative(is);
-            {
-                Playboard board = new Playboard(p);
-                for(Clue c : board.getPuzzle().getClues(true)){
-                    for(Box box : board.getWordBoxes(c.getNumber(), true)){
-                        System.out.print(box.getSolution());
-                    }
-                    System.out.println();
-                }
-            }
-            System.out.println("========================");
-
-            long incept = System.currentTimeMillis();
             boolean b = IO.crack(p);
-            System.out.println(b + " "+(System.currentTimeMillis() - incept));
-            Playboard board = new Playboard(p);
-            for(Clue c : board.getPuzzle().getClues(true)){
-                for(Box box : board.getWordBoxes(c.getNumber(), true)){
-                    System.out.print(box.getSolution());
-                }
-                System.out.println();
-            }
-            System.out.println(b + " "+(System.currentTimeMillis() - incept));
         }
     }
 

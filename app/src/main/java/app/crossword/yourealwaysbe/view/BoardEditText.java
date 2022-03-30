@@ -15,6 +15,9 @@ import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 
+import java.util.Collections;
+import java.util.Set;
+
 public class BoardEditText extends ScrollingImageView {
     private static final Logger LOG = Logger.getLogger(BoardEditText.class.getCanonicalName());
 
@@ -305,7 +308,12 @@ public class BoardEditText extends ScrollingImageView {
 
     private void render() {
         boolean displayScratch = prefs.getBoolean("displayScratch", false);
-        setBitmap(renderer.drawBoxes(boxes, selection, displayScratch, displayScratch));
+        Set<String> suppressNotesList
+            = displayScratch
+            ? Collections.emptySet()
+            : null;
+
+        setBitmap(renderer.drawBoxes(boxes, selection, suppressNotesList));
         setContentDescription(
             renderer.getContentDescription(
                 contentDescriptionBase, boxes, selection.getCol(), true

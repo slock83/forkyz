@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -46,10 +47,10 @@ public class UclickXMLIOTest extends TestCase {
 
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
-        assertEquals(1, boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isAcross());
-        assertEquals(true, boxes[0][0].isDown());
-        assertEquals(false, boxes[0][3].isAcross());
+        assertEquals("1", boxes[0][0].getClueNumber());
+        assertEquals(true, boxes[0][0].isStartOf(ClueID.ACROSS));
+        assertEquals(true, boxes[0][0].isStartOf(ClueID.DOWN));
+        assertEquals(false, boxes[0][3].isStartOf(ClueID.ACROSS));
 
         assertEquals(boxes[0][0].getSolution(), 'G');
         assertEquals(boxes[5][14], null);
@@ -58,15 +59,15 @@ public class UclickXMLIOTest extends TestCase {
         assertEquals(boxes[3][6].getSolution(), 'N');
 
 
-        ClueList acrossClues = puz.getClues(true);
-        ClueList downClues = puz.getClues(false);
+        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
+        ClueList downClues = puz.getClues(ClueID.DOWN);
 
-        assertEquals(acrossClues.getClue(1).getHint(), "Film legend Greta");
-        assertEquals(acrossClues.getClue(50).getHint(), "Distress signal");
-        assertEquals(downClues.getClue(5).getHint(), "Rampaging");
-        assertEquals(downClues.getClue(6).getHint(), "Get even for");
-        assertEquals(downClues.getClue(7).getHint(), "Nickname for an NCO");
-        assertEquals(downClues.getClue(13).getHint(), "Covered with rocks");
+        assertEquals(acrossClues.getClue("1").getHint(), "Film legend Greta");
+        assertEquals(acrossClues.getClue("50").getHint(), "Distress signal");
+        assertEquals(downClues.getClue("5").getHint(), "Rampaging");
+        assertEquals(downClues.getClue("6").getHint(), "Get even for");
+        assertEquals(downClues.getClue("7").getHint(), "Nickname for an NCO");
+        assertEquals(downClues.getClue("13").getHint(), "Covered with rocks");
     }
 
     @Override

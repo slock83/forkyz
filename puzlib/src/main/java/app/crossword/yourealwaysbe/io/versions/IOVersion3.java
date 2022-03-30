@@ -1,5 +1,7 @@
 package app.crossword.yourealwaysbe.io.versions;
 
+import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
@@ -17,7 +19,12 @@ public class IOVersion3 extends IOVersion2 {
     protected void applyMeta(Puzzle puz, PuzzleMeta meta){
         super.applyMeta(puz, meta);
         puz.setPosition(meta.position);
-        puz.setAcross(meta.across);
+        Box box = puz.checkedGetBox(meta.position);
+        if (box != null) {
+            String desiredList = meta.across ? ClueID.ACROSS : ClueID.DOWN;
+            ClueID curCid = box.getIsPartOfClue(desiredList);
+            puz.setCurrentClueID(curCid);
+        }
     }
 
     @Override
@@ -42,6 +49,10 @@ public class IOVersion3 extends IOVersion2 {
             dos.writeInt(0);
             dos.writeInt(0);
         }
-        dos.write(puz.getAcross() ? 1 : -1);
+        ClueID curCid = puz.getCurrentClueID();
+        if (curCid == null || ClueID.ACROSS.equals(curCid.getListName()))
+            dos.write(1);
+        else
+            dos.write(-1);
     }
 }

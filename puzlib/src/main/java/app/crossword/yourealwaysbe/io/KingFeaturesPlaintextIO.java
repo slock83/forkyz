@@ -2,8 +2,8 @@ package app.crossword.yourealwaysbe.io;
 
 import app.crossword.yourealwaysbe.io.charset.MacRoman;
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -42,8 +42,6 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
      * (for example, if the plaintext file is not in a valid format).
      */
     public static Puzzle parsePuzzle(InputStream is) {
-        Puzzle puz = new Puzzle();
-
         Scanner scanner = new Scanner(new InputStreamReader(is, new MacRoman()));
 
         if (!scanner.hasNextLine()) {
@@ -109,7 +107,8 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
             }
         }
 
-        puz.setBoxes(boxes, true);
+        PuzzleBuilder builder = new PuzzleBuilder(boxes)
+            .autoNumberBoxes();
 
         // Process clues.
         line = line.substring(1);
@@ -128,7 +127,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
                 i++;
             }
             String clue = line.substring(i+2).trim();
-            puz.addClue(new Clue(clueNum, Clue.ACROSS, clue));
+            builder.addAcrossClue(String.valueOf(clueNum), clue);
             if (!scanner.hasNextLine()) {
                 System.err.println("Unexpected EOF - Across clues.");
                 return null;
@@ -156,7 +155,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
                 i++;
             }
             String clue = line.substring(i+2).trim();
-            puz.addClue(new Clue(clueNum, Clue.DOWN, clue));
+            builder.addDownClue(String.valueOf(clueNum), clue);
             if(!finished) {
                 if (!scanner.hasNextLine()) {
                     System.err.println("Unexpected EOF - Down clues.");
@@ -169,10 +168,10 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
         maxClueNum = clueNum > maxClueNum ? clueNum : maxClueNum;
 
         // Makeshift title
-        puz.setTitle("King Features Puzzle");
-        puz.setNotes("");
+        builder.setTitle("King Features Puzzle");
+        builder.setNotes("");
 
-        return puz;
+        return builder.getPuzzle();
     }
 
     /**

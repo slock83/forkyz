@@ -2,7 +2,12 @@ package app.crossword.yourealwaysbe.io;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
+import app.crossword.yourealwaysbe.puz.Zone;
+import app.crossword.yourealwaysbe.util.HtmlUtil;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -18,9 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -71,6 +81,23 @@ public class JPZIO implements PuzzleParser {
 
     private static final String UNDEFINED_CLUE = "-";
 
+    private static class ClueInfo extends ClueID {
+        private String hint;
+        private String zoneID;
+
+        public ClueInfo(
+            String clueNumber, String listName,
+            String hint, String zoneID
+        ) {
+            super(clueNumber, listName);
+            this.hint = hint;
+            this.zoneID = zoneID;
+        }
+
+        public String getHint() { return hint; }
+        public String getZoneID() { return zoneID; }
+    }
+
     private static class JPZXMLParser extends DefaultHandler {
         private String title = "";
         private String creator = "";
@@ -79,11 +106,9 @@ public class JPZIO implements PuzzleParser {
         private int width;
         private int height;
         private Box[][] boxes;
-        private Map<Integer, String> acrossNumToClueMap = new HashMap<>();
-        private Map<Integer, String> downNumToClueMap = new HashMap<>();
-        private Map<Integer, String> acrossNumToCitationMap = new HashMap<>();
-        private Map<Integer, String> downNumToCitationMap = new HashMap<>();
-        private int maxClueNum = -1;
+        private List<ClueInfo> clues = new LinkedList<>();
+        private Map<ClueID, String> cidToCitationMap = new TreeMap<>();
+        private Map<String, Zone> zoneMap = new HashMap<>();
         private StringBuilder charBuffer = new StringBuilder();
 
         // sanity checks
@@ -98,19 +123,11 @@ public class JPZIO implements PuzzleParser {
         public int getWidth() { return width; }
         public int getHeight() { return height; }
         public Box[][] getBoxes() { return boxes; }
-        public Map<Integer, String> getAcrossNumToClueMap() {
-            return acrossNumToClueMap;
+        public List<ClueInfo> getClues() { return clues; }
+        public Map<String, Zone> getZoneMap() { return zoneMap; }
+        public Map<ClueID, String> getCIDToCitationMap() {
+            return cidToCitationMap;
         }
-        public Map<Integer, String> getDownNumToClueMap() {
-            return downNumToClueMap;
-        }
-        public Map<Integer, String> getAcrossNumToCitationMap() {
-            return acrossNumToCitationMap;
-        }
-        public Map<Integer, String> getDownNumToCitationMap() {
-            return downNumToCitationMap;
-        }
-        public int getMaxClueNum() { return maxClueNum; }
 
         /**
          * Best assessment of whether read succeeded (i.e. was a JPZ
@@ -122,9 +139,7 @@ public class JPZIO implements PuzzleParser {
                 && hasCluesEle
                 && getWidth() > 0
                 && getHeight() > 0
-                && getMaxClueNum() > 0
-                && (getAcrossNumToClueMap().size() > 0
-                        || getDownNumToClueMap().size() > 0);
+                && (getClues().size() > 0);
         }
 
         // Use several handlers to maintain three different modes:
@@ -219,9 +234,7 @@ public class JPZIO implements PuzzleParser {
                     box.setBlank();
 
                     if (number != null) {
-                        int clueNumber = Integer.parseInt(number);
-                        box.setClueNumber(clueNumber);
-                        maxClueNum = Math.max(maxClueNum, clueNumber);
+                        box.setClueNumber(number);
                     }
 
                     String shape
@@ -260,14 +273,12 @@ public class JPZIO implements PuzzleParser {
         };
 
         private DefaultHandler inClues = new DefaultHandler() {
-            private int inClueNum = -1;
+            private String inClueNum = null;
             private String inClueFormat = "";
-            private String inComplexClueFormat = "";
+            private String inListName = "No List";
+            private String inClueZoneID = null;
 
             private StringBuilder charBuffer = new StringBuilder();
-
-            private Map<Integer, String> curClueMap = null;
-            private Map<Integer, String> curCitationMap = null;
 
             @Override
             public void startElement(String nsURI,
@@ -280,12 +291,10 @@ public class JPZIO implements PuzzleParser {
                 try {
                     if (name.equalsIgnoreCase("title")) {
                         charBuffer.delete(0, charBuffer.length());
-                    } else if (name.equalsIgnoreCase("clue") && knowDirection()) {
+                    } else if (name.equalsIgnoreCase("clue")) {
                         charBuffer.delete(0, charBuffer.length());
 
-                        String numAttr = attributes.getValue("number");
-                        inClueNum = extractClueNumber(numAttr);
-                        maxClueNum = Math.max(inClueNum, maxClueNum);
+                        inClueNum = attributes.getValue("number");
 
                         String link = attributes.getValue("is-link");
                         if (link == null) {
@@ -293,12 +302,13 @@ public class JPZIO implements PuzzleParser {
                             if (inClueFormat == null)
                                 inClueFormat = "";
 
-                            if (isComplexClueNumber(numAttr))
-                                inComplexClueFormat = numAttr;
-
                             String citation = attributes.getValue("citation");
                             if (citation != null)
-                                curCitationMap.put(inClueNum, citation);
+                                cidToCitationMap.put(
+                                    new ClueID(inClueNum, inListName), citation
+                                );
+
+                            inClueZoneID = attributes.getValue("word");
 
                             // clue appears in characters between start
                             // and end
@@ -322,25 +332,14 @@ public class JPZIO implements PuzzleParser {
                                    String strippedName,
                                    String tagName) throws SAXException {
                 strippedName = strippedName.trim();
-                String name = strippedName.length() == 0 ? tagName.trim() : strippedName;
+                String name = strippedName.length() == 0
+                    ? tagName.trim()
+                    : strippedName;
 
                 if (name.equalsIgnoreCase("title")) {
-                    String title = charBuffer.toString().toUpperCase();
-                    if (title.contains("ACROSS")) {
-                        curClueMap = JPZXMLParser.this.acrossNumToClueMap;
-                        curCitationMap = JPZXMLParser.this.acrossNumToCitationMap;
-                    } else if (title.contains("DOWN")) {
-                        curClueMap = JPZXMLParser.this.downNumToClueMap;
-                        curCitationMap = JPZXMLParser.this.downNumToCitationMap;
-                    }
-                } else if (name.equalsIgnoreCase("clue") && knowDirection()) {
+                    inListName = HtmlUtil.unHtmlString(charBuffer.toString());
+                } else if (name.equalsIgnoreCase("clue")) {
                     String fullClue = charBuffer.toString();
-
-                    if (inComplexClueFormat.length() > 0) {
-                        fullClue = String.format("%s (Clues %s)",
-                                                 fullClue,
-                                                 inComplexClueFormat);
-                    }
 
                     if (inClueFormat.length() > 0) {
                         fullClue = String.format(
@@ -348,48 +347,88 @@ public class JPZIO implements PuzzleParser {
                         );
                     }
 
-                    curClueMap.put(inClueNum, fullClue);
+                    clues.add(
+                        new ClueInfo(
+                            inClueNum, inListName, fullClue, inClueZoneID
+                        )
+                    );
 
-                    inClueNum = -1;
+                    inClueNum = null;
                     inClueFormat = "";
-                    inComplexClueFormat = "";
+                    inClueZoneID = null;
                 } else {
                     charBuffer.append("</" + tagName + ">");
                 }
             }
+        };
 
-            /**
-             * Detect if clue spans several words
-             */
-            private boolean isComplexClueNumber(String numberString)
-                    throws NumberFormatException {
-                if (numberString == null)
-                    throw new NumberFormatException("Null number in clue");
+        private DefaultHandler inWord = new DefaultHandler() {
+            private String zoneID;
+            private Zone zone;
 
-                return numberString.split("[^0-9]").length > 1;
+            @Override
+            public void startElement(String nsURI,
+                                     String strippedName,
+                                     String tagName,
+                                     Attributes attributes) throws SAXException {
+                strippedName = strippedName.trim();
+                String name = strippedName.length() == 0
+                    ? tagName.trim() : strippedName;
+
+                if (name.equalsIgnoreCase("word")) {
+                    zoneID = attributes.getValue("id");
+                    zone = new Zone();
+
+                    String x = attributes.getValue("x");
+                    String y = attributes.getValue("y");
+                    if (x != null && y != null)
+                        parseCells(x, y);
+                } else if (name.equalsIgnoreCase("cells")) {
+                    parseCells(
+                        attributes.getValue("x"),
+                        attributes.getValue("y")
+                    );
+                }
+            }
+
+            @Override
+            public void endElement(String nsURI,
+                                   String strippedName,
+                                   String tagName) throws SAXException {
+                strippedName = strippedName.trim();
+                String name = strippedName.length() == 0
+                    ? tagName.trim()
+                    : strippedName;
+
+                if (name.equalsIgnoreCase("word")) {
+                    if (zoneID != null)
+                        zoneMap.put(zoneID, zone);
+                    zoneID = null;
+                    zone = null;
+                }
             }
 
             /**
-             * Get primary clue number from a potentially complex number
+             * Parse cells data into zone
+             *
+             * E.g. x="1-3" y = "2" is (2, 1), (2, 2), (2, 3);
              */
-            private int extractClueNumber(String numberString)
-                    throws NumberFormatException {
-                if (numberString == null)
-                    throw new NumberFormatException("Null number in clue");
-                // some clues are spread across the board
-                String[] nums = numberString.split("[^0-9]");
-                if (nums.length == 0)
-                    throw new NumberFormatException("No numbers given with clue " +
-                                                    numberString);
+            private void parseCells(String x, String y) {
+                String[] xs = x.split("-");
+                int xstart = Integer.valueOf(xs[0]) - 1;
+                int xend = (xs.length > 1)
+                    ? Integer.valueOf(xs[1]) - 1
+                    : xstart;
 
-                return Integer.parseInt(nums[0]);
-            }
+                String[] ys = y.split("-");
+                int ystart = Integer.valueOf(ys[0]) - 1;
+                int yend = (ys.length > 1)
+                    ? Integer.valueOf(ys[1]) - 1
+                    : ystart;
 
-            /**
-             * True if we've figured out whether we're across or down
-             */
-            private boolean knowDirection() {
-                return curClueMap != null && curCitationMap != null;
+                for (int row = ystart; row <= yend; row++)
+                    for (int col = xstart; col <= xend; col++)
+                        zone.addPosition(new Position(row, col));
             }
         };
 
@@ -411,6 +450,8 @@ public class JPZIO implements PuzzleParser {
             } else if (name.equalsIgnoreCase("clues")) {
                 hasCluesEle = true;
                 state = inClues;
+            } else if (name.equalsIgnoreCase("word")) {
+                state = inWord;
             }
 
             state.startElement(nsURI, name, tagName, attributes);
@@ -435,42 +476,8 @@ public class JPZIO implements PuzzleParser {
                 state = outerXML;
             } else if (name.equalsIgnoreCase("clues")) {
                 state = outerXML;
-            } else if (name.equalsIgnoreCase("crossword")) {
-                fillInMissingClues();
-            }
-        }
-
-        /**
-         * Populate clue maps with "undefined" strings
-         *
-         * Sometimes the Indy format omits the is-link clues
-         */
-        private void fillInMissingClues() {
-            for (int y = 0; y < boxes.length; y++) {
-                for (int x = 0; x < boxes[y].length; x++) {
-                    if (boxes[y][x] != null) {
-                        int clue = boxes[y][x].getClueNumber();
-                        if (clue > 0) {
-                            boolean boxLeft = x > 0 && boxes[y][x-1] != null;
-                            boolean boxRight = x < boxes[y].length - 1
-                                && boxes[y][x+1] != null;
-
-                            boolean boxUp = y > 0 && boxes[y-1][x] != null;
-                            boolean boxDown = y < boxes.length - 1
-                                && boxes[y+1][x] != null;
-
-                            boolean hasAcross
-                                = acrossNumToClueMap.containsKey(clue);
-                            boolean hasDown
-                                = downNumToClueMap.containsKey(clue);
-
-                           if (!boxLeft && boxRight && !hasAcross)
-                                acrossNumToClueMap.put(clue, UNDEFINED_CLUE);
-                           if (!boxUp && boxDown && !hasDown)
-                                downNumToClueMap.put(clue, UNDEFINED_CLUE);
-                        }
-                    }
-                }
+            } else if (name.equalsIgnoreCase("word")) {
+                state = outerXML;
             }
         }
     }
@@ -481,7 +488,6 @@ public class JPZIO implements PuzzleParser {
     }
 
     public static Puzzle readPuzzle(InputStream is) throws Exception {
-        Puzzle puz = new Puzzle();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         XMLReader xr = parser.getXMLReader();
@@ -492,15 +498,17 @@ public class JPZIO implements PuzzleParser {
         if (!handler.isSuccessfulRead())
             return null;
 
-        puz.setTitle(handler.getTitle());
-        puz.setAuthor(handler.getCreator());
-        puz.setCopyright(handler.getCopyright());
-        puz.setBoxes(handler.getBoxes(), false);
+        // TODO: move away from this and use JPZ words to build puzzle
+        // directly
+        PuzzleBuilder builder = new PuzzleBuilder(handler.getBoxes());
+        builder.setTitle(handler.getTitle());
+        builder.setAuthor(handler.getCreator());
+        builder.setCopyright(handler.getCopyright());
 
-        setClues(puz, handler);
-        setNote(puz, handler);
+        setClues(builder, handler);
+        setNote(builder, handler);
 
-        return puz;
+        return builder.getPuzzle();
     }
 
     public static boolean convertPuzzle(InputStream is,
@@ -518,27 +526,21 @@ public class JPZIO implements PuzzleParser {
         }
     }
 
-    private static void setClues(Puzzle puz, JPZXMLParser handler) {
-        Map<Integer, String> acrossNumToClueMap
-            = handler.getAcrossNumToClueMap();
+    private static void setClues(PuzzleBuilder builder, JPZXMLParser handler) {
+        Map<String, Zone> zones = handler.getZoneMap();
 
-        for (Map.Entry<Integer, String> entry : acrossNumToClueMap.entrySet()) {
-            puz.addClue(new Clue(entry.getKey(), Clue.ACROSS, entry.getValue()));
-        }
-
-        Map<Integer, String> downNumToClueMap = handler.getDownNumToClueMap();
-
-        for (Map.Entry<Integer, String> entry : downNumToClueMap.entrySet()) {
-            puz.addClue(new Clue(entry.getKey(), Clue.DOWN, entry.getValue()));
+        for (ClueInfo clue : handler.getClues()) {
+            builder.addClue(new Clue(
+                clue.getClueNumber(),
+                clue.getListName(),
+                clue.getHint(),
+                zones.get(clue.getZoneID())
+            ));
         }
     }
 
-    private static void setNote(Puzzle puz, JPZXMLParser handler) {
-        Map<Integer, String> acrossNumToCitationMap
-            = handler.getAcrossNumToCitationMap();
-        Map<Integer, String> downNumToCitationMap
-            = handler.getDownNumToCitationMap();
-        int maxClueNum = handler.getMaxClueNum();
+    private static void setNote(PuzzleBuilder builder, JPZXMLParser handler) {
+        Map<ClueID, String> cidToCitationMap = handler.getCIDToCitationMap();
 
         StringBuilder notes = new StringBuilder();
 
@@ -546,27 +548,31 @@ public class JPZIO implements PuzzleParser {
         if (description != null)
             notes.append(description);
 
-        if (acrossNumToCitationMap.size() > 0) {
-            notes.append("<h1>Across:</h1>");
+        // sort lists into order then construct citations text
+        Map<String, StringBuilder> listNotes = new HashMap<>();
 
-            for(int clueNum = 1; clueNum <= maxClueNum; clueNum++) {
-                String citation = acrossNumToCitationMap.get(clueNum);
-                if (citation != null)
-                    notes.append(String.format("<p>%d: %s</p>", clueNum, citation));
-            }
+        for (ClueID cid : cidToCitationMap.keySet()) {
+            String clueNum = cid.getClueNumber();
+            String listName = cid.getListName();
+            String citation = cidToCitationMap.get(cid);
+
+            if (!listNotes.containsKey(listName))
+                listNotes.put(listName, new StringBuilder());
+
+            listNotes.get(listName).append(
+                String.format("<p>%s: %s</p>", clueNum, citation)
+            );
         }
 
-        if (downNumToCitationMap.size() > 0) {
-            notes.append("<h1>Down:</h1>");
+        List<String> listNames = new ArrayList<>(listNotes.keySet());
+        Collections.sort(listNames);
 
-            for(int clueNum = 1; clueNum <= maxClueNum; clueNum++) {
-                String citation = downNumToCitationMap.get(clueNum);
-                if (citation != null)
-                    notes.append(String.format("<p>%d: %s</p>", clueNum, citation));
-            }
+        for (String listName : listNames) {
+            notes.append("<h1>" + listName + "</h1>");
+            notes.append(listNotes.get(listName).toString());
         }
 
-        puz.setNotes(notes.toString());
+        builder.setNotes(notes.toString());
     }
 
     /**

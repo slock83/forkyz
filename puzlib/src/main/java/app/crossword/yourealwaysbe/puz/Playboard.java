@@ -2,9 +2,9 @@ package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -13,13 +13,10 @@ import app.crossword.yourealwaysbe.util.WeakSet;
 public class Playboard implements Serializable {
     private static final Logger LOG = Logger.getLogger(Playboard.class.getCanonicalName());
 
-    private Map<Position, Integer> acrossWordRanges = new HashMap<>();
-    private Map<Position, Integer> downWordRanges = new HashMap<>();
     private MovementStrategy movementStrategy = MovementStrategy.MOVE_NEXT_ON_AXIS;
-    private Position highlightLetter = new Position(0, 0);
     private Puzzle puzzle;
     private String responder;
-    private boolean across = true;
+    private List<String> sortedClueListNames = new ArrayList<>();
     private boolean showErrorsGrid;
     private boolean showErrorsCursor;
     private boolean skipCompletedLetters;
@@ -44,14 +41,20 @@ public class Playboard implements Serializable {
     }
 
     public Playboard(Puzzle puzzle) {
-        this.puzzle = puzzle;
-        this.highlightLetter = this.puzzle.getPosition();
-        if (this.highlightLetter == null)
-            this.highlightLetter = new Position(0, 0);
-        this.across = this.puzzle.getAcross();
-        Box[][] boxes = puzzle.getBoxes();
+        if (puzzle == null) {
+            throw new IllegalArgumentException(
+                "Cannot initialise a playboard with a null puzzle."
+            );
+        }
 
-        ensureClueSelected();
+        this.puzzle = puzzle;
+
+        sortedClueListNames.addAll(puzzle.getClueListNames());
+        Collections.sort(this.sortedClueListNames);
+
+        if (puzzle.getPosition() == null)
+            selectFirstPosition();
+
         updateHistory();
         // there will be no listeners at this point, but the call also
         // does a bit of bookkeeping / setup for the next use
@@ -69,21 +72,6 @@ public class Playboard implements Serializable {
         this.dontDeleteCrossing = value;
     }
 
-    public void setAcross(boolean across) {
-        boolean changed = (this.across != across);
-        this.across = across;
-        if (this.puzzle != null) {
-            this.puzzle.setAcross(across);
-        }
-        if (changed) {
-            notifyChange();
-        }
-    }
-
-    public boolean isAcross() {
-        return across;
-    }
-
     public Box[][] getBoxes() {
         return puzzle.getBoxes();
     }
@@ -92,24 +80,28 @@ public class Playboard implements Serializable {
      * Returns null if no clue for current position
      */
     public Clue getClue() {
-        int number = getClueNumber();
-        return (number > -1)
-            ? this.puzzle.getClues(this.isAcross()).getClue(number)
-            : null;
+        ClueID clueID = puzzle.getCurrentClueID();
+        if (clueID == null)
+            return null;
+        return puzzle.getClue(clueID);
     }
 
     /**
-     * Clue number for current position or -1 if none
+     * Gets the currently selected clue list from the puzzle
+     *
+     * Or null if none selected
      */
-    public int getClueNumber() {
-        Position start = this.getCurrentWordStart();
-        Box box = puzzle.checkedGetBox(start);
-        if (box == null) {
-            return -1;
-        } else {
-            int clueNum = box.getClueNumber();
-            return clueNum == 0 ? -1 : clueNum;
-        }
+    public ClueList getCurrentClueList() {
+        ClueID clueID = puzzle.getCurrentClueID();
+        return (clueID == null) ? null : puzzle.getClues(clueID.getListName());
+    }
+
+    /**
+     * Clue number for current position or null if none
+     */
+    public String getClueNumber() {
+        ClueID clueID = puzzle.getCurrentClueID();
+        return (clueID == null) ? null : clueID.getClueNumber();
     }
 
     /**
@@ -118,73 +110,20 @@ public class Playboard implements Serializable {
     public int getCurrentClueIndex() {
         Clue clue = getClue();
         if (clue != null) {
-            if (clue.isAcross()) {
-                return puzzle.getClues(true)
-                    .getClueIndex(clue.getNumber());
-            } else if (clue.isDown()) {
-                return puzzle.getClues(false)
-                    .getClueIndex(clue.getNumber());
-            }
+            String listName = clue.getListName();
+            return puzzle.getClues(listName)
+                .getClueIndex(clue.getClueNumber());
         }
         return -1;
     }
 
     public Note getNote() {
         Clue c = this.getClue();
-        if (c != null)
-            return this.puzzle.getNote(c.getNumber(), this.across);
-        else
-            return null;
+        return (c == null) ? null : this.puzzle.getNote(c);
     }
 
     public Box getCurrentBox() {
         return getCurrentBoxOffset(0, 0);
-    }
-
-    /**
-     * Get the box to the left in the direction of the clue
-     *
-     * I.e. if across, get box one north, if down, get box one east
-     */
-    public Box getAdjacentBoxLeft() {
-        Position curPos = getHighlightLetter();
-        if (across) {
-            if (puzzle.joinedTop(curPos.getRow(), curPos.getCol())) {
-                return puzzle.checkedGetBox(
-                    curPos.getRow()- 1, curPos.getCol()
-                );
-            }
-        } else {
-            if (puzzle.joinedRight(curPos.getRow(), curPos.getCol())) {
-                return puzzle.checkedGetBox(
-                    curPos.getRow(), curPos.getCol() + 1
-                );
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get the box to the right in the direction of the clue
-     *
-     * I.e. if across, get box one south, if down, get box one west
-     */
-    public Box getAdjacentBoxRight() {
-        Position curPos = getHighlightLetter();
-        if (across) {
-            if (puzzle.joinedBottom(curPos.getRow(), curPos.getCol())) {
-                return puzzle.checkedGetBox(
-                    curPos.getRow() + 1, curPos.getCol()
-                );
-            }
-        } else {
-            if (puzzle.joinedLeft(curPos.getRow(), curPos.getCol())) {
-                return puzzle.checkedGetBox(
-                    curPos.getRow(), curPos.getCol() - 1
-                );
-            }
-        }
-        return null;
     }
 
     /**
@@ -200,37 +139,34 @@ public class Playboard implements Serializable {
     }
 
     public Word getCurrentWord() {
-        Word w = new Word();
-        w.start = this.getCurrentWordStart();
-        w.across = this.isAcross();
-        w.number = this.getClueNumber();
-        w.length = this.getWordRange();
+        Position pos = getHighlightLetter();
+        Clue clue = getClue();
 
-        return w;
+        if (clue == null || !clue.hasZone()) {
+            Zone zone = new Zone();
+            zone.addPosition(pos);
+            return new Word(zone);
+        } else {
+            return new Word(clue.getZone(), clue);
+        }
     }
 
     public Box[] getCurrentWordBoxes() {
-        Word currentWord = this.getCurrentWord();
-        Box[] result = new Box[currentWord.length];
+        Word word = getCurrentWord();
+        Zone zone = (word == null) ? null : word.getZone();
+        if (zone == null)
+            return null;
+
+        Box[] result = new Box[zone.size()];
         Box[][] boxes = getBoxes();
 
-        int row = currentWord.start.getRow();
-        int col = currentWord.start.getCol();
-
-        for (int i = 0; i < result.length; i++) {
-            int newRow = row;
-            int newCol = col;
-
-            if (currentWord.across) {
-                newCol += i;
-            } else {
-                newRow += i;
-            }
-
-            result[i] = boxes[newRow][newCol];
+        for (int i = 0; i < zone.size(); i++) {
+            Position pos = zone.getPosition(i);
+            result[i] = boxes[pos.getRow()][pos.getCol()];
         }
 
         return result;
+
     }
 
     public String getCurrentWordResponse() {
@@ -240,56 +176,8 @@ public class Playboard implements Serializable {
         for (int i = 0; i < boxes.length; i++) {
             letters[i] = boxes[i].getResponse();
         }
+
         return new String(letters);
-    }
-
-    public Position[] getCurrentWordPositions() {
-        Word currentWord = this.getCurrentWord();
-        Position[] result = new Position[currentWord.length];
-        int col = currentWord.start.getCol();
-        int row = currentWord.start.getRow();
-
-        for (int i = 0; i < result.length; i++) {
-            int newCol = col;
-            int newRow = row;
-
-            if (currentWord.across) {
-                newCol += i;
-            } else {
-                newRow += i;
-            }
-
-            result[i] = new Position(newRow, newCol);
-        }
-
-        return result;
-    }
-
-    /**
-     * Finds start of highlighted word
-     *
-     * If the current box is not part of a clue in the current playboard
-     * direction, then returns current highlighted letter
-     */
-    public Position getCurrentWordStart() {
-        int row = this.highlightLetter.getRow();
-        int col = this.highlightLetter.getCol();
-
-        if (this.isAcross()) {
-            if (puzzle.isPartOfAcross(row, col)) {
-                while (!puzzle.isStartAcross(row, col)) {
-                    col -= 1;
-                }
-            }
-        } else {
-            if (puzzle.isPartOfDown(row, col)) {
-                while (!puzzle.isStartDown(row, col)) {
-                    row -= 1;
-                }
-            }
-        }
-
-        return new Position(row, col);
     }
 
     public void setCurrentWord(String response) {
@@ -313,26 +201,24 @@ public class Playboard implements Serializable {
     public Word setHighlightLetter(Position highlightLetter) {
         Word w = this.getCurrentWord();
 
+        if (highlightLetter == null)
+            return w;
+
         pushNotificationDisabled();
 
-        if (highlightLetter.equals(this.highlightLetter)) {
-            toggleDirection();
+        Position currentHighlight = getHighlightLetter();
+
+        if (highlightLetter.equals(currentHighlight)) {
+            toggleSelection();
         } else {
             Box box = puzzle.checkedGetBox(highlightLetter);
             if (box != null) {
-                this.highlightLetter = highlightLetter;
+                puzzle.setPosition(highlightLetter);
 
-                if (this.puzzle != null) {
-                    this.puzzle.setPosition(highlightLetter);
-                }
-
-                boolean partAcross = box.isPartOfAcross();
-                boolean partDown = box.isPartOfDown();
-
-                // toggle if we'll find a clue
-                if ((isAcross() && !partAcross && partDown) ||
-                    (!isAcross() && !partDown && partAcross)) {
-                    toggleDirection();
+                // toggle if not part of current clue
+                Zone zone = getZone(getClue());
+                if (zone == null || !zone.hasPosition(highlightLetter)) {
+                    toggleSelection();
                 }
             }
         }
@@ -354,7 +240,7 @@ public class Playboard implements Serializable {
     }
 
     public Position getHighlightLetter() {
-        return highlightLetter;
+        return puzzle.getPosition();
     }
 
     public void setMovementStrategy(MovementStrategy movementStrategy) {
@@ -362,7 +248,7 @@ public class Playboard implements Serializable {
     }
 
     public Puzzle getPuzzle() {
-        return this.puzzle;
+        return puzzle;
     }
 
     /**
@@ -444,97 +330,25 @@ public class Playboard implements Serializable {
         return skipCompletedLetters;
     }
 
-    public boolean isFilledClueNum(int number, boolean isAcross) {
-        Position start = puzzle.getWordStart(number, isAcross);
+    /**
+     * If the clue has been filled in
+     *
+     * Always false if clue has a null or empty zone
+     */
+    public boolean isFilledClueID(ClueID clueID) {
+        Zone zone = getZone(clueID);
 
-        if(start == null)
+        if(zone == null || zone.isEmpty())
             return false;
 
-        int range = this.getWordRange(start, isAcross);
-        int col = start.getCol();
-        int row = start.getRow();
         Box[][] boxes = getBoxes();
 
-        for (int i = 0; i < range; i++) {
-            int newCol = isAcross ? col + i : col;
-            int newRow = isAcross ? row : row + i;
-
-            if (boxes[newRow][newCol].isBlank())
+        for (Position pos : zone) {
+            if (boxes[pos.getRow()][pos.getCol()].isBlank())
                 return false;
         }
 
         return true;
-    }
-
-    public Box[] getWordBoxes(int number, boolean isAcross) {
-        Position start = puzzle.getWordStart(number, isAcross);
-        if(start == null) {
-            return new Box[0];
-        }
-        int range = this.getWordRange(start, isAcross);
-        int col = start.getCol();
-        int row = start.getRow();
-        Box[][] boxes = getBoxes();
-        Box[] result = new Box[range];
-
-        for (int i = 0; i < result.length; i++) {
-            int newCol = col;
-            int newRow = row;
-
-            if (isAcross) {
-                newCol += i;
-            } else {
-                newRow += i;
-            }
-
-            result[i] = boxes[newRow][newCol];
-        }
-
-        return result;
-    }
-
-    public int getWordRange(int number, boolean isAcross) {
-        Position start = puzzle.getWordStart(number, isAcross);
-
-        if(start == null)
-            return 0;
-        else
-            return getWordRange(start, isAcross);
-    }
-
-    public int getWordRange(Position start, boolean across) {
-        Map<Position, Integer> rangeMap =
-            across ? acrossWordRanges : downWordRanges;
-
-        Integer range = rangeMap.get(start);
-
-        if (range == null) {
-            int row = start.getRow();
-            int col = start.getCol();
-
-            if (across && puzzle.isPartOfAcross(row, col)) {
-                while (puzzle.joinedRight(row, col)) {
-                    col += 1;
-                }
-                range = col - start.getCol() + 1;
-            } else if (!across && puzzle.isPartOfDown(row, col)) {
-                while (puzzle.joinedBottom(row, col)) {
-                    row += 1;
-                }
-                range = row - start.getRow() + 1;
-            } else {
-                // not part of a clue, just a floating box
-                range = 1;
-            }
-
-            rangeMap.put(start, range);
-        }
-
-        return range;
-    }
-
-    public int getWordRange() {
-        return getWordRange(this.getCurrentWordStart(), this.isAcross());
     }
 
     /**
@@ -548,9 +362,9 @@ public class Playboard implements Serializable {
 
         pushNotificationDisabled();
 
-
         if (currentBox.isBlank() || isDontDeleteCurrent()) {
             wordToReturn = this.previousLetter();
+            Position highlightLetter = getHighlightLetter();
             int row = highlightLetter.getRow();
             int col = highlightLetter.getCol();
             currentBox = getBoxes()[row][col];
@@ -574,14 +388,15 @@ public class Playboard implements Serializable {
         pushNotificationDisabled();
 
         if (currentBox.isBlank()) {
+
             Note note = this.getNote();
+
             if (note != null) {
-                int pos = this.across
-                    ? currentBox.getAcrossPosition()
-                    : currentBox.getDownPosition();
+                Clue clue = getClue();
+                int cluePos = currentBox.getCluePosition(clue);
                 String response = this.getCurrentWordResponse();
-                if (pos >= 0 && pos < response.length())
-                    note.deleteScratchLetterAt(pos);
+                if (cluePos >= 0 && cluePos < response.length())
+                    note.deleteScratchLetterAt(cluePos);
             }
         }
 
@@ -605,185 +420,295 @@ public class Playboard implements Serializable {
                currentBox.getResponse() == currentBox.getSolution() &&
                this.isShowErrors());
 
-        // Don't delete letters from crossing words
-        Box adjacentLeft = getAdjacentBoxLeft();
-        Box adjacentRight = getAdjacentBoxRight();
-        boolean skipAdjacent
-            = (dontDeleteCrossing &&
-               ((adjacentLeft != null && !adjacentLeft.isBlank()) ||
-                (adjacentRight != null && !adjacentRight.isBlank())));
+        boolean skipAdjacent = dontDeleteCrossing
+            && currentBoxHasFilledAdjacent();
 
         return skipCorrect || skipAdjacent;
     }
 
-    /**
-     * Ignored if clueNumber does not exist
-     */
-    public void jumpToClue(int clueNumber, boolean across) {
-        try {
-            pushNotificationDisabled();
+    private boolean currentBoxHasFilledAdjacent() {
+        ClueID currentCID = getClue();
+        if (currentCID == null)
+            return false;
 
-            Position pos = puzzle.getWordStart(clueNumber, across);
+        Position currentPos = getHighlightLetter();
+        Box currentBox = getCurrentBox();
+        Set<ClueID> currentBoxClues = currentBox.getIsPartOfClues();
 
-            if (pos != null) {
-                this.setHighlightLetter(pos);
-                this.setAcross(across);
-            }
+        for (ClueID otherCID : currentBoxClues) {
+            if (currentCID.equals(otherCID))
+                continue;
 
-            popNotificationDisabled();
+            Zone zone = puzzle.getClue(otherCID).getZone();
+            int curPos = zone.indexOf(currentPos);
+            Position posBefore = (curPos > 0)
+                ? zone.getPosition(curPos - 1)
+                : null;
 
-            if (pos != null)
-                notifyChange();
-        } catch (Exception e) {
+            Box boxBefore = puzzle.checkedGetBox(posBefore);
+            if (boxBefore != null && !boxBefore.isBlank())
+                return true;
+
+            Position posAfter = (curPos < zone.size() - 1)
+                ? zone.getPosition(curPos + 1)
+                : null;
+
+            Box boxAfter = puzzle.checkedGetBox(posAfter);
+            if (boxAfter != null && !boxAfter.isBlank())
+                return true;
         }
+
+        return false;
+    }
+
+    public boolean isJumpableClue(ClueID clueID) {
+        return getClueStart(clueID) != null;
     }
 
     /**
-     * Ignored if clueNumber does not exist
+     * Ignored if clue not on board
      */
-    public void jumpToClueEnd(int clueNumber, boolean across) {
-        try {
-            pushNotificationDisabled();
+    public void jumpToClue(ClueID clueID) {
+        if (clueID == null)
+            return;
 
-            Position pos = null;
+        pushNotificationDisabled();
 
-            int length = this.getWordRange(clueNumber, across);
-            Position start = puzzle.getWordStart(clueNumber, across);
+        Position pos = getClueStart(clueID);
 
-            if (across) {
-                pos = new Position(
-                    start.getRow(),
-                    start.getCol() + length - 1
-                );
-            } else {
-                pos = new Position(
-                    start.getRow() + length - 1,
-                    start.getCol()
-                );
-            }
-
-            if (pos != null) {
-                this.setHighlightLetter(pos);
-                this.setAcross(across);
-            }
-
-            popNotificationDisabled();
-
-            if (pos != null)
-                notifyChange();
-        } catch (Exception e) {
+        if (pos != null) {
+            setHighlightLetter(pos);
+            puzzle.setCurrentClueID(clueID);
         }
+
+        popNotificationDisabled();
+
+        if (pos != null)
+            notifyChange();
     }
 
+    /**
+     * Ignored if clue not on board
+     */
+    public void jumpToClueEnd(ClueID clueID) {
+        if (clueID == null)
+            return;
+
+        pushNotificationDisabled();
+
+        Position pos = getClueEnd(clueID);
+
+        if (pos != null) {
+            setHighlightLetter(pos);
+            puzzle.setCurrentClueID(clueID);
+        }
+
+        popNotificationDisabled();
+
+        if (pos != null)
+            notifyChange();
+    }
+
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveDown() {
         return this.moveDown(false);
     }
 
-    public Position moveDown(Position original, boolean skipCompleted) {
-        Position next = new Position(
-            original.getRow() + 1, original.getCol()
-        );
-
-        if (next.getRow() >= puzzle.getHeight())
-            return original;
-
-        Box value = puzzle.checkedGetBox(next);
-
-        if ((value == null) || skipCurrentBox(value, skipCompleted)) {
-            next = moveDown(next, skipCompleted);
-        }
-
-        return next;
-    }
-
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveDown(boolean skipCompleted) {
-        Word w = this.getCurrentWord();
-        Position newPos = this.moveDown(this.getHighlightLetter(), skipCompleted);
-        this.setHighlightLetter(newPos);
-        return w;
+        return moveDelta(skipCompleted, 1, 0);
     }
 
-    public Position moveLeft(Position original, boolean skipCompleted) {
-        Position next = new Position(
-            original.getRow(), original.getCol() - 1
-        );
-
-        if (next.getCol() < 0)
-            return original;
-
-        Box value = puzzle.checkedGetBox(next);
-
-        if ((value == null) || skipCurrentBox(value, skipCompleted)) {
-            next = moveLeft(next, skipCompleted);
-        }
-
-        return next;
+    /**
+     * Move in direction, or not if no position found
+     */
+    public Position findNextDown(Position original, boolean skipCompleted) {
+        return findNextDelta(original, skipCompleted, 1, 0);
     }
 
-    public Word moveLeft(boolean skipCompleted) {
-        Word w = this.getCurrentWord();
-        Position newPos = this.moveLeft(this.getHighlightLetter(), skipCompleted);
-        this.setHighlightLetter(newPos);
-        return w;
-    }
-
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveLeft() {
         return moveLeft(false);
     }
 
+    /**
+     * Move in direction, or not if no position found
+     */
+    public Position findNextLeft(Position original, boolean skipCompleted) {
+        return findNextDelta(original, skipCompleted, 0, -1);
+    }
+
+    /**
+     * Move in direction, or not if no position found
+     */
+    public Word moveLeft(boolean skipCompleted) {
+        return moveDelta(skipCompleted, 0, -1);
+    }
+
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveRight() {
         return moveRight(false);
     }
 
-    public Position moveRight(Position original, boolean skipCompleted) {
-        Position next = new Position(
-            original.getRow(), original.getCol() + 1
-        );
-
-        if (next.getCol() >= puzzle.getWidth())
-            return original;
-
-        Box value = puzzle.checkedGetBox(next);
-
-        if ((value == null) || skipCurrentBox(value, skipCompleted)) {
-            next = moveRight(next, skipCompleted);
-        }
-
-        return next;
+    /**
+     * Move in direction, or not if no position found
+     */
+    public Position findNextRight(Position original, boolean skipCompleted) {
+        return findNextDelta(original, skipCompleted, 0, 1);
     }
 
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveRight(boolean skipCompleted) {
-        Word w = this.getCurrentWord();
-        Position newPos = this.moveRight(this.getHighlightLetter(), skipCompleted);
-        this.setHighlightLetter(newPos);
-        return w;
+        return moveDelta(skipCompleted, 0, 1);
     }
 
-    public Position moveUp(Position original, boolean skipCompleted) {
-        Position next = new Position(
-            original.getRow() - 1, original.getCol()
-        );
-
-        if (next.getRow() < 0)
-            return original;
-
-        Box value = puzzle.checkedGetBox(next);
-
-        if ((value == null) || skipCurrentBox(value, skipCompleted)) {
-            next = moveUp(next, skipCompleted);
-        }
-
-        return next;
+    /**
+     * Move in direction, or not if no position found
+     */
+    public Position findNextUp(Position original, boolean skipCompleted) {
+        return findNextDelta(original, skipCompleted, -1, 0);
     }
 
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveUp() {
         return moveUp(false);
     }
 
+    /**
+     * Move in direction, or not if no position found
+     */
     public Word moveUp(boolean skipCompleted) {
+        return moveDelta(skipCompleted, -1, 0);
+    }
+
+    /**
+     * Finds next box in direction
+     *
+     * @return next box, or null
+     */
+    public Position findNextDelta(
+        Position original, boolean skipCompleted, int drow, int dcol
+    ) {
+        Position next = new Position(
+            original.getRow() + drow, original.getCol() + dcol
+        );
+
+        if (
+            next.getCol() < 0
+            || next.getRow() < 0
+            || next.getCol() >= puzzle.getWidth()
+            || next.getRow() >= puzzle.getHeight()
+        ) {
+            return null;
+        }
+
+        Box value = puzzle.checkedGetBox(next);
+
+        if ((value == null) || skipBox(value, skipCompleted)) {
+            next = findNextDelta(next, skipCompleted, drow, dcol);
+        }
+
+        return next;
+    }
+
+    /**
+     * Move in direction, or not if no position found
+     */
+    public Word moveDelta(boolean skipCompleted, int drow, int dcol) {
+        Word w = getCurrentWord();
+        Position oldPos = getHighlightLetter();
+        Position newPos = findNextDelta(oldPos, skipCompleted, drow, dcol);
+        if (newPos != null)
+            setHighlightLetter(newPos);
+        return w;
+    }
+
+    /**
+     * Move to the next position in the current word zone
+     *
+     * Returns new position, or null if run out
+     */
+    public Position findNextZone(Position original, boolean skipCompleted) {
+        return findZoneDelta(original, skipCompleted, 1);
+    }
+
+    /**
+     * Move to the next position in zone
+     *
+     * Does not move if a new position can't be found
+     */
+    public Word moveZoneForward(boolean skipCompleted) {
+        return moveZone(skipCompleted, 1);
+    }
+
+    /**
+     * Move to the previous position in the current word zone
+     *
+     * Returns new position, or null if run out
+     */
+    public Position findPrevZone(Position original, boolean skipCompleted) {
+        return findZoneDelta(original, skipCompleted, -1);
+    }
+
+    /**
+     * Move to the prev position in zone
+     *
+     * Does not move if a new position can't be found
+     */
+    public Word moveZoneBack(boolean skipCompleted) {
+        return moveZone(skipCompleted, -1);
+    }
+
+    /**
+     * Find next position in the current word zone by delta steps
+     *
+     * Returns new position, or null if none found
+     */
+    public Position findZoneDelta(
+        Position original, boolean skipCompleted, int delta
+    ) {
+        Word word = getCurrentWord();
+        Zone zone = word.getZone();
+
+        if (zone == null)
+            return null;
+
+        int nextIdx = zone.indexOf(original) + delta;
+        if (nextIdx < 0 || nextIdx >= zone.size()) {
+            return null;
+        } else {
+            Position next = zone.getPosition(nextIdx);
+            Box box = puzzle.checkedGetBox(next);
+            if ((box == null) || skipBox(box, skipCompleted)) {
+                next = findZoneDelta(next, skipCompleted, delta);
+            }
+            return next;
+        }
+    }
+
+    /**
+     * Moves by delta along the zone
+     *
+     * Does not move if no new position found
+     */
+    public Word moveZone(boolean skipCompleted, int delta) {
         Word w = this.getCurrentWord();
-        Position newPos = this.moveUp(this.getHighlightLetter(), skipCompleted);
-        this.setHighlightLetter(newPos);
+        Position oldPos = getHighlightLetter();
+        Position newPos = findZoneDelta(oldPos, skipCompleted, delta);
+        if (newPos != null)
+            setHighlightLetter(newPos);
         return w;
     }
 
@@ -800,23 +725,12 @@ public class Playboard implements Serializable {
      */
     public Word nextWord() {
         Word previous = this.getCurrentWord();
+        Position curPos = this.getHighlightLetter();
+        Position newPos = getClueEnd(getClue());
 
-        Position p = this.getHighlightLetter();
-
-        int newCol = p.getCol();
-        int newRow = p.getRow();
-
-        if (previous.across) {
-            newCol = (previous.start.getCol() + previous.length) - 1;
-        } else {
-            newRow = (previous.start.getRow() + previous.length) - 1;
-        }
-
-        Position newPos = new Position(newRow, newCol);
-
-        if (!newPos.equals(p)) {
+        if (!Objects.equals(newPos, curPos)) {
             pushNotificationDisabled();
-            this.setHighlightLetter(newPos);
+            setHighlightLetter(newPos);
             popNotificationDisabled();
         }
 
@@ -826,7 +740,7 @@ public class Playboard implements Serializable {
     }
 
     public Word playLetter(char letter) {
-        Box b = puzzle.checkedGetBox(highlightLetter);
+        Box b = puzzle.checkedGetBox(getHighlightLetter());
 
         if (b == null) {
             return null;
@@ -849,80 +763,68 @@ public class Playboard implements Serializable {
     }
 
     public void playScratchLetter(char letter) {
-        Box b = puzzle.checkedGetBox(highlightLetter);
-
-        if (b == null) {
+        Box box = puzzle.checkedGetBox(getHighlightLetter());
+        if (box == null)
             return;
-        }
 
         pushNotificationDisabled();
 
-        Note note = this.getNote();
-        String response = this.getCurrentWordResponse();
+        Clue clue = getClue();
+        Note note = getNote();
+        String response = getCurrentWordResponse();
 
         // Create a note for this clue if we don't already have one
         if (note == null) {
             note = new Note(response.length());
-            Clue c = this.getClue();
-            this.puzzle.setNote(c.getNumber(), note, this.across);
+            this.puzzle.setNote(clue, note);
         }
 
         // Update the scratch text
-        int pos = this.across ? b.getAcrossPosition() : b.getDownPosition();
+        int pos = box.getCluePosition(clue);
         if (pos >= 0 && pos < response.length())
             note.setScratchLetter(pos, letter);
 
-        this.nextLetter();
+        nextLetter();
         popNotificationDisabled();
 
         notifyChange();
     }
 
     public Word previousLetter() {
-        return this.movementStrategy.back(this);
+        return movementStrategy.back(this);
     }
 
     /**
      * Moves to start of previous word regardless of movement strategy
      */
     public Word previousWord() {
-        Word previous = this.getCurrentWord();
+        Word previous = getCurrentWord();
 
-        Position p = this.getHighlightLetter();
+        Position curPos = getHighlightLetter();
+        Position newPos = getClueStart(getClue());
 
         pushNotificationDisabled();
 
-        if (previous.across && p.getCol() != previous.start.getCol()) {
-            this.setHighlightLetter(
-                new Position(p.getRow(), previous.start.getCol())
-            );
-        } else if (!previous.across && p.getRow() != previous.start.getRow()) {
-            this.setHighlightLetter(
-                new Position(previous.start.getRow(), p.getCol())
-            );
-        }
+        if (!Objects.equals(curPos, newPos))
+            this.setHighlightLetter(newPos);
 
         MovementStrategy.MOVE_NEXT_CLUE.back(this);
 
         popNotificationDisabled();
 
-        Word current = this.getCurrentWord();
-        this.setHighlightLetter(new Position(
-            current.start.getRow(), current.start.getCol()
-        ));
+        setHighlightLetter(getClueStart(getClue()));
 
         return previous;
     }
 
     public Position revealLetter() {
+        Position highlightLetter = getHighlightLetter();
         Box b = puzzle.checkedGetBox(highlightLetter);
 
         if ((b != null) && (b.getSolution() != b.getResponse())) {
             b.setCheated(true);
             b.setResponse(b.getSolution());
-
             notifyChange();
-
             return highlightLetter;
         }
 
@@ -983,44 +885,81 @@ public class Playboard implements Serializable {
 
     public List<Position> revealWord() {
         ArrayList<Position> changes = new ArrayList<Position>();
-        Position oldHighlight = this.highlightLetter;
-        Word w = this.getCurrentWord();
+        Position curPos = getHighlightLetter();
+        Clue clue = getClue();
+        Position startPos = getClueStart(clue);
+        Zone zone = getZone(clue);
 
         pushNotificationDisabled();
 
-        if (!oldHighlight.equals(w.start))
-            this.setHighlightLetter(w.start);
+        if (!Objects.equals(curPos, startPos))
+            setHighlightLetter(startPos);
 
-        for (int i = 0; i < w.length; i++) {
+        for (int i = 0; i < zone.size(); i++) {
             Position p = revealLetter();
-
-            if (p != null) {
+            if (p != null)
                 changes.add(p);
-            }
-
             nextLetter(false);
         }
 
         popNotificationDisabled();
 
-        this.setHighlightLetter(oldHighlight);
+        setHighlightLetter(curPos);
 
         return changes;
     }
 
-    public boolean skipCurrentBox(Box b, boolean skipCompleted) {
+    public boolean skipPosition(Position p, boolean skipCompleted) {
+        Box box = puzzle.checkedGetBox(p);
+        return (box == null) ? false : skipBox(box, skipCompleted);
+    }
+
+    public boolean skipBox(Box b, boolean skipCompleted) {
         return skipCompleted && !b.isBlank() &&
         (!this.isShowErrors() || (b.getResponse() == b.getSolution()));
     }
 
-    public Word toggleDirection() {
+    public Word toggleSelection() {
+        // TODO: this feels a bit inefficient -- to create and sort a
+        // list every time, but also it's not expected to be a list of
+        // more than 2 in most situations.
         Word w = this.getCurrentWord();
-        Box box = puzzle.checkedGetBox(getHighlightLetter());
 
-        if ((across && box.isPartOfDown()) ||
-            (!across && box.isPartOfAcross())) {
-            this.setAcross(!this.isAcross());
+        Box box = puzzle.checkedGetBox(getHighlightLetter());
+        if (box == null)
+            return w;
+
+        List<ClueID> boxClues = new ArrayList<>(box.getIsPartOfClues());
+
+        boolean changed = false;
+
+        if (boxClues.isEmpty()) {
+            changed = w.getClueID() != null;
+            puzzle.setCurrentClueID(null);
+        } else {
+            Collections.sort(boxClues);
+
+            int curPos = boxClues.indexOf(getClue());
+
+            // if in current clue, toggle, else try to stay in same list
+            if (curPos >= 0) {
+                int nextPos = (curPos + 1) % boxClues.size();
+                puzzle.setCurrentClueID(boxClues.get(nextPos));
+                changed = (nextPos != curPos);
+            } else {
+                Clue clue = getClue();
+                ClueID newClue = null;
+                if (clue != null)
+                    newClue = box.getIsPartOfClue(clue.getListName());
+                if (newClue == null)
+                    newClue = boxClues.get(0);
+                puzzle.setCurrentClueID(newClue);
+                changed = true;
+            }
         }
+
+        if (changed)
+            notifyChange();
 
         return w;
     }
@@ -1058,82 +997,140 @@ public class Playboard implements Serializable {
             notificationDisabledDepth -= 1;
     }
 
+    private void updateHistory() {
+        Clue c = getClue();
+        if (c == null)
+            return;
+        puzzle.updateHistory(c);
+    }
+
+    /**
+     * Find the first clue with a non-empty zone in board order, or all
+     * back to first clue with zone found
+     *
+     * Requires sortedClueListNames
+     */
+    private void selectFirstPosition() {
+        for (ClueID cid : puzzle.getBoardClueIDs()) {
+            Clue clue = puzzle.getClue(cid);
+            if (clue.hasZone()) {
+                puzzle.setPosition(clue.getZone().getPosition(0));
+                puzzle.setCurrentClueID(cid);
+                return;
+            }
+        }
+        // try all clues
+        for (ClueID cid : puzzle.getAllClues()) {
+            Clue clue = puzzle.getClue(cid);
+            if (clue.hasZone()) {
+                puzzle.setPosition(clue.getZone().getPosition(0));
+                puzzle.setCurrentClueID(cid);
+                return;
+            }
+        }
+        throw new IllegalArgumentException(
+            "Cannot handle puzzles with no clues on board."
+        );
+    }
+
+    /**
+     * Returns the zone of the clue, or null
+     */
+    private Zone getZone(ClueID clueID) {
+        Clue clue = puzzle.getClue(clueID);
+        return (clue == null) ? null : clue.getZone();
+    }
+
+    /**
+     * Get start of clue position
+     *
+     * @return null if no such clue or not on board
+     */
+    private Position getClueStart(ClueID clueID) {
+        Clue clue = puzzle.getClue(clueID);
+        Zone zone = clue == null ? null : clue.getZone();
+
+        if (zone == null || zone.isEmpty())
+            return null;
+        else
+            return zone.getPosition(0);
+    }
+
+    /**
+     * Get end of clue position
+     *
+     * @return null if no such clue or not on board
+     */
+    private Position getClueEnd(ClueID clueID) {
+        Clue clue = puzzle.getClue(clueID);
+        Zone zone = clue == null ? null : clue.getZone();
+
+        if (zone == null || zone.isEmpty())
+            return null;
+        else
+            return zone.getPosition(zone.size() - 1);
+    }
+
     /**
      * A word on the grid
      *
-     * Cells that are no part of a clue will be treated as "words" with
-     * clue number -1 and length 1.
+     * A Zone and possibly the clue it goes with (null if no clue).
      */
     public static class Word implements Serializable {
-        public Position start;
-        public boolean across;
-        public int number;
-        public int length;
+        private final Zone zone;
+        private final ClueID clueID;
+
+        public Word(Zone zone, ClueID clueID) {
+            this.zone = zone;
+            this.clueID = clueID;
+        }
+
+        public Word(Zone zone) {
+            this.zone = zone;
+            this.clueID = null;
+        }
+
+        public Zone getZone() { return zone; }
+        public ClueID getClueID() { return clueID; }
+
+        public boolean checkInWord(Position pos) {
+            return zone.hasPosition(pos);
+        }
 
         public boolean checkInWord(int row, int col) {
-            int ranging = this.across ? col : row;
-            boolean offRanging = this.across
-                ? (row == start.getRow())
-                : (col == start.getCol());
+            return zone.hasPosition(new Position(row, col));
+        }
 
-            int startPos = this.across ? start.getCol() : start.getRow();
-
-            return (
-                offRanging
-                && (startPos <= ranging)
-                && ((startPos + length) > ranging)
-            );
+        /**
+         * Length of word
+         *
+         * @return len or -1 if no zone
+         */
+        public int getLength() {
+            return (zone == null) ? -1 : zone.size();
         }
 
         @Override
         public boolean equals(Object o) {
-            if (o == null) {
-                return false;
-            }
+            if (this == o)
+                return true;
 
-            if (o.getClass() != Word.class) {
+            if (o == null)
                 return false;
-            }
+
+            if (!(o instanceof Word))
+                return false;
 
             Word check = (Word) o;
 
-            return check.start.equals(this.start) && (check.across == this.across) && (check.length == this.length);
+            return Objects.equals(zone, check.zone)
+                && Objects.equals(clueID, check.clueID);
         }
 
         @Override
         public int hashCode() {
-            int hash = 5;
-            hash = (29 * hash) + ((this.start != null) ? this.start.hashCode() : 0);
-            hash = (29 * hash) + (this.across ? 1 : 0);
-            hash = (29 * hash) + this.length;
-
-            return hash;
+            return Objects.hash(zone, clueID);
         }
-    }
-
-    private void updateHistory() {
-        if (puzzle == null)
-            return;
-
-        Clue c = getClue();
-        if (c == null)
-            return;
-
-        if (c.isAcross())
-            puzzle.updateHistory(c.getNumber(), true);
-        else if (c.isDown())
-            puzzle.updateHistory(c.getNumber(), false);
-    }
-
-    private void ensureClueSelected() {
-        if (getCurrentBox() == null)
-            this.moveRight(false);
-
-        Box current = getCurrentBox();
-        if (isAcross() && !current.isPartOfAcross())
-            setAcross(false);
-        else if (!isAcross() && !current.isPartOfDown())
-            setAcross(true);
     }
 
     /**

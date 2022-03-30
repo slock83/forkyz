@@ -1,8 +1,10 @@
 package app.crossword.yourealwaysbe;
 
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Logger;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
@@ -12,10 +14,12 @@ import android.view.MenuItem;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.view.ClueTabs;
 import app.crossword.yourealwaysbe.view.ForkyzKeyboard;
@@ -96,24 +100,15 @@ public class ClueListActivity extends PuzzleActivity
                     return;
 
                 Word current = board.getCurrentWord();
-                boolean across = board.isAcross();
+                Zone zone = (current == null) ? null : current.getZone();
+                if (zone == null)
+                    return;
 
-                int newRow = current.start.getRow();
-                int newCol = current.start.getCol();
                 int box = renderer.findBox(e).getCol();
+                Position newPos = zone.getPosition(box);
 
-                if (box < current.length) {
-                    if (across) {
-                        newCol += box;
-                    } else {
-                        newRow += box;
-                    }
-                }
-
-                Position newPos = new Position(newRow, newCol);
-
-                if (!newPos.equals(board.getHighlightLetter())) {
-                    board.setHighlightLetter(newPos);
+                if (!Objects.equals(newPos, getBoard().getHighlightLetter())) {
+                    getBoard().setHighlightLetter(newPos);
                 }
 
                 displayKeyboard();
@@ -184,12 +179,9 @@ public class ClueListActivity extends PuzzleActivity
         if (board == null)
             return;
 
-        if (!clue.hasNumber())
-            return;
-
-        if (clue.isAcross() || clue.isDown()) {
+        if (board.isJumpableClue(clue)) {
             Word old = board.getCurrentWord();
-            board.jumpToClue(clue.getNumber(), clue.isAcross());
+            board.jumpToClue(clue);
             displayKeyboard(old);
         }
     }
@@ -201,10 +193,7 @@ public class ClueListActivity extends PuzzleActivity
             return;
 
         if (getPuzzle().isNotableClue(clue)) {
-            if (clue.isAcross() && clue.hasNumber())
-                board.jumpToClue(clue.getNumber(), true);
-            else if (clue.isDown() && clue.hasNumber())
-                board.jumpToClue(clue.getNumber(), false);
+            board.jumpToClue(clue);
             launchClueNotes();
         } else {
             launchPuzzleNotes();
@@ -237,13 +226,20 @@ public class ClueListActivity extends PuzzleActivity
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         Playboard board = getBoard();
         Puzzle puz = board.getPuzzle();
-        int curClueNumber = board.getClueNumber();
         Word w = board.getCurrentWord();
-        boolean across = w.across;
-        Position last = new Position(
-            w.start.getRow() + ((!across) ? (w.length - 1) : 0),
-            w.start.getCol() + (across ? (w.length - 1) : 0)
-        );
+
+        Zone zone = (w == null) ? null : w.getZone();
+        Position first = null;
+        Position last = null;
+
+        if (zone != null && !zone.isEmpty()) {
+            first = zone.getPosition(0);
+            last = zone.getPosition(zone.size() - 1);
+        }
+
+        Clue clue = board.getClue();
+        String curList = clue.getListName();
+        String curClueNumber = clue.getClueNumber();
 
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
@@ -253,12 +249,8 @@ public class ClueListActivity extends PuzzleActivity
             return true;
 
         case KeyEvent.KEYCODE_DPAD_LEFT:
-            if (!board.getHighlightLetter().equals(
-                    board.getCurrentWord().start)) {
-                if (across)
-                    board.moveLeft();
-                else
-                    board.moveUp();
+            if (!board.getHighlightLetter().equals(first)) {
+                board.moveZoneBack(false);
             } else {
                 clueTabs.prevPage();
                 selectFirstClue();
@@ -267,10 +259,7 @@ public class ClueListActivity extends PuzzleActivity
 
         case KeyEvent.KEYCODE_DPAD_RIGHT:
             if (!board.getHighlightLetter().equals(last)) {
-                if (across)
-                    board.moveRight();
-                else
-                    board.moveDown();
+                board.moveZoneForward(false);
             } else {
                 clueTabs.nextPage();
                 selectFirstClue();
@@ -278,20 +267,20 @@ public class ClueListActivity extends PuzzleActivity
             return true;
 
         case KeyEvent.KEYCODE_DPAD_UP:
-            int prev
-                = puz.getClues(across)
+            String prev
+                = puz.getClues(curList)
                     .getPreviousClueNumber(curClueNumber, true);
             clueTabs.setForceSnap(true);
-            board.jumpToClue(prev, across);
+            board.jumpToClue(new ClueID(prev, curList));
             clueTabs.setForceSnap(false);
             break;
 
         case KeyEvent.KEYCODE_DPAD_DOWN:
-            int next
-                = puz.getClues(across)
+            String next
+                = puz.getClues(curList)
                     .getNextClueNumber(curClueNumber, true);
             clueTabs.setForceSnap(true);
-            board.jumpToClue(next, across);
+            board.jumpToClue(new ClueID(next, curList));
             clueTabs.setForceSnap(false);
             break;
 
@@ -301,8 +290,8 @@ public class ClueListActivity extends PuzzleActivity
 
             Position p = board.getHighlightLetter();
 
-            if (!w.checkInWord(p.getRow(), p.getCol())) {
-                board.setHighlightLetter(w.start);
+            if (!w.checkInWord(p)) {
+                board.setHighlightLetter(first);
             }
 
             return true;
@@ -389,7 +378,12 @@ public class ClueListActivity extends PuzzleActivity
     private void render() {
         scaleRendererToCurWord();
         boolean displayScratch = prefs.getBoolean("displayScratch", false);
-        this.imageView.setBitmap(renderer.drawWord(displayScratch, displayScratch));
+        Set<String> suppressNotesLists
+            = displayScratch
+            ? Collections.emptySet()
+            : null;
+
+        this.imageView.setBitmap(renderer.drawWord(suppressNotesLists));
         this.imageView.setContentDescription(
             renderer.getContentDescription(this.imageViewDescriptionBase)
         );
@@ -401,37 +395,22 @@ public class ClueListActivity extends PuzzleActivity
      */
     private void scaleRendererToCurWord() {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int curWordLen = getBoard().getCurrentWord().length;
+        int curWordLen = getBoard().getCurrentWord().getLength();
+        if (curWordLen <= 0)
+            return;
         double scale = this.renderer.fitTo(metrics.widthPixels, curWordLen);
         if (scale > 1)
             this.renderer.setScale((float) 1);
     }
 
-    private void launchClueNotes() {
-        Intent i = new Intent(this, NotesActivity.class);
-        i.putExtra(NotesActivity.PUZZLE_NOTES, false);
-        ClueListActivity.this.startActivity(i);
-    }
-
-    private void launchPuzzleNotes() {
-        Intent i = new Intent(this, NotesActivity.class);
-        i.putExtra(NotesActivity.PUZZLE_NOTES, true);
-        ClueListActivity.this.startActivity(i);
-    }
-
     private void selectFirstClue() {
-        Playboard board = getBoard();
-        Puzzle puz = board.getPuzzle();
-        int firstClue;
-
         switch (clueTabs.getCurrentPageType()) {
-        case ACROSS:
-            firstClue = puz.getClues(true).getFirstClueNumber();
-            getBoard().jumpToClue(firstClue, true);
-            break;
-        case DOWN:
-            firstClue = puz.getClues(false).getFirstClueNumber();
-            getBoard().jumpToClue(firstClue, false);
+        case CLUES:
+            Playboard board = getBoard();
+            Puzzle puz = board.getPuzzle();
+            String listName = clueTabs.getCurrentPageListName();
+            String firstClue = puz.getClues(listName).getFirstClueNumber();
+            board.jumpToClue(new ClueID(firstClue, listName));
             break;
         case HISTORY:
             // nothing to do

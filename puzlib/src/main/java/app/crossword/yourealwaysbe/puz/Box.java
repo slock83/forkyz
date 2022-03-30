@@ -1,24 +1,24 @@
 package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public class Box implements Serializable {
     public static final char BLANK = ' ';
-    private static final int NOCLUE = -1;
     private static final int NOCOLOR = -1;
 
     private String responder;
-    private boolean across;
     private boolean cheated;
-    private boolean down;
     private boolean circled;
     private char response = BLANK;
     private char solution;
-    private int clueNumber;
-    private int partOfAcrossClueNumber = NOCLUE;
-    private int partOfDownClueNumber = NOCLUE;
-    private int acrossPosition;
-    private int downPosition;
+    private String clueNumber;
+    // for each clue this box is a part of, the index of the cell it is
+    // the clue word
+    private Map<ClueID, Integer> cluePositions = new HashMap<>();
 
     private boolean barTop = false;
     private boolean barBottom = false;
@@ -44,24 +44,20 @@ public class Box implements Serializable {
 
         Box other = (Box) obj;
 
-        if (isAcross() != other.isAcross()) {
-	return false;
+        if (!cluePositions.equals(other.cluePositions)) {
+            return false;
         }
 
         if (isCheated() != other.isCheated()) {
-	return false;
+            return false;
         }
 
-        if (getClueNumber() != other.getClueNumber()) {
-	return false;
-        }
-
-        if (isDown() != other.isDown()) {
-	return false;
+        if (!Objects.equals(getClueNumber(), other.getClueNumber())) {
+            return false;
         }
 
         if (isCircled() != other.isCircled()) {
-	return false;
+            return false;
         }
 
         if (getResponder() == null) {
@@ -73,18 +69,10 @@ public class Box implements Serializable {
         }
 
         if (getResponse() != other.getResponse()) {
-	return false;
+            return false;
         }
 
         if (getSolution() != other.getSolution()) {
-            return false;
-        }
-
-        if (getPartOfAcrossClueNumber() != other.getPartOfAcrossClueNumber()) {
-            return false;
-        }
-
-        if (getPartOfDownClueNumber() != other.getPartOfDownClueNumber()) {
             return false;
         }
 
@@ -110,10 +98,9 @@ public class Box implements Serializable {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = (prime * result) + (isAcross() ? 1231 : 1237);
+        result = (prime * result) + cluePositions.hashCode();
         result = (prime * result) + (isCheated() ? 1231 : 1237);
-        result = (prime * result) + getClueNumber();
-        result = (prime * result) + (isDown() ? 1231 : 1237);
+        result = (prime * result) + Objects.hash(getClueNumber());
         result = (prime * result) + (isCircled() ? 1231 : 1237);
         result = (prime * result) + (isBarredTop() ? 1231 : 1237);
         result = (prime * result) + (isBarredBottom() ? 1231 : 1237);
@@ -123,8 +110,6 @@ public class Box implements Serializable {
             ((getResponder() == null) ? 0 : getResponder().hashCode());
         result = (prime * result) + getResponse();
         result = (prime * result) + getSolution();
-        result = (prime * result) + getPartOfAcrossClueNumber();
-        result = (prime * result) + getPartOfDownClueNumber();
         result = (prime * result) + getColor();
 
         return result;
@@ -132,7 +117,11 @@ public class Box implements Serializable {
 
     @Override
     public String toString() {
-        return this.getClueNumber() + this.getSolution() + " ";
+        String number = getClueNumber();
+        if (number != null)
+            return number + getSolution() + " ";
+        else
+            return getSolution() + " ";
     }
 
     /**
@@ -143,17 +132,24 @@ public class Box implements Serializable {
     }
 
     /**
-     * @return the across
+     * @return if start of clue in list name with box number
      */
-    public boolean isAcross() {
-        return across;
+    public boolean isStartOf(String listName) {
+        if (clueNumber == null)
+            return false;
+
+        ClueID cid = new ClueID(clueNumber, listName);
+        Integer position = cluePositions.get(cid);
+
+        return position != null && position == 0;
     }
 
     /**
-     * @param across the across to set
+     * @return if start of clue in list name with box number
      */
-    public void setAcross(boolean across) {
-        this.across = across;
+    public boolean isStartOf(ClueID clueID) {
+        Integer position = cluePositions.get(clueID);
+        return position != null && position == 0;
     }
 
     /**
@@ -168,20 +164,6 @@ public class Box implements Serializable {
      */
     public void setCheated(boolean cheated) {
         this.cheated = cheated;
-    }
-
-    /**
-     * @return the down
-     */
-    public boolean isDown() {
-        return down;
-    }
-
-    /**
-     * @param down the down to set
-     */
-    public void setDown(boolean down) {
-        this.down = down;
     }
 
     /**
@@ -234,16 +216,23 @@ public class Box implements Serializable {
     }
 
     /**
-     * @return the clueNumber, or 0 for no clue
+     * True if there is a clue number in the box
      */
-    public int getClueNumber() {
+    public boolean hasClueNumber() {
+        return getClueNumber() != null;
+    }
+
+    /**
+     * @return the clueNumber, or null for no clue
+     */
+    public String getClueNumber() {
         return clueNumber;
     }
 
     /**
      * @param clueNumber the clueNumber to set
      */
-    public void setClueNumber(int clueNumber) {
+    public void setClueNumber(String clueNumber) {
         this.clueNumber = clueNumber;
     }
 
@@ -262,79 +251,55 @@ public class Box implements Serializable {
     public void setBlank() { setResponse(BLANK); }
 
     /**
-     * @param clueNumber across clue that box is a part of
+     * @returns true if box is part of the clue
      */
-    public void setPartOfAcrossClueNumber(int clueNumber) {
-        this.partOfAcrossClueNumber = clueNumber;
+    public boolean isPartOf(ClueID clueId) {
+        return cluePositions.containsKey(clueId);
     }
 
     /**
-     * @returns across clue that box is a part of (if isPartOfAcross()
-     * returns true)
+     * The clue ids that have this box in their zones
      */
-    public int getPartOfAcrossClueNumber() {
-        return partOfAcrossClueNumber;
+    public Set<ClueID> getIsPartOfClues() {
+        return cluePositions.keySet();
     }
 
     /**
-     * @returns true if box is part of across clue
+     * Get a clue that this box is part of from the specified list
+     *
+     * If there are more than one clues from the same list, either will
+     * be returned.
+     *
+     * Null returned if no clue
      */
-    public boolean isPartOfAcross() {
-        return partOfAcrossClueNumber != NOCLUE;
+    public ClueID getIsPartOfClue(String listName) {
+        if (listName == null)
+            return null;
+
+        for (ClueID cid : getIsPartOfClues()) {
+            if (listName.equals(cid.getListName()))
+                return cid;
+        }
+
+        return null;
     }
 
     /**
-     * @param clueNumber down clue that box is a part of
+     * @param position if part of a clue, the position in the
+     * word
      */
-    public void setPartOfDownClueNumber(int clueNumber) {
-        this.partOfDownClueNumber = clueNumber;
+    public void setCluePosition(ClueID clueId, int position) {
+        cluePositions.put(clueId, position);
     }
 
     /**
-     * @returns down clue that box is a part of (if isPartOfDown()
-     * returns true)
+     * Get position of box in clue
+     *
+     * @return postion or -1 if not in clue
      */
-    public int getPartOfDownClueNumber() {
-        return partOfDownClueNumber;
-    }
-
-    /**
-     * @returns true if box is part of down clue
-     */
-    public boolean isPartOfDown() {
-        return partOfDownClueNumber != NOCLUE;
-    }
-
-    /**
-     * @param position if part of an across clue, the position in the
-     * across word
-     */
-    public void setAcrossPosition(int position) {
-        this.acrossPosition = position;
-    }
-
-    /**
-     * @return position in the across word if isPartOfAcross returns
-     * true
-     */
-    public int getAcrossPosition() {
-        return acrossPosition;
-    }
-
-    /**
-     * @param position if part of a down clue, the position in the
-     * down word
-     */
-    public void setDownPosition(int position) {
-        this.downPosition = position;
-    }
-
-    /**
-     * @return position in the down word if isPartOfDown returns
-     * true
-     */
-    public int getDownPosition() {
-        return downPosition;
+    public int getCluePosition(ClueID clueId) {
+        Integer pos = cluePositions.get(clueId);
+        return (pos == null) ? -1 : pos;
     }
 
     public boolean isBarredTop() { return barTop; }

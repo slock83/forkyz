@@ -8,7 +8,7 @@ buildscript {
         gradlePluginPortal()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:4.2.0'
+        classpath 'com.android.tools.build:gradle:7.1.2'
     }
 }
 
@@ -19,6 +19,8 @@ allprojects {
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
             options.compilerArgs << "-Xlint:fallthrough"
+            options.compilerArgs << "-Xmaxerrs" << "5"
+            options.compilerArgs << "-Xmaxwarns" << "5"
         }
     }
 }

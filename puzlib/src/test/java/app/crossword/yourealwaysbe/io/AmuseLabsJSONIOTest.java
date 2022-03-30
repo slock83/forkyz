@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -31,10 +32,10 @@ public class AmuseLabsJSONIOTest extends TestCase {
 
         Box[][] boxes = puz.getBoxes();
 
-        assertEquals(boxes[0][0].getClueNumber(), 1);
-        assertEquals(boxes[0][1].getClueNumber(), 2);
+        assertEquals(boxes[0][0].getClueNumber(), "1");
+        assertEquals(boxes[0][1].getClueNumber(), "2");
         assertEquals(boxes[0][4], null);
-        assertEquals(boxes[5][5].getClueNumber(), 28);
+        assertEquals(boxes[5][5].getClueNumber(), "28");
         assertEquals(boxes[5][7], null);
 
         assertEquals(boxes[0][0].getSolution(), 'A');
@@ -45,13 +46,13 @@ public class AmuseLabsJSONIOTest extends TestCase {
         assertFalse(boxes[3][7].isCircled());
         assertFalse(boxes[5][9].isCircled());
 
-        ClueList acrossClues = puz.getClues(true);
-        ClueList downClues = puz.getClues(false);
+        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
+        ClueList downClues = puz.getClues(ClueID.DOWN);
 
-        assertEquals(acrossClues.getClue(1).getHint(), "Clue 1a");
-        assertEquals(acrossClues.getClue(21).getHint(), "Clue 21a");
-        assertEquals(downClues.getClue(1).getHint(), "Clue 1d");
-        assertEquals(downClues.getClue(2).getHint(), "Clue 2d");
+        assertEquals(acrossClues.getClue("1").getHint(), "Clue 1a");
+        assertEquals(acrossClues.getClue("21").getHint(), "Clue 21a");
+        assertEquals(downClues.getClue("1").getHint(), "Clue 1d");
+        assertEquals(downClues.getClue("2").getHint(), "Clue 2d");
     }
 
     public void testPuzzle1() throws Exception {

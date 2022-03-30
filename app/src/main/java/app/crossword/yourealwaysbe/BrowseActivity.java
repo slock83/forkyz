@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -674,6 +675,7 @@ public class BrowseActivity extends ForkyzActivity {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void clearSelection() {
         selected.clear();
         currentAdapter.notifyDataSetChanged();

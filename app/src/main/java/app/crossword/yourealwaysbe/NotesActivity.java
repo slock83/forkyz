@@ -1,6 +1,9 @@
 package app.crossword.yourealwaysbe;
 
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import android.app.AlertDialog;
@@ -28,6 +31,7 @@ import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.view.BoardEditText.BoardEditFilter;
 import app.crossword.yourealwaysbe.view.BoardEditText;
@@ -97,7 +101,7 @@ public class NotesActivity extends PuzzleActivity {
         utils.finishOnHomeButton(this);
 
         Playboard board = getBoard();
-        Puzzle puz = board.getPuzzle();
+        Puzzle puz = (board == null) ? null : board.getPuzzle();
 
         if (board == null || puz == null) {
             LOG.info("NotesActivity resumed but no Puzzle selected, finishing.");
@@ -148,21 +152,14 @@ public class NotesActivity extends PuzzleActivity {
                 NotesActivity.this.keyboardManager.showKeyboard(imageView);
 
                 Word current = getBoard().getCurrentWord();
-                int newRow = current.start.getRow();
-                int newCol = current.start.getCol();
+                Zone zone = (current == null) ? null : current.getZone();
+                if (zone == null)
+                    return;
+
                 int box = renderer.findBox(e).getCol();
+                Position newPos = zone.getPosition(box);
 
-                if (box < current.length) {
-                    if (getBoard().isAcross()) {
-                        newCol += box;
-                    } else {
-                        newRow += box;
-                    }
-                }
-
-                Position newPos = new Position(newRow, newCol);
-
-                if (!newPos.equals(getBoard().getHighlightLetter())) {
+                if (!Objects.equals(newPos, getBoard().getHighlightLetter())) {
                     getBoard().setHighlightLetter(newPos);
                 }
             }
@@ -286,7 +283,6 @@ public class NotesActivity extends PuzzleActivity {
 
     public void onPause() {
         Puzzle puz = getPuzzle();
-        Clue clue = getBoard().getClue();
 
         EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
         String text = notesBox.getText().toString();
@@ -300,9 +296,8 @@ public class NotesActivity extends PuzzleActivity {
         if (isPuzzleNotes()) {
             puz.setPlayerNote(note);
         } else {
-            int number = getBoard().getClueNumber();
-            boolean across = getBoard().isAcross();
-            puz.setNote(number, note, across);
+            Clue clue = getBoard().getClue();
+            puz.setNote(clue, note);
             puz.flagClue(clue, flagClue.isChecked());
         }
 
@@ -327,47 +322,36 @@ public class NotesActivity extends PuzzleActivity {
 
     private boolean onMiniboardKeyUp(int keyCode, KeyEvent event) {
         Word w = getBoard().getCurrentWord();
-        boolean across = w.across;
-        Position last = new Position(
-            w.start.getRow() + ((!w.across) ? (w.length - 1) : 0),
-            w.start.getCol() + (w.across ? (w.length - 1) : 0)
-        );
+        Zone zone = (w == null) ? null : w.getZone();
+        Position first = null;
+        Position last = null;
+
+        if (zone != null && !zone.isEmpty()) {
+            first = zone.getPosition(0);
+            last = zone.getPosition(zone.size() - 1);
+        }
 
         switch (keyCode) {
         case KeyEvent.KEYCODE_MENU:
             return false;
 
         case KeyEvent.KEYCODE_DPAD_LEFT:
-
-            if (!getBoard().getHighlightLetter().equals(
-                    getBoard().getCurrentWord().start)) {
-                if (across)
-                    getBoard().moveLeft();
-                else
-                    getBoard().moveUp();
-            }
-
+            getBoard().moveZoneBack(false);
             return true;
 
         case KeyEvent.KEYCODE_DPAD_RIGHT:
-
-            if (!getBoard().getHighlightLetter().equals(last)) {
-                if (across)
-                    getBoard().moveRight();
-                else
-                    getBoard().moveDown();
-            }
-
+            getBoard().moveZoneForward(false);
             return true;
 
         case KeyEvent.KEYCODE_DEL:
             w = getBoard().getCurrentWord();
+
             getBoard().deleteLetter();
 
             Position p = getBoard().getHighlightLetter();
 
-            if (!w.checkInWord(p.getRow(), p.getCol())) {
-                getBoard().setHighlightLetter(w.start);
+            if (!w.checkInWord(p) && first != null) {
+                getBoard().setHighlightLetter(first);
             }
 
             return true;
@@ -444,7 +428,13 @@ public class NotesActivity extends PuzzleActivity {
 
         final int curWordLen = isPuzzleNotes()
             ? Math.max(puz.getWidth(), puz.getHeight())
-            : getBoard().getCurrentWord().length;
+            : getBoard().getCurrentWord().getLength();
+
+        if (curWordLen < 0) {
+            LOG.info("NotesActivity needs a non-empty word");
+            finish();
+            return;
+        }
 
         Note note;
         int clueVisibility;
@@ -454,18 +444,8 @@ public class NotesActivity extends PuzzleActivity {
             note = puz.getPlayerNote();
             clueVisibility = View.GONE;
         } else {
-            if (!clue.isAcross() && !clue.isDown()) {
-                LOG.severe(
-                    "NotesActivity does not support notes on clues "
-                    + "that are not across or down. Finishing."
-                );
-                finish();
-                // finish doesn't finish right away
-                return;
-            }
-
-            clueLine.setText(smartHtml(getLongClueText(clue, curWordLen)));
-            note = puz.getNote(clue.getNumber(), clue.isAcross());
+            clueLine.setText(smartHtml(getLongClueText(clue)));
+            note = puz.getNote(clue);
             flagClue.setChecked(puz.isFlagged(clue));
             clueVisibility = View.VISIBLE;
         }
@@ -576,19 +556,29 @@ public class NotesActivity extends PuzzleActivity {
 
     protected void render() {
         if (!isPuzzleNotes()) {
-            boolean displayScratch
-                = prefs.getBoolean("displayScratch", false);
-            boolean displayScratchAcross
-                = displayScratch && !getBoard().isAcross();
-            boolean displayScratchDown
-                = displayScratch && getBoard().isAcross();
             this.imageView.setBitmap(
-                renderer.drawWord(displayScratchAcross, displayScratchDown)
+                renderer.drawWord(getSuppressNotesList())
             );
             this.imageView.setContentDescription(
                 renderer.getContentDescription(this.imageViewDescriptionBase)
             );
         }
+    }
+
+    private Set<String> getSuppressNotesList() {
+        boolean displayScratch = prefs.getBoolean("displayScratch", false);
+        if (!displayScratch)
+            return null;
+
+        Clue clue = getBoard().getClue();
+        if (clue == null)
+            return Collections.emptySet();
+
+        String list = clue.getListName();
+        if (list == null)
+            return Collections.emptySet();
+        else
+            return Collections.singleton(list);
     }
 
     private void moveScratchToNote() {

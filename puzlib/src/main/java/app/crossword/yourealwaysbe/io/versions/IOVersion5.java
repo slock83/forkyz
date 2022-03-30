@@ -32,8 +32,9 @@ public class IOVersion5 extends IOVersion4 {
         for (int i = 0; i < length; i++) {
             int number = dis.readInt();
             boolean across = dis.readBoolean();
+            String listName = across ? ClueID.ACROSS : ClueID.DOWN;
 
-            ClueID item = new ClueID(number, across);
+            ClueID item = new ClueID(String.valueOf(number), listName);
             meta.historyList.add(item);
         }
 
@@ -49,8 +50,18 @@ public class IOVersion5 extends IOVersion4 {
 
         dos.writeInt(history.size());
         for (ClueID item : puz.getHistory()) {
-            dos.writeInt(item.getClueNumber());
-            dos.writeBoolean(item.getAcross());
+            // relies on puz files only have numeric numbers
+            int number = Integer.valueOf(item.getClueNumber());
+            String listName = item.getListName();
+            if (ClueID.ACROSS.equals(listName)) {
+                dos.writeInt(number);
+                dos.writeBoolean(true);
+            } else if (ClueID.DOWN.equals(listName)) {
+                dos.writeInt(number);
+                dos.writeBoolean(false);
+            } else {
+                // ignore
+            }
         }
     }
 }

@@ -373,7 +373,7 @@
             android:layout_marginStart="20sp"
             app:srcCompat="@drawable/ic_keyboard_hide"
             android:contentDescription="@string/hide_keyboard"
-            android:tint="@color/keyboardHide"
+            app:tint="@color/keyboardHide"
         />
     </LinearLayout>
 

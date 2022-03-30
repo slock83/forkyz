@@ -21,12 +21,15 @@ public class JPZIOTest extends TestCase {
     }
 
     public static void assertIsTestPuzzle1(Puzzle puz) {
+        String ACROSS_CLUES = "Across";
+        String DOWN_CLUES = "Down";
+
         assertEquals("LA Times, Mon, Nov 28, 2011", puz.getTitle());
         assertEquals("Jeff Chen / Ed. Rich Norris", puz.getAuthor());
         assertEquals("(c) 2011 Tribune Media Services, Inc.", puz.getCopyright());
         assertEquals(
             "Test"
-                + "<h1>Down:</h1>"
+                + "<h1>Down</h1>"
                 + "<p>22: Shower Heads v7</p>"
                 + "<p>61: I'm NOT going to ATTEND it / I'm going to SKIP it</p>",
             puz.getNotes()
@@ -36,10 +39,10 @@ public class JPZIOTest extends TestCase {
 
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
-        assertEquals(1, boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isAcross());
-        assertEquals(true, boxes[0][0].isDown());
-        assertEquals(false, boxes[0][3].isAcross());
+        assertEquals("1", boxes[0][0].getClueNumber());
+        assertEquals(true, boxes[0][0].isStartOf(ACROSS_CLUES));
+        assertEquals(true, boxes[0][0].isStartOf(DOWN_CLUES));
+        assertEquals(false, boxes[0][3].isStartOf(ACROSS_CLUES));
 
         assertEquals(boxes[0][0].getSolution(), 'C');
         assertEquals(boxes[5][14].getSolution(), 'Y');
@@ -56,21 +59,24 @@ public class JPZIOTest extends TestCase {
         assertTrue(boxes[7][2].isBarredLeft());
         assertFalse(boxes[7][2].isBarredRight());
 
-        ClueList acrossClues = puz.getClues(true);
-        ClueList downClues = puz.getClues(false);
+        ClueList acrossClues = puz.getClues(ACROSS_CLUES);
+        ClueList downClues = puz.getClues(DOWN_CLUES);
 
-        assertEquals(acrossClues.getClue(1).getHint(), "Baby bovine (4)");
-        assertEquals(acrossClues.getClue(5).getHint(), "At the drop of __ (4)");
+        System.out.println(acrossClues);
+
+        assertEquals(acrossClues.getClue("1").getHint(), "Baby bovine (4)");
+        assertEquals(acrossClues.getClue("5").getHint(), "At the drop of __ (4)");
         assertEquals(
-            acrossClues.getClue(13).getHint(),
+            acrossClues.getClue("13/18").getHint(),
             "Ice cream-and-cookies brand (4)"
         );
-        assertEquals(acrossClues.getClue(23).getHint(), "Stat start");
+        assertEquals(acrossClues.getClue("23").getHint(), "Stat start");
+        assertFalse(acrossClues.getClue("18").hasZone());
         assertEquals(
-            downClues.getClue(6).getHint(),
+            downClues.getClue("6").getHint(),
             "Schmooze, as with the A-list (6)"
         );
-        assertEquals(downClues.getClue(7).getHint(), "Work like __ (4)");
+        assertEquals(downClues.getClue("7").getHint(), "Work like __ (4)");
     }
 
     public void testJPZ() throws Exception {

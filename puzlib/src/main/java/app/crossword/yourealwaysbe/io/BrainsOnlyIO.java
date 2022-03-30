@@ -1,8 +1,8 @@
 package app.crossword.yourealwaysbe.io;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 
 import static app.crossword.yourealwaysbe.util.HtmlUtil.htmlString;
 
@@ -47,17 +47,15 @@ public class BrainsOnlyIO implements PuzzleParser {
     }
 
     public static Puzzle parse(InputStream is) throws IOException {
-        Puzzle puz = new Puzzle();
-
         BufferedReader reader = new BufferedReader(
             new InputStreamReader(is, CHARSET)
         );
         String title = readLineAtOffset(reader, 4);
         int startIndex = title.indexOf(" ") + 1;
-        puz.setTitle(htmlString(
+        String puzTitle = htmlString(
             title.substring(startIndex >= 0 ? startIndex : 0)
-        ));
-        puz.setAuthor(htmlString(readLineAtOffset(reader, 1)));
+        );
+        String author = htmlString(readLineAtOffset(reader, 1));
 
         int width = Integer.parseInt(readLineAtOffset(reader, 1));
         int height = Integer.parseInt(readLineAtOffset(reader, 1));
@@ -87,7 +85,12 @@ public class BrainsOnlyIO implements PuzzleParser {
                 boxes[down][across] = b;
             }
         }
-        puz.setBoxes(boxes, true);
+
+        PuzzleBuilder builder = new PuzzleBuilder(boxes);
+        builder.autoNumberBoxes()
+            .setTitle(puzTitle)
+            .setAuthor(author);
+
         readLineAtOffset(reader, 0);
         ArrayList<String> acrossClues = new ArrayList<String>();
         for(String clue = readLineAtOffset(reader, 0); !"".equals(clue); clue = readLineAtOffset(reader, 0)){
@@ -102,16 +105,16 @@ public class BrainsOnlyIO implements PuzzleParser {
         int acrossIdx = 0;
         for(int h = 0; h < height; h++){
             for(int w = 0; w < width; w++){
+                Box box = builder.getBox(h, w);
                 if (
-                    boxes[h][w] != null
-                        && boxes[h][w].getClueNumber() > 0
-                        && Puzzle.isStartClue(boxes, h, w, true)
+                    box != null
+                    && box.hasClueNumber()
+                    && builder.isStartClue(h, w, true)
                 ){
-                    puz.addClue(new Clue(
-                        boxes[h][w].getClueNumber(),
-                        Clue.ACROSS,
+                    builder.addAcrossClue(
+                        box.getClueNumber(),
                         htmlString(acrossClues.get(acrossIdx))
-                    ));
+                    );
                     acrossIdx += 1;
                 }
             }
@@ -120,23 +123,23 @@ public class BrainsOnlyIO implements PuzzleParser {
         int downIdx = 0;
         for(int h = 0; h < boxes.length; h++){
             for(int w = 0; w < width; w++){
+                Box box = builder.getBox(h, w);
                 if(
-                    boxes[h][w] != null
-                        && boxes[h][w].getClueNumber() > 0
-                        && Puzzle.isStartClue(boxes, h, w, false)
+                    box != null
+                    && box.hasClueNumber()
+                    && builder.isStartClue(h, w, false)
                 ){
-                    puz.addClue(new Clue(
-                        boxes[h][w].getClueNumber(),
-                        Clue.DOWN,
+                    builder.addDownClue(
+                        box.getClueNumber(),
                         htmlString(downClues.get(downIdx))
-                    ));
+                    );
                     downIdx += 1;
                 }
             }
         }
 
-        puz.setNotes("");
-        return puz;
+        builder.setNotes("");
+        return builder.getPuzzle();
     }
 
     private static String readLineAtOffset(BufferedReader reader, int offset) throws IOException {
