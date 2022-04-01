@@ -57,9 +57,11 @@ public class PuzzleImporter {
         if (puz == null)
             return null;
 
-        if (puz.getSource() == null)
+        String source = puz.getSource();
+        if (source == null || source.isEmpty())
             puz.setSource(puz.getAuthor());
-        if (puz.getSource() == null)
+        source = puz.getSource();
+        if (source == null || source.isEmpty())
             puz.setSource(IMPORT_FALLBACK_SOURCE);
 
         try {
