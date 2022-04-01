@@ -72,9 +72,9 @@ public class PuzzleImporter {
 
     public static String getNewFileName(Puzzle puzzle) {
         String name = puzzle.getSource();
-        if (name == null || name.length() == 0)
+        if (name == null || name.isEmpty())
             name = puzzle.getAuthor();
-        if (name == null || name.length() == 0)
+        if (name == null || name.isEmpty())
             name = puzzle.getTitle();
         if (name == null)
             name = IMPORT_FALLBACK_SOURCE;

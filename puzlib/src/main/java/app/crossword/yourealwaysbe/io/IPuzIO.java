@@ -265,12 +265,12 @@ public class IPuzIO implements PuzzleParser {
      * Meta-data stuff, like title, copyright, etc.
      */
     private static void readMetaData(JSONObject puzJson, Puzzle puz) {
-        puz.setTitle(puzJson.optString(FIELD_TITLE));
-        puz.setAuthor(puzJson.optString(FIELD_AUTHOR));
-        puz.setCopyright(puzJson.optString(FIELD_COPYRIGHT));
+        puz.setTitle(optStringNull(puzJson, FIELD_TITLE));
+        puz.setAuthor(optStringNull(puzJson, FIELD_AUTHOR));
+        puz.setCopyright(optStringNull(puzJson, FIELD_COPYRIGHT));
 
-        String intro = puzJson.optString(FIELD_INTRO);
-        String notes = puzJson.optString(FIELD_NOTES);
+        String intro = optStringNull(puzJson, FIELD_INTRO);
+        String notes = optStringNull(puzJson, FIELD_NOTES);
 
         StringBuilder fullNotes = new StringBuilder();
 
@@ -285,8 +285,8 @@ public class IPuzIO implements PuzzleParser {
 
         puz.setNotes(fullNotes.toString());
 
-        puz.setSourceUrl(puzJson.optString(FIELD_URL));
-        puz.setSource(puzJson.optString(FIELD_PUBLISHER));
+        puz.setSourceUrl(optStringNull(puzJson, FIELD_URL));
+        puz.setSource(optStringNull(puzJson, FIELD_PUBLISHER));
 
         LocalDate date = parseDate(puzJson);
         if (date != null)
@@ -301,8 +301,8 @@ public class IPuzIO implements PuzzleParser {
      * @return null if no date
      */
     private static LocalDate parseDate(JSONObject puzJson) {
-        String date = puzJson.optString(FIELD_DATE);
-        if (date == null || date.isEmpty())
+        String date = optStringNull(puzJson, FIELD_DATE);
+        if (date == null)
             return null;
 
         if (getIOVersion(puzJson) == 1)
@@ -329,9 +329,9 @@ public class IPuzIO implements PuzzleParser {
      * Strips any HTML elements from it.
      */
     private static String unHtmlOptString(JSONObject json, String field) {
-        String value = json.optString(field);
+        String value = optStringNull(json, field);
 
-        if (value == null || value.length() == 0)
+        if (value == null)
             return null;
 
         return unHtmlString(value);
@@ -431,8 +431,8 @@ public class IPuzIO implements PuzzleParser {
 
             Box box = getBoxFromObj(cellObj, block, empty);
 
-            String initVal = json.optString(FIELD_VALUE);
-            if (initVal != null && initVal.length() > 0) {
+            String initVal = optStringNull(json, FIELD_VALUE);
+            if (initVal != null) {
                 if (initVal.length() != 1) {
                     throw new IPuzFormatException(
                         "Cannot represent values of more than one character: "
@@ -455,7 +455,7 @@ public class IPuzIO implements PuzzleParser {
                 }
             }
 
-            String barred = style.optString(FIELD_BARRED);
+            String barred = optStringNull(style, FIELD_BARRED);
             if (barred != null) {
                 barred = barred.toUpperCase();
                 for (int i = 0; i < barred.length(); i++) {
@@ -579,8 +579,8 @@ public class IPuzIO implements PuzzleParser {
             return getCrosswordValueFromObj(values.get(0), block, empty);
         } else if (cell instanceof JSONObject) {
             JSONObject json = (JSONObject) cell;
-            String value = json.optString(FIELD_VALUE);
-            if (value == null || value.length() == 0) {
+            String value = optStringNull(json, FIELD_VALUE);
+            if (value == null) {
                 return null;
             } else {
                 if (value.length() != 1) {
@@ -707,7 +707,7 @@ public class IPuzIO implements PuzzleParser {
             }
 
             String enumeration = showEnumerations
-                ? clueJson.optString(FIELD_ENUMERATION)
+                ? optStringNull(clueJson, FIELD_ENUMERATION)
                 : null;
 
             return buildClue(clueNumObj, listName, hint.toString(), enumeration);
@@ -872,8 +872,8 @@ public class IPuzIO implements PuzzleParser {
      */
     private static void readExtensions(JSONObject puzJson, Puzzle puz)
             throws IPuzFormatException {
-        String supportUrl = puzJson.optString(FIELD_EXT_SUPPORT_URL);
-        if (supportUrl != null && !supportUrl.isEmpty())
+        String supportUrl = optStringNull(puzJson, FIELD_EXT_SUPPORT_URL);
+        if (supportUrl != null)
             puz.setSupportUrl(supportUrl);
 
         JSONObject playData = puzJson.optJSONObject(FIELD_EXT_PLAY_DATA);
@@ -1654,6 +1654,13 @@ public class IPuzIO implements PuzzleParser {
         return String.format(
             HEX_COLOR_FORMAT, color & 0x00ffffff
         );
+    }
+
+    private static String optStringNull(JSONObject json, String field) {
+        String value = json.optString(field);
+        if (value == null || value.isEmpty())
+            return null;
+        return value;
     }
 
     /**
