@@ -201,9 +201,11 @@ public class NotesActivity extends PuzzleActivity {
         scratchView = (BoardEditText) this.findViewById(R.id.scratchMiniboard);
         scratchView.setContextMenuListener(new ClickListener() {
             public void onContextMenu(Point e) {
-                executeTransferResponseRequest(
-                    TransferResponseRequest.SCRATCH_TO_BOARD, true
-                );
+                if (!isPuzzleNotes()) {
+                    executeTransferResponseRequest(
+                        TransferResponseRequest.SCRATCH_TO_BOARD, true
+                    );
+                }
             }
 
             public void onTap(Point e) {
@@ -240,9 +242,11 @@ public class NotesActivity extends PuzzleActivity {
 
         anagramSolView.setContextMenuListener(new ClickListener() {
             public void onContextMenu(Point e) {
-                executeTransferResponseRequest(
-                    TransferResponseRequest.ANAGRAM_SOL_TO_BOARD, true
-                );
+                if (!isPuzzleNotes()) {
+                    executeTransferResponseRequest(
+                        TransferResponseRequest.ANAGRAM_SOL_TO_BOARD, true
+                    );
+                }
             }
 
             public void onTap(Point e) {
