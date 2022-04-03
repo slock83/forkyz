@@ -12,6 +12,7 @@
     <string name="elapsed_time">Elapsed Time: %1$s</string>
     <string name="preview">Preview</string>
     <string name="general_clue_notes">Free-form notes about clue</string>
+    <string name="general_puzzle_notes">Free-form notes about puzzle</string>
     <string name="unknown_hint">(No explicit clue)</string>
     <string name="play_activity_title">%1$s - %2$s -> %3$s</string>
 

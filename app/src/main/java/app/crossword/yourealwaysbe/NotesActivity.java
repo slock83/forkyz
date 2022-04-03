@@ -194,6 +194,9 @@ public class NotesActivity extends PuzzleActivity {
                 }
             }
         );
+        if (isPuzzleNotes()) {
+            notesBox.setHint(getString(R.string.general_puzzle_notes));
+        }
 
         scratchView = (BoardEditText) this.findViewById(R.id.scratchMiniboard);
         scratchView.setContextMenuListener(new ClickListener() {
