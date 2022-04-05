@@ -2,10 +2,12 @@
 package app.crossword.yourealwaysbe.util.files;
 
 import java.time.LocalDate;
-import java.util.AbstractList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
+import androidx.room.Delete;
 import androidx.room.Entity;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -20,6 +23,7 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.Transaction;
 import androidx.room.TypeConverter;
 import androidx.room.TypeConverters;
 import androidx.room.migration.Migration;
@@ -92,24 +96,43 @@ public class MetaCache {
 
     @Dao
     @TypeConverters({Converters.class})
-    public static interface CachedMetaDao {
+    public static abstract class CachedMetaDao {
         @Query("SELECT * FROM cachedMeta WHERE directoryUri = :directory")
-        public List<CachedMeta> getDirCache(Uri directory);
+        public abstract List<CachedMeta> getDirCache(Uri directory);
 
         @Query("SELECT * FROM cachedMeta WHERE mainFileUri = :mainFileUri")
-        public CachedMeta getCache(Uri mainFileUri);
+        public abstract CachedMeta getCache(Uri mainFileUri);
+
+        @Query("SELECT mainFileUri FROM cachedMeta WHERE directoryUri = :directory")
+        public abstract List<Uri> getDirFileUris(Uri directory);
 
         @Insert(onConflict = OnConflictStrategy.REPLACE)
-        public void insertAll(CachedMeta... metas);
+        public abstract void insertAll(CachedMeta... metas);
 
-        @Query(
-            "DELETE FROM cachedMeta" +
-            " WHERE directoryUri = :dirUri" +
-            "  AND mainFileUri NOT IN (:mainFileUris)")
-        public void deleteOutside(Uri dirUri, List<Uri> mainFileUris);
+        @Query("DELETE FROM cachedMeta WHERE mainFileUri = :mainFileUri")
+        public abstract void delete(Uri mainFileUri);
 
-        @Query("DELETE FROM cachedMeta WHERE mainFileUri IN (:mainFileUris)")
-        public void delete(Uri... mainFileUris);
+        @Delete
+        public abstract void delete(CachedMeta cm);
+
+        /**
+         * Delete files in dir not in puzMetaFiles
+         */
+        @Transaction
+        public void deleteOutside(
+            Uri directory, Collection<PuzMetaFile> puzMetaFiles
+        ) {
+            Set<Uri> keepUris = new HashSet<>(puzMetaFiles.size());
+            for (PuzMetaFile pm : puzMetaFiles) {
+                keepUris.add(pm.getPuzHandle().getMainFileHandle().getUri());
+            }
+
+            for (CachedMeta cm : getDirCache(directory)) {
+                if (!keepUris.contains(cm.mainFileUri)) {
+                    delete(cm);
+                }
+            }
+        }
     }
 
     @Database(entities = {CachedMeta.class}, version = 2)
@@ -240,18 +263,7 @@ public class MetaCache {
         DirHandle dir, List<PuzMetaFile> puzMetaFiles
     ) {
         Uri dirUri = fileHandler.getUri(dir);
-        getDao().deleteOutside(dirUri, new AbstractList<Uri>() {
-            public int size() {
-                return puzMetaFiles.size();
-            }
-
-            public Uri get(int i) {
-                PuzMetaFile pm = puzMetaFiles.get(i);
-                return fileHandler.getUri(
-                    pm.getPuzHandle().getMainFileHandle()
-                );
-            }
-        });
+        getDao().deleteOutside(dirUri, puzMetaFiles);
     }
 
     private CachedMetaDao getDao() {
