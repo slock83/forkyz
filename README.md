@@ -12,6 +12,8 @@ implementing my own customisations.
 Additions:
 
 * Support for bar puzzles (in IPuz and JPZ format).
+* Support for cell colours.
+* Support for non-standard clue lists.
 * Updated file handling compatible with Android 11.
 * Import of puzzles as well as download.
 * Backend file format changed to IPuz.
