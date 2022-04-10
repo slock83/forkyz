@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 
 import app.crossword.yourealwaysbe.ForkyzActivity;
 import app.crossword.yourealwaysbe.util.NightModeHelper;
@@ -78,4 +80,6 @@ public interface AndroidVersionUtils {
     void createNotificationChannel(Context context);
 
     int immutablePendingIntentFlag();
+
+    StaticLayout getStaticLayout(CharSequence text, TextPaint style, int width);
 }

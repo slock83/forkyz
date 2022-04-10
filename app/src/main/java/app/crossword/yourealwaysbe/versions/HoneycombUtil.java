@@ -3,6 +3,9 @@ package app.crossword.yourealwaysbe.versions;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View.OnClickListener;
@@ -142,5 +145,16 @@ public class HoneycombUtil extends DefaultUtil {
     @Override
     public int immutablePendingIntentFlag() {
         return 0;
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public StaticLayout getStaticLayout(
+        CharSequence text, TextPaint style, int width
+    ) {
+        return new StaticLayout(
+            text,
+            style, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0, false
+        );
     }
 }

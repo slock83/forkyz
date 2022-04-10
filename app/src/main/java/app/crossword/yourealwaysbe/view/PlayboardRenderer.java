@@ -5,14 +5,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.text.HtmlCompat;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -25,6 +28,7 @@ import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 
 import java.util.Set;
@@ -45,12 +49,12 @@ public class PlayboardRenderer {
     private final Paint currentLetterBox = new Paint();
     private final Paint currentLetterHighlight = new Paint();
     private final Paint currentWordHighlight = new Paint();
-    private final Paint letterText = new Paint();
-    private final Paint numberText = new Paint();
-    private final Paint noteText = new Paint();
+    private final TextPaint letterText = new TextPaint();
+    private final TextPaint numberText = new TextPaint();
+    private final TextPaint noteText = new TextPaint();
     private final Paint red = new Paint();
-    private final Paint redHighlight = new Paint();
-    private final Paint white = new Paint();
+    private final TextPaint redHighlight = new TextPaint();
+    private final TextPaint white = new TextPaint();
     private final Paint flag = new Paint();
     private Bitmap bitmap;
     private Playboard board;
@@ -58,6 +62,9 @@ public class PlayboardRenderer {
     private float scale = 1.0F;
     private boolean hintHighlight;
     private int widthPixels;
+
+    private final static AndroidVersionUtils versionUtils
+        = AndroidVersionUtils.Factory.getInstance();
 
     // colors are gotten from context
     public PlayboardRenderer(Playboard board,
@@ -565,6 +572,7 @@ public class PlayboardRenderer {
         int letterTextSize = Math.round(boxSize * 0.7F);
         int barSize = boxSize / 12;
         int numberOffset = barSize;
+        int textOffset = boxSize / 30;
 
         // scale paints
         numberText.setTextSize(numberTextSize);
@@ -577,7 +585,7 @@ public class PlayboardRenderer {
         boolean isHighlighted
             = (highlight.getCol() == col) && (highlight.getRow() == row);
 
-        Paint thisLetter;
+        TextPaint thisLetter;
 
         Paint boxColor = (((highlight.getCol() == col) && (highlight.getRow() == row)) && (currentWord != null))
                 ? this.currentLetterBox : this.blackLine;
@@ -660,11 +668,13 @@ public class PlayboardRenderer {
 
             if (drawClueNumber(box)) {
                 String clueNumber = box.getClueNumber();
-                canvas.drawText(
+                drawHtmlText(
+                    canvas,
                     clueNumber,
                     x + numberOffset,
-                    y + numberTextSize + numberOffset,
-                    this.numberText
+                    y + numberOffset / 2,
+                    boxSize,
+                    numberText
                 );
 
                 Puzzle puz = board.getPuzzle();
@@ -759,10 +769,18 @@ public class PlayboardRenderer {
 
             if (letterString != null) {
                 // Full size letter in normal font
-                canvas.drawText(letterString,
-                        x + (boxSize / 2),
-                        y + (int)(boxSize / 2 - thisLetter.ascent() * 0.6),
-                        thisLetter);
+                int yoffset = (int) (
+                    boxSize - textOffset
+                    + letterText.ascent() - letterText.descent()
+                );
+                drawText(
+                    canvas,
+                    letterString,
+                    x + (boxSize / 2),
+                    y + yoffset,
+                    boxSize,
+                    thisLetter
+                );
             } else {
                 float[] mWidth = new float[1];
                 letterText.getTextWidths("M", mWidth);
@@ -770,39 +788,72 @@ public class PlayboardRenderer {
 
                 if (noteStringAcross != null && noteStringDown != null) {
                     if (noteStringAcross.equals(noteStringDown)) {
-                        // Same scratch letter in both directions - align letter with across and
-                        // down answers
+                        // Same scratch letter in both directions
+                        // Align letter with across and down answers
                         noteText.setTextSize(noteTextSize);
-                        canvas.drawText(noteStringAcross,
-                                x + (int)(boxSize - letterTextHalfWidth),
-                                y + (boxSize * 9 / 10),
-                                noteText);
+                        int noteTextHeight
+                            = (int) (noteText.descent() - noteText.ascent());
+                        drawText(
+                            canvas,
+                            noteStringAcross,
+                            x + (int)(boxSize - letterTextHalfWidth),
+                            y + boxSize - noteTextHeight - textOffset,
+                            boxSize,
+                            noteText
+                        );
                     } else {
-                        // Conflicting scratch letters - display both letters side by side
+                        // Conflicting scratch letters
+                        // Display both letters side by side
                         noteText.setTextSize(miniNoteTextSize);
-                        canvas.drawText(noteStringAcross,
-                                x + (int)(boxSize * 0.05 + letterTextHalfWidth),
-                                y + (boxSize * 9 / 10),
-                                noteText);
-                        canvas.drawText(noteStringDown,
-                                x + (int)(boxSize - letterTextHalfWidth),
-                                y + (boxSize * 1 / 10) - noteText.ascent(),
-                                noteText);
+                        int noteTextHeight
+                            = (int) (noteText.descent() - noteText.ascent());
+                        drawText(
+                            canvas,
+                            noteStringAcross,
+                            x + (int)(boxSize * 0.05 + letterTextHalfWidth),
+                            y + boxSize - noteTextHeight - textOffset,
+                            boxSize,
+                            noteText
+                        );
+                        int yoffset =
+                            boxSize
+                            - noteTextHeight
+                            + (int) noteText.ascent();
+                        drawText(
+                            canvas,
+                            noteStringDown,
+                            x + (int)(boxSize - letterTextHalfWidth),
+                            y + yoffset,
+                            boxSize,
+                            noteText
+                        );
                     }
                 } else if (noteStringAcross != null) {
                     // Across scratch letter only - display in bottom left
                     noteText.setTextSize(noteTextSize);
-                    canvas.drawText(noteStringAcross,
-                            x + (boxSize / 2),
-                            y + (boxSize * 9 / 10),
-                            noteText);
+                    int noteTextHeight
+                        = (int) (noteText.descent() - noteText.ascent());
+                    drawText(
+                        canvas,
+                        noteStringAcross,
+                        x + (boxSize / 2),
+                        y + boxSize - noteTextHeight - textOffset,
+                        boxSize,
+                        noteText
+                    );
                 } else if (noteStringDown != null) {
-                    // Down scratch letter only - display in bottom right
+                    // Down scratch letter only - display in bottom left
                     noteText.setTextSize(noteTextSize);
-                    canvas.drawText(noteStringDown,
-                            x + (int)(boxSize - letterTextHalfWidth),
-                            y + (boxSize - noteText.ascent())  / 2,
-                            noteText);
+                    int noteTextHeight
+                        = (int) (noteText.descent() - noteText.ascent());
+                    drawText(
+                        canvas,
+                        noteStringDown,
+                        x + (int)(boxSize - letterTextHalfWidth),
+                        y + boxSize - noteTextHeight - textOffset,
+                        boxSize,
+                        noteText
+                    );
                 }
             }
         }
@@ -879,4 +930,27 @@ public class PlayboardRenderer {
             (baseBias * pure) + ((1- baseBias) * (255 - pure))
         );
     }
+
+    private static void drawText(
+        Canvas canvas,
+        CharSequence text,
+        int x, int  y, int width,
+        TextPaint style
+    ) {
+        // with some help from:
+        // https://stackoverflow.com/a/41870464
+        StaticLayout staticLayout
+            = versionUtils.getStaticLayout(text, style, width);
+        canvas.save();
+        canvas.translate(x, y);
+        staticLayout.draw(canvas);
+        canvas.restore();
+    }
+
+    private static void drawHtmlText(
+        Canvas canvas, String text, int x, int y, int width, TextPaint style
+    ) {
+        drawText(canvas, HtmlCompat.fromHtml(text, 0), x, y, width, style);
+    }
 }
+
