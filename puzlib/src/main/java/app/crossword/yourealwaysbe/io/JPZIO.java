@@ -222,17 +222,29 @@ public class JPZIO implements PuzzleParser {
             private void parseCell(Attributes attributes) {
                 int x = Integer.parseInt(attributes.getValue("x")) - 1;
                 int y = Integer.parseInt(attributes.getValue("y")) - 1;
-                String solution = attributes.getValue("solution");
-                String number = attributes.getValue("number");
-                if (solution != null &&
-                    0 <= x && x < JPZXMLParser.this.getWidth() &&
-                    0 <= y && y < JPZXMLParser.this.getHeight()) {
+
+                String cellType = attributes.getValue("type");
+                boolean isCell
+                    = cellType == null || !"block".equalsIgnoreCase(cellType);
+
+                if (
+                    isCell
+                    && 0 <= x && x < JPZXMLParser.this.getWidth()
+                    && 0 <= y && y < JPZXMLParser.this.getHeight()
+                ) {
                     Box box = new Box();
 
-                    if (solution.length() > 0)
+                    String solution = attributes.getValue("solution");
+                    if (solution != null && solution.length() > 0)
                         box.setSolution(solution.charAt(0));
-                    box.setBlank();
 
+                    String response = attributes.getValue("solve-state");
+                    if (response != null && response.length() > 0)
+                        box.setResponse(response.charAt(0));
+                    else
+                        box.setBlank();
+
+                    String number = attributes.getValue("number");
                     if (number != null) {
                         box.setClueNumber(number);
                     }
