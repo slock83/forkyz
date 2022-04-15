@@ -453,28 +453,28 @@ public class IPuzIO implements PuzzleParser {
                 if (color != null && color.length() == HEX_CODE_LEN) {
                     box.setColor(hexToColor(color));
                 }
-            }
 
-            String barred = optStringNull(style, FIELD_BARRED);
-            if (barred != null) {
-                barred = barred.toUpperCase();
-                for (int i = 0; i < barred.length(); i++) {
-                    char c = barred.charAt(i);
-                    switch(c) {
-                    case BARRED_TOP:
-                        box.setBarredTop(true);
-                        break;
-                    case BARRED_BOTTOM:
-                        box.setBarredBottom(true);
-                        break;
-                    case BARRED_LEFT:
-                        box.setBarredLeft(true);
-                        break;
-                    case BARRED_RIGHT:
-                        box.setBarredRight(true);
-                        break;
-                    default:
-                        // do nothing
+                String barred = optStringNull(style, FIELD_BARRED);
+                if (barred != null) {
+                    barred = barred.toUpperCase();
+                    for (int i = 0; i < barred.length(); i++) {
+                        char c = barred.charAt(i);
+                        switch(c) {
+                        case BARRED_TOP:
+                            box.setBarredTop(true);
+                            break;
+                        case BARRED_BOTTOM:
+                            box.setBarredBottom(true);
+                            break;
+                        case BARRED_LEFT:
+                            box.setBarredLeft(true);
+                            break;
+                        case BARRED_RIGHT:
+                            box.setBarredRight(true);
+                            break;
+                        default:
+                            // do nothing
+                        }
                     }
                 }
             }
