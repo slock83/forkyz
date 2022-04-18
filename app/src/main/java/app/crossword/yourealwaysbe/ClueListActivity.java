@@ -398,7 +398,9 @@ public class ClueListActivity extends PuzzleActivity
         int curWordLen = getBoard().getCurrentWord().getLength();
         if (curWordLen <= 0)
             return;
-        double scale = this.renderer.fitTo(metrics.widthPixels, curWordLen);
+        double scale = this.renderer.fitWidthTo(
+            metrics.widthPixels, curWordLen
+        );
         if (scale > 1)
             this.renderer.setScale((float) 1);
     }

@@ -355,7 +355,7 @@ public class PlayActivity extends PuzzleActivity
             public void onScale(float newScale, final Point center) {
                 int w = boardView.getImageView().getWidth();
                 int h = boardView.getImageView().getHeight();
-                float scale = renderer.fitTo((w < h) ? w : h);
+                float scale = renderer.fitTo(w, h);
                 prefs.edit().putFloat(SCALE, scale).apply();
                 lastTap = System.currentTimeMillis();
             }
@@ -370,12 +370,14 @@ public class PlayActivity extends PuzzleActivity
                 public void run() {
                     boardView.scrollTo(0, 0);
 
-                    int v = (boardView.getWidth() < boardView.getHeight()) ? boardView
-                            .getWidth() : boardView.getHeight();
-                    if (v == 0) {
+                    int width = boardView.getWidth();
+                    int height = boardView.getHeight();
+
+                    if (width == 0 || height == 0) {
                         handler.postDelayed(this, 100);
                     }
-                    float newScale = renderer.fitTo(v);
+
+                    float newScale = renderer.fitTo(width, height);
                     boardView.setCurrentScale(newScale);
 
                     prefs.edit().putFloat(SCALE, newScale).apply();
@@ -767,10 +769,9 @@ public class PlayActivity extends PuzzleActivity
 
     private void fitToScreen() {
         this.boardView.scrollTo(0, 0);
-
-        int v = (this.boardView.getWidth() < this.boardView.getHeight()) ? this.boardView
-                .getWidth() : this.boardView.getHeight();
-        float newScale = renderer.fitTo(v);
+        float newScale = renderer.fitTo(
+            boardView.getWidth(), boardView.getHeight()
+        );
         this.prefs.edit().putFloat(SCALE, newScale).apply();
         boardView.setCurrentScale(newScale);
         this.render(true);

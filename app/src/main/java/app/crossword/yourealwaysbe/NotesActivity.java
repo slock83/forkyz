@@ -454,7 +454,7 @@ public class NotesActivity extends PuzzleActivity {
         imageView.setVisibility(clueVisibility);
         flagClue.setVisibility(clueVisibility);
 
-        double scale = renderer.fitTo(metrics.widthPixels, curWordLen);
+        double scale = renderer.fitWidthTo(metrics.widthPixels, curWordLen);
         if (scale > 1)
             renderer.setScale((float) 1);
 

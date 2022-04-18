@@ -387,23 +387,28 @@ public class PlayboardRenderer {
         return findPointTopLeft(zone.getPosition(0));
     }
 
-    public float fitTo(int shortDimension) {
+    public float fitTo(int width, int height) {
         this.bitmap = null;
         // (pixels / boxes) / (pixels per inch / inches)
         Puzzle puz = this.board.getPuzzle();
-        int numBoxes = Math.max(puz.getWidth(), puz.getHeight());
-        return fitTo(shortDimension, numBoxes);
+        int numBoxes = Math.min(puz.getWidth(), puz.getHeight());
+        return fitTo(width, height, puz.getWidth(), puz.getHeight());
     }
 
-    public float fitTo(int shortDimension, int numBoxes) {
+    public float fitTo(
+        int width, int height, int numBoxesWidth, int numBoxesHeight
+    ) {
         this.bitmap = null;
-        double newScale = (double) shortDimension / (double) numBoxes / ((double) dpi * (double) BASE_BOX_SIZE_INCHES);
-        LOG.warning("fitTo "+shortDimension+" dpi"+ dpi +" == "+newScale);
-        if(newScale < getDeviceMinScale()){
-            newScale = getDeviceMinScale();
-        }
-        this.scale = (float) newScale;
-        return this.scale;
+        float newScaleWidth = calculateScale(width, numBoxesWidth);
+        float newScaleHeight = calculateScale(height, numBoxesHeight);
+        setScale(Math.min(newScaleWidth, newScaleHeight));
+        return getScale();
+    }
+
+    public float fitWidthTo(int width, int numBoxes) {
+        this.bitmap = null;
+        setScale(calculateScale(width, numBoxes));
+        return getScale();
     }
 
     public float zoomIn() {
@@ -951,6 +956,11 @@ public class PlayboardRenderer {
         Canvas canvas, String text, int x, int y, int width, TextPaint style
     ) {
         drawText(canvas, HtmlCompat.fromHtml(text, 0), x, y, width, style);
+    }
+
+    private float calculateScale(int numPixels, int numBoxes) {
+        double density = (double) dpi * (double) BASE_BOX_SIZE_INCHES;
+        return (float) ((double) numPixels / (double) numBoxes / density);
     }
 }
 
