@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="app.crossword.yourealwaysbe.forkyz"
     android:installLocation="auto"
-    android:versionCode="1800000"
-    android:versionName="18">
+    android:versionCode="1900000"
+    android:versionName="19">
 
     <supports-screens
         android:anyDensity="true"
