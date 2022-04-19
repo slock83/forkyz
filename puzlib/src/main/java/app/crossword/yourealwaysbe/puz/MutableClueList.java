@@ -3,7 +3,6 @@ package app.crossword.yourealwaysbe.puz;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -11,30 +10,12 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import app.crossword.yourealwaysbe.util.ClueNumberComparator;
 import app.crossword.yourealwaysbe.util.CollectionUtils;
 
 class MutableClueList implements ClueList {
-    private NavigableMap<String, Clue> clueMap = new TreeMap<>(
-        new Comparator<String>() {
-            @Override
-            public int compare(String num1, String num2) {
-                if (num1 == null && num2 == null)
-                    return 0;
-                if (num1 == null)
-                    return -1;
-                if (num2 == null)
-                    return 1;
-
-                // compare as integers if both integers
-                try {
-                    return Integer.valueOf(num1)
-                        .compareTo(Integer.valueOf(num2));
-                } catch (NumberFormatException e) {
-                    return num1.compareTo(num2);
-                }
-            }
-        }
-    );
+    private NavigableMap<String, Clue> clueMap
+        = new TreeMap<>(new ClueNumberComparator());
     private List<Clue> unnumberedClues = new ArrayList<>();
 
     // access through invalidateIndexCache and getIndexCache

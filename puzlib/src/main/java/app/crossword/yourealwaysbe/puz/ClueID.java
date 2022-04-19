@@ -2,6 +2,9 @@
 package app.crossword.yourealwaysbe.puz;
 
 import java.util.Objects;
+import java.util.Comparator;
+
+import app.crossword.yourealwaysbe.util.ClueNumberComparator;
 
 /**
  * Identifies a clue on the board
@@ -9,6 +12,9 @@ import java.util.Objects;
 public class ClueID implements Comparable<ClueID> {
     public static final String ACROSS = "Across";
     public static final String DOWN = "Down";
+
+    private static final Comparator<String> clueNumberComparator
+        = new ClueNumberComparator();
 
     private String clueNumber;
     private String listName;
@@ -53,20 +59,7 @@ public class ClueID implements Comparable<ClueID> {
         String num = getClueNumber();
         String otherNum = other.getClueNumber();
 
-        if (num == null && otherNum != null)
-            return -1;
-        if (otherNum == null)
-            return 1;
-
-        // try comparing as numbers first
-        int numberCompare = 0;
-        try {
-            numberCompare
-                = Integer.valueOf(num).compareTo(Integer.valueOf(otherNum));
-        } catch (NumberFormatException e) {
-            numberCompare = num.compareTo(otherNum);
-        }
-
+        int numberCompare = clueNumberComparator.compare(num, otherNum);
         if (numberCompare != 0)
             return numberCompare;
 
