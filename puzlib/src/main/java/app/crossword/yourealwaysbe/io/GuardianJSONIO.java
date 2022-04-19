@@ -23,6 +23,9 @@ public class GuardianJSONIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger(GuardianJSONIO.class.getCanonicalName());
 
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
+
     @Override
     public Puzzle parseInput(InputStream is) throws Exception {
         return readPuzzle(is);
@@ -137,9 +140,9 @@ public class GuardianJSONIO implements PuzzleParser {
             String hint = entry.getString("clue");
 
             if (across)
-                builder.addAcrossClue(num, hint);
+                builder.addAcrossClue(ACROSS_LIST, num, hint);
             else
-                builder.addDownClue(num, hint);
+                builder.addDownClue(DOWN_LIST, num, hint);
         }
     }
 

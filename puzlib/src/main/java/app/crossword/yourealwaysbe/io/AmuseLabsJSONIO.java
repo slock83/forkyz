@@ -23,6 +23,9 @@ public class AmuseLabsJSONIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger(AmuseLabsJSONIO.class.getCanonicalName());
 
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
+
     /**
      * An unfancy exception indicating error while parsing
      */
@@ -168,10 +171,13 @@ public class AmuseLabsJSONIO implements PuzzleParser {
                 boolean across = entry.getBoolean("acrossNotDown");
                 String clue = entry.getJSONObject("clue").getString("clue");
 
-                if (across)
-                    builder.addAcrossClue(String.valueOf(num), clue);
-                else
-                    builder.addDownClue(String.valueOf(num), clue);
+                if (across) {
+                    builder.addAcrossClue(
+                        ACROSS_LIST, String.valueOf(num), clue
+                    );
+                } else {
+                    builder.addDownClue(DOWN_LIST, String.valueOf(num), clue);
+                }
             }
         }
     }

@@ -1,14 +1,17 @@
 package app.crossword.yourealwaysbe.io.versions;
 
+import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 // Adds history list in format
@@ -32,7 +35,7 @@ public class IOVersion5 extends IOVersion4 {
         for (int i = 0; i < length; i++) {
             int number = dis.readInt();
             boolean across = dis.readBoolean();
-            String listName = across ? ClueID.ACROSS : ClueID.DOWN;
+            String listName = across ? IO.ACROSS_LIST : IO.DOWN_LIST;
 
             ClueID item = new ClueID(String.valueOf(number), listName);
             meta.historyList.add(item);
@@ -47,16 +50,18 @@ public class IOVersion5 extends IOVersion4 {
         super.writeMeta(puz, dos);
 
         List<ClueID> history = puz.getHistory();
+        String acrossListName = PuzzleUtils.getAcrossListName(puz);
+        String downListName = PuzzleUtils.getDownListName(puz);
 
         dos.writeInt(history.size());
         for (ClueID item : puz.getHistory()) {
             // relies on puz files only have numeric numbers
             int number = Integer.valueOf(item.getClueNumber());
             String listName = item.getListName();
-            if (ClueID.ACROSS.equals(listName)) {
+            if (Objects.equals(acrossListName, listName)) {
                 dos.writeInt(number);
                 dos.writeBoolean(true);
-            } else if (ClueID.DOWN.equals(listName)) {
+            } else if (Objects.equals(downListName, listName)) {
                 dos.writeInt(number);
                 dos.writeBoolean(false);
             } else {

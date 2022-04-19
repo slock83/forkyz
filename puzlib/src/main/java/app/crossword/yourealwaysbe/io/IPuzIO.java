@@ -203,6 +203,11 @@ public class IPuzIO implements PuzzleParser {
 
     private static final String NULL_CLUE = "-";
 
+    // before we started supporting any list name, we used across/down
+    // and a boolean to tell the difference.
+    private static final String OLD_ACROSS_LIST_NAME = "Across";
+    private static final String OLD_DOWN_LIST_NAME = "Down";
+
     /**
      * An unfancy exception indicating error while parsing
      */
@@ -651,9 +656,13 @@ public class IPuzIO implements PuzzleParser {
             // TODO: support zoning of more than just across/down
             if (ipc != null) {
                 if (FIELD_CLUES_ACROSS.equals(dirName)) {
-                    builder.addAcrossClue(ipc.getClueNumber(), ipc.getHint());
+                    builder.addAcrossClue(
+                        displayName, ipc.getClueNumber(), ipc.getHint()
+                    );
                 } else if (FIELD_CLUES_DOWN.equals(dirName)) {
-                    builder.addDownClue(ipc.getClueNumber(), ipc.getHint());
+                    builder.addDownClue(
+                        displayName, ipc.getClueNumber(), ipc.getHint()
+                    );
                 } else {
                     builder.addClue(new Clue(
                         ipc.getClueNumber(),
@@ -1000,8 +1009,8 @@ public class IPuzIO implements PuzzleParser {
                 // old style
                 String list
                     = positionJson.getBoolean(FIELD_POSITION_ACROSS)
-                    ? ClueID.ACROSS
-                    : ClueID.DOWN;
+                    ? OLD_ACROSS_LIST_NAME
+                    : OLD_DOWN_LIST_NAME;
                 Box box = builder.getBox(pos);
                 ClueID cid
                     = (box == null) ? null : box.getIsPartOfClue(list);
@@ -1147,7 +1156,7 @@ public class IPuzIO implements PuzzleParser {
         // old version used to have across boolean rather than list name
         if (cid.has(FIELD_CLUE_ACROSS)) {
             boolean across = cid.getBoolean(FIELD_CLUE_ACROSS);
-            listName = across ? ClueID.ACROSS : ClueID.DOWN;
+            listName = across ? OLD_ACROSS_LIST_NAME : OLD_DOWN_LIST_NAME;
         } else if (cid.has(FIELD_CLUE_LISTNAME)) {
             listName = cid.getString(FIELD_CLUE_LISTNAME);
         } else {
@@ -1408,11 +1417,11 @@ public class IPuzIO implements PuzzleParser {
             // check if a standard direction, else write as "zones" or
             // "clues" list
 
-            if (isAcrossList(puz, clues)) {
+            if (PuzzleUtils.isAcrossList(puz, clues)) {
                 direction = FIELD_CLUES_ACROSS;
-            } else if (isDownList(puz, clues)) {
+            } else if (PuzzleUtils.isDownList(puz, clues)) {
                 direction = FIELD_CLUES_DOWN;
-            } else if (isZonesList(clues)) {
+            } else if (PuzzleUtils.isZonesList(clues)) {
                 direction = FIELD_CLUES_ZONES;
             }
             // TODO: other directions
@@ -1504,123 +1513,6 @@ public class IPuzIO implements PuzzleParser {
         writer.indent(1)
             .endArray();
         writer.newLine();
-    }
-
-    /**
-     * Check all clues follow "across rules"
-     *
-     * I.e. start at the right number, then go right until the box is no
-     * longer joined to the right.
-     */
-    private static boolean isAcrossList(Puzzle puz, ClueList clues) {
-        for (Clue clue : clues) {
-            if (!clue.hasZone())
-                return false;
-
-            Zone zone = clue.getZone();
-            if (zone.isEmpty())
-                return false;
-
-            Position start = zone.getPosition(0);
-            Box box = puz.checkedGetBox(start);
-
-            if (box == null)
-                return false;
-            if (!box.hasClueNumber())
-                return false;
-            if (!box.getClueNumber().equals(clue.getClueNumber()))
-                return false;
-
-            for (int i = 1; i < zone.size(); i++) {
-                Position prev = zone.getPosition(i - 1);
-                Position cur = zone.getPosition(i);
-
-                if (prev.getRow() != cur.getRow())
-                    return false;
-                if (prev.getCol() + 1 != cur.getCol())
-                    return false;
-
-                box = puz.checkedGetBox(cur);
-                if (box == null)
-                    return false;
-
-                boolean joined = PuzzleUtils.joinedRight(
-                    puz, prev.getRow(),  prev.getCol()
-                );
-
-                if (!joined)
-                    return false;
-            }
-
-            Position end = zone.getPosition(zone.size() - 1);
-            boolean joined = PuzzleUtils.joinedRight(
-                puz, end.getRow(), end.getCol()
-            );
-            if (joined)
-                return false;
-        }
-        return true;
-    }
-
-    private static boolean isDownList(Puzzle puz, ClueList clues) {
-        for (Clue clue : clues) {
-            if (!clue.hasZone())
-                return false;
-
-            Zone zone = clue.getZone();
-            if (zone.isEmpty())
-                return false;
-
-            Position start = zone.getPosition(0);
-            Box box = puz.checkedGetBox(start);
-
-            if (box == null)
-                return false;
-            if (!box.hasClueNumber())
-                return false;
-            if (!box.getClueNumber().equals(clue.getClueNumber()))
-                return false;
-
-            for (int i = 1; i < zone.size(); i++) {
-                Position prev = zone.getPosition(i - 1);
-                Position cur = zone.getPosition(i);
-
-                if (prev.getRow() + 1 != cur.getRow())
-                    return false;
-                if (prev.getCol() != cur.getCol())
-                    return false;
-
-                box = puz.checkedGetBox(cur);
-                if (box == null)
-                    return false;
-
-                boolean joined = PuzzleUtils.joinedBottom(
-                    puz, prev.getRow(),  prev.getCol()
-                );
-
-                if (!joined)
-                    return false;
-            }
-
-            Position end = zone.getPosition(zone.size() - 1);
-            boolean joined = PuzzleUtils.joinedBottom(
-                puz, end.getRow(), end.getCol()
-            );
-            if (joined)
-                return false;
-        }
-        return true;
-    }
-
-    /**
-     * True if any clue has a non-empty zone
-     */
-    private static boolean isZonesList(ClueList clues) {
-        for (Clue clue : clues) {
-            if (clue.hasZone() && !clue.getZone().isEmpty())
-                return true;
-        }
-        return false;
     }
 
     /**

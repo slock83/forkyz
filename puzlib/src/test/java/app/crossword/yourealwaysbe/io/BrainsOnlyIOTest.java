@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -35,9 +34,9 @@ public class BrainsOnlyIOTest  extends TestCase {
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
         assertEquals("1", boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isStartOf(ClueID.ACROSS));
-        assertEquals(true, boxes[0][0].isStartOf(ClueID.DOWN));
-        assertEquals(false, boxes[0][3].isStartOf(ClueID.ACROSS));
+        assertEquals(true, boxes[0][0].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf("Down"));
+        assertEquals(false, boxes[0][3].isStartOf("Across"));
 
         assertEquals(boxes[0][0].getSolution(), 'D');
         assertEquals(boxes[5][14].getSolution(), 'Y');
@@ -45,8 +44,8 @@ public class BrainsOnlyIOTest  extends TestCase {
         assertEquals(boxes[14][5], null);
         assertEquals(boxes[3][6], null);
 
-        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
-        ClueList downClues = puz.getClues(ClueID.DOWN);
+        ClueList acrossClues = puz.getClues("Across");
+        ClueList downClues = puz.getClues("Down");
 
         assertEquals(acrossClues.getClue("1").getHint(), "Toss out");
         assertEquals(acrossClues.getClue("41").getHint(), "Straighten out");
@@ -66,7 +65,7 @@ public class BrainsOnlyIOTest  extends TestCase {
             puz.getTitle(),
             "OCCUPIED NATIONS: Surrounding the long answers"
         );
-        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
+        ClueList acrossClues = puz.getClues("Across");
         assertEquals(acrossClues.getClue("15").getHint(), "Elevator guy");
         assertEquals(
             acrossClues.getClue("5").getHint(),

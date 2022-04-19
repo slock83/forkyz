@@ -205,11 +205,13 @@ public class PuzzleBuilder {
         return this;
     }
 
-    public PuzzleBuilder addAcrossClue(NumHint numHint) {
-        return addAcrossClue(numHint.getNum(), numHint.getHint());
+    public PuzzleBuilder addAcrossClue(String listName, NumHint numHint) {
+        return addAcrossClue(listName, numHint.getNum(), numHint.getHint());
     }
 
-    public PuzzleBuilder addAcrossClue(String number, String hint) {
+    public PuzzleBuilder addAcrossClue(
+        String listName, String number, String hint
+    ) {
         Position start = getNumberPositions().get(number);
         if (start == null) {
             throw new IllegalArgumentException(
@@ -229,16 +231,18 @@ public class PuzzleBuilder {
             zone.addPosition(new Position(row, col + off));
         } while (joinedRight(row, col + off));
 
-        puzzle.addClue(new Clue(number, ClueID.ACROSS, hint, zone));
+        puzzle.addClue(new Clue(number, listName, hint, zone));
 
         return this;
     }
 
-    public PuzzleBuilder addDownClue(NumHint numHint) {
-        return addDownClue(numHint.getNum(), numHint.getHint());
+    public PuzzleBuilder addDownClue(String listName, NumHint numHint) {
+        return addDownClue(listName, numHint.getNum(), numHint.getHint());
     }
 
-    public PuzzleBuilder addDownClue(String number, String hint) {
+    public PuzzleBuilder addDownClue(
+        String listName, String number, String hint
+    ) {
         Position start = getNumberPositions().get(number);
         if (start == null) {
             throw new IllegalArgumentException(
@@ -258,7 +262,7 @@ public class PuzzleBuilder {
             zone.addPosition(new Position(row + off, col));
         } while (joinedBottom(row + off, col));
 
-        puzzle.addClue(new Clue(number, ClueID.DOWN, hint, zone));
+        puzzle.addClue(new Clue(number, listName, hint, zone));
 
         return this;
     }

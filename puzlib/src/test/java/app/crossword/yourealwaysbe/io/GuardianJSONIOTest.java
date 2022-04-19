@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -39,8 +38,8 @@ public class GuardianJSONIOTest extends TestCase {
         assertEquals(boxes[0][0].getSolution(), 'A');
         assertEquals(boxes[0][6].getSolution(), 'B');
 
-        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
-        ClueList downClues = puz.getClues(ClueID.DOWN);
+        ClueList acrossClues = puz.getClues("Across");
+        ClueList downClues = puz.getClues("Down");
 
         assertEquals(acrossClues.getClue("1").getHint(), "Test clue 1");
         assertEquals(acrossClues.getClue("10").getHint(), "Test clue 10");

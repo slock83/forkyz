@@ -26,6 +26,8 @@ import java.util.ArrayList;
 public class BrainsOnlyIO implements PuzzleParser {
 
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
 
     public static boolean convertBrainsOnly(InputStream is, DataOutputStream os, LocalDate date){
         try {
@@ -112,6 +114,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                     && builder.isStartClue(h, w, true)
                 ){
                     builder.addAcrossClue(
+                        ACROSS_LIST,
                         box.getClueNumber(),
                         htmlString(acrossClues.get(acrossIdx))
                     );
@@ -130,6 +133,7 @@ public class BrainsOnlyIO implements PuzzleParser {
                     && builder.isStartClue(h, w, false)
                 ){
                     builder.addDownClue(
+                        DOWN_LIST,
                         box.getClueNumber(),
                         htmlString(downClues.get(downIdx))
                     );

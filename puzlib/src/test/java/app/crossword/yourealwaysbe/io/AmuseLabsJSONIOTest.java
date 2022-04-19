@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -46,8 +45,8 @@ public class AmuseLabsJSONIOTest extends TestCase {
         assertFalse(boxes[3][7].isCircled());
         assertFalse(boxes[5][9].isCircled());
 
-        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
-        ClueList downClues = puz.getClues(ClueID.DOWN);
+        ClueList acrossClues = puz.getClues("Across");
+        ClueList downClues = puz.getClues("Down");
 
         assertEquals(acrossClues.getClue("1").getHint(), "Clue 1a");
         assertEquals(acrossClues.getClue("21").getHint(), "Clue 21a");

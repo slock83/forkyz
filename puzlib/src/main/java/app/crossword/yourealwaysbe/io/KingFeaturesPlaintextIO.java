@@ -30,6 +30,8 @@ import java.util.Scanner;
  * src/test/resources/premiere-20100704.txt.
  */
 public class KingFeaturesPlaintextIO implements PuzzleParser {
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
 
     @Override
     public Puzzle parseInput(InputStream is) {
@@ -127,7 +129,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
                 i++;
             }
             String clue = line.substring(i+2).trim();
-            builder.addAcrossClue(String.valueOf(clueNum), clue);
+            builder.addAcrossClue(ACROSS_LIST, String.valueOf(clueNum), clue);
             if (!scanner.hasNextLine()) {
                 System.err.println("Unexpected EOF - Across clues.");
                 return null;
@@ -155,7 +157,7 @@ public class KingFeaturesPlaintextIO implements PuzzleParser {
                 i++;
             }
             String clue = line.substring(i+2).trim();
-            builder.addDownClue(String.valueOf(clueNum), clue);
+            builder.addDownClue(DOWN_LIST, String.valueOf(clueNum), clue);
             if(!finished) {
                 if (!scanner.hasNextLine()) {
                     System.err.println("Unexpected EOF - Down clues.");

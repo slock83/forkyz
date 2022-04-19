@@ -18,7 +18,6 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle;
@@ -57,9 +56,9 @@ public class IOTest extends TestCase {
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
         assertEquals("1", boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isStartOf(ClueID.ACROSS));
-        assertEquals(true, boxes[0][0].isStartOf(ClueID.DOWN));
-        assertEquals(false, boxes[0][3].isStartOf(ClueID.ACROSS));
+        assertEquals(true, boxes[0][0].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf("Down"));
+        assertEquals(false, boxes[0][3].isStartOf("Across"));
 
         assertEquals(boxes[0][0].getSolution(), 'R');
         assertEquals(boxes[5][14], null);
@@ -67,8 +66,8 @@ public class IOTest extends TestCase {
         assertEquals(boxes[14][5].getSolution(), 'T');
         assertEquals(boxes[3][6].getSolution(), 'E');
 
-        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
-        ClueList downClues = puz.getClues(ClueID.DOWN);
+        ClueList acrossClues = puz.getClues("Across");
+        ClueList downClues = puz.getClues("Down");
 
         assertEquals(acrossClues.getClue("1").getHint(), "Bring to perfection");
         assertEquals(acrossClues.getClue("23").getHint(), "Surprised reaction");

@@ -48,6 +48,8 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class UclickXMLIO implements PuzzleParser {
     private static String CHARSET_NAME = "utf8";
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
 
     private static class UclickXMLParser extends DefaultHandler {
         private String title;
@@ -194,10 +196,10 @@ public class UclickXMLIO implements PuzzleParser {
                 .setNotes("");
 
             for (NumHint nh : handler.getAcrossClues())
-                builder.addAcrossClue(nh);
+                builder.addAcrossClue(ACROSS_LIST, nh);
 
             for (NumHint nh : handler.getDownClues())
-                builder.addDownClue(nh);
+                builder.addDownClue(DOWN_LIST, nh);
 
             return builder.getPuzzle();
         } catch (Exception e) {

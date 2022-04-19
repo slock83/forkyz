@@ -10,9 +10,6 @@ import app.crossword.yourealwaysbe.util.ClueNumberComparator;
  * Identifies a clue on the board
  */
 public class ClueID implements Comparable<ClueID> {
-    public static final String ACROSS = "Across";
-    public static final String DOWN = "Down";
-
     private static final Comparator<String> clueNumberComparator
         = new ClueNumberComparator();
 
@@ -27,18 +24,6 @@ public class ClueID implements Comparable<ClueID> {
     public boolean hasClueNumber() { return getClueNumber() != null; }
     public String getClueNumber() { return clueNumber; }
     public String getListName() { return listName; }
-
-    // TODO: will become deprecated when generic lists are fully
-    // supported
-    public boolean isAcross() {
-        return ACROSS.equals(listName);
-    }
-
-    // TODO: will become deprecated when generic lists are fully
-    // supported
-    public boolean isDown() {
-        return DOWN.equals(listName);
-    }
 
     public boolean equals(Object o) {
         if (o instanceof ClueID) {

@@ -10,13 +10,13 @@ import app.crossword.yourealwaysbe.io.versions.IOVersion7;
 import app.crossword.yourealwaysbe.io.versions.IOVersion8;
 import app.crossword.yourealwaysbe.io.versions.IOVersion;
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import static app.crossword.yourealwaysbe.util.HtmlUtil.unHtmlString;
 
@@ -32,6 +32,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class IO implements PuzzleParser {
     public static final int DEFAULT_BUFFER_SIZE = 1024;
@@ -61,6 +62,9 @@ public class IO implements PuzzleParser {
 
     // string to use if a clue is missing
     private static final String UNKNOWN_CLUE = "-";
+
+    public static final String ACROSS_LIST = "Across";
+    public static final String DOWN_LIST = "Down";
 
     public static int cksum_region(byte[] data, int offset, int length,
                                    int cksum) {
@@ -191,12 +195,12 @@ public class IO implements PuzzleParser {
 
                 if (builder.isStartClue(x, y, true) && (clueNumber != null)) {
                     String value = readNullTerminatedString(input);
-                    builder.addAcrossClue(clueNumber, value);
+                    builder.addAcrossClue(ACROSS_LIST, clueNumber, value);
                 }
 
                 if (builder.isStartClue(x, y, false) && (clueNumber != null)) {
                     String value = readNullTerminatedString(input);
-                    builder.addDownClue(clueNumber, value);
+                    builder.addDownClue(DOWN_LIST, clueNumber, value);
                 }
             }
         }
@@ -668,7 +672,7 @@ public class IO implements PuzzleParser {
             String listName = cid.getListName();
 
             // assume puz files only deal with across/down list
-            String desiredList = isAcross ? Clue.ACROSS : Clue.DOWN;
+            String desiredList = isAcross ? ACROSS_LIST : DOWN_LIST;
             if (desiredList.equals(listName)) {
                 String scratch = null;
                 String text = null;
@@ -744,21 +748,29 @@ public class IO implements PuzzleParser {
 
         List<String> rawClues = new ArrayList<>(numClues);
 
-        ClueList acrossClues = puz.getClues(Clue.ACROSS);
-        ClueList downClues = puz.getClues(Clue.DOWN);
+        String acrossList = PuzzleUtils.getAcrossListName(puz);
+        String downList = PuzzleUtils.getDownListName(puz);
+
+        ClueList acrossClues = null;
+        if (acrossList != null)
+            acrossClues = puz.getClues(acrossList);
+
+        ClueList downClues = null;
+        if (downList != null)
+            downClues = puz.getClues(downList);
 
         for (ClueID cid : puz.getBoardClueIDs()) {
             String clueNum = cid.getClueNumber();
             String listName = cid.getListName();
 
             // only support Across/Down in puz files
-            if (Clue.ACROSS.equals(listName)) {
+            if (Objects.equals(acrossList, listName)) {
                 if (acrossClues != null && acrossClues.hasClue(clueNum))
                     rawClues.add(acrossClues.getClue(clueNum).getHint());
                 else
                     rawClues.add(UNKNOWN_CLUE);
-            } else if (downClues != null && Clue.DOWN.equals(listName)) {
-                if (downClues.hasClue(clueNum))
+            } else if (Objects.equals(downList, listName)) {
+                if (downClues != null && downClues.hasClue(clueNum))
                     rawClues.add(downClues.getClue(clueNum).getHint());
                 else
                     rawClues.add(UNKNOWN_CLUE);
@@ -772,8 +784,8 @@ public class IO implements PuzzleParser {
      * Gets number of Across/Down clues
      */
     private static int getNumberOfClues(Puzzle puz) {
-        ClueList acrossClues = puz.getClues(Clue.ACROSS);
-        ClueList downClues = puz.getClues(Clue.DOWN);
+        ClueList acrossClues = PuzzleUtils.getAcrossList(puz);
+        ClueList downClues = PuzzleUtils.getDownList(puz);
         int count = 0;
 
         if (acrossClues != null)

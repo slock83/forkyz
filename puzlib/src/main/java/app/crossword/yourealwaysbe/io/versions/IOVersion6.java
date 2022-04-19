@@ -5,10 +5,12 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 // Moves clue notes out of the puz file and into meta
@@ -82,11 +84,13 @@ public class IOVersion6 extends IOVersion5 {
         DataOutputStream dos, Puzzle puz, boolean isAcross
     ) throws IOException {
 
-        String desiredList = isAcross ? ClueID.ACROSS : ClueID.DOWN;
+        String desiredList = isAcross
+            ? PuzzleUtils.getAcrossListName(puz)
+            : PuzzleUtils.getDownListName(puz);
 
         int size = 0;
         for (ClueID cid : puz.getBoardClueIDs()) {
-            if (desiredList.equals(cid.getListName()))
+            if (Objects.equals(desiredList, cid.getListName()))
                 size += 1;
         }
 
@@ -95,7 +99,7 @@ public class IOVersion6 extends IOVersion5 {
         dos.writeInt(size);
 
         for (ClueID cid : puz.getBoardClueIDs()) {
-            if (desiredList.equals(cid.getListName())) {
+            if (Objects.equals(desiredList, cid.getListName())) {
                 Note note = puz.getNote(cid);
                 writeNote(note, dos);
             }
@@ -124,10 +128,13 @@ public class IOVersion6 extends IOVersion5 {
 
     private void applyNotes(Puzzle puz, Note[] notes, boolean isAcross) {
         if (notes != null) {
-            String desiredList = isAcross ? ClueID.ACROSS : ClueID.DOWN;
+            String desiredList = isAcross
+                ? PuzzleUtils.getAcrossListName(puz)
+                : PuzzleUtils.getDownListName(puz);
+
             int idx = 0;
             for (ClueID cid : puz.getBoardClueIDs()) {
-                if (desiredList.equals(cid.getListName())) {
+                if (Objects.equals(desiredList, cid.getListName())) {
                     if (idx < notes.length) {
                         Note n = notes[idx];
                         if (n != null)

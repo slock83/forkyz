@@ -5,10 +5,12 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 // Saves the current board position and clue orientation.
@@ -21,7 +23,7 @@ public class IOVersion3 extends IOVersion2 {
         puz.setPosition(meta.position);
         Box box = puz.checkedGetBox(meta.position);
         if (box != null) {
-            String desiredList = meta.across ? ClueID.ACROSS : ClueID.DOWN;
+            String desiredList = PuzzleUtils.getAcrossListName(puz);
             ClueID curCid = box.getIsPartOfClue(desiredList);
             puz.setCurrentClueID(curCid);
         }
@@ -50,7 +52,8 @@ public class IOVersion3 extends IOVersion2 {
             dos.writeInt(0);
         }
         ClueID curCid = puz.getCurrentClueID();
-        if (curCid == null || ClueID.ACROSS.equals(curCid.getListName()))
+        String acrossList = PuzzleUtils.getAcrossListName(puz);
+        if (curCid == null || Objects.equals(acrossList, curCid.getListName()))
             dos.write(1);
         else
             dos.write(-1);

@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -45,9 +44,9 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
         assertEquals(21, boxes.length);
         assertEquals(21, boxes[0].length);
         assertEquals("1", boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isStartOf(ClueID.ACROSS));
-        assertEquals(true, boxes[0][0].isStartOf(ClueID.DOWN));
-        assertEquals(false, boxes[0][3].isStartOf(ClueID.ACROSS));
+        assertEquals(true, boxes[0][0].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf("Down"));
+        assertEquals(false, boxes[0][3].isStartOf("Across"));
 
         assertEquals(boxes[0][0].getSolution(), 'F');
         assertEquals(boxes[5][14].getSolution(), 'E');
@@ -55,8 +54,8 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
         assertEquals(boxes[14][5].getSolution(), 'R');
         assertEquals(boxes[1][7], null);
 
-        ClueList acrossClues = puz.getClues(ClueID.ACROSS);
-        ClueList downClues = puz.getClues(ClueID.DOWN);
+        ClueList acrossClues = puz.getClues("Across");
+        ClueList downClues = puz.getClues("Down");
 
         assertEquals(acrossClues.getClue("1").getHint(), "Murals on plaster");
         assertEquals(
