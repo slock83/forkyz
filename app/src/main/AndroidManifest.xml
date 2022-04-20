@@ -38,6 +38,10 @@
         android:name="android.permission.RECEIVE_BOOT_COMPLETED"
         android:description="@string/perm_boot_desc"
     />
+    <uses-permission
+        android:name="android.permission.VIBRATE"
+        android:description="@string/vibrate_desc"
+    />
 
     <uses-feature
         android:name="android.hardware.touchscreen"

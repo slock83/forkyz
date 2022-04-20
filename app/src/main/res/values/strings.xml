@@ -34,6 +34,7 @@
     <string name="perm_internet_desc">Required to download puzzles from the internet.</string>
     <string name="perm_access_network_state_desc">Required to limit background download when on mobile data or wifi.</string>
     <string name="perm_boot_desc">Required to (optionally) allow periodic background download of puzzles.</string>
+    <string name="vibrate_desc">Required for haptic feedback on built-in keyboard.</string>
 
     <!-- Browse -->
     <string name="delete">Delete</string>
@@ -169,6 +170,8 @@
     <string name="license">License</string>
     <string name="keyboard_hide_button">Keyboard Hide Button</string>
     <string name="keyboard_hide_button_desc">Show a keyboard hide button instead of using the navigation back button.</string>
+    <string name="keyboard_haptic">Keyboard Haptic Feedback</string>
+    <string name="keyboard_haptic_desc">Vibrate on keyboard keypress.</string>
 
     <!-- preferences download -->
     <string name="download_wifi_only">Download over Wifi only</string>

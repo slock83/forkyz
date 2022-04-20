@@ -151,6 +151,13 @@
         />
 
         <androidx.preference.CheckBoxPreference
+            android:title="@string/keyboard_haptic"
+            android:defaultValue="true"
+            android:summary="@string/keyboard_haptic_desc"
+            android:key="keyboardHaptic"
+        />
+
+        <androidx.preference.CheckBoxPreference
             android:title="@string/snap_current"
             android:defaultValue="false"
             android:summary="@string/snap_current_desc"
