@@ -722,6 +722,8 @@ public class Playboard implements Serializable {
 
     /**
      * Jump to next word, regardless of movement strategy
+     *
+     * Still skips completed letters if setting chosen
      */
     public Word nextWord() {
         Word previous = this.getCurrentWord();
@@ -734,7 +736,7 @@ public class Playboard implements Serializable {
             popNotificationDisabled();
         }
 
-        MovementStrategy.MOVE_NEXT_CLUE.move(this, false);
+        MovementStrategy.MOVE_NEXT_CLUE.move(this, skipCompletedLetters);
 
         return previous;
     }
