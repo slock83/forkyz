@@ -382,6 +382,7 @@ public class ClueTabs extends LinearLayout
         private ClueListAdapter clueListAdapter;
         private LinearLayoutManager layoutManager;
         private PageType pageType;
+        private String listName;
 
         public ClueListHolder(View view) {
             super(view);
@@ -423,7 +424,7 @@ public class ClueTabs extends LinearLayout
         }
 
         /**
-         * List name only used when pageType is EXTRA
+         * List name only used when pageType is CLUES
          */
         @SuppressLint("NotifyDataSetChanged")
         public void setContents(PageType pageType, String listName) {
@@ -431,7 +432,12 @@ public class ClueTabs extends LinearLayout
             Playboard board = ClueTabs.this.board;
             Puzzle puz = board.getPuzzle();
 
-            if (board != null && this.pageType != pageType) {
+            boolean changed = (
+                this.pageType != pageType
+                || !Objects.equals(this.listName, listName)
+            );
+
+            if (board != null && changed) {
                 switch (pageType) {
                 case CLUES:
                     if (puz != null) {
@@ -460,6 +466,7 @@ public class ClueTabs extends LinearLayout
 
                 clueList.setAdapter(clueListAdapter);
                 this.pageType = pageType;
+                this.listName = listName;
             }
 
             clueListAdapter.notifyDataSetChanged();
