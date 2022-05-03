@@ -58,7 +58,8 @@ public class PuzMetaFile
     }
 
     public String getCaption() {
-        return (meta == null) ? "" : meta.getTitle();
+        String caption = (meta == null) ? "" : meta.getTitle();
+        return caption == null ? "" : caption;
     }
 
     public LocalDate getDate() {

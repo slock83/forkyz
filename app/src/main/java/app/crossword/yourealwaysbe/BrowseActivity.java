@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public class BrowseActivity extends ForkyzActivity {
 
@@ -911,10 +912,11 @@ public class BrowseActivity extends ForkyzActivity {
             // add author if not already in title or caption
             // case insensitive trick:
             // https://www.baeldung.com/java-case-insensitive-string-matching
+            String quotedAuthor = Pattern.quote(author);
             boolean addAuthor
                 = author.length() > 0
-                    && !title.matches("(?i).*" + author + ".*")
-                    && !caption.matches("(?i).*" + author + ".*");
+                    && !title.matches("(?i).*" + quotedAuthor + ".*")
+                    && !caption.matches("(?i).*" + quotedAuthor + ".*");
 
             if (addAuthor) {
                 captionView.setText(smartHtml(
