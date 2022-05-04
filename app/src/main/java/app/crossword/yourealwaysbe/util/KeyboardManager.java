@@ -43,10 +43,9 @@ public class KeyboardManager {
         this.prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         this.keyboardView = keyboardView;
 
-        if (getKeyboardMode() == KeyboardMode.ALWAYS_SHOW)
-            showKeyboard(initialView);
-        else
-            hideKeyboard();
+        // make sure showing, then hide if appropriate
+        showKeyboard(initialView);
+        hideKeyboard();
     }
 
     /**
