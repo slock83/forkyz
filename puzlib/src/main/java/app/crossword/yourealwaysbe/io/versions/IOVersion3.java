@@ -23,7 +23,9 @@ public class IOVersion3 extends IOVersion2 {
         puz.setPosition(meta.position);
         Box box = puz.checkedGetBox(meta.position);
         if (box != null) {
-            String desiredList = PuzzleUtils.getAcrossListName(puz);
+            String desiredList = meta.across
+                ? PuzzleUtils.getAcrossListName(puz)
+                : PuzzleUtils.getDownListName(puz);
             ClueID curCid = box.getIsPartOfClue(desiredList);
             puz.setCurrentClueID(curCid);
         }
