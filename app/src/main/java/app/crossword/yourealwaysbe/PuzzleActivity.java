@@ -12,6 +12,7 @@ import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 
 import java.util.logging.Logger;
@@ -189,32 +190,50 @@ public abstract class PuzzleActivity
         ForkyzApplication.getInstance().saveBoard();
     }
 
-    protected String getLongClueText(Clue clue, int wordLen) {
+    protected String getLongClueText(Clue clue) {
         boolean showCount = prefs.getBoolean("showCount", false);
 
         if (clue == null)
             return getString(R.string.unknown_hint);
 
-        if (showCount) {
-            int clueFormat = R.string.clue_format_no_direction_long_with_count;
-            if (clue.isAcross())
-                clueFormat = R.string.clue_format_across_long_with_count;
-            else if (clue.isDown())
-                clueFormat = R.string.clue_format_down_long_with_count;
+        Zone zone = clue.getZone();
+        int wordLen = (zone == null) ? -1 : zone.size();
 
+        if (showCount && wordLen >= 0) {
             return getString(
-                clueFormat, clue.getNumber(), clue.getHint(), wordLen
+                R.string.clue_format_long_with_count,
+                clue.getListName(),
+                clue.getClueNumber(),
+                clue.getHint(),
+                wordLen
             );
         } else {
-            int clueFormat = R.string.clue_format_no_direction_long;
-            if (clue.isAcross())
-                clueFormat = R.string.clue_format_across_long;
-            else if (clue.isDown())
-                clueFormat = R.string.clue_format_down_long;
-
             return getString(
-                clueFormat, clue.getNumber(), clue.getHint()
+                R.string.clue_format_long,
+                clue.getListName(),
+                clue.getClueNumber(),
+                clue.getHint()
             );
         }
+    }
+
+    protected void launchClueNotes() {
+        Playboard board = getBoard();
+        Clue clue = (board ==  null) ? null : board.getClue();
+        Puzzle puz = getPuzzle();
+
+        if (clue != null && puz != null && puz.isNotableClue(clue)) {
+            Intent i = new Intent(this, NotesActivity.class);
+            i.putExtra(NotesActivity.PUZZLE_NOTES, false);
+            this.startActivity(i);
+        } else {
+            launchPuzzleNotes();
+        }
+    }
+
+    protected void launchPuzzleNotes() {
+        Intent i = new Intent(this, NotesActivity.class);
+        i.putExtra(NotesActivity.PUZZLE_NOTES, true);
+        this.startActivity(i);
     }
 }

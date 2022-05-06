@@ -57,12 +57,7 @@ public class PuzzleImporter {
         if (puz == null)
             return null;
 
-        String source = puz.getSource();
-        if (source == null || source.isEmpty())
-            puz.setSource(puz.getAuthor());
-        source = puz.getSource();
-        if (source == null || source.isEmpty())
-            puz.setSource(IMPORT_FALLBACK_SOURCE);
+        ensurePuzSource(puz);
 
         try {
             return fileHandler.saveNewPuzzle(puz, getNewFileName(puz));
@@ -92,5 +87,22 @@ public class PuzzleImporter {
             normalizedName,
             UUID.randomUUID()
         );
+    }
+
+    /**
+     * Try best to make sure there is some source
+     *
+     * Fall back to author, title, fallback
+     */
+    private static void ensurePuzSource(Puzzle puz) {
+        String source = puz.getSource();
+        if (source == null || source.isEmpty())
+            puz.setSource(puz.getAuthor());
+        source = puz.getSource();
+        if (source == null || source.isEmpty())
+            puz.setSource(puz.getTitle());
+        source = puz.getSource();
+        if (source == null || source.isEmpty())
+            puz.setSource(IMPORT_FALLBACK_SOURCE);
     }
 }

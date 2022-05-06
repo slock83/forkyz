@@ -12,8 +12,8 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 
 /**
  * Read a character stream of JSON data in the format used by the
@@ -22,6 +22,9 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
 public class GuardianJSONIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger(GuardianJSONIO.class.getCanonicalName());
+
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
 
     @Override
     public Puzzle parseInput(InputStream is) throws Exception {
@@ -57,24 +60,23 @@ public class GuardianJSONIO implements PuzzleParser {
     private static Puzzle readPuzzleFromJSON(
         JSONObject json
     ) throws JSONException {
-        Puzzle puz = new Puzzle();
+        PuzzleBuilder builder = new PuzzleBuilder(getBoxes(json))
+            .setTitle(json.optString("name"));
 
-        puz.setTitle(json.optString("name"));
         JSONObject creator = json.optJSONObject("creator");
         if (creator != null)
-            puz.setAuthor(creator.optString("name"));
+            builder.setAuthor(creator.optString("name"));
 
         if (json.has("date")) {
             long epochMillis = json.getLong("date");
-            puz.setDate(
+            builder.setDate(
                 LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24))
             );
         }
 
-        puz.setBoxes(getBoxes(json), false);
-        addClues(json, puz);
+        addClues(json, builder);
 
-        return puz;
+        return builder.getPuzzle();
     }
 
     private static Box[][] getBoxes(JSONObject json) throws JSONException {
@@ -121,25 +123,26 @@ public class GuardianJSONIO implements PuzzleParser {
                 boxY += dy;
             }
 
-            boxes[y][x].setClueNumber(num);
+            boxes[y][x].setClueNumber(String.valueOf(num));
         }
 
         return boxes;
     }
 
-    private static void addClues(JSONObject json, Puzzle puz)
+    private static void addClues(JSONObject json, PuzzleBuilder builder)
             throws JSONException {
         JSONArray entries = json.getJSONArray("entries");
         for (int i = 0; i < entries.length(); i++) {
             JSONObject entry = entries.getJSONObject(i);
 
-            int num = entry.getInt("number");
-            String listName = entry.getString("direction").equals("across")
-                ? Clue.ACROSS
-                : Clue.DOWN;
-            String clue = entry.getString("clue");
+            String num = String.valueOf(entry.getInt("number"));
+            boolean across = entry.getString("direction").equals("across");
+            String hint = entry.getString("clue");
 
-            puz.addClue(new Clue(num, listName, clue));
+            if (across)
+                builder.addAcrossClue(ACROSS_LIST, num, hint);
+            else
+                builder.addDownClue(DOWN_LIST, num, hint);
         }
     }
 

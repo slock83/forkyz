@@ -1,8 +1,9 @@
 package app.crossword.yourealwaysbe.io;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder.NumHint;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -15,6 +16,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -45,33 +48,40 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class UclickXMLIO implements PuzzleParser {
     private static String CHARSET_NAME = "utf8";
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
 
     private static class UclickXMLParser extends DefaultHandler {
-        private Puzzle puz;
+        private String title;
+        private String author;
+        private String copyright;
+        private Box[] boxList;
+        private List<NumHint> acrossClues = new ArrayList<>();
+        private List<NumHint> downClues = new ArrayList<>();
+
         private boolean inAcross = false;
         private boolean inDown = false;
         private int maxClueNum = -1;
         private int width = 0;
         private int height = 0;
 
-        // for checking file type was decent
-        boolean hasCrossword = false;
-        boolean hasAcross = false;
-        boolean hasDown = false;
-
-        public UclickXMLParser(Puzzle puz) {
-            this.puz = puz;
-        }
-
         public boolean isSuccessfulRead() {
-            return hasCrossword
-                && hasAcross
-                && hasDown
+            return boxList != null
+                && acrossClues.size() > 0
+                && downClues.size() > 0
                 && maxClueNum > -1
-                && puz.getWidth() > 0
-                && puz.getHeight() > 0
-                && puz.getNumberOfClues() > 0;
+                && width > 0
+                && height > 0;
         }
+
+        public String getTitle() { return title; }
+        public String getAuthor() { return author; }
+        public String getCopyright() { return copyright; }
+        public Box[] getBoxList() { return boxList; }
+        public int getWidth() { return width; }
+        public int getHeight() { return height; }
+        public List<NumHint> getAcrossClues() { return acrossClues; }
+        public List<NumHint> getDownClues() { return downClues; }
 
         @Override
         public void startElement(String nsURI, String strippedName,
@@ -80,71 +90,66 @@ public class UclickXMLIO implements PuzzleParser {
             String name = strippedName.length() == 0 ? tagName.trim() : strippedName;
             //System.out.println("Start" + name);
             if (inAcross) {
-                int clueNum = Integer.parseInt(attributes.getValue("cn"));
-                if (clueNum > maxClueNum) {
-                    maxClueNum = clueNum;
+                String clueNum = attributes.getValue("cn");
+                int clueNumInt = Integer.parseInt(clueNum);
+                if (clueNumInt > maxClueNum) {
+                    maxClueNum = clueNumInt;
                 }
                 try {
-                    puz.addClue(new Clue(
+                    acrossClues.add(new NumHint(
                         clueNum,
-                        Clue.ACROSS,
                         URLDecoder.decode(
                             attributes.getValue("c"), CHARSET_NAME
                         )
                     ));
                 } catch (UnsupportedEncodingException e) {
-                    puz.addClue(
-                        new Clue(clueNum, Clue.ACROSS, attributes.getValue("c"))
-                    );
+                    acrossClues.add(new NumHint(
+                        clueNum, attributes.getValue("c")
+                    ));
                 }
             } else if (inDown) {
-                int clueNum = Integer.parseInt(attributes.getValue("cn"));
-                if (clueNum > maxClueNum) {
-                    maxClueNum = clueNum;
+                String clueNum = attributes.getValue("cn");
+                int clueNumInt = Integer.parseInt(clueNum);
+                if (clueNumInt > maxClueNum) {
+                    maxClueNum = clueNumInt;
                 }
                 try {
-                    puz.addClue(new Clue(
+                    downClues.add(new NumHint(
                         clueNum,
-                        Clue.DOWN,
                         URLDecoder.decode(
                             attributes.getValue("c"), CHARSET_NAME
                         )
                     ));
                 } catch (UnsupportedEncodingException e) {
-                    puz.addClue(
-                        new Clue(clueNum, Clue.DOWN, attributes.getValue("c"))
-                    );
+                    downClues.add(new NumHint(
+                        clueNum, attributes.getValue("c")
+                    ));
                 }
             } else if (name.equalsIgnoreCase("title")) {
-                puz.setTitle(attributes.getValue("v"));
+                title = attributes.getValue("v");
             } else if (name.equalsIgnoreCase("author")) {
-                puz.setAuthor(attributes.getValue("v"));
+                author = attributes.getValue("v");
             } else if (name.equalsIgnoreCase("copyright")) {
-                puz.setCopyright(attributes.getValue("v"));
+                copyright = attributes.getValue("v");
             } else if (name.equalsIgnoreCase("width")) {
                 width = Integer.parseInt(attributes.getValue("v"));
             } else if (name.equalsIgnoreCase("height")) {
                 height = Integer.parseInt(attributes.getValue("v"));
             } else if (name.equalsIgnoreCase("allanswer")) {
                 String rawGrid = attributes.getValue("v");
-                Box[] boxesList = new Box[height*width];
+                boxList = new Box[height*width];
                 for (int i = 0; i < rawGrid.length(); i++) {
                     char sol = rawGrid.charAt(i);
                     if (sol != '-') {
-                        boxesList[i] = new Box();
-                        boxesList[i].setSolution(sol);
-                        boxesList[i].setBlank();
+                        boxList[i] = new Box();
+                        boxList[i].setSolution(sol);
+                        boxList[i].setBlank();
                     }
                 }
-                puz.setBoxesFromList(boxesList, width, height);
             } else if (name.equalsIgnoreCase("across")) {
                 inAcross = true;
-                hasAcross = true;
             } else if (name.equalsIgnoreCase("down")) {
                 inDown = true;
-                hasDown = true;
-            } else if (name.equalsIgnoreCase("crossword")) {
-                hasCrossword = true;
             }
         }
 
@@ -170,21 +175,33 @@ public class UclickXMLIO implements PuzzleParser {
     }
 
     public static Puzzle parsePuzzle(InputStream is) {
-        Puzzle puz = new Puzzle();
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             SAXParser parser = factory.newSAXParser();
             XMLReader xr = parser.getXMLReader();
-            UclickXMLParser handler = new UclickXMLParser(puz);
+            UclickXMLParser handler = new UclickXMLParser();
             xr.setContentHandler(handler);
             xr.parse(new InputSource(is));
 
             if (!handler.isSuccessfulRead())
                 return null;
 
-            puz.setNotes("");
+            PuzzleBuilder builder = new PuzzleBuilder(
+                handler.getBoxList(), handler.getWidth(), handler.getHeight()
+            );
+            builder.autoNumberBoxes()
+                .setTitle(handler.getTitle())
+                .setAuthor(handler.getAuthor())
+                .setCopyright(handler.getCopyright())
+                .setNotes("");
 
-            return puz;
+            for (NumHint nh : handler.getAcrossClues())
+                builder.addAcrossClue(ACROSS_LIST, nh);
+
+            for (NumHint nh : handler.getDownClues())
+                builder.addDownClue(DOWN_LIST, nh);
+
+            return builder.getPuzzle();
         } catch (Exception e) {
             return null;
         }

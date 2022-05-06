@@ -1,14 +1,16 @@
 package app.crossword.yourealwaysbe.puz;
 
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
-
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Used only for .puz file IO, not to be confused with PuzMetaFile
+ *
+ * TODO: rename!
+ */
 public class PuzzleMeta implements Serializable {
 
     public String author;
@@ -22,7 +24,7 @@ public class PuzzleMeta implements Serializable {
     public String supportUrl;
     public Position position;
     public boolean across;
-    public List<ClueNumDir> historyList;
+    public List<ClueID> historyList;
     public Note[] acrossNotes;
     public Note[] downNotes;
     public Note playerNote;

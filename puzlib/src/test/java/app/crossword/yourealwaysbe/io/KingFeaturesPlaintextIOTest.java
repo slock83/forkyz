@@ -43,10 +43,10 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
 
         assertEquals(21, boxes.length);
         assertEquals(21, boxes[0].length);
-        assertEquals(1, boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isAcross());
-        assertEquals(true, boxes[0][0].isDown());
-        assertEquals(false, boxes[0][3].isAcross());
+        assertEquals("1", boxes[0][0].getClueNumber());
+        assertEquals(true, boxes[0][0].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf("Down"));
+        assertEquals(false, boxes[0][3].isStartOf("Across"));
 
         assertEquals(boxes[0][0].getSolution(), 'F');
         assertEquals(boxes[5][14].getSolution(), 'E');
@@ -54,28 +54,28 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
         assertEquals(boxes[14][5].getSolution(), 'R');
         assertEquals(boxes[1][7], null);
 
-        ClueList acrossClues = puz.getClues(true);
-        ClueList downClues = puz.getClues(false);
+        ClueList acrossClues = puz.getClues("Across");
+        ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue(1).getHint(), "Murals on plaster");
+        assertEquals(acrossClues.getClue("1").getHint(), "Murals on plaster");
         assertEquals(
-            acrossClues.getClue(8).getHint(),
+            acrossClues.getClue("8").getHint(),
             "Glucose-level regulator"
         );
         assertEquals(
-            acrossClues.getClue(23).getHint(),
+            acrossClues.getClue("23").getHint(),
             "Cocky retort to a bully"
         );
         assertEquals(
-            downClues.getClue(5).getHint(),
+            downClues.getClue("5").getHint(),
             "One preserving fruit, e.g."
         );
         assertEquals(
-            downClues.getClue(7).getHint(),
+            downClues.getClue("7").getHint(),
             "In stitches"
         );
         assertEquals(
-            downClues.getClue(14).getHint(),
+            downClues.getClue("14").getHint(),
             "Napoleonic marshal Michel"
         );
     }

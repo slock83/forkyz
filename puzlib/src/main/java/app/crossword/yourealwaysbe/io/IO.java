@@ -10,12 +10,13 @@ import app.crossword.yourealwaysbe.io.versions.IOVersion7;
 import app.crossword.yourealwaysbe.io.versions.IOVersion8;
 import app.crossword.yourealwaysbe.io.versions.IOVersion;
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
-import app.crossword.yourealwaysbe.puz.Puzzle.ClueNumDir;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import static app.crossword.yourealwaysbe.util.HtmlUtil.unHtmlString;
 
@@ -31,6 +32,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class IO implements PuzzleParser {
     public static final int DEFAULT_BUFFER_SIZE = 1024;
@@ -60,6 +62,9 @@ public class IO implements PuzzleParser {
 
     // string to use if a clue is missing
     private static final String UNKNOWN_CLUE = "-";
+
+    public static final String ACROSS_LIST = "Across";
+    public static final String DOWN_LIST = "Down";
 
     public static int cksum_region(byte[] data, int offset, int length,
                                    int cksum) {
@@ -97,8 +102,6 @@ public class IO implements PuzzleParser {
     }
 
     public static Puzzle loadNative(DataInputStream input) throws IOException {
-        Puzzle puz = new Puzzle();
-
         input.skipBytes(0x2);
 
         byte[] fileMagic = new byte[FILE_MAGIC.length()];
@@ -122,7 +125,7 @@ public class IO implements PuzzleParser {
         input.skip(1);
 
         input.skipBytes(2);
-        puz.setSolutionChecksum(Short.reverseBytes(input.readShort()));
+        short solutionChecksum = Short.reverseBytes(input.readShort());
 
         input.skipBytes(0xC);
 
@@ -133,7 +136,7 @@ public class IO implements PuzzleParser {
         input.readShort();
 
         input.skipBytes(2);
-        puz.setScrambled(input.readShort() != 0);
+        boolean scrambled = input.readShort() != 0;
 
         Box[][] boxes = new Box[height][width];
         byte[] answerByte = new byte[1];
@@ -171,33 +174,38 @@ public class IO implements PuzzleParser {
             }
         }
 
-        puz.setBoxes(boxes, true);
+        PuzzleBuilder builder = new PuzzleBuilder(boxes);
+        builder.autoNumberBoxes();
 
-        puz.setTitle(readNullTerminatedString(input));
-        puz.setAuthor(readNullTerminatedString(input));
-        puz.setCopyright(readNullTerminatedString(input));
+        builder.setSolutionChecksum(solutionChecksum);
+        builder.setScrambled(scrambled);
+        builder.setTitle(readNullTerminatedString(input));
+        builder.setAuthor(readNullTerminatedString(input));
+        builder.setCopyright(readNullTerminatedString(input));
 
-        for (int x = 0; x < boxes.length; x++) {
-            for (int y = 0; y < boxes[x].length; y++) {
-                if (boxes[x][y] == null) {
+        for (int x = 0; x < builder.getHeight(); x++) {
+            for (int y = 0; y < builder.getWidth(); y++) {
+                Box box = builder.getBox(x, y);
+
+                if (box == null) {
                     continue;
                 }
 
-                int clueNumber = boxes[x][y].getClueNumber();
+                String clueNumber = box.getClueNumber();
 
-                if (Puzzle.isStartClue(boxes, x, y, true) && (clueNumber != 0)) {
+                if (builder.isStartClue(x, y, true) && (clueNumber != null)) {
                     String value = readNullTerminatedString(input);
-                    puz.addClue(new Clue(clueNumber, Clue.ACROSS, value));
+                    builder.addAcrossClue(ACROSS_LIST, clueNumber, value);
                 }
 
-                if (Puzzle.isStartClue(boxes, x, y, false) && (clueNumber != 0)) {
+                if (builder.isStartClue(x, y, false) && (clueNumber != null)) {
                     String value = readNullTerminatedString(input);
-                    puz.addClue(new Clue(clueNumber, Clue.DOWN, value));
+                    builder.addDownClue(DOWN_LIST, clueNumber, value);
                 }
             }
         }
 
-        puz.setNotes(readNullTerminatedString(input));
+        builder.setNotes(readNullTerminatedString(input));
 
         boolean eof = false;
 
@@ -205,18 +213,17 @@ public class IO implements PuzzleParser {
             try {
                 switch (readExtraSectionType(input)) {
                     case GEXT:
-                        readGextSection(input, puz);
-
+                        readGextSection(input, builder);
                         break;
 
                     // For reading legacy files only
                     // info now stored in meta
                     case ANTS:
-                        loadNotesNative(true, puz, input);
+                        loadNotesNative(true, builder, input);
                         break;
 
                     case DNTS:
-                        loadNotesNative(false, puz, input);
+                        loadNotesNative(false, builder, input);
                         break;
 
                     default:
@@ -227,7 +234,7 @@ public class IO implements PuzzleParser {
             }
         }
 
-        return puz;
+        return builder.getPuzzle();
     }
 
     public static void readCustom(Puzzle puz, DataInputStream is)
@@ -258,20 +265,19 @@ public class IO implements PuzzleParser {
         return -1;
     }
 
-    public static void readGextSection(DataInputStream input, Puzzle puz)
-            throws IOException {
+    public static void readGextSection(
+        DataInputStream input, PuzzleBuilder builder
+    ) throws IOException {
         input.skipBytes(4);
 
-        Box[][] boxes = puz.getBoxes();
-
-        for (int x = 0; x < boxes.length; x++) {
-            for (int y = 0; y < boxes[x].length; y++) {
+        for (int x = 0; x < builder.getHeight(); x++) {
+            for (int y = 0; y < builder.getWidth(); y++) {
                 byte gextInfo = input.readByte();
 
                 if ((gextInfo & GEXT_SQUARE_CIRCLED) != 0) {
-                    if (boxes[x][y] != null) {
-                        boxes[x][y].setCircled(true);
-                    }
+                    Box box = builder.getBox(x, y);
+                    if (box != null)
+                        box.setCircled(true);
                 }
             }
         }
@@ -370,7 +376,7 @@ public class IO implements PuzzleParser {
         tmpDos.writeByte(width);
         tmpDos.writeByte(height);
 
-        int numberOfClues = puz.getNumberOfClues();
+        int numberOfClues = getNumberOfClues(puz);
 
         tmpDos.writeShort(Short.reverseBytes((short) numberOfClues));
         tmpDos.writeShort(Short.reverseBytes((short) 1));
@@ -658,15 +664,16 @@ public class IO implements PuzzleParser {
      *         + null terminated string which is field value
      */
     private static void loadNotesNative(boolean isAcross,
-                                        Puzzle puz,
+                                        PuzzleBuilder builder,
                                         DataInputStream input)
             throws IOException {
 
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
-            int number = cnd.getClueNumber();
-            boolean across = cnd.getAcross();
+        for (ClueID cid : builder.getBoardClueIDs()) {
+            String listName = cid.getListName();
 
-            if (across == isAcross) {
+            // assume puz files only deal with across/down list
+            String desiredList = isAcross ? ACROSS_LIST : DOWN_LIST;
+            if (desiredList.equals(listName)) {
                 String scratch = null;
                 String text = null;
                 String anagramSrc = null;
@@ -701,7 +708,7 @@ public class IO implements PuzzleParser {
                     Note n = new Note(
                         scratch, text, anagramSrc, anagramSol
                     );
-                    puz.setNote(number, n, isAcross);
+                    builder.setNote(cid, n);
                 }
             }
         }
@@ -737,24 +744,33 @@ public class IO implements PuzzleParser {
      * when same number
      */
     private static List<String> getRawClues(Puzzle puz) {
-        int numClues = puz.getNumberOfClues();
+        int numClues = getNumberOfClues(puz);
 
         List<String> rawClues = new ArrayList<>(numClues);
 
-        ClueList acrossClues = puz.getClues(true);
-        ClueList downClues = puz.getClues(false);
+        String acrossList = PuzzleUtils.getAcrossListName(puz);
+        String downList = PuzzleUtils.getDownListName(puz);
 
-        for (ClueNumDir cnd : puz.getClueNumDirs()) {
-            int clueNum = cnd.getClueNumber();
-            boolean across = cnd.getAcross();
+        ClueList acrossClues = null;
+        if (acrossList != null)
+            acrossClues = puz.getClues(acrossList);
 
-            if (across) {
-                if (acrossClues.hasClue(clueNum))
+        ClueList downClues = null;
+        if (downList != null)
+            downClues = puz.getClues(downList);
+
+        for (ClueID cid : puz.getBoardClueIDs()) {
+            String clueNum = cid.getClueNumber();
+            String listName = cid.getListName();
+
+            // only support Across/Down in puz files
+            if (Objects.equals(acrossList, listName)) {
+                if (acrossClues != null && acrossClues.hasClue(clueNum))
                     rawClues.add(acrossClues.getClue(clueNum).getHint());
                 else
                     rawClues.add(UNKNOWN_CLUE);
-            } else {
-                if (downClues.hasClue(clueNum))
+            } else if (Objects.equals(downList, listName)) {
+                if (downClues != null && downClues.hasClue(clueNum))
                     rawClues.add(downClues.getClue(clueNum).getHint());
                 else
                     rawClues.add(UNKNOWN_CLUE);
@@ -762,5 +778,22 @@ public class IO implements PuzzleParser {
         }
 
         return rawClues;
+    }
+
+    /**
+     * Gets number of Across/Down clues
+     */
+    private static int getNumberOfClues(Puzzle puz) {
+        ClueList acrossClues = PuzzleUtils.getAcrossList(puz);
+        ClueList downClues = PuzzleUtils.getDownList(puz);
+        int count = 0;
+
+        if (acrossClues != null)
+            count += acrossClues.size();
+
+        if (downClues != null)
+            count += downClues.size();
+
+        return count;
     }
 }

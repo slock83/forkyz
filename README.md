@@ -11,6 +11,7 @@ implementing my own customisations.
 
 Additions:
 
+* Support non-standard clue lists and "zoned" clues. E.g. spirals and rows gardens in IPuz and JPZ.
 * Support for bar puzzles (in IPuz and JPZ format).
 * Support for cell colours.
 * Support for non-standard clue lists.

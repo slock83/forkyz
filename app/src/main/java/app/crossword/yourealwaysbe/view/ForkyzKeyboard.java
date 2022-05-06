@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -48,6 +49,7 @@ public class ForkyzKeyboard
     private static final String FORKYZ_TEXT_KEY = "ForkyzTextKey";
     private static final String FORKYZ_IMAGE_KEY = "ForkyzImageKey";
     private static final String PREF_KEYBOARD_LAYOUT = "keyboardLayout";
+    private static final String PREF_KEYBOARD_HAPTIC = "keyboardHaptic";
     private static final String DEFAULT_KEYBOARD_LAYOUT = "0";
     private static final int[] KEYBOARD_LAYOUTS = {
         R.layout.forkyz_keyboard_qwerty,
@@ -137,6 +139,11 @@ public class ForkyzKeyboard
         case MotionEvent.ACTION_DOWN:
             onKeyDown(view.getId());
             view.setPressed(true);
+            if (performHaptic()) {
+                view.performHapticFeedback(
+                    HapticFeedbackConstants.KEYBOARD_TAP
+                );
+            }
             return true;
         case MotionEvent.ACTION_UP:
             view.setPressed(false);
@@ -394,6 +401,12 @@ public class ForkyzKeyboard
         KeyActor actor = keyActors.get(keyId);
         if (actor != null)
             actor.fireKeyDown();
+    }
+
+    private boolean performHaptic() {
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(getContext());
+        return prefs.getBoolean(PREF_KEYBOARD_HAPTIC, true);
     }
 
     private class FKFactory implements LayoutInflater.Factory2 {

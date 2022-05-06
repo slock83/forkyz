@@ -1,9 +1,10 @@
 package app.crossword.yourealwaysbe.view.recycler;
 
-import androidx.recyclerview.widget.RecyclerView;
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -114,6 +115,7 @@ public class SeparatedRecyclerViewAdapter<
         adapter.registerAdapterDataObserver(
             new RecyclerView.AdapterDataObserver() {
                 @Override
+                @SuppressLint("NotifyDataSetChanged")
                 public void onChanged() {
                     notifyDataSetChanged();
                 }

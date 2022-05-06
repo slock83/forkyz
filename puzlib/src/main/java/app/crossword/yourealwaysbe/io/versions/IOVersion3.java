@@ -1,12 +1,16 @@
 package app.crossword.yourealwaysbe.io.versions;
 
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
+import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 // Saves the current board position and clue orientation.
@@ -17,7 +21,12 @@ public class IOVersion3 extends IOVersion2 {
     protected void applyMeta(Puzzle puz, PuzzleMeta meta){
         super.applyMeta(puz, meta);
         puz.setPosition(meta.position);
-        puz.setAcross(meta.across);
+        Box box = puz.checkedGetBox(meta.position);
+        if (box != null) {
+            String desiredList = PuzzleUtils.getAcrossListName(puz);
+            ClueID curCid = box.getIsPartOfClue(desiredList);
+            puz.setCurrentClueID(curCid);
+        }
     }
 
     @Override
@@ -42,6 +51,11 @@ public class IOVersion3 extends IOVersion2 {
             dos.writeInt(0);
             dos.writeInt(0);
         }
-        dos.write(puz.getAcross() ? 1 : -1);
+        ClueID curCid = puz.getCurrentClueID();
+        String acrossList = PuzzleUtils.getAcrossListName(puz);
+        if (curCid == null || Objects.equals(acrossList, curCid.getListName()))
+            dos.write(1);
+        else
+            dos.write(-1);
     }
 }

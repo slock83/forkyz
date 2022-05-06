@@ -12,8 +12,8 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 
 /**
  * Read a character stream of JSON data in the format used by the
@@ -22,6 +22,9 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
 public class AmuseLabsJSONIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger(AmuseLabsJSONIO.class.getCanonicalName());
+
+    private static final String ACROSS_LIST = "Across";
+    private static final String DOWN_LIST = "Down";
 
     /**
      * An unfancy exception indicating error while parsing
@@ -61,29 +64,27 @@ public class AmuseLabsJSONIO implements PuzzleParser {
     private static Puzzle readPuzzleFromJSON(
         JSONObject json
     ) throws JSONException, AmuseLabsFormatException {
-        Puzzle puz = new Puzzle();
-
-        puz.setTitle(json.optString("title"));
-        puz.setAuthor(json.optString("author"));
-        puz.setCopyright(json.optString("copyright"));
-        puz.setSource(json.optString("publisher"));
-
-        if (json.has("publishTime")) {
-            long epochMillis = json.getLong("publishTime");
-            puz.setDate(
-                LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24))
-            );
-        }
-
         try {
-            puz.setBoxes(getBoxes(json), false);
+            PuzzleBuilder builder = new PuzzleBuilder(getBoxes(json));
+
+            builder.setTitle(optStringNull(json, "title"));
+            builder.setAuthor(optStringNull(json, "author"));
+            builder.setCopyright(optStringNull(json, "copyright"));
+            builder.setSource(optStringNull(json, "publisher"));
+
+            if (json.has("publishTime")) {
+                long epochMillis = json.getLong("publishTime");
+                builder.setDate(
+                    LocalDate.ofEpochDay(epochMillis / (1000 * 60 * 60 * 24))
+                );
+            }
+
+            addClues(json, builder);
+
+            return builder.getPuzzle();
         } catch (IllegalArgumentException e) {
             throw new AmuseLabsFormatException("Could not set grid boxes from data file: " + e.getMessage());
         }
-
-        addClues(json, puz);
-
-        return puz;
     }
 
     private static Box[][] getBoxes(JSONObject json)
@@ -128,7 +129,7 @@ public class AmuseLabsJSONIO implements PuzzleParser {
                         if (boxes[row][col] == null) {
                             boxes[row][col] = new Box();
                         }
-                        boxes[row][col].setClueNumber(clueNum);
+                        boxes[row][col].setClueNumber(String.valueOf(clueNum));
                     }
                 }
             }
@@ -155,7 +156,7 @@ public class AmuseLabsJSONIO implements PuzzleParser {
         return boxes;
     }
 
-    private static void addClues(JSONObject json, Puzzle puz)
+    private static void addClues(JSONObject json, PuzzleBuilder builder)
             throws JSONException {
         JSONArray entries = json.getJSONArray("placedWords");
 
@@ -167,13 +168,24 @@ public class AmuseLabsJSONIO implements PuzzleParser {
 
             int num = entry.getInt("clueNum");
             if (num > 0) {
-                String listName = entry.getBoolean("acrossNotDown")
-                    ? Clue.ACROSS
-                    : Clue.DOWN;
+                boolean across = entry.getBoolean("acrossNotDown");
                 String clue = entry.getJSONObject("clue").getString("clue");
 
-                puz.addClue(new Clue(num, listName, clue));
+                if (across) {
+                    builder.addAcrossClue(
+                        ACROSS_LIST, String.valueOf(num), clue
+                    );
+                } else {
+                    builder.addDownClue(DOWN_LIST, String.valueOf(num), clue);
+                }
             }
         }
+    }
+
+    private static String optStringNull(JSONObject obj, String field) {
+        String value = obj.optString(field);
+        if (value == null || value.isEmpty())
+            return null;
+        return value;
     }
 }

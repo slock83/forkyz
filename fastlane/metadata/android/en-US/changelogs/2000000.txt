@@ -1,0 +1,4 @@
+<ul>
+<li>Move to puzzle "zones" instead of only across/down clues, and allow non-standard clue numbers. Supports e.g. spirals and rows gardens in IPuz and JPZ.</li>
+<li>Haptic feedback option on keyboard.</li>
+</ul>

@@ -41,7 +41,7 @@ import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.MovementStrategy;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
-import app.crossword.yourealwaysbe.puz.Puzzle.Position;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
@@ -53,6 +53,8 @@ import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.ScaleListener;
 import app.crossword.yourealwaysbe.view.ScrollingImageView;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class PlayActivity extends PuzzleActivity
@@ -187,7 +189,7 @@ public class PlayActivity extends PuzzleActivity
                     // ignore
                     switch (key) {
                     case ForkyzKeyboard.KEY_CHANGE_CLUE_DIRECTION:
-                        getBoard().toggleDirection();
+                        getBoard().toggleSelection();
                         return;
                     case ForkyzKeyboard.KEY_NEXT_CLUE:
                         getBoard().nextWord();
@@ -256,8 +258,7 @@ public class PlayActivity extends PuzzleActivity
                     try {
                         Position p = renderer.findBox(e);
                         Word w = getBoard().setHighlightLetter(p);
-                        boolean displayScratch = prefs.getBoolean("displayScratch", false);
-                        renderer.draw(w, displayScratch, displayScratch);
+                        renderer.draw(w, getSuppressNotesList());
 
                         launchClueNotes();
                     } catch (Exception ex) {
@@ -354,7 +355,7 @@ public class PlayActivity extends PuzzleActivity
             public void onScale(float newScale, final Point center) {
                 int w = boardView.getImageView().getWidth();
                 int h = boardView.getImageView().getHeight();
-                float scale = renderer.fitTo((w < h) ? w : h);
+                float scale = renderer.fitTo(w, h);
                 prefs.edit().putFloat(SCALE, scale).apply();
                 lastTap = System.currentTimeMillis();
             }
@@ -369,12 +370,14 @@ public class PlayActivity extends PuzzleActivity
                 public void run() {
                     boardView.scrollTo(0, 0);
 
-                    int v = (boardView.getWidth() < boardView.getHeight()) ? boardView
-                            .getWidth() : boardView.getHeight();
-                    if (v == 0) {
+                    int width = boardView.getWidth();
+                    int height = boardView.getHeight();
+
+                    if (width == 0 || height == 0) {
                         handler.postDelayed(this, 100);
                     }
-                    float newScale = renderer.fitTo(v);
+
+                    float newScale = renderer.fitTo(width, height);
                     boardView.setCurrentScale(newScale);
 
                     prefs.edit().putFloat(SCALE, newScale).apply();
@@ -521,13 +524,13 @@ public class PlayActivity extends PuzzleActivity
                     break;
 
                 case KeyEvent.KEYCODE_DPAD_CENTER:
-                    getBoard().toggleDirection();
+                    getBoard().toggleSelection();
                     handled = true;
                     break;
 
                 case KeyEvent.KEYCODE_SPACE:
                     if (prefs.getBoolean("spaceChangesDirection", true)) {
-                        getBoard().toggleDirection();
+                        getBoard().toggleSelection();
                     } else if (isScratchMode()) {
                         getBoard().playScratchLetter(' ');
                     } else {
@@ -538,7 +541,7 @@ public class PlayActivity extends PuzzleActivity
 
                 case KeyEvent.KEYCODE_ENTER:
                     if (prefs.getBoolean("enterChangesDirection", true)) {
-                        getBoard().toggleDirection();
+                        getBoard().toggleSelection();
                     } else {
                         getBoard().nextWord();
                     }
@@ -705,15 +708,11 @@ public class PlayActivity extends PuzzleActivity
         if (board == null)
             return;
 
-        if (!clue.isAcross() && !clue.isDown())
-            return;
-
-        Word old = board.getCurrentWord();
-        if (clue.isAcross())
-            board.jumpToClue(clue.getNumber(), true);
-        else if (clue.isDown())
-            board.jumpToClue(clue.getNumber(), true);
-        displayKeyboard(old);
+        if (board.isJumpableClue(clue)) {
+            Word old = board.getCurrentWord();
+            board.jumpToClue(clue);
+            displayKeyboard(old);
+        }
     }
 
     @Override
@@ -722,11 +721,9 @@ public class PlayActivity extends PuzzleActivity
         if (board == null)
             return;
 
-        if (getPuzzle().isNotableClue(clue)) {
-            if (clue.isAcross() && clue.hasNumber())
-                board.jumpToClue(clue.getNumber(), true);
-            else if (clue.isDown() && clue.hasNumber())
-                board.jumpToClue(clue.getNumber(), false);
+        Puzzle puz = getPuzzle();
+        if (puz != null && puz.isNotableClue(clue)) {
+            board.jumpToClue(clue);
             launchClueNotes();
         } else {
             launchPuzzleNotes();
@@ -772,10 +769,9 @@ public class PlayActivity extends PuzzleActivity
 
     private void fitToScreen() {
         this.boardView.scrollTo(0, 0);
-
-        int v = (this.boardView.getWidth() < this.boardView.getHeight()) ? this.boardView
-                .getWidth() : this.boardView.getHeight();
-        float newScale = renderer.fitTo(v);
+        float newScale = renderer.fitTo(
+            boardView.getWidth(), boardView.getHeight()
+        );
         this.prefs.edit().putFloat(SCALE, newScale).apply();
         boardView.setCurrentScale(newScale);
         this.render(true);
@@ -947,9 +943,8 @@ public class PlayActivity extends PuzzleActivity
         if (getBoard() == null)
             return;
 
-        boolean displayScratch = this.prefs.getBoolean("displayScratch", false);
         this.boardView.setBitmap(
-            renderer.draw(previous, displayScratch, displayScratch),
+            renderer.draw(previous, getSuppressNotesList()),
             rescale
         );
         this.boardView.setContentDescription(
@@ -991,23 +986,9 @@ public class PlayActivity extends PuzzleActivity
         }
 
         Clue c = getBoard().getClue();
-        this.clue.setText(smartHtml(
-            getLongClueText(c, getBoard().getCurrentWord().length)
-        ));
+        this.clue.setText(smartHtml(getLongClueText(c)));
 
         this.boardView.requestFocus();
-    }
-
-    private void launchClueNotes() {
-        Intent i = new Intent(this, NotesActivity.class);
-        i.putExtra(NotesActivity.PUZZLE_NOTES, false);
-        this.startActivity(i);
-    }
-
-    private void launchPuzzleNotes() {
-        Intent i = new Intent(this, NotesActivity.class);
-        i.putExtra(NotesActivity.PUZZLE_NOTES, true);
-        this.startActivity(i);
     }
 
     private void launchClueList() {
@@ -1131,8 +1112,9 @@ public class PlayActivity extends PuzzleActivity
 
             final String notes = puzNotes;
 
-            String[] split =
-                notes.split("(?i:(?m:^\\s*Across:?\\s*$|^\\s*\\d))", 2);
+            String[] split = notes.split(
+                "(?i:(?m:^\\s*Across:?\\s*$|^.*>Across<.*|^\\s*\\d))", 2
+            );
 
             final String text = split[0].trim();
 
@@ -1256,5 +1238,15 @@ public class PlayActivity extends PuzzleActivity
             "scratchMode", !scratchMode
         ).apply();
         invalidateOptionsMenu();
+    }
+
+    /**
+     * What scratch to suppress when rendering
+     */
+    private Set<String> getSuppressNotesList() {
+        boolean displayScratch = prefs.getBoolean("displayScratch", false);
+        return displayScratch
+            ? Collections.emptySet()
+            : null;
     }
 }
