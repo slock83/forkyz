@@ -11,6 +11,7 @@ implementing my own customisations.
 
 Additions:
 
+* Support non-standard clue lists and "zoned" clues. E.g. spirals and rows gardens in IPuz and JPZ.
 * Support for bar puzzles (in IPuz and JPZ format).
 * Updated file handling compatible with Android 11.
 * Import of puzzles as well as download.
