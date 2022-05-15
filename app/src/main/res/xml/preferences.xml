@@ -151,6 +151,27 @@
         />
 
         <androidx.preference.CheckBoxPreference
+            android:title="@string/keyboard_use_native"
+            android:defaultValue="false"
+            android:summary="@string/keyboard_use_native_desc"
+            android:key="useNativeKeyboard"
+        />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/space_change_dir"
+            android:defaultValue="false"
+            android:summary="@string/space_change_dir_desc"
+            android:key="spaceChangesDirection"
+        />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/enter_changes_direction"
+            android:defaultValue="false"
+            android:summary="@string/enter_changes_direction_desc"
+            android:key="enterChangesDirection"
+        />
+
+        <androidx.preference.CheckBoxPreference
             android:title="@string/keyboard_haptic"
             android:defaultValue="true"
             android:summary="@string/keyboard_haptic_desc"
@@ -185,20 +206,6 @@
             android:defaultValue="false"
             android:summary="@string/skip_filled_desc"
             android:key="skipFilled"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/space_change_dir"
-            android:defaultValue="false"
-            android:summary="@string/space_change_dir_desc"
-            android:key="spaceChangesDirection"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/enter_changes_direction"
-            android:defaultValue="false"
-            android:summary="@string/enter_changes_direction_desc"
-            android:key="enterChangesDirection"
         />
 
         <androidx.preference.CheckBoxPreference

@@ -7,8 +7,10 @@ package app.crossword.yourealwaysbe.util;
 import java.util.logging.Logger;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -53,6 +55,9 @@ public class KeyboardManager {
      */
     public void onResume() {
         setHideRowVisibility();
+
+        if (isNativeKeyboard())
+            keyboardView.setVisibility(View.GONE);
     }
 
     /**
@@ -82,8 +87,16 @@ public class KeyboardManager {
         if (getKeyboardMode() != KeyboardMode.NEVER_SHOW
                 && view != null
                 && view.requestFocus()) {
-            keyboardView.setVisibility(View.VISIBLE);
-            keyboardView.attachToView(view);
+            if (isNativeKeyboard()) {
+                InputMethodManager imm
+                    = (InputMethodManager)
+                        activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+                keyboardView.setVisibility(View.GONE);
+            } else {
+                keyboardView.setVisibility(View.VISIBLE);
+                keyboardView.attachToView(view);
+            }
         }
     }
 
@@ -115,8 +128,20 @@ public class KeyboardManager {
             prefHide && !keyboardView.hasKeysDown() && !isBlockHide();
         boolean doHide = force || softHide;
 
-        if (doHide)
-            keyboardView.setVisibility(View.GONE);
+        if (doHide) {
+            if (isNativeKeyboard()) {
+                View focus = activity.getCurrentFocus();
+                if (focus != null) {
+                    InputMethodManager imm
+                        = (InputMethodManager) activity.getSystemService(
+                            Context.INPUT_METHOD_SERVICE
+                        );
+                    imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+                }
+            } else {
+                keyboardView.setVisibility(View.GONE);
+            }
+        }
 
         return doHide;
     }
@@ -184,5 +209,9 @@ public class KeyboardManager {
 
     private boolean isKeyboardHideButton() {
         return prefs.getBoolean("keyboardHideButton", false);
+    }
+
+    private boolean isNativeKeyboard() {
+        return prefs.getBoolean("useNativeKeyboard", false);
     }
 }

@@ -172,6 +172,8 @@
     <string name="keyboard_hide_button_desc">Show a keyboard hide button instead of using the navigation back button.</string>
     <string name="keyboard_haptic">Keyboard Haptic Feedback</string>
     <string name="keyboard_haptic_desc">Vibrate on keyboard keypress.</string>
+    <string name="keyboard_use_native">Use native keyboard</string>
+    <string name="keyboard_use_native_desc">Only works with keyboards that report key presses.</string>
 
     <!-- preferences download -->
     <string name="download_wifi_only">Download over Wifi only</string>
