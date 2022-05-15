@@ -3,6 +3,9 @@ package app.crossword.yourealwaysbe.puz;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 public interface MovementStrategy extends Serializable {
@@ -86,69 +89,11 @@ public interface MovementStrategy extends Serializable {
     MovementStrategy MOVE_NEXT_CLUE = new MovementStrategy() {
         @Override
         public Word move(Playboard board, boolean skipCompletedLetters) {
-            return move(board, skipCompletedLetters, null, null);
+            return move(board, skipCompletedLetters, null, null, null, null);
         }
 
         @Override
         public Word back(Playboard board) {
-            return back(board, null, null);
-        }
-
-        /**
-         * Keep moving to next clue unless we hit the breakPos
-         *
-         * If breakPos is null, keep moving until we hit the start of
-         * the next clue again.
-         *
-         * If breakPos hit, reset to resetPos (if not null)
-         */
-        private Word move(
-            Playboard board,
-            boolean skipCompletedLetters,
-            Position breakPos,
-            Position resetPos
-        ) {
-            Position start = board.getHighlightLetter();
-            Word word = board.moveZoneForward(skipCompletedLetters);
-            Position newPos = board.getHighlightLetter();
-
-            if (Objects.equals(start, newPos)) {
-                ClueID clueID = board.getClue();
-                if (clueID != null && clueID.hasClueNumber()) {
-                    Puzzle puz = board.getPuzzle();
-                    String number = clueID.getClueNumber();
-                    String listName = clueID.getListName();
-                    ClueList clues = puz.getClues(listName);
-                    // TODO: move to next list if at end?
-                    String nextNum = clues.getNextClueNumber(number, true);
-                    board.jumpToClue(new ClueID(nextNum, listName));
-
-                    Box box = board.getCurrentBox();
-                    if (board.skipBox(box, skipCompletedLetters)) {
-                        // only carry on if we haven't been here before..
-                        newPos = board.getHighlightLetter();
-                        if (Objects.equals(breakPos, newPos)) {
-                            // didn't find anything, reset
-                            board.setHighlightLetter(resetPos);
-                        } else {
-                            if (breakPos == null)
-                                breakPos = newPos;
-                            if (resetPos == null)
-                                resetPos = start;
-                            move(
-                                board, skipCompletedLetters, breakPos, resetPos
-                            );
-                        }
-                    }
-                }
-            }
-
-            return word;
-        }
-
-        private Word back(
-            Playboard board, Position breakPos, Position resetPos
-        ) {
             Position start = board.getHighlightLetter();
             Word word = board.moveZoneBack(false);
             Position end = board.getHighlightLetter();
@@ -162,29 +107,123 @@ public interface MovementStrategy extends Serializable {
                     String number = clueID.getClueNumber();
                     String listName = clueID.getListName();
                     ClueList clues = puz.getClues(listName);
-                    // TODO: move to next list if at end?
-                    String nextNum = clues.getPreviousClueNumber(number, true);
-                    board.jumpToClueEnd(new ClueID(nextNum, listName));
 
+                    // Move to prev clue or wrap to end of prev list
+                    String firstNumber = clues.getFirstClueNumber();
+                    if (Objects.equals(number, firstNumber)) {
+                        String prevList = getPrevList(puz, listName);
+                        ClueList prevClues = puz.getClues(prevList);
+                        String lastClue = prevClues.getLastClueNumber();
+                        board.jumpToClueEnd(new ClueID(lastClue, prevList));
+                    } else {
+                        String nextNum
+                            = clues.getPreviousClueNumber(number, true);
+                        board.jumpToClueEnd(new ClueID(nextNum, listName));
+                    }
+                }
+            }
+
+            return word;
+        }
+
+        /**
+         * Keep moving to next clue unless we hit the breakPos
+         *
+         * If breakPos/breakClueID is null, keep moving until we hit the
+         * start of the next clue again.
+         *
+         * If breakPos hit with same clue selected, reset to resetPos
+         * (if not null) and resetClueID.
+         */
+        private Word move(
+            Playboard board,
+            boolean skipCompletedLetters,
+            Position breakPos,
+            ClueID breakClueID,
+            Position resetPos,
+            ClueID resetClueID
+        ) {
+            Position start = board.getHighlightLetter();
+            Word word = board.moveZoneForward(skipCompletedLetters);
+            Position newPos = board.getHighlightLetter();
+
+            if (Objects.equals(start, newPos)) {
+                ClueID clueID = board.getClue();
+                if (clueID != null && clueID.hasClueNumber()) {
+                    Puzzle puz = board.getPuzzle();
+                    String number = clueID.getClueNumber();
+                    String listName = clueID.getListName();
+                    ClueList clues = puz.getClues(listName);
+
+                    // Move to next clue or wrap to start of next list
+                    String lastNumber = clues.getLastClueNumber();
+                    if (Objects.equals(number, lastNumber)) {
+                        String nextList = getNextList(puz, listName);
+                        ClueList nextClues = puz.getClues(nextList);
+                        String firstClue = nextClues.getFirstClueNumber();
+                        board.jumpToClue(new ClueID(firstClue, nextList));
+                    } else {
+                        String nextNum = clues.getNextClueNumber(number, true);
+                        board.jumpToClue(new ClueID(nextNum, listName));
+                    }
+
+                    // Check if we should skip
                     Box box = board.getCurrentBox();
-                    if (board.skipBox(box, false)) {
+                    if (board.skipBox(box, skipCompletedLetters)) {
                         // only carry on if we haven't been here before..
-                        Position newPos = board.getHighlightLetter();
-                        if (Objects.equals(breakPos, newPos)) {
+                        newPos = board.getHighlightLetter();
+                        boolean isBreak = (
+                            Objects.equals(breakPos, newPos)
+                            && Objects.equals(clueID, breakClueID)
+                        );
+                        if (isBreak) {
                             // didn't find anything, reset
-                            board.setHighlightLetter(resetPos);
+                            if (resetClueID != null)
+                                board.jumpToClue(resetClueID);
+                            if (resetPos != null)
+                                board.setHighlightLetter(resetPos);
                         } else {
-                            if (breakPos == null)
+                            if (breakPos == null) {
                                 breakPos = newPos;
-                            if (resetPos == null)
+                                breakClueID = clueID;
+                            }
+                            if (resetPos == null) {
                                 resetPos = start;
-                            back(board, breakPos, resetPos);
+                                resetClueID = clueID;
+                            }
+                            move(
+                                board,
+                                skipCompletedLetters,
+                                breakPos, breakClueID,
+                                resetPos, resetClueID
+                            );
                         }
                     }
                 }
             }
 
             return word;
+        }
+
+        private String getNextList(Puzzle puz, String listName) {
+            return getListDelta(puz, listName, 1);
+        }
+
+        private String getPrevList(Puzzle puz, String listName) {
+            return getListDelta(puz, listName, -1);
+        }
+
+        private String getListDelta(Puzzle puz, String listName, int delta) {
+            // inefficient to sort list every time, but we don't expect
+            // many lists, and this function won't be called often
+            List<String> clueLists = new ArrayList<>(puz.getClueListNames());
+            Collections.sort(clueLists);
+            int curPos = clueLists.indexOf(listName);
+            int n = clueLists.size();
+            // +n trick to avoid negatives
+            // https://stackoverflow.com/a/21212090/6882587
+            int nextPos = (((curPos + delta) % n) + n) % n;
+            return clueLists.get(nextPos);
         }
     };
 
@@ -196,7 +235,15 @@ public interface MovementStrategy extends Serializable {
 
         @Override
         public Word back(Playboard board) {
-            return back(board, null);
+            Position start = board.getHighlightLetter();
+            Word word = board.moveZoneBack(false);
+            Position end = board.getHighlightLetter();
+
+            if (Objects.equals(start, end)) {
+                moveToParallelWordBack(board, word);
+            }
+
+            return word;
         }
 
         private Word move(
@@ -338,33 +385,6 @@ public interface MovementStrategy extends Serializable {
             }
 
             return startOffset <= endOffset;
-        }
-
-        private Word back(
-            Playboard board, Position resetPos
-        ) {
-            Position start = board.getHighlightLetter();
-            Word word = board.moveZoneBack(false);
-            Position end = board.getHighlightLetter();
-
-            if (Objects.equals(start, end)) {
-                moveToParallelWordBack(board, word);
-                Box box = board.getCurrentBox();
-                if (board.skipBox(box, false)) {
-                    // only carry on if we budged
-                    Position newPos = board.getHighlightLetter();
-                    if (Objects.equals(start, newPos)) {
-                        // didn't find anything, reset
-                        board.setHighlightLetter(resetPos);
-                    } else {
-                        if (resetPos == null)
-                            resetPos = start;
-                        back(board, resetPos);
-                    }
-                }
-            }
-
-            return word;
         }
 
         /**

@@ -3,7 +3,7 @@
      <string-array name="movementStrategyLabels">
        <item>Next word in line</item>
        <item>Stop at the end</item>
-       <item>Next clue in same direction</item>
+       <item>Next clue</item>
        <item>Next parallel clue</item>
      </string-array>
      <string-array name="movementStrategyValues">

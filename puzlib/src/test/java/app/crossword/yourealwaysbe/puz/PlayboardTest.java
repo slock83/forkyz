@@ -273,15 +273,21 @@ public class PlayboardTest extends TestCase {
         assertPosition(board, 0, 4);
         for (int i = 0; i < 5; i++)
             board.deleteLetter();
+        // wrap to down clues
+        assertPosition(board, 14, 10);
+        for (int i = 0; i < 3; i++)
+            board.deleteLetter();
         assertPosition(board, 14, 14);
 
         // Wrap across
+        board.toggleSelection();
         board.playLetter('A');
         assertPosition(board, 0, 0);
 
         // Wrap down
         board.toggleSelection();
         board.deleteLetter();
+        // wrap to across clues
         assertPosition(board, 14, 10);
         board.playLetter('A');
         assertPosition(board, 0, 0);
