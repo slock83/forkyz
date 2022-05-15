@@ -440,8 +440,10 @@ public class IPuzIO implements PuzzleParser {
             if (initVal != null) {
                 if (initVal.length() != 1) {
                     throw new IPuzFormatException(
-                        "Cannot represent values of more than one character: "
-                            + initVal
+                        "Cannot represent init values of more "
+                        + "than one character: '"
+                        + initVal
+                        + "'"
                     );
                 }
                 box.setResponse(initVal.charAt(0));
@@ -590,8 +592,10 @@ public class IPuzIO implements PuzzleParser {
             } else {
                 if (value.length() != 1) {
                     throw new IPuzFormatException(
-                        "Cannot represent values of more than one character: "
-                            + value
+                        "Cannot represent cell values of more "
+                        + "than one character: '"
+                        + value
+                        + "'"
                     );
                 }
                 return value.charAt(0);
@@ -602,10 +606,14 @@ public class IPuzIO implements PuzzleParser {
             return Box.BLANK;
         } else { // assume string
             String value = cell.toString();
-            if (value.length() != 1) {
+            if (value.isEmpty()) {
+                return Box.BLANK;
+            } else if (value.length() != 1) {
                 throw new IPuzFormatException(
-                    "Cannot represent values of more than one character: "
-                        + value
+                    "Cannot represent cell values of more "
+                    + "than one character: '"
+                    + value
+                    + "'"
                 );
             }
             return value.charAt(0);
