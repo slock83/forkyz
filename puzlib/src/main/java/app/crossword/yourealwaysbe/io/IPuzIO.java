@@ -600,13 +600,11 @@ public class IPuzIO implements PuzzleParser {
                 }
                 return value.charAt(0);
             }
-        } else if (block.equals(cell.toString())) {
-            return null;
-        } else if (empty.equals(cell.toString())) {
-            return Box.BLANK;
-        } else { // assume string
+        } else {
             String value = cell.toString();
-            if (value.isEmpty()) {
+            if (block.equals(value)) {
+                return null;
+            } else if (empty.equals(value) || value.isEmpty()) {
                 return Box.BLANK;
             } else if (value.length() != 1) {
                 throw new IPuzFormatException(
