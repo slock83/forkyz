@@ -45,6 +45,7 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.net.Downloader;
 import app.crossword.yourealwaysbe.net.Downloaders;
+import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
 import app.crossword.yourealwaysbe.util.files.Accessor;
 import app.crossword.yourealwaysbe.util.files.DirHandle;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
@@ -504,7 +505,7 @@ public class BrowseActivity extends ForkyzActivity {
         // on the preference for the first time, so check here to ensure
         // the UI is re-rendered when they exit the settings dialog.
         if (model.getPuzzleFiles().getValue() == null
-                || utils.checkBackgroundDownload(prefs, hasWritePermissions)) {
+                || BackgroundDownloadManager.checkBackgroundDownload(this)) {
 
             if (hasPendingImport()) {
                 Uri importUri = getPendingImport();
@@ -610,7 +611,7 @@ public class BrowseActivity extends ForkyzActivity {
     private void startLoadPuzzleList(boolean archive) {
         if (!hasWritePermissions) return;
 
-        utils.clearBackgroundDownload(prefs);
+        BackgroundDownloadManager.clearBackgroundDownload(this);
 
         model.startLoadFiles(archive);
     }

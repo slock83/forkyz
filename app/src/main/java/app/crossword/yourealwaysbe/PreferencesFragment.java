@@ -18,9 +18,8 @@ import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
-import app.crossword.yourealwaysbe.service.BackgroundDownloadService;
+import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
 import app.crossword.yourealwaysbe.util.files.FileHandlerSAF;
-import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 public class PreferencesFragment
        extends PreferenceFragmentCompat
@@ -54,13 +53,6 @@ public class PreferencesFragment
             );
 
         setStorageOptions();
-
-        if (!AndroidVersionUtils.Factory.getInstance().isBackgroundDownloadAvaliable()) {
-            Preference backgroundDownload = findPreference("backgroundDownload");
-            backgroundDownload.setSelectable(false);
-            backgroundDownload.setEnabled(false);
-            backgroundDownload.setSummary("Requires Android Lollipop or later");
-        }
 
         findPreference("releaseNotes")
                 .setOnPreferenceClickListener(new OnPreferenceClickListener() {
@@ -111,7 +103,7 @@ public class PreferencesFragment
                 pref.equals("backgroundDownloadAllowRoaming") ||
                 pref.equals("backgroundDownloadRequireCharging")) {
             Context context = getActivity().getApplicationContext();
-            BackgroundDownloadService.updateJob(context);
+            BackgroundDownloadManager.updateBackgroundDownloads(context);
         }
     }
 

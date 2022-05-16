@@ -7,7 +7,7 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 
 @TargetApi(23)
-public class MarshmallowUtil extends LollipopUtil {
+public class MarshmallowUtil extends HoneycombUtil {
     @Override
     public int immutablePendingIntentFlag() {
         return PendingIntent.FLAG_IMMUTABLE;

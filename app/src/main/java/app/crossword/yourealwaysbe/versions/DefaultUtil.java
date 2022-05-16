@@ -1,7 +1,6 @@
 package app.crossword.yourealwaysbe.versions;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.view.MenuItem;
@@ -21,11 +20,6 @@ public abstract class DefaultUtil implements AndroidVersionUtils {
     }
 
     public abstract void onActionBarWithoutText(MenuItem a);
-
-
-    public abstract boolean checkBackgroundDownload(SharedPreferences prefs, boolean hasWritePermissions);
-
-    public abstract void clearBackgroundDownload(SharedPreferences prefs);
 
     @Override
     public abstract int immutablePendingIntentFlag();

@@ -122,11 +122,5 @@
             android:theme="@style/Theme.AppCompat.Dialog"
             android:exported="false"
         />
-
-        <service
-            android:name="app.crossword.yourealwaysbe.service.BackgroundDownloadService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true">
-        </service>
     </application>
 </manifest>

@@ -1,7 +1,6 @@
 package app.crossword.yourealwaysbe.versions;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -120,21 +119,6 @@ public class HoneycombUtil extends DefaultUtil {
             return;
         }
         ab.hide();
-    }
-
-    @Override
-    public boolean isBackgroundDownloadAvaliable() {
-        return false;
-    }
-
-    @Override
-    public boolean checkBackgroundDownload(SharedPreferences prefs, boolean hasWritePermissions) {
-        return false;
-    }
-
-    @Override
-    public void clearBackgroundDownload(SharedPreferences prefs) {
-
     }
 
     @Override
