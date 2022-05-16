@@ -85,7 +85,8 @@ public class PreferencesFragment
             });
     }
 
-    protected void onResumePreferences() {
+    @Override
+    public void onResume() {
         PreferenceManager
                 .getDefaultSharedPreferences(getActivity().getApplicationContext())
                 .registerOnSharedPreferenceChangeListener(this);
@@ -95,7 +96,8 @@ public class PreferencesFragment
         super.onResume();
     }
 
-    protected void onPausePreferences() {
+    @Override
+    public void onPause() {
         PreferenceManager
                 .getDefaultSharedPreferences(getActivity().getApplicationContext())
                 .unregisterOnSharedPreferenceChangeListener(this);
