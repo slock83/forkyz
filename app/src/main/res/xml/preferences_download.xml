@@ -6,6 +6,15 @@
     android:dependency="backgroundDownload"
     android:key="backgroundDownloadOptions"
 >
+    <androidx.preference.ListPreference
+        android:title="@string/background_download"
+        android:summary="@string/background_download_desc"
+        android:key="backgroundDownloadPeriod"
+        android:defaultValue="0"
+        android:entries="@array/backgroundDownloadLabels"
+        android:entryValues="@array/backgroundDownloadValues"
+    />
+
     <androidx.preference.CheckBoxPreference
         android:title="@string/download_wifi_only"
         android:defaultValue="true"

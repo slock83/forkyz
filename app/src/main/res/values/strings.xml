@@ -115,8 +115,6 @@
     <string name="fit_screen_start_desc">Best-fits the puzzle when you start.</string>
     <string name="automatic_download">Automatic Download</string>
     <string name="automatic_download_desc">Download today\'s puzzles when starting the application</string>
-    <string name="background_download">Download new puzzles in background</string>
-    <string name="background_download_desc">Periodically download new puzzles in the background, even when Forkyz is not in use.</string>
     <string name="background_download_opts">Background Download Options</string>
     <string name="background_download_opts_desc">Configure background downloads.</string>
     <string name="no_download_notifs">No Download Notifications</string>
@@ -176,6 +174,8 @@
     <string name="keyboard_use_native_desc">Only works with keyboards that report key presses.</string>
 
     <!-- preferences download -->
+    <string name="background_download">Background download period</string>
+    <string name="background_download_desc">Disable background download or set the period between downloads.</string>
     <string name="download_wifi_only">Download over Wifi only</string>
     <string name="download_wifi_only_desc_on">Only schedule background downloads when Wifi is available.</string>
     <string name="download_wifi_only_desc_off">Schedule background downloads even when not on Wifi</string>
@@ -185,6 +185,12 @@
     <string name="download_charging">Download while charging only</string>
     <string name="download_charging_desc_on">Only schedule background downloads when charging</string>
     <string name="download_charging_desc_off">Schedule background downloads when on battery</string>
+    <string name="background_download_never">Never</string>
+    <string name="background_download_hour">1 Hour</string>
+    <string name="background_download_six_hours">6 Hours</string>
+    <string name="background_download_day">1 Day</string>
+    <string name="background_download_twice_week">Twice Weekly</string>
+    <string name="background_download_week">1 Week</string>
 
     <!-- preferences daily -->
     <string name="updates_mon_fri">Updates Monday-Friday</string>

@@ -50,6 +50,7 @@ import app.crossword.yourealwaysbe.util.files.Accessor;
 import app.crossword.yourealwaysbe.util.files.DirHandle;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.util.files.PuzMetaFile;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.CircleProgressBar;
 import app.crossword.yourealwaysbe.view.StoragePermissionDialog;
 import app.crossword.yourealwaysbe.view.recycler.RemovableRecyclerViewAdapter;
@@ -321,6 +322,12 @@ public class BrowseActivity extends ForkyzActivity {
         registerReceiver(
             closeActionReceiver, new IntentFilter(BROWSER_CLOSE_ACTION)
         );
+
+        // Bring up to date
+        AndroidVersionUtils.Factory.getInstance()
+            .migrateLegacyBackgroundDownloads();
+
+        // Now create!
 
         setDefaultKeyMode(DEFAULT_KEYS_SHORTCUT);
         this.setContentView(R.layout.browse);

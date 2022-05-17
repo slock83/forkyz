@@ -51,17 +51,9 @@
             android:key="dlOnStartup"
         />
 
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/background_download"
-            android:summary="@string/background_download_desc"
-            android:key="backgroundDownload"
-            android:defaultValue="false"
-        />
-
         <androidx.preference.Preference
             android:title="@string/background_download_opts"
             android:summary="@string/background_download_opts_desc"
-            android:dependency="backgroundDownload"
             android:key="backgroundDownloadOptions"
             app:fragment="app.crossword.yourealwaysbe.PreferencesDownloadFragment"
         />

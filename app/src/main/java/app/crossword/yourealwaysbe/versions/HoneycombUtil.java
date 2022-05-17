@@ -144,4 +144,9 @@ public class HoneycombUtil extends DefaultUtil {
             style, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0, false
         );
     }
+
+    @Override
+    public void migrateLegacyBackgroundDownloads() {
+        // do nothing: legacy background download needed lollipop
+    }
 }

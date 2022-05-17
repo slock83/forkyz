@@ -40,6 +40,8 @@ public interface AndroidVersionUtils {
                 return INSTANCE = new OreoUtil();
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 return INSTANCE = new MarshmallowUtil();
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                return INSTANCE = new LollipopUtil();
 
             return INSTANCE = new HoneycombUtil();
         }
@@ -64,4 +66,6 @@ public interface AndroidVersionUtils {
     int immutablePendingIntentFlag();
 
     StaticLayout getStaticLayout(CharSequence text, TextPaint style, int width);
+
+    void migrateLegacyBackgroundDownloads();
 }

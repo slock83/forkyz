@@ -29,29 +29,29 @@ public class BackgroundDownloadManager {
         BackgroundDownloadManager.class.getCanonicalName()
     );
 
-    public static final String PREF_DOWNLOAD_PENDING = "backgroundDlPending";
+    private static final String PREF_DOWNLOAD_PENDING = "backgroundDlPending";
+    private static final String PREF_DOWNLOAD_PERIOD
+        = "backgroundDownloadPeriod";
     private static final String DOWNLOAD_WORK_NAME = "backgroundDownload";
 
     public static void updateBackgroundDownloads(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = getPrefs(context);
 
-        boolean enableBackgroundDownload
-            = prefs.getBoolean("backgroundDownload", false);
+        int period = Integer.valueOf(
+            prefs.getString(PREF_DOWNLOAD_PERIOD, "0")
+        );
 
-        if (enableBackgroundDownload)
-            scheduleBackgroundDownload(context);
+        if (period > 0)
+            scheduleBackgroundDownload(context, period);
         else
             cancelBackgroundDownload(context);
     }
-
 
     public static boolean checkBackgroundDownload(Context context) {
         if (ForkyzApplication.getInstance().isMissingWritePermission())
             return false;
 
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = getPrefs(context);
 
         boolean isPending = prefs.getBoolean(PREF_DOWNLOAD_PENDING, false);
 
@@ -61,20 +61,56 @@ public class BackgroundDownloadManager {
     }
 
     public static void clearBackgroundDownload(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = getPrefs(context);
 
         prefs.edit()
             .putBoolean(PREF_DOWNLOAD_PENDING, false)
             .apply();
     }
 
-    private static void scheduleBackgroundDownload(Context context) {
+    /**
+     * Get download period from preferences
+     *
+     * @return period in hours, 0 if no background download
+     */
+    public static int getBackgroundDownloadPeriod(Context context) {
+        SharedPreferences prefs = getPrefs(context);
+        return prefs.getInt(PREF_DOWNLOAD_PERIOD, 0);
+    }
+
+    /**
+     * Set the download period and update work schedule
+     *
+     * If this changes the work period, then call
+     * updateBackgroundDownloads.
+     *
+     * @param hours time period in hours, 0 means no auto download
+     */
+    public static void setBackgroundDownloadPeriod(Context context, int period) {
+        int prevPeriod = getBackgroundDownloadPeriod(context);
+
+        if (prevPeriod != period) {
+            SharedPreferences prefs = getPrefs(context);
+
+            prefs.edit()
+                .putString(PREF_DOWNLOAD_PERIOD, String.valueOf(period))
+                .apply();
+
+            updateBackgroundDownloads(context);
+        }
+    }
+
+    /**
+     * Schedule download every period hours
+     */
+    private static void scheduleBackgroundDownload(
+        Context context, int period
+    ) {
         Constraints constraints = getConstraints(context);
 
         PeriodicWorkRequest request
             = new PeriodicWorkRequest.Builder(
-                DownloadWorker.class, 1, TimeUnit.HOURS
+                DownloadWorker.class, period, TimeUnit.HOURS
             ).setConstraints(constraints)
             .build();
 
@@ -148,5 +184,9 @@ public class BackgroundDownloadManager {
 
             return ListenableWorker.Result.success();
         }
+    }
+
+    private static SharedPreferences getPrefs(Context context) {
+        return PreferenceManager.getDefaultSharedPreferences(context);
     }
 }

@@ -71,4 +71,20 @@
        <item>@string/external_storage_saf</item>
        <item>@string/external_storage_legacy</item>
      </string-array>
+     <string-array name="backgroundDownloadValues">
+       <item>0</item>
+       <item>1</item>
+       <item>6</item>
+       <item>24</item>
+       <item>84</item>
+       <item>168</item>
+     </string-array>
+     <string-array name="backgroundDownloadLabels">
+       <item>@string/background_download_never</item>
+       <item>@string/background_download_hour</item>
+       <item>@string/background_download_six_hours</item>
+       <item>@string/background_download_day</item>
+       <item>@string/background_download_twice_week</item>
+       <item>@string/background_download_week</item>
+     </string-array>
 </resources>

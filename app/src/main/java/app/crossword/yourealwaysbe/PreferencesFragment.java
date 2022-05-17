@@ -98,7 +98,7 @@ public class PreferencesFragment
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String pref) {
-        if (pref.equals("backgroundDownload") ||
+        if (pref.equals("backgroundDownloadPeriod") ||
                 pref.equals("backgroundDownloadRequireUnmetered") ||
                 pref.equals("backgroundDownloadAllowRoaming") ||
                 pref.equals("backgroundDownloadRequireCharging")) {
