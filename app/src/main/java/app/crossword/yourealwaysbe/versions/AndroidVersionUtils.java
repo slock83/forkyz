@@ -35,15 +35,13 @@ public interface AndroidVersionUtils {
             if(INSTANCE != null){
                 return INSTANCE;
             }
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 return INSTANCE = new OreoUtil();
-            }
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
                 return INSTANCE = new MarshmallowUtil();
-            }
-            else {
-                return INSTANCE = new HoneycombUtil();
-            }
+
+            return INSTANCE = new HoneycombUtil();
         }
     }
 

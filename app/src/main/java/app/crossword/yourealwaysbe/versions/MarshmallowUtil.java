@@ -3,10 +3,11 @@ package app.crossword.yourealwaysbe.versions;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
+import android.os.Build;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
-@TargetApi(23)
+@TargetApi(Build.VERSION_CODES.M)
 public class MarshmallowUtil extends HoneycombUtil {
     @Override
     public int immutablePendingIntentFlag() {

@@ -1,7 +1,9 @@
 package app.crossword.yourealwaysbe.versions;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -16,6 +18,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import app.crossword.yourealwaysbe.ForkyzActivity;
 import app.crossword.yourealwaysbe.util.NightModeHelper;
 
+@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class HoneycombUtil extends DefaultUtil {
 
     public void setContext(Context ctx) { }
