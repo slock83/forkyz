@@ -230,7 +230,6 @@ public class BackgroundDownloadManager {
         return WorkManager.getInstance(ForkyzApplication.getInstance());
     }
 
-
     public static class DownloadWorker extends Worker {
         public DownloadWorker(Context context, WorkerParameters params) {
             super(context, params);
