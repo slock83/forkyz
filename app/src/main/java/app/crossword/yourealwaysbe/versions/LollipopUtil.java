@@ -38,7 +38,7 @@ public class LollipopUtil extends HoneycombUtil {
             scheduler.cancelAll();
 
             // start new
-            BackgroundDownloadManager.setBackgroundDownloadPeriod(app, 1);
+            BackgroundDownloadManager.setHourlyBackgroundDownloadPeriod();
         }
     }
 }

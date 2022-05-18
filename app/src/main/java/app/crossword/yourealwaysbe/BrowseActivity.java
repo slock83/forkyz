@@ -512,7 +512,7 @@ public class BrowseActivity extends ForkyzActivity {
         // on the preference for the first time, so check here to ensure
         // the UI is re-rendered when they exit the settings dialog.
         if (model.getPuzzleFiles().getValue() == null
-                || BackgroundDownloadManager.checkBackgroundDownload(this)) {
+                || BackgroundDownloadManager.checkBackgroundDownload()) {
 
             if (hasPendingImport()) {
                 Uri importUri = getPendingImport();
@@ -618,7 +618,7 @@ public class BrowseActivity extends ForkyzActivity {
     private void startLoadPuzzleList(boolean archive) {
         if (!hasWritePermissions) return;
 
-        BackgroundDownloadManager.clearBackgroundDownload(this);
+        BackgroundDownloadManager.clearBackgroundDownload();
 
         model.startLoadFiles(archive);
     }

@@ -1,7 +1,14 @@
 
 package app.crossword.yourealwaysbe.util;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -29,39 +36,83 @@ public class BackgroundDownloadManager {
         BackgroundDownloadManager.class.getCanonicalName()
     );
 
+    private static final String PREF_DOWNLOAD_UNMETERED
+        = "backgroundDownloadRequireUnmetered";
+    private static final String PREF_DOWNLOAD_ROAMING
+        = "backgroundDownloadAllowRoaming";
+    private static final String PREF_DOWNLOAD_CHARGING
+        = "backgroundDownloadRequireCharging";
+
+    private static final String PREF_DOWNLOAD_HOURLY
+        = "backgroundDownloadHourly";
+    private static final String PREF_DOWNLOAD_DAYS
+        = "backgroundDownloadDays";
+    private static final String PREF_DOWNLOAD_DAYS_TIME
+        = "backgroundDownloadDaysTime";
+
+    private static final String DOWNLOAD_WORK_NAME_HOURLY
+        = "backgroundDownloadHourly";
+    private static final String DOWNLOAD_WORK_NAME_DAY_PREFIX
+        = "backgroundDownloadDay";
+
     private static final String PREF_DOWNLOAD_PENDING = "backgroundDlPending";
-    private static final String PREF_DOWNLOAD_PERIOD
-        = "backgroundDownloadPeriod";
-    private static final String DOWNLOAD_WORK_NAME = "backgroundDownload";
 
-    public static void updateBackgroundDownloads(Context context) {
-        SharedPreferences prefs = getPrefs(context);
+    private static final Set<String> CONFIG_PREFERENCES = new HashSet<>(
+        Arrays.asList(
+            PREF_DOWNLOAD_UNMETERED,
+            PREF_DOWNLOAD_ROAMING,
+            PREF_DOWNLOAD_CHARGING,
+            PREF_DOWNLOAD_HOURLY,
+            PREF_DOWNLOAD_DAYS,
+            PREF_DOWNLOAD_DAYS_TIME
+        )
+    );
 
-        int period = Integer.valueOf(
-            prefs.getString(PREF_DOWNLOAD_PERIOD, "0")
-        );
-
-        if (period > 0)
-            scheduleBackgroundDownload(context, period);
-        else
-            cancelBackgroundDownload(context);
+    /**
+     * For preference activity to detect if config changes
+     */
+    public static boolean isBackgroundDownloadConfigPref(String pref) {
+        return CONFIG_PREFERENCES.contains(pref);
     }
 
-    public static boolean checkBackgroundDownload(Context context) {
+    public static void updateBackgroundDownloads() {
+        cancelBackgroundDownloads();
+
+        SharedPreferences prefs = getPrefs();
+
+        boolean hourly = prefs.getBoolean(PREF_DOWNLOAD_HOURLY, false);
+        if (hourly)
+            scheduleBackgroundDownload(DOWNLOAD_WORK_NAME_HOURLY, 0, 1);
+
+        Set<String> days = prefs.getStringSet(
+            PREF_DOWNLOAD_DAYS, Collections.emptySet()
+        );
+        int downloadTime
+            = Integer.valueOf(prefs.getString(PREF_DOWNLOAD_DAYS_TIME, "8"));
+
+        for (String dayString : days) {
+            int day = Integer.valueOf(dayString);
+            String workName = getDayOfWeekWorkName(day);
+            long delay = getDelay(day, downloadTime);
+            scheduleBackgroundDownload(workName, delay, 7*24);
+        }
+    }
+
+    public static boolean checkBackgroundDownload() {
         if (ForkyzApplication.getInstance().isMissingWritePermission())
             return false;
 
-        SharedPreferences prefs = getPrefs(context);
+        SharedPreferences prefs = getPrefs();
 
         boolean isPending = prefs.getBoolean(PREF_DOWNLOAD_PENDING, false);
 
-        clearBackgroundDownload(context);
+        clearBackgroundDownload();
 
         return isPending;
     }
 
-    public static void clearBackgroundDownload(Context context) {
-        SharedPreferences prefs = getPrefs(context);
+    public static void clearBackgroundDownload() {
+        SharedPreferences prefs = getPrefs();
 
         prefs.edit()
             .putBoolean(PREF_DOWNLOAD_PENDING, false)
@@ -69,71 +120,70 @@ public class BackgroundDownloadManager {
     }
 
     /**
-     * Get download period from preferences
-     *
-     * @return period in hours, 0 if no background download
+     * Set the download period to 1 hour
      */
-    public static int getBackgroundDownloadPeriod(Context context) {
-        SharedPreferences prefs = getPrefs(context);
-        return prefs.getInt(PREF_DOWNLOAD_PERIOD, 0);
+    public static void setHourlyBackgroundDownloadPeriod() {
+        clearPreferences();
+
+        getPrefs().edit()
+            .putBoolean(PREF_DOWNLOAD_HOURLY, true)
+            .apply();
+
+        updateBackgroundDownloads();
     }
 
-    /**
-     * Set the download period and update work schedule
-     *
-     * If this changes the work period, then call
-     * updateBackgroundDownloads.
-     *
-     * @param hours time period in hours, 0 means no auto download
-     */
-    public static void setBackgroundDownloadPeriod(Context context, int period) {
-        int prevPeriod = getBackgroundDownloadPeriod(context);
-
-        if (prevPeriod != period) {
-            SharedPreferences prefs = getPrefs(context);
-
-            prefs.edit()
-                .putString(PREF_DOWNLOAD_PERIOD, String.valueOf(period))
-                .apply();
-
-            updateBackgroundDownloads(context);
+    private static void clearPreferences() {
+        SharedPreferences.Editor edit = getPrefs().edit();
+        for (String pref : CONFIG_PREFERENCES) {
+            edit.remove(pref);
         }
+        edit.apply();
     }
 
     /**
-     * Schedule download every period hours
+     * Schedule download every period hours with ms delay
      */
     private static void scheduleBackgroundDownload(
-        Context context, int period
+        String workName, long delayMillis, int periodHours
     ) {
-        Constraints constraints = getConstraints(context);
+        Constraints constraints = getConstraints();
 
         PeriodicWorkRequest request
             = new PeriodicWorkRequest.Builder(
-                DownloadWorker.class, period, TimeUnit.HOURS
+                DownloadWorker.class, periodHours, TimeUnit.HOURS
             ).setConstraints(constraints)
+            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
             .build();
 
-        WorkManager.getInstance(context)
+        getWorkManager()
             .enqueueUniquePeriodicWork(
-                DOWNLOAD_WORK_NAME, ExistingPeriodicWorkPolicy.REPLACE, request
+                workName, ExistingPeriodicWorkPolicy.REPLACE, request
             );
     }
 
-    private static void cancelBackgroundDownload(Context context) {
-        WorkManager.getInstance(context).cancelUniqueWork(DOWNLOAD_WORK_NAME);
+    private static void cancelBackgroundDownloads() {
+        WorkManager manager = getWorkManager();
+
+        manager.cancelUniqueWork(DOWNLOAD_WORK_NAME_HOURLY);
+
+        for (DayOfWeek day : DayOfWeek.values()) {
+            manager.cancelUniqueWork(getDayOfWeekWorkName(day.getValue()));
+        }
     }
 
-    private static Constraints getConstraints(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
+    private static String getDayOfWeekWorkName(int dayOfWeek) {
+        return DOWNLOAD_WORK_NAME_DAY_PREFIX + dayOfWeek;
+    }
+
+    private static Constraints getConstraints() {
+        SharedPreferences prefs = getPrefs();
 
         boolean requireUnmetered
-            = prefs.getBoolean("backgroundDownloadRequireUnmetered", true);
+            = prefs.getBoolean(PREF_DOWNLOAD_UNMETERED, true);
         boolean allowRoaming
-            = prefs.getBoolean("backgroundDownloadAllowRoaming", false);
+            = prefs.getBoolean(PREF_DOWNLOAD_ROAMING, false);
         boolean requireCharging
-            = prefs.getBoolean("backgroundDownloadRequireCharging", false);
+            = prefs.getBoolean(PREF_DOWNLOAD_CHARGING, false);
 
         Constraints.Builder constraintsBuilder = new Constraints.Builder();
 
@@ -149,31 +199,61 @@ public class BackgroundDownloadManager {
         return constraintsBuilder.build();
     }
 
-    public static class DownloadWorker extends Worker {
-        private Context context;
+    /**
+     * Get num millis to next day/time
+     *
+     * @param dayOfWeek 1-7 like java DayOfWeek
+     * @param hourOfDay 0-23
+     */
+    private static long getDelay(int dayOfWeek, int hourOfDay) {
+        // start from now and adjust
+        LocalDateTime now = LocalDateTime.now();
+        int nowDayOfWeek = now.getDayOfWeek().getValue();
 
+        LocalDateTime nextDownload
+            = now.plusDays(dayOfWeek - nowDayOfWeek)
+                .withHour(hourOfDay)
+                .truncatedTo(ChronoUnit.HOURS);
+
+        if (nextDownload.isBefore(LocalDateTime.now()))
+            nextDownload = nextDownload.plusDays(7);
+
+        return ChronoUnit.MILLIS.between(now, nextDownload);
+    }
+
+    private static SharedPreferences getPrefs() {
+        Context context = ForkyzApplication.getInstance();
+        return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    private static WorkManager getWorkManager() {
+        return WorkManager.getInstance(ForkyzApplication.getInstance());
+    }
+
+
+    public static class DownloadWorker extends Worker {
         public DownloadWorker(Context context, WorkerParameters params) {
             super(context, params);
-            this.context = context;
         }
 
         @Override
         public ListenableWorker.Result doWork() {
+            ForkyzApplication app = ForkyzApplication.getInstance();
+
             NotificationManager nm =
                 (NotificationManager)
-                    context.getSystemService(Context.NOTIFICATION_SERVICE);
+                    app.getSystemService(Context.NOTIFICATION_SERVICE);
 
-            if (ForkyzApplication.getInstance().isMissingWritePermission()) {
+            if (app.isMissingWritePermission()) {
                 LOGGER.info("Skipping download, no write permission");
                 return ListenableWorker.Result.failure();
             }
 
             LOGGER.info("Downloading most recent puzzles");
 
-            SharedPreferences prefs
-                = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences prefs = BackgroundDownloadManager.getPrefs();
 
-            final Downloaders dls = new Downloaders(prefs, nm, context, false);
+            final Downloaders dls = new Downloaders(prefs, nm, app, false);
             dls.downloadLatestIfNewerThanDate(LocalDate.now(), null);
 
             // This is used to tell BrowseActivity that puzzles may have
@@ -184,9 +264,5 @@ public class BackgroundDownloadManager {
 
             return ListenableWorker.Result.success();
         }
-    }
-
-    private static SharedPreferences getPrefs(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
     }
 }

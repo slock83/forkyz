@@ -1,6 +1,5 @@
 package app.crossword.yourealwaysbe;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -18,12 +17,9 @@ import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
-import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
 import app.crossword.yourealwaysbe.util.files.FileHandlerSAF;
 
-public class PreferencesFragment
-       extends PreferenceFragmentCompat
-       implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class PreferencesFragment extends PreferenceFragmentCompat {
 
     ActivityResultLauncher<Uri> getSAFURI = registerForActivityResult(
         new OpenDocumentTree(),
@@ -79,32 +75,8 @@ public class PreferencesFragment
 
     @Override
     public void onResume() {
-        PreferenceManager
-                .getDefaultSharedPreferences(getActivity().getApplicationContext())
-                .registerOnSharedPreferenceChangeListener(this);
-
         setStorageOptions();
-
         super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        PreferenceManager
-                .getDefaultSharedPreferences(getActivity().getApplicationContext())
-                .unregisterOnSharedPreferenceChangeListener(this);
-        super.onPause();
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String pref) {
-        if (pref.equals("backgroundDownloadPeriod") ||
-                pref.equals("backgroundDownloadRequireUnmetered") ||
-                pref.equals("backgroundDownloadAllowRoaming") ||
-                pref.equals("backgroundDownloadRequireCharging")) {
-            Context context = getActivity().getApplicationContext();
-            BackgroundDownloadManager.updateBackgroundDownloads(context);
-        }
     }
 
     /**

@@ -71,20 +71,76 @@
        <item>@string/external_storage_saf</item>
        <item>@string/external_storage_legacy</item>
      </string-array>
-     <string-array name="backgroundDownloadValues">
+     <string-array name="backgroundDownloadDaysTimeValues">
        <item>0</item>
        <item>1</item>
+       <item>2</item>
+       <item>3</item>
+       <item>4</item>
+       <item>5</item>
        <item>6</item>
-       <item>24</item>
-       <item>84</item>
-       <item>168</item>
+       <item>7</item>
+       <item>8</item>
+       <item>9</item>
+       <item>10</item>
+       <item>11</item>
+       <item>12</item>
+       <item>13</item>
+       <item>14</item>
+       <item>15</item>
+       <item>16</item>
+       <item>17</item>
+       <item>18</item>
+       <item>19</item>
+       <item>20</item>
+       <item>21</item>
+       <item>22</item>
+       <item>23</item>
      </string-array>
-     <string-array name="backgroundDownloadLabels">
-       <item>@string/background_download_never</item>
-       <item>@string/background_download_hour</item>
-       <item>@string/background_download_six_hours</item>
-       <item>@string/background_download_day</item>
-       <item>@string/background_download_twice_week</item>
-       <item>@string/background_download_week</item>
+     <string-array name="backgroundDownloadDaysTimeLabels">
+         <item>@string/background_download_0</item>
+         <item>@string/background_download_1</item>
+         <item>@string/background_download_2</item>
+         <item>@string/background_download_3</item>
+         <item>@string/background_download_4</item>
+         <item>@string/background_download_5</item>
+         <item>@string/background_download_6</item>
+         <item>@string/background_download_7</item>
+         <item>@string/background_download_8</item>
+         <item>@string/background_download_9</item>
+         <item>@string/background_download_10</item>
+         <item>@string/background_download_11</item>
+         <item>@string/background_download_12</item>
+         <item>@string/background_download_13</item>
+         <item>@string/background_download_14</item>
+         <item>@string/background_download_15</item>
+         <item>@string/background_download_16</item>
+         <item>@string/background_download_17</item>
+         <item>@string/background_download_18</item>
+         <item>@string/background_download_19</item>
+         <item>@string/background_download_20</item>
+         <item>@string/background_download_21</item>
+         <item>@string/background_download_22</item>
+         <item>@string/background_download_23</item>
      </string-array>
+     <string-array name="backgroundDownloadDaysValues">
+        <!-- matches java DayOfWeek -->
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+     </string-array>
+     <string-array name="backgroundDownloadDaysLabels">
+        <item>@string/background_download_mon</item>
+        <item>@string/background_download_tue</item>
+        <item>@string/background_download_wed</item>
+        <item>@string/background_download_thu</item>
+        <item>@string/background_download_fri</item>
+        <item>@string/background_download_sat</item>
+        <item>@string/background_download_sun</item>
+     </string-array>
+     <string-array name="emptyArray"/>
 </resources>
