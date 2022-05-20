@@ -35,6 +35,7 @@
     <string name="perm_access_network_state_desc">Required to limit background download when on mobile data or wifi.</string>
     <string name="perm_boot_desc">Required to (optionally) allow periodic background download of puzzles.</string>
     <string name="vibrate_desc">Required for haptic feedback on built-in keyboard.</string>
+    <string name="wake_lock_desc">Used only for automatic download on older Android version.</string>
 
     <!-- Browse -->
     <string name="delete">Delete</string>

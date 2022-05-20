@@ -511,9 +511,10 @@ public class BrowseActivity extends ForkyzActivity {
         // A background update will commonly happen when the user turns
         // on the preference for the first time, so check here to ensure
         // the UI is re-rendered when they exit the settings dialog.
-        if (model.getPuzzleFiles().getValue() == null
-                || BackgroundDownloadManager.checkBackgroundDownload()) {
-
+        if (
+            model.getPuzzleFiles().getValue() == null
+            || BackgroundDownloadManager.checkBackgroundDownloadPendingFlag()
+        ) {
             if (hasPendingImport()) {
                 Uri importUri = getPendingImport();
                 clearPendingImport();
@@ -618,7 +619,7 @@ public class BrowseActivity extends ForkyzActivity {
     private void startLoadPuzzleList(boolean archive) {
         if (!hasWritePermissions) return;
 
-        BackgroundDownloadManager.clearBackgroundDownload();
+        BackgroundDownloadManager.clearBackgroundDownloadPendingFlag();
 
         model.startLoadFiles(archive);
     }

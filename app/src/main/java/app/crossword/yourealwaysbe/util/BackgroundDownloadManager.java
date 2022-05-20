@@ -1,7 +1,6 @@
 
 package app.crossword.yourealwaysbe.util;
 
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -18,8 +17,10 @@ import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
@@ -50,10 +51,8 @@ public class BackgroundDownloadManager {
     private static final String PREF_DOWNLOAD_DAYS_TIME
         = "backgroundDownloadDaysTime";
 
-    private static final String DOWNLOAD_WORK_NAME_HOURLY
-        = "backgroundDownloadHourly";
-    private static final String DOWNLOAD_WORK_NAME_DAY_PREFIX
-        = "backgroundDownloadDay";
+    private static final String DOWNLOAD_WORK_NAME
+        = "backgroundDownload";
 
     private static final String PREF_DOWNLOAD_PENDING = "backgroundDlPending";
 
@@ -82,23 +81,50 @@ public class BackgroundDownloadManager {
 
         boolean hourly = prefs.getBoolean(PREF_DOWNLOAD_HOURLY, false);
         if (hourly)
-            scheduleBackgroundDownload(DOWNLOAD_WORK_NAME_HOURLY, 0, 1);
-
-        Set<String> days = prefs.getStringSet(
-            PREF_DOWNLOAD_DAYS, Collections.emptySet()
-        );
-        int downloadTime
-            = Integer.valueOf(prefs.getString(PREF_DOWNLOAD_DAYS_TIME, "8"));
-
-        for (String dayString : days) {
-            int day = Integer.valueOf(dayString);
-            String workName = getDayOfWeekWorkName(day);
-            long delay = getDelay(day, downloadTime);
-            scheduleBackgroundDownload(workName, delay, 7*24);
-        }
+            scheduleHourlyDownloads();
+        else
+            scheduleNextDailyDownload();
     }
 
-    public static boolean checkBackgroundDownload() {
+    public static void scheduleHourlyDownloads() {
+        LOGGER.info("Scheduling hourly downloads");
+
+        PeriodicWorkRequest request
+            = new PeriodicWorkRequest.Builder(
+                HourlyDownloadWorker.class, 1, TimeUnit.HOURS
+            ).setConstraints(getConstraints())
+            .build();
+
+        getWorkManager()
+            .enqueueUniquePeriodicWork(
+                DOWNLOAD_WORK_NAME,
+                ExistingPeriodicWorkPolicy.REPLACE,
+                request
+            );
+    }
+
+    public static void scheduleNextDailyDownload() {
+        long nextDelay = getNextDailyDownloadDelay();
+        if (nextDelay < 0)
+            return;
+
+        LOGGER.info("Scheduling next daily download in " + nextDelay + "ms");
+
+        OneTimeWorkRequest request
+            = new OneTimeWorkRequest.Builder(DailyDownloadWorker.class)
+                .setConstraints(getConstraints())
+                .setInitialDelay(nextDelay, TimeUnit.MILLISECONDS)
+                .build();
+
+        getWorkManager()
+            .enqueueUniqueWork(
+                DOWNLOAD_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                request
+            );
+    }
+
+    public static boolean checkBackgroundDownloadPendingFlag() {
         if (ForkyzApplication.getInstance().isMissingWritePermission())
             return false;
 
@@ -106,12 +132,12 @@ public class BackgroundDownloadManager {
 
         boolean isPending = prefs.getBoolean(PREF_DOWNLOAD_PENDING, false);
 
-        clearBackgroundDownload();
+        clearBackgroundDownloadPendingFlag();
 
         return isPending;
     }
 
-    public static void clearBackgroundDownload() {
+    public static void clearBackgroundDownloadPendingFlag() {
         SharedPreferences prefs = getPrefs();
 
         prefs.edit()
@@ -132,6 +158,32 @@ public class BackgroundDownloadManager {
         updateBackgroundDownloads();
     }
 
+    /**
+     * Number of millis to next daily download
+     *
+     * @return -1 if none to schedule
+     */
+    private static long getNextDailyDownloadDelay() {
+        SharedPreferences prefs = getPrefs();
+
+        Set<String> days = prefs.getStringSet(
+            PREF_DOWNLOAD_DAYS, Collections.emptySet()
+        );
+        int downloadTime
+            = Integer.valueOf(prefs.getString(PREF_DOWNLOAD_DAYS_TIME, "8"));
+
+        long nextDownloadDelay = -1;
+
+        for (String dayString : days) {
+            int day = Integer.valueOf(dayString);
+            long delay = getDelay(day, downloadTime);
+            if (nextDownloadDelay < 0 || delay < nextDownloadDelay)
+                nextDownloadDelay = delay;
+        }
+
+        return nextDownloadDelay;
+    }
+
     private static void clearPreferences() {
         SharedPreferences.Editor edit = getPrefs().edit();
         for (String pref : CONFIG_PREFERENCES) {
@@ -140,39 +192,8 @@ public class BackgroundDownloadManager {
         edit.apply();
     }
 
-    /**
-     * Schedule download every period hours with ms delay
-     */
-    private static void scheduleBackgroundDownload(
-        String workName, long delayMillis, int periodHours
-    ) {
-        Constraints constraints = getConstraints();
-
-        PeriodicWorkRequest request
-            = new PeriodicWorkRequest.Builder(
-                DownloadWorker.class, periodHours, TimeUnit.HOURS
-            ).setConstraints(constraints)
-            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
-            .build();
-
-        getWorkManager()
-            .enqueueUniquePeriodicWork(
-                workName, ExistingPeriodicWorkPolicy.REPLACE, request
-            );
-    }
-
     private static void cancelBackgroundDownloads() {
-        WorkManager manager = getWorkManager();
-
-        manager.cancelUniqueWork(DOWNLOAD_WORK_NAME_HOURLY);
-
-        for (DayOfWeek day : DayOfWeek.values()) {
-            manager.cancelUniqueWork(getDayOfWeekWorkName(day.getValue()));
-        }
-    }
-
-    private static String getDayOfWeekWorkName(int dayOfWeek) {
-        return DOWNLOAD_WORK_NAME_DAY_PREFIX + dayOfWeek;
+        getWorkManager().cancelUniqueWork(DOWNLOAD_WORK_NAME);
     }
 
     private static Constraints getConstraints() {
@@ -215,7 +236,7 @@ public class BackgroundDownloadManager {
                 .withHour(hourOfDay)
                 .truncatedTo(ChronoUnit.HOURS);
 
-        if (nextDownload.isBefore(LocalDateTime.now()))
+        if (!nextDownload.isAfter(LocalDateTime.now()))
             nextDownload = nextDownload.plusDays(7);
 
         return ChronoUnit.MILLIS.between(now, nextDownload);
@@ -226,17 +247,16 @@ public class BackgroundDownloadManager {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    private static WorkManager getWorkManager() {
+    public static WorkManager getWorkManager() {
         return WorkManager.getInstance(ForkyzApplication.getInstance());
     }
 
-    public static class DownloadWorker extends Worker {
-        public DownloadWorker(Context context, WorkerParameters params) {
+    private static abstract class BaseDownloadWorker extends Worker {
+        public BaseDownloadWorker(Context context, WorkerParameters params) {
             super(context, params);
         }
 
-        @Override
-        public ListenableWorker.Result doWork() {
+        protected void doDownload() {
             ForkyzApplication app = ForkyzApplication.getInstance();
 
             NotificationManager nm =
@@ -245,7 +265,7 @@ public class BackgroundDownloadManager {
 
             if (app.isMissingWritePermission()) {
                 LOGGER.info("Skipping download, no write permission");
-                return ListenableWorker.Result.failure();
+                return;
             }
 
             LOGGER.info("Downloading most recent puzzles");
@@ -261,6 +281,32 @@ public class BackgroundDownloadManager {
                 .putBoolean(PREF_DOWNLOAD_PENDING, true)
                 .apply();
 
+            return;
+        }
+    }
+
+    public static class HourlyDownloadWorker extends BaseDownloadWorker {
+        public HourlyDownloadWorker(Context context, WorkerParameters params) {
+            super(context, params);
+        }
+
+        @Override
+        public ListenableWorker.Result doWork() {
+            doDownload();
+            return ListenableWorker.Result.success();
+        }
+    }
+
+    public static class DailyDownloadWorker extends BaseDownloadWorker {
+        public DailyDownloadWorker(Context context, WorkerParameters params) {
+            super(context, params);
+        }
+
+        @Override
+        public ListenableWorker.Result doWork() {
+            // do this first in case doDownload goes horribly wrong
+            scheduleNextDailyDownload();
+            doDownload();
             return ListenableWorker.Result.success();
         }
     }

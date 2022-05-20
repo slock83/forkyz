@@ -42,6 +42,10 @@
         android:name="android.permission.VIBRATE"
         android:description="@string/vibrate_desc"
     />
+    <uses-permission
+        android:name="android.permission.WAKE_LOCK"
+        android:description="@string/wake_lock_desc"
+    />
 
     <uses-feature
         android:name="android.hardware.touchscreen"
