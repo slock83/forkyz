@@ -149,8 +149,6 @@ public class BackgroundDownloadManager {
      * Set the download period to 1 hour
      */
     public static void setHourlyBackgroundDownloadPeriod() {
-        clearPreferences();
-
         getPrefs().edit()
             .putBoolean(PREF_DOWNLOAD_HOURLY, true)
             .apply();
@@ -182,14 +180,6 @@ public class BackgroundDownloadManager {
         }
 
         return nextDownloadDelay;
-    }
-
-    private static void clearPreferences() {
-        SharedPreferences.Editor edit = getPrefs().edit();
-        for (String pref : CONFIG_PREFERENCES) {
-            edit.remove(pref);
-        }
-        edit.apply();
     }
 
     private static void cancelBackgroundDownloads() {
