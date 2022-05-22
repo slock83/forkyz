@@ -182,7 +182,7 @@
     <string name="background_download_days">Download puzzles on days</string>
     <string name="background_download_days_desc">Download puzzles in the background on the selected days</string>
     <string name="background_download_days_time">Daily download time</string>
-    <string name="background_download_days_time_desc">If downloading on selected days, select download time</string>
+    <string name="background_download_days_time_desc">If downloading on selected days, select download time (exact time depends on constraints and phone optimisations)</string>
     <string name="download_wifi_only">Download over Wifi only</string>
     <string name="download_wifi_only_desc_on">Only schedule background downloads when Wifi is available.</string>
     <string name="download_wifi_only_desc_off">Schedule background downloads even when not on Wifi</string>
