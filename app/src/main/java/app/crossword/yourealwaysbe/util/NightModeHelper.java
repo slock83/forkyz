@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.PreferenceManager;
@@ -57,7 +56,6 @@ public class NightModeHelper {
         );
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     public void next() {
         switch (currentMode) {
         case DAY:
@@ -72,7 +70,6 @@ public class NightModeHelper {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     public void setMode(Mode mode) {
         currentMode = mode;
 
@@ -83,7 +80,6 @@ public class NightModeHelper {
         restoreNightMode();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     public void restoreNightMode() {
         AppCompatActivity activity = mActivity.get();
         if (activity != null) {
@@ -111,7 +107,6 @@ public class NightModeHelper {
         return currentMode;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     public boolean isNightMode(){
         switch (currentMode) {
         case DAY: return false;

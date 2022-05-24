@@ -9,9 +9,6 @@ import android.view.View;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
-import app.crossword.yourealwaysbe.ForkyzActivity;
-import app.crossword.yourealwaysbe.util.NightModeHelper;
-
 public interface AndroidVersionUtils {
 
     void setContext(Context ctx);
@@ -23,10 +20,6 @@ public interface AndroidVersionUtils {
     void onActionBarWithText(MenuItem a);
 
     void onActionBarWithText(SubMenu reveal);
-
-    void restoreNightMode(ForkyzActivity forkyzActivity);
-
-    void restoreNightMode(NightModeHelper nightMode);
 
     class Factory {
         private static AndroidVersionUtils INSTANCE;
@@ -56,10 +49,6 @@ public interface AndroidVersionUtils {
     void onActionBarWithoutText(MenuItem a);
 
     void hideTitleOnPortrait(AppCompatActivity a);
-
-    void nextNightMode(ForkyzActivity activity);
-
-    boolean isNightModeAvailable();
 
     void createNotificationChannel(Context context);
 

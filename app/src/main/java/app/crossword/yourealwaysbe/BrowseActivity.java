@@ -27,6 +27,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
@@ -230,12 +231,8 @@ public class BrowseActivity extends ForkyzActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.browse_menu, menu);
 
-        if (utils.isNightModeAvailable()) {
-            MenuItem item = menu.findItem(R.id.browse_menu_app_theme);
-            if (item != null) item.setIcon(getNightModeIcon());
-        } else {
-            menu.removeItem(R.id.browse_menu_app_theme);
-        }
+        MenuItem item = menu.findItem(R.id.browse_menu_app_theme);
+        if (item != null) item.setIcon(getNightModeIcon());
 
         viewCrosswordsArchiveMenuItem
             = menu.findItem(R.id.browse_menu_archives);
@@ -243,6 +240,19 @@ public class BrowseActivity extends ForkyzActivity {
         setViewCrosswordsOrArchiveUI();
 
         return true;
+    }
+
+    private void nextNightMode() {
+        nightMode.next();
+        if(nightMode.isNightMode()){
+            AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_YES
+            );
+        } else {
+            AppCompatDelegate.setDefaultNightMode(
+                AppCompatDelegate.MODE_NIGHT_NO
+            );
+        }
     }
 
     private int getNightModeIcon() {
@@ -263,7 +273,7 @@ public class BrowseActivity extends ForkyzActivity {
         int id = item.getItemId();
 
         if (id == R.id.browse_menu_app_theme) {
-            this.utils.nextNightMode(this);
+            nextNightMode();
             item.setIcon(getNightModeIcon());
             return true;
         } else if (id == R.id.browse_menu_settings) {

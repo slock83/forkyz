@@ -13,10 +13,6 @@ import android.view.View.OnClickListener;
 import android.view.View;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
-import app.crossword.yourealwaysbe.ForkyzActivity;
-import app.crossword.yourealwaysbe.util.NightModeHelper;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class HoneycombUtil extends DefaultUtil {
@@ -46,35 +42,6 @@ public class HoneycombUtil extends DefaultUtil {
         if (bar != null) {
             bar.setDisplayHomeAsUpEnabled(true);
         }
-    }
-
-    @Override
-    public boolean isNightModeAvailable(){
-        return true;
-    }
-
-    @Override
-    public void nextNightMode(ForkyzActivity activity){
-        activity.nightMode.next();
-        if(activity.nightMode.isNightMode()){
-            AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_YES
-            );
-        } else {
-            AppCompatDelegate.setDefaultNightMode(
-                AppCompatDelegate.MODE_NIGHT_NO
-            );
-        }
-    }
-
-    @Override
-    public void restoreNightMode(ForkyzActivity forkyzActivity) {
-        restoreNightMode(forkyzActivity.nightMode);
-    }
-
-    @Override
-    public void restoreNightMode(NightModeHelper nightMode) {
-        nightMode.restoreNightMode();
     }
 
     @Override

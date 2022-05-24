@@ -23,7 +23,7 @@ public class PreferencesActivity
 
         NightModeHelper nightMode = NightModeHelper.bind(this);
         AndroidVersionUtils utils = AndroidVersionUtils.Factory.getInstance();
-        utils.restoreNightMode(nightMode);
+        nightMode.restoreNightMode();
 
         getSupportFragmentManager().beginTransaction()
                                    .replace(R.id.preferencesActivity,

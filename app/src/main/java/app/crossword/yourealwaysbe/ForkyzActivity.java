@@ -66,16 +66,16 @@ public class ForkyzActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        utils.restoreNightMode(this);
+        nightMode.restoreNightMode();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        if(this.nightMode == null) {
-            this.nightMode = NightModeHelper.bind(this);
-            this.utils.restoreNightMode(this);
+        if(nightMode == null) {
+            nightMode = NightModeHelper.bind(this);
+            nightMode.restoreNightMode();
         }
 
         doOrientation();
