@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.versions;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -40,5 +41,10 @@ public class LollipopUtil extends JellyBeanMR2Util {
             // start new
             BackgroundDownloadManager.setHourlyBackgroundDownloadPeriod();
         }
+    }
+
+    @Override
+    public void finishAndRemoveTask(Activity activity) {
+        activity.finishAndRemoveTask();
     }
 }

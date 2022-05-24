@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.versions;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -158,5 +159,10 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
                 }
             }
         );
+    }
+
+    @Override
+    public void finishAndRemoveTask(Activity activity) {
+        activity.finish();
     }
 }

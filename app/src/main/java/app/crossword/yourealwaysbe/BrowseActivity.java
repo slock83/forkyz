@@ -11,7 +11,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -112,12 +111,8 @@ public class BrowseActivity extends ForkyzActivity {
                 int otherTaskId
                     = intent.getIntExtra(BROWSER_CLOSE_TASK_ID, myTaskId);
 
-                if (myTaskId != otherTaskId) {
-                    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        finishAndRemoveTask();
-                    else
-                        finish();
-                }
+                if (myTaskId != otherTaskId)
+                    utils.finishAndRemoveTask(BrowseActivity.this);
             }
         }
     };

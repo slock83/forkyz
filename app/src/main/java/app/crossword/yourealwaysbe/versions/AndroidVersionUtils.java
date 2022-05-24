@@ -1,5 +1,6 @@
 package app.crossword.yourealwaysbe.versions;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -75,4 +76,6 @@ public interface AndroidVersionUtils {
     ActivityResultLauncher<String> registerForUriContentsResult(
         AppCompatActivity activity, Consumer<List<Uri>> uriConsumer
     );
+
+    void finishAndRemoveTask(Activity activity);
 }
