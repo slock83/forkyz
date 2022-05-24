@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.versions;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -9,7 +10,11 @@ import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.Window;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 public interface AndroidVersionUtils {
 
@@ -38,6 +43,8 @@ public interface AndroidVersionUtils {
                 return INSTANCE = new MarshmallowUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 return INSTANCE = new LollipopUtil();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+                return INSTANCE = new JellyBeanMR2Util();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
                 return INSTANCE = new JellyBeanMR1Util();
 
@@ -64,4 +71,8 @@ public interface AndroidVersionUtils {
     boolean isMiniTabletish(DisplayMetrics metrics);
 
     void setFullScreen(Window window);
+
+    ActivityResultLauncher<String> registerForUriContentsResult(
+        AppCompatActivity activity, Consumer<List<Uri>> uriConsumer
+    );
 }

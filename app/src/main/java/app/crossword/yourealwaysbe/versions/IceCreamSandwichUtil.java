@@ -3,6 +3,7 @@ package app.crossword.yourealwaysbe.versions;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -14,8 +15,15 @@ import android.view.View.OnClickListener;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class IceCreamSandwichUtil implements AndroidVersionUtils {
@@ -134,6 +142,21 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
         window.setFlags(
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
+        );
+    }
+
+    @Override
+    public ActivityResultLauncher<String> registerForUriContentsResult(
+        AppCompatActivity activity, Consumer<List<Uri>> uriConsumer
+    ) {
+        return activity.registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            new ActivityResultCallback<Uri>() {
+                @Override
+                public void onActivityResult(Uri uri) {
+                    uriConsumer.accept(Collections.singletonList(uri));
+                }
+            }
         );
     }
 }

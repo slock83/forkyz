@@ -23,9 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
@@ -144,7 +142,11 @@ public class BrowseActivity extends ForkyzActivity {
     private View pleaseWaitView;
     private Uri pendingImport;
 
-    ActivityResultLauncher<String> getImportURI = registerImportResult();
+    ActivityResultLauncher<String> getImportURI =
+        utils.registerForUriContentsResult(
+            this,
+            uris -> { onImportURIs(uris); }
+        );
 
     private ActionMode actionMode;
     private final ActionMode.Callback actionModeCallback = new ActionMode.Callback() {
@@ -831,30 +833,6 @@ public class BrowseActivity extends ForkyzActivity {
 
     private void setPendingImport(Uri uri) {
         pendingImport = uri;
-    }
-
-    private ActivityResultLauncher<String> registerImportResult() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            return registerForActivityResult(
-                new ActivityResultContracts.GetMultipleContents(),
-                new ActivityResultCallback<List<Uri>>() {
-                    @Override
-                    public void onActivityResult(List<Uri> uris) {
-                        onImportURIs(uris);
-                    }
-                }
-            );
-        } else {
-            return registerForActivityResult(
-                new ActivityResultContracts.GetContent(),
-                new ActivityResultCallback<Uri>() {
-                    @Override
-                    public void onActivityResult(Uri uri) {
-                        onImportURI(uri, false);
-                    }
-                }
-            );
-        }
     }
 
     private class FileAdapter

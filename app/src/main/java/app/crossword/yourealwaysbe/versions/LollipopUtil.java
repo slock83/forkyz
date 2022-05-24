@@ -11,7 +11,7 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class LollipopUtil extends JellyBeanMR1Util {
+public class LollipopUtil extends JellyBeanMR2Util {
 
     private static final String PREF_LEGACY_BACKGROUND_DOWNLOAD
         = "backgroundDownload";
