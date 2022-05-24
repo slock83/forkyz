@@ -38,13 +38,11 @@ public interface AndroidVersionUtils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
                 return INSTANCE = new JellyBeanMR1Util();
 
-            return INSTANCE = new HoneycombUtil();
+            return INSTANCE = new IceCreamSandwichUtil();
         }
     }
 
     View onActionBarCustom(AppCompatActivity a, int id);
-
-    void hideWindowTitle(AppCompatActivity a);
 
     void hideActionBar(AppCompatActivity a);
 

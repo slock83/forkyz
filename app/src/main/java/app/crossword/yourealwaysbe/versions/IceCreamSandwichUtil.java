@@ -1,5 +1,6 @@
 package app.crossword.yourealwaysbe.versions;
 
+import android.util.DisplayMetrics;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -14,10 +15,22 @@ import android.view.View;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
-public class HoneycombUtil extends DefaultUtil {
-
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+public class IceCreamSandwichUtil implements AndroidVersionUtils {
+    @Override
     public void setContext(Context ctx) { }
+
+    @Override
+    public boolean isMiniTabletish(DisplayMetrics metrics) {
+        double x = Math.pow(metrics.widthPixels/metrics.xdpi,2);
+        double y = Math.pow(metrics.heightPixels/metrics.ydpi,2);
+        double screenInches = Math.sqrt(x+y);
+        if (screenInches > 5.5 && screenInches <= 9) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     @Override
     public void finishOnHomeButton(final AppCompatActivity a) {
@@ -77,10 +90,6 @@ public class HoneycombUtil extends DefaultUtil {
         bar.setDisplayShowHomeEnabled(true);
         bar.setCustomView(id);
         return bar.getCustomView();
-    }
-
-    public void hideWindowTitle(AppCompatActivity a) {
-        // no op;
     }
 
     public void hideActionBar(AppCompatActivity a) {

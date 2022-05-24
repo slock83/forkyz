@@ -119,17 +119,6 @@ public class PlayActivity extends PuzzleActivity
         metrics = getResources().getDisplayMetrics();
         this.screenWidthInInches = (metrics.widthPixels > metrics.heightPixels ? metrics.widthPixels : metrics.heightPixels) / Math.round(160 * metrics.density);
 
-        try {
-            if (!prefs.getBoolean(SHOW_TIMER, false)) {
-                if (ForkyzApplication.isLandscape(metrics)) {
-                    if (ForkyzApplication.isMiniTabletish(metrics)) {
-                        utils.hideWindowTitle(this);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         utils.holographic(this);
         utils.finishOnHomeButton(this);
 

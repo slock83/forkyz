@@ -5,7 +5,7 @@ import android.os.Build;
 import android.util.DisplayMetrics;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-public class JellyBeanMR1Util extends HoneycombUtil {
+public class JellyBeanMR1Util extends IceCreamSandwichUtil {
     @Override
     public boolean isMiniTabletish(DisplayMetrics metrics) {
         // I don't know why this turned to false at this point, but it's
