@@ -5,7 +5,6 @@ import android.app.Application;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
@@ -146,24 +145,9 @@ public class ForkyzApplication extends Application {
     }
 
     public static boolean isMiniTabletish(DisplayMetrics metrics) {
-        switch (Build.VERSION.SDK_INT) {
-        case 12:
-        case 11:
-        case 13:
-        case 14:
-        case 15:
-        case 16:
-            double x = Math.pow(metrics.widthPixels/metrics.xdpi,2);
-            double y = Math.pow(metrics.heightPixels/metrics.ydpi,2);
-            double screenInches = Math.sqrt(x+y);
-            if (screenInches > 5.5 && screenInches <= 9) {
-                return true;
-            } else {
-                return false;
-            }
-        default:
-            return false;
-        }
+        return AndroidVersionUtils.Factory
+            .getInstance()
+            .isMiniTabletish(metrics);
     }
 
     public SharedPreferences getSettings() {

@@ -3,6 +3,7 @@ package app.crossword.yourealwaysbe.versions;
 import android.content.Context;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.Window;
@@ -28,4 +29,16 @@ public abstract class DefaultUtil implements AndroidVersionUtils {
     public abstract StaticLayout getStaticLayout(
         CharSequence text, TextPaint style, int width
     );
+
+    @Override
+    public boolean isMiniTabletish(DisplayMetrics metrics) {
+        double x = Math.pow(metrics.widthPixels/metrics.xdpi,2);
+        double y = Math.pow(metrics.heightPixels/metrics.ydpi,2);
+        double screenInches = Math.sqrt(x+y);
+        if (screenInches > 5.5 && screenInches <= 9) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
