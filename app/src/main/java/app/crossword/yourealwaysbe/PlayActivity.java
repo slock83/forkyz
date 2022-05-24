@@ -33,6 +33,7 @@ import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.DialogFragment;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -877,11 +878,9 @@ public class PlayActivity extends PuzzleActivity
     }
 
     private void setClueSize(int dps) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            this.clue.setAutoSizeTextTypeUniformWithConfiguration(
-                5, dps, 1, TypedValue.COMPLEX_UNIT_SP
-            );
-        }
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+            clue, 5, dps, 1, TypedValue.COMPLEX_UNIT_SP
+        );
 
         int smallClueTextSize
             = getResources().getInteger(R.integer.small_clue_text_size);
