@@ -10,7 +10,6 @@ import android.graphics.Paint.Style;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
@@ -39,9 +38,9 @@ public class PlayboardRenderer {
     private static final float BASE_BOX_SIZE_INCHES = 0.25F;
     private static final Logger LOG = Logger.getLogger(PlayboardRenderer.class.getCanonicalName());
     @SuppressLint("NewApi")
-    private static final Typeface TYPEFACE_SEMI_BOLD_SANS = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-                ? Typeface.create(Typeface.SANS_SERIF, 600, false) // semi-bold if available
-                : Typeface.create("sans-serif", Typeface.BOLD); // or fallback to bold
+    private static final Typeface TYPEFACE_SEMI_BOLD_SANS =
+        AndroidVersionUtils.Factory.getInstance().getSemiBoldTypeface();
+
     private final Paint blackBox = new Paint();
     private final Paint blackCircle = new Paint();
     private final Paint blackLine = new Paint();

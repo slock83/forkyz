@@ -2,6 +2,7 @@ package app.crossword.yourealwaysbe.versions;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.text.StaticLayout;
@@ -38,6 +39,8 @@ public interface AndroidVersionUtils {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                 return INSTANCE = new RUtil();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+                return INSTANCE = new PieUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 return INSTANCE = new OreoUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -78,4 +81,6 @@ public interface AndroidVersionUtils {
     );
 
     void finishAndRemoveTask(Activity activity);
+
+    Typeface getSemiBoldTypeface();
 }

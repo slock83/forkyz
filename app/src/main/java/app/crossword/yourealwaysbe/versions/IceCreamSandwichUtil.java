@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Layout;
@@ -164,5 +165,11 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     @Override
     public void finishAndRemoveTask(Activity activity) {
         activity.finish();
+    }
+
+    @Override
+    public Typeface getSemiBoldTypeface() {
+         // or fallback to bold, no semibold before P
+        return Typeface.create("sans-serif", Typeface.BOLD);
     }
 }
