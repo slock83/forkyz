@@ -1,6 +1,5 @@
 package app.crossword.yourealwaysbe.versions;
 
-import android.util.DisplayMetrics;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -8,10 +7,13 @@ import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View.OnClickListener;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -124,5 +126,14 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     @Override
     public void migrateLegacyBackgroundDownloads() {
         // do nothing: legacy background download needed lollipop
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void setFullScreen(Window window) {
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        );
     }
 }

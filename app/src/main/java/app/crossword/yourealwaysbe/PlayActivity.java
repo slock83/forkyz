@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,9 +24,6 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
-import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -1188,19 +1184,9 @@ public class PlayActivity extends PuzzleActivity
         }
     }
 
-    @SuppressWarnings("deprecation")
     private void setFullScreenMode() {
         if (prefs.getBoolean("fullScreen", false)) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                final WindowInsetsController insetsController
-                    = getWindow().getInsetsController();
-                if (insetsController != null) {
-                    insetsController.hide(WindowInsets.Type.statusBars());
-                }
-            } else {
-                getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            }
+            utils.setFullScreen(getWindow());
         }
     }
 

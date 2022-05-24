@@ -8,6 +8,7 @@ import android.util.DisplayMetrics;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.Window;
 import androidx.appcompat.app.AppCompatActivity;
 
 public interface AndroidVersionUtils {
@@ -29,6 +30,8 @@ public interface AndroidVersionUtils {
             if (INSTANCE != null)
                 return INSTANCE;
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                return INSTANCE = new RUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 return INSTANCE = new OreoUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -59,4 +62,6 @@ public interface AndroidVersionUtils {
     void migrateLegacyBackgroundDownloads();
 
     boolean isMiniTabletish(DisplayMetrics metrics);
+
+    void setFullScreen(Window window);
 }
