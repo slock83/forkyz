@@ -1,10 +1,14 @@
 package app.crossword.yourealwaysbe.versions;
 
+import java.io.IOException;
+import java.util.UUID;
+
 import android.annotation.TargetApi;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
+import android.os.storage.StorageManager;
 import android.util.Log;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -27,5 +31,20 @@ public class OreoUtil extends MarshmallowUtil {
         NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);
 
+    }
+
+    @Override
+    public boolean isInternalStorageFull(
+        Context context, long minimumBytesFree
+    ) throws IOException {
+        StorageManager storageManager
+            = context.getSystemService(StorageManager.class);
+        UUID appSpecificInternalDirUuid
+            = storageManager.getUuidForPath(context.getFilesDir());
+        long availableBytes =
+            storageManager.getAllocatableBytes(
+                appSpecificInternalDirUuid
+            );
+        return availableBytes < minimumBytesFree;
     }
 }

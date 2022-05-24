@@ -47,4 +47,9 @@ public class LollipopUtil extends JellyBeanMR2Util {
     public void finishAndRemoveTask(Activity activity) {
         activity.finishAndRemoveTask();
     }
+
+    @Override
+    public boolean isSAFSupported() {
+        return true;
+    }
 }

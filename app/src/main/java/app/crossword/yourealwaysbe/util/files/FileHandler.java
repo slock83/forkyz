@@ -60,6 +60,8 @@ public abstract class FileHandler {
         FILE_EXT_PUZ, FILE_EXT_IPUZ
     };
 
+    protected static final long MINIMUM_STORAGE_REQUIRED = 1024L * 1024L;
+
     // used for saving meta cache to DB since we currently save puzzles
     // on the main thread (can be removed if/when a better save solution
     // is implemented)

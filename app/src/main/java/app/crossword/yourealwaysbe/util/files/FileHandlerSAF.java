@@ -15,10 +15,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.DocumentsContract.Document;
 import android.provider.DocumentsContract;
 import androidx.preference.PreferenceManager;
+
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 @TargetApi(24)
 public class FileHandlerSAF extends FileHandler {
@@ -53,7 +54,7 @@ public class FileHandlerSAF extends FileHandler {
     }
 
     public static boolean isSAFSupported() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+        return AndroidVersionUtils.Factory.getInstance().isSAFSupported();
     }
 
     /**

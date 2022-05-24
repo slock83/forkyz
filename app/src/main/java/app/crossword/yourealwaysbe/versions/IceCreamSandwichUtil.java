@@ -1,5 +1,11 @@
 package app.crossword.yourealwaysbe.versions;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
+
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -7,6 +13,7 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.StatFs;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -22,10 +29,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class IceCreamSandwichUtil implements AndroidVersionUtils {
@@ -171,5 +174,31 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     public Typeface getSemiBoldTypeface() {
          // or fallback to bold, no semibold before P
         return Typeface.create("sans-serif", Typeface.BOLD);
+    }
+
+    @Override
+    public boolean isInternalStorageFull(
+        Context context, long minimumBytesFree
+    ) throws IOException {
+        File files = context.getFilesDir();
+        return files.getFreeSpace() < minimumBytesFree;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean isExternalStorageDirectoryFull(
+        File directory, long minimumBytesFree
+    ) {
+        StatFs stats = new StatFs(directory.getAbsolutePath());
+
+        long available
+            = (long) stats.getAvailableBlocks() * (long) stats.getBlockSize();
+
+        return available < minimumBytesFree;
+    }
+
+    @Override
+    public boolean isSAFSupported() {
+        return false;
     }
 }
