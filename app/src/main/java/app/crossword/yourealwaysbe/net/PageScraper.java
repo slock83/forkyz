@@ -7,9 +7,11 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -20,22 +22,38 @@ import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 
-public class AbstractPageScraper {
+public class PageScraper {
     private static final String REGEX = "http://[^ ^']*\\.puz";
     private static final String REL_REGEX = "href=\"(.*\\.puz)\"";
     private static final Pattern PAT = Pattern.compile(REGEX);
     private static final Pattern REL_PAT = Pattern.compile(REL_REGEX);
+    private static final int NUM_FILES_PER_DOWNLOAD = 1;
+
     private String sourceName;
     private String url;
     private String supportUrl;
+    private boolean readReverse;
     protected boolean updateable = false;
 
-    protected AbstractPageScraper(
+    public PageScraper(
         String url, String sourceName, String supportUrl
+    ) {
+        this(url, sourceName, supportUrl, false);
+    }
+
+    /**
+     * Construct a scraper
+     *
+     * @param readReverse whether to read from the top or bottom of the
+     * page
+     */
+    public PageScraper(
+        String url, String sourceName, String supportUrl, boolean readReverse
     ) {
         this.url = url;
         this.sourceName = sourceName;
         this.supportUrl = supportUrl;
+        this.readReverse = readReverse;
     }
 
     protected String getContent() throws IOException {
@@ -63,7 +81,7 @@ public class AbstractPageScraper {
      * Map URLs to names of file at url, with file extension removed
      */
     protected static Map<String, String> mapURLsToFileNames(
-        List<String> urls
+        Deque<String> urls
     ) {
         HashMap<String, String> result = new HashMap<String, String>(
                 urls.size());
@@ -82,10 +100,10 @@ public class AbstractPageScraper {
         return result;
     }
 
-    protected static List<String> puzzleRelativeURLs(String baseUrl, String input)
+    protected static Deque<String> puzzleRelativeURLs(String baseUrl, String input)
             throws MalformedURLException {
         URL base = new URL(baseUrl);
-        ArrayList<String> result = new ArrayList<String>();
+        LinkedList<String> result = new LinkedList<String>();
         Matcher matcher = REL_PAT.matcher(input);
 
         while (matcher.find()) {
@@ -95,8 +113,8 @@ public class AbstractPageScraper {
         return result;
     }
 
-    protected static List<String> puzzleURLs(String input) {
-        ArrayList<String> result = new ArrayList<String>();
+    protected static Deque<String> puzzleURLs(String input) {
+        LinkedList<String> result = new LinkedList<String>();
         Matcher matcher = PAT.matcher(input);
 
         while (matcher.find()) {
@@ -139,17 +157,17 @@ public class AbstractPageScraper {
     }
 
     /**
-     * Returns a list of file names downloaded
+     * Returns a set of file names downloaded
      */
-    public List<String> scrape() {
+    public Set<String> scrape() {
         FileHandler fileHandler
             = ForkyzApplication.getInstance().getFileHandler();
 
-        ArrayList<String> scrapedFiles = new ArrayList<>();
+        Set<String> scrapedFiles = new HashSet<>();
 
         try {
             String content = this.getContent();
-            List<String> urls = puzzleURLs(content);
+            Deque<String> urls = puzzleURLs(content);
 
             try {
                 urls.addAll(puzzleRelativeURLs(url, content));
@@ -161,12 +179,16 @@ public class AbstractPageScraper {
 
             Set<String> existingFiles = fileHandler.getPuzzleNames();
 
-            for (String url : urls) {
+            Iterator<String> urlIterator
+                = readReverse ? urls.descendingIterator() : urls.iterator();
+
+            while (urlIterator.hasNext()) {
+                String url = urlIterator.next();
                 String filename = urlsToFilenames.get(url);
 
                 boolean exists = existingFiles.contains(filename);
 
-                if (!exists && (scrapedFiles.size() < 3)) {
+                if (!exists && (scrapedFiles.size() < NUM_FILES_PER_DOWNLOAD)) {
                     try {
                         Puzzle puz = download(url);
                         if (puz != null) {

@@ -15,11 +15,10 @@ import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 import java.util.ArrayList;
-import java.util.List;
-
+import java.util.Set;
 
 public class Scrapers {
-    private ArrayList<AbstractPageScraper> scrapers = new ArrayList<AbstractPageScraper>();
+    private ArrayList<PageScraper> scrapers = new ArrayList<PageScraper>();
     private Context context;
     private NotificationManager notificationManager;
     private boolean supressMessages;
@@ -29,11 +28,21 @@ public class Scrapers {
         this.context = context;
 
         if (prefs.getBoolean("scrapeCru", false)) {
-            scrapers.add(new CruScraper());
+            scrapers.add(new PageScraper(
+                // certificate doesn't seem to work for me
+                // "https://theworld.com/~wij/puzzles/cru/index.html",
+                "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html",
+                "Cryptic Cru Workshop Archive",
+                "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html"
+            ));
         }
 
         if (prefs.getBoolean("scrapeKegler", false)) {
-            scrapers.add(new KeglerScraper());
+            scrapers.add(new PageScraper(
+                "https://kegler.gitlab.io/Block_style/index.html",
+                "Kegler's Kryptics",
+                "https://kegler.gitlab.io/"
+            ));
         }
 
         this.supressMessages = prefs.getBoolean("supressMessages", false);
@@ -51,7 +60,7 @@ public class Scrapers {
                 .setContentTitle(contentTitle)
                 .setWhen(System.currentTimeMillis());
 
-        for (AbstractPageScraper scraper : scrapers) {
+        for (PageScraper scraper : scrapers) {
             try {
                 String contentText = context.getString(
                     R.string.puzzles_downloading_from, scraper.getSourceName()
@@ -69,7 +78,7 @@ public class Scrapers {
                     this.notificationManager.notify(0, not.build());
                 }
 
-                List<String> downloaded = scraper.scrape();
+                Set<String> downloaded = scraper.scrape();
 
                 if (!this.supressMessages) {
                     for (String name : downloaded) {
