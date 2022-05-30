@@ -106,8 +106,8 @@
     <string name="daily_crosswords_desc">Puzzles which update daily.</string>
     <string name="weekly_crosswords">Weekly Crosswords</string>
     <string name="weekly_crosswords_desc">Puzzles which update weekly.</string>
-    <string name="experimental_sources">Experimental Sources</string>
-    <string name="experimental_sources_desc">May or may not function correctly.</string>
+    <string name="scraper_sources">Page Scrapers</string>
+    <string name="scraper_sources_desc">Online puzzle archives</string>
     <string name="browser_settings">Browser Settings</string>
     <string name="interaction_settings">Interaction Settings</string>
     <string name="display_settings">Display Settings</string>
@@ -247,11 +247,11 @@
     <string name="wall_street_journal">The Wall Street Journal</string>
     <string name="washington_post_sunday">The Washington Post Sunday</string>
 
-    <!--  preferences experimental -->
+    <!--  preferences scrapers -->
     <string name="cru_puzzle_workshop">Cru Puzzle Workshop</string>
-    <string name="cru_puzzle_workshop_desc">NYT Cru Cryptic Fan Puzzles\nhttps://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html\n(Please Read the help item below)</string>
+    <string name="cru_puzzle_workshop_desc">NYT Cru Cryptic Fan Puzzles\nhttps://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html</string>
     <string name="keglars_cryptics">Kegler\'s Kryptics</string>
-    <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html\n(Please Read the help item below)</string>
+    <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html</string>
     <string name="about_scrapes">About These Sources</string>
 
     <!-- preferences custom -->

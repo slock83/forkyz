@@ -9,11 +9,11 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 
-public class PreferencesExperimentalFragment extends PreferenceFragmentCompat {
+public class PreferencesScraperFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         // Load the preferences from an XML resource
-        setPreferencesFromResource(R.xml.preferences_experimental, rootKey);
+        setPreferencesFromResource(R.xml.preferences_scrapers, rootKey);
 
         findPreference("aboutScrapes")
                 .setOnPreferenceClickListener(new OnPreferenceClickListener() {

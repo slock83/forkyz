@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
-    android:title="@string/experimental_sources"
-    android:summary="@string/experimental_sources_desc"
-    android:key="selectExperimental"
+    android:title="@string/scraper_sources"
+    android:summary="@string/scraper_sources_desc"
+    android:key="selectscraper"
 >
     <androidx.preference.CheckBoxPreference
         android:title="@string/cru_puzzle_workshop"

@@ -33,10 +33,10 @@
             app:fragment="app.crossword.yourealwaysbe.PreferencesWeeklyFragment"
         />
         <androidx.preference.Preference
-            android:title="@string/experimental_sources"
-            android:summary="@string/experimental_sources_desc"
+            android:title="@string/scraper_sources"
+            android:summary="@string/scraper_sources_desc"
             android:key="selectExperimental"
-            app:fragment="app.crossword.yourealwaysbe.PreferencesExperimentalFragment"
+            app:fragment="app.crossword.yourealwaysbe.PreferencesScraperFragment"
         />
     </androidx.preference.PreferenceCategory>
 
