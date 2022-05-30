@@ -252,6 +252,8 @@
     <string name="cru_puzzle_workshop_desc">NYT Cru Cryptic Fan Puzzles\nhttps://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html</string>
     <string name="keglars_cryptics">Kegler\'s Kryptics</string>
     <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html</string>
+    <string name="private_eye">Private Eye</string>
+    <string name="private_eye_desc">Archive of the Private Eye crossword. New puzzle roughly every fortnight.</string>
     <string name="about_scrapes">About These Sources</string>
 
     <!-- preferences custom -->

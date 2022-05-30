@@ -45,6 +45,15 @@ public class Scrapers {
             ));
         }
 
+        if (prefs.getBoolean("scrapePrivateEye", false)) {
+            scrapers.add(new PageScraper(
+                "https://www.private-eye.co.uk/pictures/crossword/download/",
+                "Private Eye",
+                "https://shop.private-eye.co.uk",
+                true // download from end of page
+            ));
+        }
+
         this.supressMessages = prefs.getBoolean("supressMessages", false);
     }
 
