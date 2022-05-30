@@ -28,7 +28,6 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.net.Downloader;
 import app.crossword.yourealwaysbe.net.Downloaders;
-import app.crossword.yourealwaysbe.net.Scrapers;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.SingleLiveEvent;
@@ -225,9 +224,7 @@ public class BrowseActivityViewModel extends ViewModel {
         });
     }
 
-    public void download(
-        LocalDate date, List<Downloader> downloaders, boolean scrape
-    ) {
+    public void download(LocalDate date, List<Downloader> downloaders) {
         downloadExecutorService.execute(() -> {
             NotificationManager nm
                 = (NotificationManager)
@@ -240,13 +237,6 @@ public class BrowseActivityViewModel extends ViewModel {
             );
 
             dls.download(date, downloaders);
-
-            if (scrape) {
-                Scrapers scrapes = new Scrapers(
-                    prefs, nm, ForkyzApplication.getInstance()
-                );
-                scrapes.scrape();
-            }
 
             if (!getIsViewArchive()) {
                 handler.post(() -> {

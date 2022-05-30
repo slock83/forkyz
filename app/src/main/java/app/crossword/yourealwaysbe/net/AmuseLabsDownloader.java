@@ -19,7 +19,7 @@ import app.crossword.yourealwaysbe.io.AmuseLabsJSONIO;
  * Amuse Labs Downloader
  * URL: https://<cdn>.amuselabs.com/<shortname>/crossword?id=<idPrefix>YYMMDD&set=<setname>
  */
-public class AmuseLabsDownloader extends AbstractDownloader {
+public class AmuseLabsDownloader extends AbstractDateDownloader {
     private static final String BASE_URL_FMT
         = "https://%s.amuselabs.com/%s/crossword";
     private static final String URL_SUFFIX_FMT = "?id=%s%02d%02d%02d&set=%s";
@@ -52,11 +52,6 @@ public class AmuseLabsDownloader extends AbstractDownloader {
         );
         this.idPrefix = idPrefix;
         this.setName = setName;
-    }
-
-    @Override
-    public Puzzle download(LocalDate date) {
-        return download(date, this.createUrlSuffix(date), EMPTY_MAP);
     }
 
     @Override

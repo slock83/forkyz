@@ -2,8 +2,7 @@ package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-
-import app.crossword.yourealwaysbe.puz.Puzzle;
+import java.util.Set;
 
 /**
  * Does not actually download any puzzles; just adds an "All Available" option to the dropdown.
@@ -25,17 +24,9 @@ public class DummyDownloader implements Downloader {
     }
 
     @Override
-    public String createFileName(LocalDate date) {
-        return null;
-    }
-
-    @Override
-    public Puzzle download(LocalDate date) {
-        return null;
-    }
-
-    @Override
-    public String sourceUrl(LocalDate date) {
+    public DownloadResult download(
+        LocalDate date, Set<String> existingFileNames
+    ) {
         return null;
     }
 

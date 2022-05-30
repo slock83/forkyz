@@ -13,7 +13,7 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * URL: https://mazerlm.home.comcast.net/~mazerlm/wsjYYMMDD.puz
  * Date = Fridays
  */
-public class WSJFridayDownloader extends AbstractDownloader {
+public class WSJFridayDownloader extends AbstractDateDownloader {
     private static final String NAME
         = ForkyzApplication.getInstance().getString(R.string.wall_street_journal);
     private static final String SUPPORT_URL = "https://subscribe.wsj.com";

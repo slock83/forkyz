@@ -21,7 +21,6 @@
     <string name="puzzles_downloading_from">Downloading Puzzles from %s</string>
     <string name="puzzles_downloaded">New Puzzles Downloaded</string>
     <string name="puzzle_downloaded">Downloaded %1$s</string>
-    <string name="puzzles_scraping">Downloading Scrape Puzzles</string>
 
     <!-- imports -->
     <string name="import_fallback_source">Import</string>

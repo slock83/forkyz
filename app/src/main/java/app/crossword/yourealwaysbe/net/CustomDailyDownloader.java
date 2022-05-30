@@ -12,7 +12,7 @@ import app.crossword.yourealwaysbe.io.IO;
  * URL: prefs.getString("customDailyLink", "")
  * Date = Daily
  */
-public class CustomDailyDownloader extends AbstractDownloader {
+public class CustomDailyDownloader extends AbstractDateDownloader {
     private static final String NAME
         = ForkyzApplication.getInstance().getString(R.string.custom_daily_title);
     private DateTimeFormatter urlDateFormat;

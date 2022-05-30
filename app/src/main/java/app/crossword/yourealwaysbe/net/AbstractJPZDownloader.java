@@ -8,7 +8,7 @@ import app.crossword.yourealwaysbe.io.JPZIO;
 /**
  * Abstract for puzzle sources using .JPZ XML format
  */
-public abstract class AbstractJPZDownloader extends AbstractDownloader {
+public abstract class AbstractJPZDownloader extends AbstractDateDownloader {
     public AbstractJPZDownloader(
         String baseUrl,
         String downloaderName,

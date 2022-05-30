@@ -612,7 +612,7 @@ public class BrowseActivity extends ForkyzActivity {
 
         if (prefs.getBoolean("dlOnStartup", false) &&
                 ((System.currentTimeMillis() - (long) (12 * 60 * 60 * 1000)) > lastDL)) {
-            model.download(LocalDate.now(), null, true);
+            model.download(LocalDate.now(), null);
             prefs.edit()
                     .putLong("dlLast", System.currentTimeMillis())
                     .apply();
@@ -1003,24 +1003,21 @@ public class BrowseActivity extends ForkyzActivity {
                 ) {
                     List<Downloader> toDownload
                         = new LinkedList<Downloader>();
-                    boolean scrape;
 
                     if (selected == 0) {
                         // Download all available.
                         toDownload.addAll(downloaders);
                         toDownload.remove(0);
-                        scrape = true;
                     } else {
                         // Only download selected.
                         toDownload.add(downloaders.get(selected));
-                        scrape = false;
                     }
 
                     BrowseActivityViewModel model
                         = new ViewModelProvider(getActivity())
                             .get(BrowseActivityViewModel.class);
 
-                    model.download(d, toDownload, scrape);
+                    model.download(d, toDownload);
                 }
             };
 

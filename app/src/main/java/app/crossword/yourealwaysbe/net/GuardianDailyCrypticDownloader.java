@@ -22,7 +22,7 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * URL: https://www.theguardian.com/crosswords/cryptic/
  * Date = Daily
  */
-public class GuardianDailyCrypticDownloader extends AbstractDownloader {
+public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
     private static final String NAME =
         ForkyzApplication.getInstance().getString(R.string.guardian_daily);
     private static final String SUPPORT_URL = "https://support.theguardian.com";
@@ -38,11 +38,6 @@ public class GuardianDailyCrypticDownloader extends AbstractDownloader {
             SUPPORT_URL,
             null
         );
-    }
-
-    @Override
-    public Puzzle download(LocalDate date) {
-        return download(date, this.createUrlSuffix(date), EMPTY_MAP);
     }
 
     @Override

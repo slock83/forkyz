@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Created by keber_000 on 2/9/14.
  */
-public class BrainsOnlyDownloader extends AbstractDownloader {
+public class BrainsOnlyDownloader extends AbstractDateDownloader {
 
     private final DateTimeFormatter df
         = DateTimeFormatter.ofPattern("yyMMdd");

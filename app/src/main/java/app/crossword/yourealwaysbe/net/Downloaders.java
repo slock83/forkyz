@@ -12,7 +12,6 @@ import app.crossword.yourealwaysbe.BrowseActivity;
 import app.crossword.yourealwaysbe.PlayActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
-import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
@@ -151,18 +150,14 @@ public class Downloaders {
                 : puzzlesToDownload.entrySet()
         ) {
             Downloader downloader = puzzle.getKey();
-            LocalDate date = puzzle.getValue();
 
-            String fileName = downloader.createFileName(date);
-
-            if (downloader.alwaysRun() || !fileNames.contains(fileName)) {
-                somethingDownloaded |= downloadPuzzle(
-                    downloader,
-                    puzzle.getValue(),
-                    not,
-                    nextNotificationId++
-                );
-            }
+            somethingDownloaded |= downloadPuzzle(
+                downloader,
+                puzzle.getValue(),
+                not,
+                nextNotificationId++,
+                fileNames
+            );
         }
 
         if (this.notificationManager != null) {
@@ -177,13 +172,16 @@ public class Downloaders {
     /**
      * Download and save the puzzle from the downloader
      *
+     * Only saves if we don't already have it.
+     *
      * @return true if succeeded
      */
     private boolean downloadPuzzle(
         Downloader d,
         LocalDate date,
         NotificationCompat.Builder not,
-        int notificationId
+        int notificationId,
+        Set<String> existingFileNames
     ) {
         FileHandler fileHandler
             = ForkyzApplication.getInstance().getFileHandler();
@@ -208,13 +206,19 @@ public class Downloaders {
                 this.notificationManager.notify(0, not.build());
             }
 
-            Puzzle puz = d.download(date);
+            Downloader.DownloadResult result
+                = d.download(date, existingFileNames);
 
-            if (puz == null)
+            if (result == null)
                 return false;
 
-            boolean saved =
-                fileHandler.saveNewPuzzle(puz, d.createFileName(date)) != null;
+            boolean saved = false;
+            String fileName = result.getFileName();
+            if (!existingFileNames.contains(fileName)) {
+                saved = fileHandler.saveNewPuzzle(
+                    result.getPuzzle(), fileName
+                ) != null;
+            }
 
             if (saved) {
                 if (!this.supressMessages) {
@@ -368,6 +372,33 @@ public class Downloaders {
         }
 
         addCustomDownloaders(downloaders);
+
+        if (prefs.getBoolean("scrapeCru", false)) {
+            downloaders.add(new PageScraper(
+                // certificate doesn't seem to work for me
+                // "https://theworld.com/~wij/puzzles/cru/index.html",
+                "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html",
+                "Cryptic Cru Workshop Archive",
+                "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html"
+            ));
+        }
+
+        if (prefs.getBoolean("scrapeKegler", false)) {
+            downloaders.add(new PageScraper(
+                "https://kegler.gitlab.io/Block_style/index.html",
+                "Kegler's Kryptics",
+                "https://kegler.gitlab.io/"
+            ));
+        }
+
+        if (prefs.getBoolean("scrapePrivateEye", false)) {
+            downloaders.add(new PageScraper(
+                "https://www.private-eye.co.uk/pictures/crossword/download/",
+                "Private Eye",
+                "https://shop.private-eye.co.uk",
+                true // download from end of page
+            ));
+        }
 
         return downloaders;
     }

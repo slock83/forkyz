@@ -4,9 +4,9 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Set;
 
 import app.crossword.yourealwaysbe.io.UclickXMLIO;
-import app.crossword.yourealwaysbe.puz.Puzzle;
 
 /**
  * Uclick XML Puzzles
@@ -15,7 +15,7 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * usaon (USA Today) = Monday-Saturday (not holidays)
  * fcx (Universal) = Daily
  */
-public class UclickDownloader extends AbstractDownloader {
+public class UclickDownloader extends AbstractDateDownloader {
     DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
     NumberFormat nf = NumberFormat.getInstance();
     private String copyright;
@@ -51,14 +51,16 @@ public class UclickDownloader extends AbstractDownloader {
     }
 
     @Override
-    public Puzzle download(LocalDate date) {
-        Puzzle puz = super.download(date);
-        if (puz != null) {
-            puz.setCopyright(
+    public DownloadResult download(
+        LocalDate date, Set<String> existingFileNames
+    ) {
+        DownloadResult res = super.download(date, existingFileNames);
+        if (res != null) {
+            res.getPuzzle().setCopyright(
                 "\u00a9 " + date.getYear() + " " + copyright
             );
         }
-        return puz;
+        return res;
     }
 
     @Override

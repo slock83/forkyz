@@ -11,12 +11,19 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import app.crossword.yourealwaysbe.io.PuzzleParser;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-public abstract class AbstractDownloader implements Downloader {
+/**
+ * Base downloader class
+ *
+ * For downloads from sites that published puzzles on a given date. Each
+ * date has one unique puzzle.
+ */
+public abstract class AbstractDateDownloader implements Downloader {
     protected static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
     protected static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
     protected String baseUrl;
@@ -26,7 +33,7 @@ public abstract class AbstractDownloader implements Downloader {
     private DayOfWeek[] days;
     private String supportUrl;
 
-    protected AbstractDownloader(
+    protected AbstractDateDownloader(
         String baseUrl,
         String downloaderName,
         DayOfWeek[] days,
@@ -40,18 +47,16 @@ public abstract class AbstractDownloader implements Downloader {
         this.puzzleParser = puzzleParser;
     }
 
-    @Override
-    public String createFileName(LocalDate date) {
+    /**
+     * A unique consistent filename for the given date
+     */
+    protected String createFileName(LocalDate date) {
         return (
             date.getYear() + "-" +
             date.getMonthValue() + "-" +
             date.getDayOfMonth() + "-" +
             this.downloaderName.replaceAll(" ", "")
         );
-    }
-
-    public String sourceUrl(LocalDate date) {
-        return this.baseUrl + this.createUrlSuffix(date);
     }
 
     @Override
@@ -77,8 +82,18 @@ public abstract class AbstractDownloader implements Downloader {
     protected abstract String createUrlSuffix(LocalDate date);
 
     @Override
-    public Puzzle download(LocalDate date) {
-        return download(date, this.createUrlSuffix(date));
+    public DownloadResult download(
+        LocalDate date, Set<String> existingFileNames
+    ) {
+        String fileName = createFileName(date);
+        if (existingFileNames.contains(fileName))
+            return null;
+
+        Puzzle puz = download(date, this.createUrlSuffix(date));
+        if (puz != null)
+            return new DownloadResult(puz, fileName);
+        else
+            return null;
     }
 
     protected Puzzle download(

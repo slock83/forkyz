@@ -13,7 +13,7 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * URL: https://herbach.dnsalias.com/Jonesin/jzYYMMDD.puz
  * Date = Thursdays
  */
-public class JonesinDownloader extends AbstractDownloader {
+public class JonesinDownloader extends AbstractDateDownloader {
     private static final String NAME
         = ForkyzApplication.getInstance().getString(R.string.jonesin_crosswords);
     private static final String SUPPORT_URL = "https://crosswordnexus.com/jonesin/";

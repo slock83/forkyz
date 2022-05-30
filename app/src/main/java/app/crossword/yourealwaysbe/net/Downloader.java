@@ -2,10 +2,25 @@ package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.Set;
 
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 public interface Downloader {
+
+    public static class DownloadResult {
+        Puzzle puzzle;
+        String fileName;
+
+        public DownloadResult(Puzzle puzzle, String fileName) {
+            this.puzzle = puzzle;
+            this.fileName = fileName;
+        }
+
+        public Puzzle getPuzzle() { return puzzle; }
+        public String getFileName() { return fileName; }
+    }
+
     // These lists must be sorted for binary search.
     DayOfWeek[] DATE_SUNDAY = new DayOfWeek[] { DayOfWeek.SUNDAY };
     DayOfWeek[] DATE_MONDAY = new DayOfWeek[] { DayOfWeek.MONDAY };
@@ -50,11 +65,14 @@ public interface Downloader {
      */
     String getSupportUrl();
 
-    String createFileName(LocalDate date);
-
-    Puzzle download(LocalDate date);
-
-    String sourceUrl(LocalDate date);
+    /**
+     * Download the puzzle for a given date
+     *
+     * Existing file names passed. Don't download if the date's puzzle
+     * already exists -- downloader will not save puzzles with filenames
+     * that already exist.
+     */
+    DownloadResult download(LocalDate date, Set<String> existingFileNames);
 
     boolean alwaysRun();
 
