@@ -109,15 +109,15 @@ public interface MovementStrategy extends Serializable {
                     ClueList clues = puz.getClues(listName);
 
                     // Move to prev clue or wrap to end of prev list
-                    String firstNumber = clues.getFirstClueNumber();
+                    String firstNumber = clues.getFirstClueNumber(true);
                     if (Objects.equals(number, firstNumber)) {
                         String prevList = getPrevList(puz, listName);
                         ClueList prevClues = puz.getClues(prevList);
-                        String lastClue = prevClues.getLastClueNumber();
+                        String lastClue = prevClues.getLastClueNumber(true);
                         board.jumpToClueEnd(new ClueID(lastClue, prevList));
                     } else {
                         String nextNum
-                            = clues.getPreviousClueNumber(number, true);
+                            = clues.getPreviousClueNumber(number, true, true);
                         board.jumpToClueEnd(new ClueID(nextNum, listName));
                     }
                 }
@@ -156,14 +156,15 @@ public interface MovementStrategy extends Serializable {
                     ClueList clues = puz.getClues(listName);
 
                     // Move to next clue or wrap to start of next list
-                    String lastNumber = clues.getLastClueNumber();
+                    String lastNumber = clues.getLastClueNumber(true);
                     if (Objects.equals(number, lastNumber)) {
                         String nextList = getNextList(puz, listName);
                         ClueList nextClues = puz.getClues(nextList);
-                        String firstClue = nextClues.getFirstClueNumber();
+                        String firstClue = nextClues.getFirstClueNumber(true);
                         board.jumpToClue(new ClueID(firstClue, nextList));
                     } else {
-                        String nextNum = clues.getNextClueNumber(number, true);
+                        String nextNum
+                            = clues.getNextClueNumber(number, true, true);
                         board.jumpToClue(new ClueID(nextNum, listName));
                     }
 

@@ -694,7 +694,7 @@ public class PlayActivity extends PuzzleActivity
         if (board == null)
             return;
 
-        if (board.isJumpableClue(clue)) {
+        if (clue.hasZone()) {
             Word old = board.getCurrentWord();
             board.jumpToClue(clue);
             displayKeyboard(old);

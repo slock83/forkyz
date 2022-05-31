@@ -461,10 +461,6 @@ public class Playboard implements Serializable {
         return false;
     }
 
-    public boolean isJumpableClue(ClueID clueID) {
-        return getClueStart(clueID) != null;
-    }
-
     /**
      * Ignored if clue not on board
      */

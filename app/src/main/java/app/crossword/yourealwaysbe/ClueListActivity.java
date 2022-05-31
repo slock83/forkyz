@@ -176,7 +176,7 @@ public class ClueListActivity extends PuzzleActivity
         if (board == null)
             return;
 
-        if (board.isJumpableClue(clue)) {
+        if (clue.hasZone()) {
             Word old = board.getCurrentWord();
             board.jumpToClue(clue);
             displayKeyboard(old);
@@ -266,7 +266,7 @@ public class ClueListActivity extends PuzzleActivity
         case KeyEvent.KEYCODE_DPAD_UP:
             String prev
                 = puz.getClues(curList)
-                    .getPreviousClueNumber(curClueNumber, true);
+                    .getPreviousClueNumber(curClueNumber, true, true);
             clueTabs.setForceSnap(true);
             board.jumpToClue(new ClueID(prev, curList));
             clueTabs.setForceSnap(false);
@@ -275,7 +275,7 @@ public class ClueListActivity extends PuzzleActivity
         case KeyEvent.KEYCODE_DPAD_DOWN:
             String next
                 = puz.getClues(curList)
-                    .getNextClueNumber(curClueNumber, true);
+                    .getNextClueNumber(curClueNumber, true, true);
             clueTabs.setForceSnap(true);
             board.jumpToClue(new ClueID(next, curList));
             clueTabs.setForceSnap(false);
@@ -408,7 +408,7 @@ public class ClueListActivity extends PuzzleActivity
             Playboard board = getBoard();
             Puzzle puz = board.getPuzzle();
             String listName = clueTabs.getCurrentPageListName();
-            String firstClue = puz.getClues(listName).getFirstClueNumber();
+            String firstClue = puz.getClues(listName).getFirstClueNumber(true);
             board.jumpToClue(new ClueID(firstClue, listName));
             break;
         case HISTORY:

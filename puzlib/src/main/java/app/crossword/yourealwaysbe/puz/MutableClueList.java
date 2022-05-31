@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import app.crossword.yourealwaysbe.util.ClueNumberComparator;
@@ -61,31 +62,43 @@ class MutableClueList implements ClueList {
     }
 
     @Override
-    public String getFirstClueNumber() {
-        return clueMap.firstEntry().getKey();
+    public String getFirstClueNumber(boolean hasZone) {
+        String number = clueMap.firstEntry().getKey();
+        if (hasZone)
+            number = findClueNumberWithZone(number, true, false);
+        return number;
     }
 
     @Override
-    public String getLastClueNumber() {
-        return clueMap.lastEntry().getKey();
+    public String getLastClueNumber(boolean hasZone) {
+        String number = clueMap.lastEntry().getKey();
+        if (hasZone)
+            number = findClueNumberWithZone(number, false, false);
+        return number;
     }
 
     @Override
-    public String getNextClueNumber(String number, boolean wrap) {
+    public String getNextClueNumber(
+        String number, boolean hasZone, boolean wrap
+    ) {
         String next = clueMap.higherKey(number);
         if (next == null)
-            return wrap ? clueMap.firstEntry().getKey() : null;
-        else
-            return next;
+            next = wrap ? clueMap.firstEntry().getKey() : null;
+        if (hasZone)
+            next = findClueNumberWithZone(next, true, wrap);
+        return next;
     }
 
     @Override
-    public String getPreviousClueNumber(String number, boolean wrap) {
+    public String getPreviousClueNumber(
+        String number, boolean hasZone, boolean wrap
+    ) {
         String previous = clueMap.lowerKey(number);
         if (previous == null)
-            return wrap ? clueMap.lastEntry().getKey() : null;
-        else
-            return previous;
+            previous = wrap ? clueMap.lastEntry().getKey() : null;
+        if (hasZone)
+            previous = findClueNumberWithZone(previous, false, wrap);
+        return previous;
     }
 
     @Override
@@ -144,4 +157,29 @@ class MutableClueList implements ClueList {
         return indexMap;
     }
 
+    /**
+     * Find clue with zone (inclusive)
+     *
+     * Starting with startNumber, find a clue that has a (non-empty) zone.
+     * Search forwards or backwards, choose if wrap.
+     *
+     * @return null if none to jump to
+     */
+    private String findClueNumberWithZone(
+        String startNumber, boolean forwards, boolean wrap
+    ) {
+        String nextNumber = startNumber;
+        Clue nextClue = getClue(startNumber);
+        while (!nextClue.hasZone()) {
+            nextNumber = forwards
+                ? getNextClueNumber(nextNumber, false, wrap)
+                : getPreviousClueNumber(nextNumber, false, wrap);
+
+            if (Objects.equals(startNumber, nextNumber))
+                return null;
+
+            nextClue = getClue(nextNumber);
+        }
+        return nextClue.getClueNumber();
+    }
 }

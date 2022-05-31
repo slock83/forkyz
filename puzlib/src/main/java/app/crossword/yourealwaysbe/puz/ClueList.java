@@ -28,23 +28,41 @@ public interface ClueList extends Iterable<Clue> {
 
     public int size();
 
-    public String getFirstClueNumber();
+    /**
+     * Get first clue in list
+     *
+     * Specify if must have zone
+     *
+     * @return null if no clue
+     */
+    public String getFirstClueNumber(boolean hasZone);
 
-    public String getLastClueNumber();
+    /**
+     * Get first clue in list
+     *
+     * Specify if must have zone.
+     *
+     * @return null if no clue
+     */
+    public String getLastClueNumber(boolean hasZone);
 
     /**
      * Get the next clue after the given clue number
      *
      * Wraps back to beginning or returns null if no next number
      */
-    public String getNextClueNumber(String number, boolean wrap);
+    public String getNextClueNumber(
+        String number, boolean hasZone, boolean wrap
+    );
 
     /**
      * Get the clue before the given clue number
      *
      * Wraps back to end or null if no previous
      */
-    public String getPreviousClueNumber(String number, boolean wrap);
+    public String getPreviousClueNumber(
+        String number, boolean hasZone, boolean wrap
+    );
 
     /**
      * Returns index of clue in clue list
