@@ -48,6 +48,11 @@ public class Zone implements Iterable<Position> {
             positions.add(pos);
     }
 
+    public void appendZone(Zone zone) {
+        for (Position pos : zone)
+            addPosition(pos);
+    }
+
     @Override
     public Iterator<Position> iterator() {
         return positions.iterator();

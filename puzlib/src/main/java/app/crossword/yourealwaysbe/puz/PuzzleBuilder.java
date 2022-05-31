@@ -220,16 +220,7 @@ public class PuzzleBuilder {
             );
         }
 
-        Zone zone = new Zone();
-
-        int row = start.getRow();
-        int col = start.getCol();
-
-        int off = -1;
-        do {
-            off += 1;
-            zone.addPosition(new Position(row, col + off));
-        } while (joinedRight(row, col + off));
+        Zone zone = PuzzleUtils.getAcrossZone(puzzle, start);
 
         puzzle.addClue(new Clue(number, listName, hint, zone));
 
@@ -251,16 +242,7 @@ public class PuzzleBuilder {
             );
         }
 
-        Zone zone = new Zone();
-
-        int row = start.getRow();
-        int col = start.getCol();
-
-        int off = -1;
-        do {
-            off += 1;
-            zone.addPosition(new Position(row + off, col));
-        } while (joinedBottom(row + off, col));
+        Zone zone = PuzzleUtils.getDownZone(puzzle, start);
 
         puzzle.addClue(new Clue(number, listName, hint, zone));
 

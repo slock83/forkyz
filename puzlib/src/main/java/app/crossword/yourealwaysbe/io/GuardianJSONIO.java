@@ -4,6 +4,8 @@ package app.crossword.yourealwaysbe.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
@@ -12,8 +14,12 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
+import app.crossword.yourealwaysbe.puz.Zone;
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 /**
  * Read a character stream of JSON data in the format used by the
@@ -98,7 +104,7 @@ public class GuardianJSONIO implements PuzzleParser {
             if (x < 0 || x >= numCols || y < 0 || y >= numRows)
                 continue;
 
-            int num = entry.getInt("number");
+            String num = String.valueOf(entry.getInt("number"));
             String clueSol = entry.getString("solution");
             String direction = entry.getString("direction");
 
@@ -123,7 +129,7 @@ public class GuardianJSONIO implements PuzzleParser {
                 boxY += dy;
             }
 
-            boxes[y][x].setClueNumber(String.valueOf(num));
+            boxes[y][x].setClueNumber(num);
         }
 
         return boxes;
@@ -131,20 +137,65 @@ public class GuardianJSONIO implements PuzzleParser {
 
     private static void addClues(JSONObject json, PuzzleBuilder builder)
             throws JSONException {
+        Map<String, Zone> zones = getPuzzleZones(json, builder);
+
+        JSONArray entries = json.getJSONArray("entries");
+        for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.getJSONObject(i);
+            addClue(entry, zones, builder);
+        }
+    }
+
+    private static void addClue(
+        JSONObject entry, Map<String, Zone> zones, PuzzleBuilder builder
+    ) {
+        String id = entry.getString("id");
+        String num = entry.getString("humanNumber");
+        boolean across = entry.getString("direction").equals("across");
+        String hint = entry.getString("clue");
+
+        JSONArray group = entry.getJSONArray("group");
+        Zone zone = new Zone();
+
+        if (group.length() > 0 && id.equals(group.getString(0))) {
+            for (int i = 0; i < group.length(); i++)
+                zone.appendZone(zones.get(group.getString(i)));
+        }
+
+        String listName = across ? ACROSS_LIST : DOWN_LIST;
+
+        builder.addClue(new Clue(num, listName, hint, zone));
+    }
+
+    /**
+     * Gets map from clue id to zone on board
+     */
+    private static Map<String, Zone> getPuzzleZones(
+        JSONObject json, PuzzleBuilder builder
+    ) {
+        Map<String, Zone> zones = new HashMap<>();
+
         JSONArray entries = json.getJSONArray("entries");
         for (int i = 0; i < entries.length(); i++) {
             JSONObject entry = entries.getJSONObject(i);
 
-            String num = String.valueOf(entry.getInt("number"));
+            String id = entry.getString("id");
+
+            JSONObject position = entry.getJSONObject("position");
+            int x = position.getInt("x");
+            int y = position.getInt("y");
             boolean across = entry.getString("direction").equals("across");
-            String hint = entry.getString("clue");
 
-            if (across)
-                builder.addAcrossClue(ACROSS_LIST, num, hint);
-            else
-                builder.addDownClue(DOWN_LIST, num, hint);
+            Puzzle puz = builder.getPuzzle();
+            Position start = new Position(y, x);
+
+            Zone zone = across
+                ? PuzzleUtils.getAcrossZone(puz, start)
+                : PuzzleUtils.getDownZone(puz, start);
+
+            zones.put(id, zone);
         }
+
+        return zones;
     }
-
-
 }

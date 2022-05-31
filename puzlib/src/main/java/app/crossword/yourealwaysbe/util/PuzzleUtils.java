@@ -212,4 +212,34 @@ public class PuzzleUtils {
         }
         return false;
     }
+
+    public static Zone getAcrossZone(Puzzle puz, Position start) {
+        Zone zone = new Zone();
+
+        int row = start.getRow();
+        int col = start.getCol();
+
+        int off = -1;
+        do {
+            off += 1;
+            zone.addPosition(new Position(row, col + off));
+        } while (joinedRight(puz, row, col + off));
+
+        return zone;
+    }
+
+    public static Zone getDownZone(Puzzle puz, Position start) {
+        Zone zone = new Zone();
+
+        int row = start.getRow();
+        int col = start.getCol();
+
+        int off = -1;
+        do {
+            off += 1;
+            zone.addPosition(new Position(row + off, col));
+        } while (joinedBottom(puz, row + off, col));
+
+        return zone;
+    }
 }

@@ -7,8 +7,11 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueList;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.Zone;
 
 public class GuardianJSONIOTest extends TestCase {
 
@@ -45,6 +48,15 @@ public class GuardianJSONIOTest extends TestCase {
         assertEquals(acrossClues.getClue("10").getHint(), "Test clue 10");
         assertEquals(downClues.getClue("1").getHint(), "Test clue 1d");
         assertEquals(downClues.getClue("2").getHint(), "Test clue 2d");
+
+        Clue fiveAcross = acrossClues.getClue("5");
+        Zone fiveAcrossZone = fiveAcross.getZone();
+        assertEquals(fiveAcrossZone.getPosition(6), new Position(0, 14));
+        assertEquals(fiveAcrossZone.getPosition(7), new Position(2, 6));
+
+        Clue tenAcross = acrossClues.getClue("10");
+        Zone tenAcrossZone = tenAcross.getZone();
+        assertTrue(tenAcrossZone == null || tenAcrossZone.isEmpty());
     }
 
     public void testPuzzle1() throws Exception {
