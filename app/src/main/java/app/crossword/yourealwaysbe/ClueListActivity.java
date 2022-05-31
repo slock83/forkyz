@@ -235,8 +235,8 @@ public class ClueListActivity extends PuzzleActivity
         }
 
         Clue clue = board.getClue();
-        String curList = clue.getListName();
-        String curClueNumber = clue.getClueNumber();
+        String curList = clue == null ? null : clue.getListName();
+        String curClueNumber = clue == null ? null : clue.getClueNumber();
 
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
@@ -250,7 +250,7 @@ public class ClueListActivity extends PuzzleActivity
                 board.moveZoneBack(false);
             } else {
                 clueTabs.prevPage();
-                selectFirstClue();
+                selectFirstSelectableClue(false);
             }
             return true;
 
@@ -259,26 +259,32 @@ public class ClueListActivity extends PuzzleActivity
                 board.moveZoneForward(false);
             } else {
                 clueTabs.nextPage();
-                selectFirstClue();
+                selectFirstSelectableClue(true);
             }
             return true;
 
         case KeyEvent.KEYCODE_DPAD_UP:
-            String prev
-                = puz.getClues(curList)
+            if (curList != null && curClueNumber != null) {
+                String prev = puz.getClues(curList)
                     .getPreviousClueNumber(curClueNumber, true, true);
-            clueTabs.setForceSnap(true);
-            board.jumpToClue(new ClueID(prev, curList));
-            clueTabs.setForceSnap(false);
+                clueTabs.setForceSnap(true);
+                board.jumpToClue(new ClueID(prev, curList));
+                clueTabs.setForceSnap(false);
+            } else {
+                selectFirstSelectableClue(false);
+            }
             break;
 
         case KeyEvent.KEYCODE_DPAD_DOWN:
-            String next
-                = puz.getClues(curList)
+            if (curList != null && curClueNumber != null) {
+                String next = puz.getClues(curList)
                     .getNextClueNumber(curClueNumber, true, true);
-            clueTabs.setForceSnap(true);
-            board.jumpToClue(new ClueID(next, curList));
-            clueTabs.setForceSnap(false);
+                clueTabs.setForceSnap(true);
+                board.jumpToClue(new ClueID(next, curList));
+                clueTabs.setForceSnap(false);
+            } else {
+                selectFirstSelectableClue(true);
+            }
             break;
 
         case KeyEvent.KEYCODE_DEL:
@@ -402,18 +408,60 @@ public class ClueListActivity extends PuzzleActivity
             this.renderer.setScale((float) 1);
     }
 
-    private void selectFirstClue() {
+    /**
+     * Find a clue to select and select it
+     *
+     * Searches for the first clue in the current page, else starts
+     * flipping through pages in the given direction.
+     *
+     * Does nothing if no clue found.
+     */
+    private void selectFirstSelectableClue(boolean searchForwards) {
+        boolean selectedClue = false;
+        String startPage = clueTabs.getCurrentPageListName();
+        do {
+           selectedClue = selectFirstClue();
+           if (!selectedClue) {
+               if (searchForwards)
+                   clueTabs.nextPage();
+               else
+                   clueTabs.prevPage();
+            }
+        } while (
+            !selectedClue
+            && !Objects.equals(startPage, clueTabs.getCurrentPageListName())
+        );
+    }
+
+    /**
+     * Selects first clue in cur list
+     *
+     * Returns false if no selectable clue
+     */
+    private boolean selectFirstClue() {
+        Playboard board = getBoard();
+        Puzzle puz = board.getPuzzle();
         switch (clueTabs.getCurrentPageType()) {
         case CLUES:
-            Playboard board = getBoard();
-            Puzzle puz = board.getPuzzle();
             String listName = clueTabs.getCurrentPageListName();
             String firstClue = puz.getClues(listName).getFirstClueNumber(true);
-            board.jumpToClue(new ClueID(firstClue, listName));
-            break;
+            if (firstClue == null) {
+                return false;
+            } else {
+                board.jumpToClue(new ClueID(firstClue, listName));
+                return true;
+            }
         case HISTORY:
-            // nothing to do
-            break;
+            for (ClueID cid : puz.getHistory()) {
+                Clue clue = puz.getClue(cid);
+                if (clue.hasZone()) {
+                    board.jumpToClue(clue);
+                    return true;
+                }
+            }
+            return false;
+        default:
+            return false;
         }
     }
 }

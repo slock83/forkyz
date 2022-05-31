@@ -63,6 +63,8 @@ class MutableClueList implements ClueList {
 
     @Override
     public String getFirstClueNumber(boolean hasZone) {
+        if (clueMap.isEmpty())
+            return null;
         String number = clueMap.firstEntry().getKey();
         if (hasZone)
             number = findClueNumberWithZone(number, true, false);
@@ -71,6 +73,8 @@ class MutableClueList implements ClueList {
 
     @Override
     public String getLastClueNumber(boolean hasZone) {
+        if (clueMap.isEmpty())
+            return null;
         String number = clueMap.lastEntry().getKey();
         if (hasZone)
             number = findClueNumberWithZone(number, false, false);
