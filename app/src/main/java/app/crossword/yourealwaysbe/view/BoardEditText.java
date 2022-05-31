@@ -42,8 +42,6 @@ public class BoardEditText extends ScrollingImageView {
     private Position selection = new Position(0, -1);
     private Box[] boxes;
     private PlayboardRenderer renderer;
-    // surely a better way...
-    static final String ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     private SharedPreferences prefs;
 
@@ -273,7 +271,7 @@ public class BoardEditText extends ScrollingImageView {
 
         char c = Character.toUpperCase(event.getDisplayLabel());
 
-        if (boxes != null && ALPHA.indexOf(c) != -1) {
+        if (boxes != null && Character.isLetterOrDigit(c)) {
             c = filterReplacement(c, selection);
 
             if (c != '\0') {
@@ -286,14 +284,14 @@ public class BoardEditText extends ScrollingImageView {
                     int nextPos = col;
 
                     while (getBoard().isSkipCompletedLetters() &&
-                           boxes[col].getResponse() != ' ' &&
+                           !boxes[col].isBlank() &&
                            col < boxes.length - 1) {
                         col += 1;
                     }
 
                     selection.setCol(col);
 
-                    if (boxes[col].getResponse() != ' ')
+                    if (!boxes[col].isBlank())
                         selection.setCol(nextPos);
                 }
 

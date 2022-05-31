@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -79,12 +81,8 @@ public class NotesActivity extends PuzzleActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item == null || item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
+        // just here to note the only menu item is handled by parent
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -259,6 +257,13 @@ public class NotesActivity extends PuzzleActivity {
         keyboardManager.showKeyboard(imageView);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.notes_menu, menu);
+        return true;
+    }
+
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         // for parity with onKeyUp
         switch (keyCode) {
@@ -372,7 +377,7 @@ public class NotesActivity extends PuzzleActivity {
 
         char c = Character .toUpperCase(event.getDisplayLabel());
 
-        if (PlayActivity.ALPHA.indexOf(c) != -1) {
+        if (Character.isLetterOrDigit(c)) {
             getBoard().playLetter(c);
 
             Position p = getBoard().getHighlightLetter();

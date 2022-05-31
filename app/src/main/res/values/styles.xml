@@ -86,6 +86,10 @@
         <item name="android:background">@color/background_light</item>
     </style>
 
+    <style name="specialCharacterDialogStyle" parent="Theme.Forkyz">
+        <item name="android:textColorHint">@color/textColorSecondary</item>
+    </style>
+
     <style name="speedDialStyle" parent="Theme.Forkyz">
         <item name="colorPrimary">@color/speedDialTint</item>
         <item name="colorAccent">@color/speedDialTint</item>

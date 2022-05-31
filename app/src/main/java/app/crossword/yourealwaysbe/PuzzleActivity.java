@@ -5,6 +5,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.MenuItem;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -14,6 +15,7 @@ import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
+import app.crossword.yourealwaysbe.view.InsertSpecialCharacterDialog;
 
 import java.util.logging.Logger;
 
@@ -91,6 +93,19 @@ public abstract class PuzzleActivity
                                   PuzzleFinishedActivity.class);
             this.startActivity(i);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        } else if (id == R.id.puzzle_menu_special_char) {
+            insertSpecialCharacter();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -235,5 +250,11 @@ public abstract class PuzzleActivity
         Intent i = new Intent(this, NotesActivity.class);
         i.putExtra(NotesActivity.PUZZLE_NOTES, true);
         this.startActivity(i);
+    }
+
+    protected void insertSpecialCharacter() {
+        InsertSpecialCharacterDialog dialog
+            = new InsertSpecialCharacterDialog(getBoard());
+        dialog.show(getSupportFragmentManager(), "SpecialCharacterDialog");
     }
 }

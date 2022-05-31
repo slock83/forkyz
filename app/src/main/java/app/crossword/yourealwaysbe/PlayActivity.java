@@ -63,7 +63,6 @@ public class PlayActivity extends PuzzleActivity
     private static final String CLUE_TABS_PAGE = "playActivityClueTabsPage";
     private static final String PREF_SHOW_ERRORS_GRID = "showErrors";
     private static final String PREF_SHOW_ERRORS_CURSOR = "showErrorsCursor";
-    static final String ALPHA = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     public static final String SHOW_TIMER = "showTimer";
     public static final String SCALE = "scale";
 
@@ -458,8 +457,9 @@ public class PlayActivity extends PuzzleActivity
             return true;
         }
 
+
         char c = Character.toUpperCase(event.getDisplayLabel());
-        if (PlayActivity.ALPHA.indexOf(c) != -1)
+        if (Character.isLetterOrDigit(c))
             return true;
 
         return super.onKeyDown(keyCode, event);
@@ -546,7 +546,7 @@ public class PlayActivity extends PuzzleActivity
 
             char c = Character.toUpperCase(event.getDisplayLabel());
 
-            if (!handled && ALPHA.indexOf(c) != -1) {
+            if (!handled && Character.isLetterOrDigit(c)) {
                 if (isScratchMode()) {
                     getBoard().playScratchLetter(c);
                 } else {
