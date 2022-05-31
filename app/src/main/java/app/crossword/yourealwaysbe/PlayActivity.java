@@ -1024,6 +1024,46 @@ public class PlayActivity extends PuzzleActivity
         dialog.show(getSupportFragmentManager(), "RevealPuzzleDialog");
     }
 
+    private void setFullScreenMode() {
+        if (prefs.getBoolean("fullScreen", false)) {
+            utils.setFullScreen(getWindow());
+        }
+    }
+
+    private void actionSupportSource() {
+        Puzzle puz = getPuzzle();
+        if (puz != null) {
+            String supportUrl = puz.getSupportUrl();
+            if (supportUrl != null) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(supportUrl));
+                startActivity(i);
+            }
+        }
+    }
+
+    private boolean isScratchMode() {
+        return this.prefs.getBoolean("scratchMode", false);
+    }
+
+    private void toggleScratchMode() {
+        boolean scratchMode = isScratchMode();
+        this.prefs.edit().putBoolean(
+            "scratchMode", !scratchMode
+        ).apply();
+        invalidateOptionsMenu();
+    }
+
+    /**
+     * What scratch to suppress when rendering
+     */
+    private Set<String> getSuppressNotesList() {
+        boolean displayScratch = prefs.getBoolean("displayScratch", false);
+        return displayScratch
+            ? Collections.emptySet()
+            : null;
+    }
+
     public static class InfoDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -1182,45 +1222,5 @@ public class PlayActivity extends PuzzleActivity
 
             return builder.create();
         }
-    }
-
-    private void setFullScreenMode() {
-        if (prefs.getBoolean("fullScreen", false)) {
-            utils.setFullScreen(getWindow());
-        }
-    }
-
-    private void actionSupportSource() {
-        Puzzle puz = getPuzzle();
-        if (puz != null) {
-            String supportUrl = puz.getSupportUrl();
-            if (supportUrl != null) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse(supportUrl));
-                startActivity(i);
-            }
-        }
-    }
-
-    private boolean isScratchMode() {
-        return this.prefs.getBoolean("scratchMode", false);
-    }
-
-    private void toggleScratchMode() {
-        boolean scratchMode = isScratchMode();
-        this.prefs.edit().putBoolean(
-            "scratchMode", !scratchMode
-        ).apply();
-        invalidateOptionsMenu();
-    }
-
-    /**
-     * What scratch to suppress when rendering
-     */
-    private Set<String> getSuppressNotesList() {
-        boolean displayScratch = prefs.getBoolean("displayScratch", false);
-        return displayScratch
-            ? Collections.emptySet()
-            : null;
     }
 }
