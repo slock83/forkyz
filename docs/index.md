@@ -50,6 +50,7 @@ The majority of the links on this page come from [Michael F. Gill
 * [Square Chase][squarechase] -- bar puzzles via Patreon, tested with
   Forkyz.
 * [Square Pursuit][square-pursuit] -- by Steve Mossberg.
+* [Private Eye][private-eye] -- (roughly) fortnightly cryptics downloadable as .puz files.
 * [The Inkubator][inkubator] -- female-led puzzles going beyond the
   mainstream.
 * [Tough as Nails][tough-as-nails] -- by Stella Zawistowski.
@@ -57,30 +58,31 @@ The majority of the links on this page come from [Michael F. Gill
 [monkelfish]: http://bbtp.net/puzzle/links.html
 [issues]: https://github.com/yourealwaysbe/forkyz/issues
 
-[outside-the-box]: https://www.joonpahk.com/blog/2021/04/12/year-6-variety-puzzle-16-starting-square-hint/
-[aries-puzzles]: https://www.ariespuzzles.com/
-[jeff-davidson]: https://puzzles.jeffpdavidson.com/
-[something-different]: https://dandoesnotblog.blogspot.com/2020/04/something-different.html
-[beq]: https://www.brendanemmettquigley.com/
-[inkubator]: https://inkubatorcrosswords.com/
-[outofleftfield]: http://www.leftfieldcryptics.com/
-[square-pursuit]: https://squarepursuit.com/
-[neville-fogarty]: https://nevillefogarty.wordpress.com/
-[tough-as-nails]: https://toughasnails.net/
-[beneath-the-surface]: https://beneaththesurfacepuzzles.blogspot.com/
-[cryptivore]: https://cryptivore.com/
-[avid-puzzler]: https://avidpuzzler.blogspot.com/
-[mad-dog-cryptics]: https://maddogcryptics.com/
-[loplop-cryptics]: https://loplop.fun/
-[crypticcru]: https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html
-[daily-crossword-links]: https://crosswordlinks.substack.com/
 [andrew-marc-greene]: http://www.greenehouse.com/a/puzzles/
-[keglar]: https://kegler.gitlab.io/
+[aries-puzzles]: https://www.ariespuzzles.com/
+[avid-puzzler]: https://avidpuzzler.blogspot.com/
+[beneath-the-surface]: https://beneaththesurfacepuzzles.blogspot.com/
+[beq]: https://www.brendanemmettquigley.com/
 [big-dave-monthly]: http://crypticcrosswords.net/puzzles/monthly-prize-puzzles/
-[big-dave-weekly]: http://crypticcrosswords.net/puzzles/not-the-saturday-prize-puzzles/
 [big-dave-rookie]: http://crypticcrosswords.net/puzzles/rookie-corner/
-[jimjar]: https://twitter.com/Jimjar
+[big-dave-weekly]: http://crypticcrosswords.net/puzzles/not-the-saturday-prize-puzzles/
 [communicrossings]: https://communicrossings.com/crosswords-weyer
+[crypticcru]: https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html
+[cryptivore]: https://cryptivore.com/
+[daily-crossword-links]: https://crosswordlinks.substack.com/
 [diary]: https://crosswordfiend.com/
 [hubcrosswords]: https://www.patreon.com/hubcrosswords
+[inkubator]: https://inkubatorcrosswords.com/
+[jeff-davidson]: https://puzzles.jeffpdavidson.com/
+[jimjar]: https://twitter.com/Jimjar
+[keglar]: https://kegler.gitlab.io/
+[loplop-cryptics]: https://loplop.fun/
+[mad-dog-cryptics]: https://maddogcryptics.com/
+[neville-fogarty]: https://nevillefogarty.wordpress.com/
+[outofleftfield]: http://www.leftfieldcryptics.com/
+[outside-the-box]: https://www.joonpahk.com/blog/2021/04/12/year-6-variety-puzzle-16-starting-square-hint/
+[private-eye]: https://www.private-eye.co.uk/crossword
+[something-different]: https://dandoesnotblog.blogspot.com/2020/04/something-different.html
+[square-pursuit]: https://squarepursuit.com/
 [squarechase]: https://www.patreon.com/squarechase
+[tough-as-nails]: https://toughasnails.net/
