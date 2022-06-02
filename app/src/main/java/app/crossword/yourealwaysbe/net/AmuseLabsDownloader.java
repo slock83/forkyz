@@ -116,14 +116,62 @@ public class AmuseLabsDownloader extends AbstractDateDownloader {
                         // window.rawc = '<base64>'
                         return null;
                     }
-                    String base64json = split[1];
-                    return new String(
-                        Base64.decode(base64json, Base64.DEFAULT),
-                        Charset.forName("UTF-8")
-                    );
+                    return decodeRawc(split[1]);
                 }
             }
         }
         return null;
+    }
+
+    private String decodeRawc(String rawc) {
+        // sometimes needs segments reversing according to numbers after
+        // the . (thanks to https://github.com/thisisparker/xword-dl)
+        String[] split = rawc.split("\\.");
+        String data = split[0];
+
+        if (split.length > 0) {
+            int[] segmentLengths = getSegmentLengths(split[1]);
+            data = reverseSegments(data, segmentLengths);
+        }
+
+        return new String(
+            Base64.decode(data, Base64.DEFAULT),
+            Charset.forName("UTF-8")
+        );
+    }
+
+    private int[] getSegmentLengths(String hexLengths) {
+        int numLengths = hexLengths.length();
+        int[] segmentLengths = new int[numLengths];
+        for (int i = 0; i < numLengths; i++) {
+            segmentLengths[numLengths - i - 1]
+                = Integer.parseInt(hexLengths.substring(i, i + 1), 16) + 2;
+        }
+        return segmentLengths;
+    }
+
+    private String reverseSegments(String data, int[] segmentLengths) {
+        int numLengths = segmentLengths.length;
+        char[] charData = data.toCharArray();
+
+        int segNo = 0;
+        int segStart = 0;
+
+        while (segStart < charData.length - 1) {
+            int segEnd = Math.min(
+                segStart + segmentLengths[segNo] - 1, charData.length - 1
+            );
+            int segLen = segEnd - segStart + 1;
+
+            for (int i = 0; i < (segLen / 2); i++) {
+                char tmp = charData[segStart + i];
+                charData[segStart + i] = charData[segEnd - i];
+                charData[segEnd - i] = tmp;
+            }
+
+            segStart += segLen;
+            segNo = (segNo + 1) % numLengths;
+        }
+        return new String(charData);
     }
 }
