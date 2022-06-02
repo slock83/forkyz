@@ -362,15 +362,6 @@ public class Downloaders {
             downloaders.add(new WSJSaturdayDownloader());
         }
 
-        if (prefs.getBoolean("downloadWaPoSunday", true)) {
-            downloaders.add(new AmuseLabsDownloader(
-                context.getString(R.string.washington_post_sunday),
-                "cdn1", "wapo", "ebirnholz_", "wapo-eb",
-                Downloader.DATE_SUNDAY,
-                "https://subscribe.washingtonpost.com"
-            ));
-        }
-
         addCustomDownloaders(downloaders);
 
         if (prefs.getBoolean("scrapeCru", false)) {

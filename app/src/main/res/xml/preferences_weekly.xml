@@ -30,11 +30,5 @@
             android:summary="@string/updates_fridays_saturdays"
             android:key="downloadWsj"
         />
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/washington_post_sunday"
-            android:defaultValue="true"
-            android:summary="@string/updates_sundays"
-            android:key="downloadWaPoSunday"
-        />
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>
