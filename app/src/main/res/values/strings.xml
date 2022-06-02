@@ -236,7 +236,7 @@
     <string name="uclick_copyright">uclick LLC</string>
 
     <!-- preferences weekly -->
-    <string name="updates_fridays">Updates Fridays</string>
+    <string name="updates_fridays_saturdays">Updates Fridays and Saturdays</string>
     <string name="updates_thursdays">Updates Thursdays</string>
     <string name="updates_sundays">Updates Sundays</string>
     <string name="regular_sized">Regular Sized</string>

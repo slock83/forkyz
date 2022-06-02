@@ -27,7 +27,7 @@
         <androidx.preference.CheckBoxPreference
             android:title="@string/wall_street_journal"
             android:defaultValue="true"
-            android:summary="@string/updates_fridays"
+            android:summary="@string/updates_fridays_saturdays"
             android:key="downloadWsj"
         />
         <androidx.preference.CheckBoxPreference
