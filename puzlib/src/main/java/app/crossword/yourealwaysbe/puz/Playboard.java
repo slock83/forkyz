@@ -1018,16 +1018,26 @@ public class Playboard implements Serializable {
             }
         }
         // try all clues
-        for (ClueID cid : puzzle.getAllClues()) {
-            Clue clue = puzzle.getClue(cid);
+        for (Clue clue : puzzle.getAllClues()) {
             if (clue.hasZone()) {
                 puzzle.setPosition(clue.getZone().getPosition(0));
-                puzzle.setCurrentClueID(cid);
+                puzzle.setCurrentClueID(clue);
                 return;
             }
         }
+        // fall back to first cell in grid
+        int width = puzzle.getWidth();
+        int height = puzzle.getHeight();
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (puzzle.checkedGetBox(row, col) != null) {
+                    puzzle.setPosition(new Position(row, col));
+                    return;
+                }
+            }
+        }
         throw new IllegalArgumentException(
-            "Cannot handle puzzles with no clues on board."
+            "Can't handled grids with no cells"
         );
     }
 
