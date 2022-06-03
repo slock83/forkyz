@@ -44,17 +44,19 @@ public class GuardianJSONIOTest extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue("1").getHint(), "Test clue 1");
-        assertEquals(acrossClues.getClue("10").getHint(), "Test clue 10");
-        assertEquals(downClues.getClue("1").getHint(), "Test clue 1d");
-        assertEquals(downClues.getClue("2").getHint(), "Test clue 2d");
+        assertEquals(acrossClues.getClueByNumber("1").getHint(), "Test clue 1");
+        assertEquals(
+            acrossClues.getClueByNumber("10").getHint(), "Test clue 10"
+        );
+        assertEquals(downClues.getClueByNumber("1").getHint(), "Test clue 1d");
+        assertEquals(downClues.getClueByNumber("2").getHint(), "Test clue 2d");
 
-        Clue fiveAcross = acrossClues.getClue("5");
+        Clue fiveAcross = acrossClues.getClueByNumber("5, 10");
         Zone fiveAcrossZone = fiveAcross.getZone();
         assertEquals(fiveAcrossZone.getPosition(6), new Position(0, 14));
         assertEquals(fiveAcrossZone.getPosition(7), new Position(2, 6));
 
-        Clue tenAcross = acrossClues.getClue("10");
+        Clue tenAcross = acrossClues.getClueByNumber("10");
         Zone tenAcrossZone = tenAcross.getZone();
         assertTrue(tenAcrossZone == null || tenAcrossZone.isEmpty());
     }

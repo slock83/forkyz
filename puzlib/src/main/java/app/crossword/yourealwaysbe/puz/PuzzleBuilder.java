@@ -15,10 +15,10 @@ public class PuzzleBuilder {
     /**
      * Convenience class for partial clues
      */
-    public static class NumHint {
+    public static class BasicClue {
         private String num, hint;
 
-        public NumHint(String num, String hint) {
+        public BasicClue(String num, String hint) {
             this.num = num;
             this.hint = hint;
         }
@@ -205,8 +205,20 @@ public class PuzzleBuilder {
         return this;
     }
 
-    public PuzzleBuilder addAcrossClue(String listName, NumHint numHint) {
-        return addAcrossClue(listName, numHint.getNum(), numHint.getHint());
+    /**
+     * The next contiguous index for a clue in listName
+     */
+    public int getNextClueIndex(String listName) {
+        ClueList clues = puzzle.getClues(listName);
+        return clues == null ? 0 : clues.size();
+    }
+
+    public PuzzleBuilder addAcrossClue(String listName, BasicClue basicClue) {
+        return addAcrossClue(
+            listName,
+            basicClue.getNum(),
+            basicClue.getHint()
+        );
     }
 
     public PuzzleBuilder addAcrossClue(
@@ -221,14 +233,19 @@ public class PuzzleBuilder {
         }
 
         Zone zone = PuzzleUtils.getAcrossZone(puzzle, start);
+        int index = getNextClueIndex(listName);
 
-        puzzle.addClue(new Clue(number, listName, hint, zone));
+        puzzle.addClue(new Clue(listName, index, number, hint, zone));
 
         return this;
     }
 
-    public PuzzleBuilder addDownClue(String listName, NumHint numHint) {
-        return addDownClue(listName, numHint.getNum(), numHint.getHint());
+    public PuzzleBuilder addDownClue(String listName, BasicClue basicClue) {
+        return addDownClue(
+            listName,
+            basicClue.getNum(),
+            basicClue.getHint()
+        );
     }
 
     public PuzzleBuilder addDownClue(
@@ -243,8 +260,9 @@ public class PuzzleBuilder {
         }
 
         Zone zone = PuzzleUtils.getDownZone(puzzle, start);
+        int index = getNextClueIndex(listName);
 
-        puzzle.addClue(new Clue(number, listName, hint, zone));
+        puzzle.addClue(new Clue(listName, index, number, hint, zone));
 
         return this;
     }

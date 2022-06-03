@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -44,9 +45,9 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
         assertEquals(21, boxes.length);
         assertEquals(21, boxes[0].length);
         assertEquals("1", boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isStartOf("Across"));
-        assertEquals(true, boxes[0][0].isStartOf("Down"));
-        assertEquals(false, boxes[0][3].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID("Across", 0)));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID("Down", 0)));
+        assertEquals(false, boxes[0][3].isStartOf(new ClueID("Across", 1)));
 
         assertEquals(boxes[0][0].getSolution(), 'F');
         assertEquals(boxes[5][14].getSolution(), 'E');
@@ -57,25 +58,28 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue("1").getHint(), "Murals on plaster");
         assertEquals(
-            acrossClues.getClue("8").getHint(),
+            acrossClues.getClueByNumber("1").getHint(),
+            "Murals on plaster"
+        );
+        assertEquals(
+            acrossClues.getClueByNumber("8").getHint(),
             "Glucose-level regulator"
         );
         assertEquals(
-            acrossClues.getClue("23").getHint(),
+            acrossClues.getClueByNumber("23").getHint(),
             "Cocky retort to a bully"
         );
         assertEquals(
-            downClues.getClue("5").getHint(),
+            downClues.getClueByNumber("5").getHint(),
             "One preserving fruit, e.g."
         );
         assertEquals(
-            downClues.getClue("7").getHint(),
+            downClues.getClueByNumber("7").getHint(),
             "In stitches"
         );
         assertEquals(
-            downClues.getClue("14").getHint(),
+            downClues.getClueByNumber("14").getHint(),
             "Napoleonic marshal Michel"
         );
     }

@@ -2,22 +2,30 @@
 package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
+import java.util.Objects;
 
-public class Clue extends ClueID implements Serializable {
+/**
+ * A clue on the board
+ *
+ * Must have a listName and index, number is optional.
+ */
+public class Clue implements Serializable {
+    private ClueID clueID;
     // because sometimes numbers are alphabetic
+    private String number;
     private String hint;
     private Zone zone;
 
-    /**
-     * Construct a clue
-     *
-     * Use listName Clue.ACROSS/DOWN for standard directions, else
-     * direction can be custom
-     */
     public Clue(
-        String number, String listName, String hint, Zone zone
+        String listName, int index, String number, String hint, Zone zone
     ) {
-        super(number, listName);
+        this.clueID = new ClueID(listName, index);
+        this.number = number;
+        if (listName == null || index < 0) {
+            throw new IllegalArgumentException(
+                "Clues must have a list name and index in the list"
+            );
+        }
         this.hint = hint;
         this.zone = (zone == null) ? new Zone() : zone;
     }
@@ -25,17 +33,43 @@ public class Clue extends ClueID implements Serializable {
     /**
      * Construct a numberless clue with no zone
      */
-    public Clue(String listName, String hint) {
-        this(null, listName, hint, null);
+    public Clue(String listName, int index, String hint) {
+        this(listName, index, null, hint, null);
     }
 
+    public ClueID getClueID() { return clueID; }
+    public boolean hasClueNumber() { return number != null; }
+    public String getClueNumber() { return number; }
     public String getHint() { return hint; }
     public boolean hasZone() { return zone.size() != 0; }
     public Zone getZone() { return zone; }
 
     @Override
     public String toString() {
-        return super.toString() + " " + getHint();
+        return getClueID() + " / " + getClueNumber() + " / "  + getHint();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+
+        if (!(o instanceof Clue))
+            return false;
+
+        Clue other = (Clue) o;
+
+        return getClueID().equals(other.getClueID())
+            && Objects.equals(getClueNumber(), other.getClueNumber())
+            && Objects.equals(getHint(), other.getHint())
+            && Objects.equals(getZone(), other.getZone());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(
+            getClueID(), getClueNumber(), getHint(), getZone()
+        );
     }
 }
 

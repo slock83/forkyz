@@ -30,7 +30,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -79,23 +78,28 @@ public class JPZIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger("app.crossword.yourealwaysbe");
 
-    private static final String UNDEFINED_CLUE = "-";
-
     private static class ClueInfo extends ClueID {
+        private String clueNumber;
         private String hint;
         private String zoneID;
+        private String citation;
 
         public ClueInfo(
-            String clueNumber, String listName,
-            String hint, String zoneID
+            String listName, int index,
+            String clueNumber, String hint, String zoneID,
+            String citation
         ) {
-            super(clueNumber, listName);
+            super(listName, index);
+            this.clueNumber = clueNumber;
             this.hint = hint;
             this.zoneID = zoneID;
+            this.citation = citation;
         }
 
+        public String getClueNumber() { return clueNumber; }
         public String getHint() { return hint; }
         public String getZoneID() { return zoneID; }
+        public String getCitation() { return citation; }
     }
 
     private static class JPZXMLParser extends DefaultHandler {
@@ -107,7 +111,6 @@ public class JPZIO implements PuzzleParser {
         private int height;
         private Box[][] boxes;
         private List<ClueInfo> clues = new LinkedList<>();
-        private Map<ClueID, String> cidToCitationMap = new TreeMap<>();
         private Map<String, Zone> zoneMap = new HashMap<>();
         private StringBuilder charBuffer = new StringBuilder();
 
@@ -125,9 +128,6 @@ public class JPZIO implements PuzzleParser {
         public Box[][] getBoxes() { return boxes; }
         public List<ClueInfo> getClues() { return clues; }
         public Map<String, Zone> getZoneMap() { return zoneMap; }
-        public Map<ClueID, String> getCIDToCitationMap() {
-            return cidToCitationMap;
-        }
 
         /**
          * Best assessment of whether read succeeded (i.e. was a JPZ
@@ -289,6 +289,8 @@ public class JPZIO implements PuzzleParser {
             private String inClueFormat = "";
             private String inListName = "No List";
             private String inClueZoneID = null;
+            private String inClueCitation = null;
+            private int inClueIndex = -1;
 
             private StringBuilder charBuffer = new StringBuilder();
 
@@ -298,7 +300,9 @@ public class JPZIO implements PuzzleParser {
                                      String tagName,
                                      Attributes attributes) throws SAXException {
                 strippedName = strippedName.trim();
-                String name = strippedName.length() == 0 ? tagName.trim() : strippedName;
+                String name = strippedName.length() == 0
+                    ? tagName.trim()
+                    : strippedName;
 
                 try {
                     if (name.equalsIgnoreCase("title")) {
@@ -307,6 +311,7 @@ public class JPZIO implements PuzzleParser {
                         charBuffer.delete(0, charBuffer.length());
 
                         inClueNum = attributes.getValue("number");
+                        inClueIndex += 1;
 
                         String link = attributes.getValue("is-link");
                         if (link == null) {
@@ -314,12 +319,7 @@ public class JPZIO implements PuzzleParser {
                             if (inClueFormat == null)
                                 inClueFormat = "";
 
-                            String citation = attributes.getValue("citation");
-                            if (citation != null)
-                                cidToCitationMap.put(
-                                    new ClueID(inClueNum, inListName), citation
-                                );
-
+                            inClueCitation = attributes.getValue("citation");
                             inClueZoneID = attributes.getValue("word");
 
                             // clue appears in characters between start
@@ -350,6 +350,7 @@ public class JPZIO implements PuzzleParser {
 
                 if (name.equalsIgnoreCase("title")) {
                     inListName = HtmlUtil.unHtmlString(charBuffer.toString());
+                    inClueIndex = -1;
                 } else if (name.equalsIgnoreCase("clue")) {
                     String fullClue = charBuffer.toString();
 
@@ -361,13 +362,16 @@ public class JPZIO implements PuzzleParser {
 
                     clues.add(
                         new ClueInfo(
-                            inClueNum, inListName, fullClue, inClueZoneID
+                            inListName, inClueIndex, inClueNum,
+                            fullClue, inClueZoneID,
+                            inClueCitation
                         )
                     );
 
                     inClueNum = null;
                     inClueFormat = "";
                     inClueZoneID = null;
+                    inClueCitation = null;
                 } else {
                     charBuffer.append("</" + tagName + ">");
                 }
@@ -541,10 +545,13 @@ public class JPZIO implements PuzzleParser {
     private static void setClues(PuzzleBuilder builder, JPZXMLParser handler) {
         Map<String, Zone> zones = handler.getZoneMap();
 
-        for (ClueInfo clue : handler.getClues()) {
+        List<ClueInfo> clues = handler.getClues();
+        for (int i = 0; i < clues.size(); i++) {
+            ClueInfo clue = clues.get(i);
             builder.addClue(new Clue(
-                clue.getClueNumber(),
                 clue.getListName(),
+                clue.getIndex(),
+                clue.getClueNumber(),
                 clue.getHint(),
                 zones.get(clue.getZoneID())
             ));
@@ -552,8 +559,6 @@ public class JPZIO implements PuzzleParser {
     }
 
     private static void setNote(PuzzleBuilder builder, JPZXMLParser handler) {
-        Map<ClueID, String> cidToCitationMap = handler.getCIDToCitationMap();
-
         StringBuilder notes = new StringBuilder();
 
         String description = handler.getDescription();
@@ -563,17 +568,19 @@ public class JPZIO implements PuzzleParser {
         // sort lists into order then construct citations text
         Map<String, StringBuilder> listNotes = new HashMap<>();
 
-        for (ClueID cid : cidToCitationMap.keySet()) {
-            String clueNum = cid.getClueNumber();
-            String listName = cid.getListName();
-            String citation = cidToCitationMap.get(cid);
+        for (ClueInfo ci : handler.getClues()) {
+            String number = ci.getClueNumber();
+            String listName = ci.getListName();
+            String citation = ci.getCitation();
 
-            if (!listNotes.containsKey(listName))
-                listNotes.put(listName, new StringBuilder());
+            if (citation != null) {
+                if (!listNotes.containsKey(listName))
+                    listNotes.put(listName, new StringBuilder());
 
-            listNotes.get(listName).append(
-                String.format("<p>%s: %s</p>", clueNum, citation)
-            );
+                listNotes.get(listName).append(
+                    String.format("<p>%s: %s</p>", number, citation)
+                );
+            }
         }
 
         List<String> listNames = new ArrayList<>(listNotes.keySet());

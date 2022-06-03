@@ -3,7 +3,7 @@ package app.crossword.yourealwaysbe.io;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
-import app.crossword.yourealwaysbe.puz.PuzzleBuilder.NumHint;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder.BasicClue;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -56,8 +56,8 @@ public class UclickXMLIO implements PuzzleParser {
         private String author;
         private String copyright;
         private Box[] boxList;
-        private List<NumHint> acrossClues = new ArrayList<>();
-        private List<NumHint> downClues = new ArrayList<>();
+        private List<BasicClue> acrossClues = new ArrayList<>();
+        private List<BasicClue> downClues = new ArrayList<>();
 
         private boolean inAcross = false;
         private boolean inDown = false;
@@ -80,8 +80,8 @@ public class UclickXMLIO implements PuzzleParser {
         public Box[] getBoxList() { return boxList; }
         public int getWidth() { return width; }
         public int getHeight() { return height; }
-        public List<NumHint> getAcrossClues() { return acrossClues; }
-        public List<NumHint> getDownClues() { return downClues; }
+        public List<BasicClue> getAcrossClues() { return acrossClues; }
+        public List<BasicClue> getDownClues() { return downClues; }
 
         @Override
         public void startElement(String nsURI, String strippedName,
@@ -96,14 +96,14 @@ public class UclickXMLIO implements PuzzleParser {
                     maxClueNum = clueNumInt;
                 }
                 try {
-                    acrossClues.add(new NumHint(
+                    acrossClues.add(new BasicClue(
                         clueNum,
                         URLDecoder.decode(
                             attributes.getValue("c"), CHARSET_NAME
                         )
                     ));
                 } catch (UnsupportedEncodingException e) {
-                    acrossClues.add(new NumHint(
+                    acrossClues.add(new BasicClue(
                         clueNum, attributes.getValue("c")
                     ));
                 }
@@ -114,14 +114,14 @@ public class UclickXMLIO implements PuzzleParser {
                     maxClueNum = clueNumInt;
                 }
                 try {
-                    downClues.add(new NumHint(
+                    downClues.add(new BasicClue(
                         clueNum,
                         URLDecoder.decode(
                             attributes.getValue("c"), CHARSET_NAME
                         )
                     ));
                 } catch (UnsupportedEncodingException e) {
-                    downClues.add(new NumHint(
+                    downClues.add(new BasicClue(
                         clueNum, attributes.getValue("c")
                     ));
                 }
@@ -195,11 +195,11 @@ public class UclickXMLIO implements PuzzleParser {
                 .setCopyright(handler.getCopyright())
                 .setNotes("");
 
-            for (NumHint nh : handler.getAcrossClues())
-                builder.addAcrossClue(ACROSS_LIST, nh);
+            for (BasicClue basicClue : handler.getAcrossClues())
+                builder.addAcrossClue(ACROSS_LIST, basicClue);
 
-            for (NumHint nh : handler.getDownClues())
-                builder.addDownClue(DOWN_LIST, nh);
+            for (BasicClue basicClue : handler.getDownClues())
+                builder.addDownClue(DOWN_LIST, basicClue);
 
             return builder.getPuzzle();
         } catch (Exception e) {

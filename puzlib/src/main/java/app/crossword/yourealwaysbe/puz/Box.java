@@ -134,20 +134,8 @@ public class Box implements Serializable {
     /**
      * @return if start of clue in list name with box number
      */
-    public boolean isStartOf(String listName) {
-        if (clueNumber == null)
-            return false;
-
-        ClueID cid = new ClueID(clueNumber, listName);
-        Integer position = cluePositions.get(cid);
-
-        return position != null && position == 0;
-    }
-
-    /**
-     * @return if start of clue in list name with box number
-     */
     public boolean isStartOf(ClueID clueID) {
+        System.out.println(cluePositions);
         Integer position = cluePositions.get(clueID);
         return position != null && position == 0;
     }
@@ -255,6 +243,12 @@ public class Box implements Serializable {
      */
     public boolean isPartOf(ClueID clueId) {
         return cluePositions.containsKey(clueId);
+    }
+
+    public boolean isPartOf(Clue clue) {
+        if (clue == null)
+            return false;
+        return isPartOf(clue.getClueID());
     }
 
     /**

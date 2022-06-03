@@ -48,10 +48,10 @@ public class AmuseLabsJSONIOTest extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue("1").getHint(), "Clue 1a");
-        assertEquals(acrossClues.getClue("21").getHint(), "Clue 21a");
-        assertEquals(downClues.getClue("1").getHint(), "Clue 1d");
-        assertEquals(downClues.getClue("2").getHint(), "Clue 2d");
+        assertEquals(acrossClues.getClueByNumber("1").getHint(), "Clue 1a");
+        assertEquals(acrossClues.getClueByNumber("21").getHint(), "Clue 21a");
+        assertEquals(downClues.getClueByNumber("1").getHint(), "Clue 1d");
+        assertEquals(downClues.getClueByNumber("2").getHint(), "Clue 2d");
     }
 
     public void testPuzzle1() throws Exception {

@@ -311,7 +311,7 @@
     <string name="cur_box_desc">%1$s, current box %2$s%3$s%4$s%5$s%6$s%7$s%8$s%9$s%10$s</string>
     <!-- description only -->
     <string name="cur_box_none_selected">%1$s</string>
-    <string name="cur_box_clue_info">, in %1$s %2$s</string>
+    <string name="cur_box_clue_info">, in %1$s %2$s (at index %3$d)</string>
     <string name="cur_box_number">, number %1$s</string>
     <string name="cur_box_no_number"></string>
     <string name="cur_box_circled">, circled</string>

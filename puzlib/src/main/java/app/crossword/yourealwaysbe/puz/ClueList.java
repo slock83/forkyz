@@ -4,65 +4,44 @@ package app.crossword.yourealwaysbe.puz;
 import java.util.Collection;
 
 public interface ClueList extends Iterable<Clue> {
-    /**
-     * Get clue by clue number (not index)
-     */
-    public Clue getClue(String number);
+    public Clue getClueByIndex(int index);
 
-    /**
-     * Get clue with number using index
-     */
-    public Clue getUnnumberedClue(int index);
-
-    /**
-     * How many clues without numbers
-     */
-    public int sizeUnnumbered();
+    public Clue getClueByNumber(String number);
 
     /**
      * Get clues, iterator will go in clue order
      */
     public Collection<Clue> getClues();
 
-    public boolean hasClue(String number);
+    public boolean hasClueByNumber(String number);
+
+    public boolean hasClueByIndex(int index);
 
     public int size();
 
     /**
-     * Get first clue in list
-     *
-     * Specify if must have zone
-     *
-     * @return null if no clue
+     * Index of first clue with a zone, or -1
      */
-    public String getFirstClueNumber(boolean hasZone);
+    public int getFirstZonedIndex();
 
     /**
-     * Get first clue in list
-     *
-     * Specify if must have zone.
-     *
-     * @return null if no clue
+     * Index of last clue with a zone, or -1
      */
-    public String getLastClueNumber(boolean hasZone);
+    public int getLastZonedIndex();
 
     /**
-     * Get the next clue after the given clue number
+     * First index after startIndex with zone
      *
-     * Wraps back to beginning or returns null if no next number
+     * Non-inclusive, specify whether to wrap around
      */
-    public String getNextClueNumber(
-        String number, boolean hasZone, boolean wrap
-    );
+    public int getNextZonedIndex(int startIndex, boolean wrap);
 
     /**
-     * Get the clue before the given clue number
+     * First index before startIndex with zone
      *
-     * Wraps back to end or null if no previous
+     * Non-inclusive, specify whether to wrap around
      */
-    public String getPreviousClueNumber(
-        String number, boolean hasZone, boolean wrap
-    );
+    public int getPreviousZonedIndex(int startIndex, boolean wrap);
 
     /**
      * Returns index of clue in clue list

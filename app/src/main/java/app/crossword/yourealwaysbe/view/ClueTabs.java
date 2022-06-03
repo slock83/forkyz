@@ -268,8 +268,8 @@ public class ClueTabs extends LinearLayout
         if (viewPager == null || !isSnapToClue())
             return;
 
-        Clue clue = board.getClue();
-        String listName = (clue == null) ? null : clue.getListName();
+        ClueID cid = board.getClueID();
+        String listName = (cid == null) ? null : cid.getListName();
 
         if (listName == null)
             return;
@@ -543,7 +543,7 @@ public class ClueTabs extends LinearLayout
                 return;
 
             if (Objects.equals(listName, curClueID.getListName())) {
-                int index = clueList.getClueIndex(curClueID.getClueNumber());
+                int index = curClueID.getIndex();
                 if (index > -1) {
                     notifyItemChanged(index);
                 }
@@ -556,8 +556,7 @@ public class ClueTabs extends LinearLayout
         ) {
             if (prevClueID != null) {
                 if (Objects.equals(listName, prevClueID.getListName())) {
-                    int index
-                        = clueList.getClueIndex(prevClueID.getClueNumber());
+                    int index = prevClueID.getIndex();
                     if (index > -1) {
                         notifyItemChanged(index);
                     }
@@ -582,10 +581,8 @@ public class ClueTabs extends LinearLayout
             ClueID item = historyList.get(position);
             Playboard board = ClueTabs.this.board;
             if (board != null) {
-                String number = item.getClueNumber();
-                String listName = item.getListName();
                 Puzzle puz = board.getPuzzle();
-                Clue clue = puz.getClues(listName).getClue(number);
+                Clue clue = puz.getClue(item);
                 if (puz != null && clue != null) {
                     holder.setClue(clue);
                 }
@@ -652,7 +649,7 @@ public class ClueTabs extends LinearLayout
             int color = R.color.textColorPrimary;
 
             if (board != null) {
-                if (board.isFilledClueID(clue))
+                if (board.isFilledClueID(clue.getClueID()))
                     color = R.color.textColorFilled;
             }
 
@@ -661,8 +658,8 @@ public class ClueTabs extends LinearLayout
             ));
 
             if (board != null) {
-                ClueID curClue = board.getClue();
-                boolean selected = Objects.equals((ClueID) clue, curClue);
+                ClueID cid = board.getClueID();
+                boolean selected = Objects.equals(clue.getClueID(), cid);
                 clueView.setChecked(selected);
 
                 Puzzle puz = board.getPuzzle();
@@ -716,8 +713,8 @@ public class ClueTabs extends LinearLayout
             }
         }
 
-        private String getShortListName(ClueID clue) {
-            String listName = clue.getListName();
+        private String getShortListName(Clue clue) {
+            String listName = clue.getClueID().getListName();
             if (listName == null || listName.isEmpty())
                 return "";
             else

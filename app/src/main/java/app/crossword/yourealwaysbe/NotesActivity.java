@@ -28,6 +28,7 @@ import androidx.fragment.app.DialogFragment;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
@@ -300,9 +301,9 @@ public class NotesActivity extends PuzzleActivity {
         if (isPuzzleNotes()) {
             puz.setPlayerNote(note);
         } else {
-            Clue clue = getBoard().getClue();
-            puz.setNote(clue, note);
-            puz.flagClue(clue, flagClue.isChecked());
+            ClueID cid = getBoard().getClueID();
+            puz.setNote(cid, note);
+            puz.flagClue(cid, flagClue.isChecked());
         }
 
         super.onPause();
@@ -574,11 +575,11 @@ public class NotesActivity extends PuzzleActivity {
         if (!displayScratch)
             return null;
 
-        Clue clue = getBoard().getClue();
-        if (clue == null)
+        ClueID cid = getBoard().getClueID();
+        if (cid == null)
             return Collections.emptySet();
 
-        String list = clue.getListName();
+        String list = cid.getListName();
         if (list == null)
             return Collections.emptySet();
         else
@@ -803,6 +804,6 @@ public class NotesActivity extends PuzzleActivity {
         Clue clue = getBoard().getClue();
         return getIntent().getBooleanExtra(PUZZLE_NOTES, false)
             || clue == null
-            || !getPuzzle().isNotableClue(clue);
+            || !clue.hasZone();
     }
 }

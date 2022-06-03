@@ -7,183 +7,157 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Objects;
-import java.util.TreeMap;
-
-import app.crossword.yourealwaysbe.util.ClueNumberComparator;
-import app.crossword.yourealwaysbe.util.CollectionUtils;
 
 class MutableClueList implements ClueList {
-    private NavigableMap<String, Clue> clueMap
-        = new TreeMap<>(new ClueNumberComparator());
-    private List<Clue> unnumberedClues = new ArrayList<>();
+    List<Clue> clues = new ArrayList<>();
+    Map<String, Clue> numberedClueMap = new HashMap<>();
 
-    // access through invalidateIndexCache and getIndexCache
-    private Map<String, Integer> indexMap;
-
+    /**
+     * Add a clue to the list
+     *
+     * Clues must be added in contiguous index order.
+     */
     public void addClue(Clue clue) {
+        int index = clue.getClueID().getIndex();
+        if (index < size()) {
+            throw new IllegalArgumentException(
+                "Clue has same index as existing clue: " + clue
+            );
+        }
+        if (index > size()) {
+            throw new IllegalArgumentException(
+                "Clue index leaves gaps in clue list: " + clue
+            );
+        }
+
+        clues.add(clue);
         if (clue.hasClueNumber()) {
-            clueMap.put(clue.getClueNumber(), clue);
-            invalidateIndexCache();
-        } else {
-            unnumberedClues.add(clue);
+            numberedClueMap.put(clue.getClueNumber(), clue);
         }
     }
 
     @Override
     public Iterator<Clue> iterator() {
-        return CollectionUtils.join(
-            clueMap.values(), unnumberedClues
-        ).iterator();
+        return clues.iterator();
     }
 
     @Override
-    public Clue getClue(String number) {
-        return clueMap.get(number);
+    public Clue getClueByIndex(int index) {
+        if (0 <= index && index < size())
+            return clues.get(index);
+        return null;
+    }
+
+    @Override
+    public Clue getClueByNumber(String number) {
+        return numberedClueMap.get(number);
     }
 
     @Override
     public Collection<Clue> getClues() {
-        return CollectionUtils.join(
-            clueMap.values(),
-            unnumberedClues
-        );
+        return clues;
     }
 
     @Override
-    public boolean hasClue(String number) {
-        return clueMap.containsKey(number);
+    public boolean hasClueByNumber(String number) {
+        return numberedClueMap.containsKey(number);
+    }
+
+    @Override
+    public boolean hasClueByIndex(int index) {
+        return 0 <= index && index < size();
     }
 
     @Override
     public int size() {
-        return clueMap.size() + unnumberedClues.size();
+        return clues.size();
     }
 
     @Override
-    public String getFirstClueNumber(boolean hasZone) {
-        if (clueMap.isEmpty())
-            return null;
-        String number = clueMap.firstEntry().getKey();
-        if (hasZone)
-            number = findClueNumberWithZone(number, true, false);
-        return number;
+    public int getFirstZonedIndex() {
+        return findClueIndex(0, 1, false, true, false);
     }
 
     @Override
-    public String getLastClueNumber(boolean hasZone) {
-        if (clueMap.isEmpty())
-            return null;
-        String number = clueMap.lastEntry().getKey();
-        if (hasZone)
-            number = findClueNumberWithZone(number, false, false);
-        return number;
+    public int getLastZonedIndex() {
+        return findClueIndex(size() - 1, -1, false, true, false);
     }
 
     @Override
-    public String getNextClueNumber(
-        String number, boolean hasZone, boolean wrap
-    ) {
-        String next = clueMap.higherKey(number);
-        if (next == null)
-            next = wrap ? clueMap.firstEntry().getKey() : null;
-        if (hasZone)
-            next = findClueNumberWithZone(next, true, wrap);
-        return next;
+    public int getNextZonedIndex(int startIndex, boolean wrap) {
+        return findClueIndex(startIndex + 1, 1, false, true, wrap);
     }
 
     @Override
-    public String getPreviousClueNumber(
-        String number, boolean hasZone, boolean wrap
-    ) {
-        String previous = clueMap.lowerKey(number);
-        if (previous == null)
-            previous = wrap ? clueMap.lastEntry().getKey() : null;
-        if (hasZone)
-            previous = findClueNumberWithZone(previous, false, wrap);
-        return previous;
+    public int getPreviousZonedIndex(int startIndex, boolean wrap) {
+        return findClueIndex(startIndex - 1, -1, false, true, wrap);
     }
 
     @Override
     public int getClueIndex(String number) {
-        Integer idx = getIndexCache().get(number);
-        return (idx == null) ? -1 : idx;
-    }
-
-    @Override
-    public Clue getUnnumberedClue(int index) {
-        if (index < 0 || index >= unnumberedClues.size())
-            return null;
-        return unnumberedClues.get(index);
-    }
-
-    @Override
-    public int sizeUnnumbered() {
-        return unnumberedClues.size();
+        Clue clue = getClueByNumber(number);
+        return (clue ==  null) ? -1 : clue.getClueID().getIndex();
     }
 
     @Override
     public int hashCode() {
-        return clueMap.hashCode() + unnumberedClues.hashCode();
+        return clues.hashCode();
     }
 
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof MutableClueList))
             return false;
-
         MutableClueList other = (MutableClueList) o;
-
-        return clueMap.equals(other.clueMap)
-            && unnumberedClues.equals(other.unnumberedClues);
+        return getClues().equals(other.getClues());
     }
 
     @Override
     public String toString() {
-        return clueMap.toString()
-            + " / " + unnumberedClues.toString();
-    }
-
-    private void invalidateIndexCache() {
-        indexMap = null;
-    }
-
-    private Map<String, Integer> getIndexCache() {
-        if (indexMap == null) {
-            indexMap = new HashMap<>();
-            int idx = 0;
-            for (Clue clue : getClues()) {
-                indexMap.put(clue.getClueNumber(), idx);
-                idx += 1;
-            }
-        }
-        return indexMap;
+        return clues.toString();
     }
 
     /**
-     * Find clue with zone (inclusive)
+     * Search for next clue index
      *
-     * Starting with startNumber, find a clue that has a (non-empty) zone.
-     * Search forwards or backwards, choose if wrap.
+     * Starts at startIndex (inclusive, possibly wrapped), moves by
+     * delta. Can specify if clue is required to have a number or zone
+     * and whether to wrap around list.
      *
-     * @return null if none to jump to
+     * Returns -1 if nothing found.
      */
-    private String findClueNumberWithZone(
-        String startNumber, boolean forwards, boolean wrap
+    private int findClueIndex(
+        int startIndex, int delta,
+        boolean hasNumber, boolean hasZone, boolean wrap
     ) {
-        String nextNumber = startNumber;
-        Clue nextClue = getClue(startNumber);
-        while (!nextClue.hasZone()) {
-            nextNumber = forwards
-                ? getNextClueNumber(nextNumber, false, wrap)
-                : getPreviousClueNumber(nextNumber, false, wrap);
+        int len = size();
 
-            if (Objects.equals(startNumber, nextNumber))
-                return null;
+        if (len == 0)
+            return -1;
 
-            nextClue = getClue(nextNumber);
-        }
-        return nextClue.getClueNumber();
+        startIndex = wrapIf(startIndex, len, wrap);
+
+        if (startIndex < 0 || startIndex >= len)
+            return -1;
+
+        int index = startIndex;
+
+        do {
+            Clue clue = getClueByIndex(index);
+            boolean good = (!hasNumber || clue.hasClueNumber())
+                && (!hasZone || clue.hasZone());
+            if (good)
+                return index;
+            index = wrapIf(index + delta, len, wrap);
+        } while (index != startIndex && 0 <= index && index < len);
+
+        return -1;
+    }
+
+    /**
+     * Wrap value to 0..base-1 if wrap is true
+     */
+    private int wrapIf(int val, int base, boolean wrap) {
+        return wrap ? ((val % base) + base) % base : val;
     }
 }

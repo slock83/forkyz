@@ -176,7 +176,9 @@ public class AmuseLabsJSONIO implements PuzzleParser {
                         ACROSS_LIST, String.valueOf(num), clue
                     );
                 } else {
-                    builder.addDownClue(DOWN_LIST, String.valueOf(num), clue);
+                    builder.addDownClue(
+                        DOWN_LIST, String.valueOf(num), clue
+                    );
                 }
             }
         }

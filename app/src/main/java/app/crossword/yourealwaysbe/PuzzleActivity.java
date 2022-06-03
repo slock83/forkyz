@@ -217,7 +217,7 @@ public abstract class PuzzleActivity
         if (showCount && wordLen >= 0) {
             return getString(
                 R.string.clue_format_long_with_count,
-                clue.getListName(),
+                clue.getClueID().getListName(),
                 clue.getClueNumber(),
                 clue.getHint(),
                 wordLen
@@ -225,7 +225,7 @@ public abstract class PuzzleActivity
         } else {
             return getString(
                 R.string.clue_format_long,
-                clue.getListName(),
+                clue.getClueID().getListName(),
                 clue.getClueNumber(),
                 clue.getHint()
             );
@@ -237,7 +237,7 @@ public abstract class PuzzleActivity
         Clue clue = (board ==  null) ? null : board.getClue();
         Puzzle puz = getPuzzle();
 
-        if (clue != null && puz != null && puz.isNotableClue(clue)) {
+        if (clue != null && puz != null) {
             Intent i = new Intent(this, NotesActivity.class);
             i.putExtra(NotesActivity.PUZZLE_NOTES, false);
             this.startActivity(i);

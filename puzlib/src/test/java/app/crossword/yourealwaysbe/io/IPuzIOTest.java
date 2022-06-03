@@ -73,11 +73,11 @@ public class IPuzIOTest extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Vertical");
 
-        assertEquals(acrossClues.getClue("1").getHint(), "Test clue 1");
-        assertEquals(acrossClues.getClue("3").getHint(), "Test clue 2");
-        assertEquals(downClues.getClue("1").getHint(), "Test clue 3");
+        assertEquals(acrossClues.getClueByNumber("1").getHint(), "Test clue 1");
+        assertEquals(acrossClues.getClueByNumber("3").getHint(), "Test clue 2");
+        assertEquals(downClues.getClueByNumber("1").getHint(), "Test clue 3");
         assertEquals(
-            downClues.getClue("2").getHint(),
+            downClues.getClueByNumber("2").getHint(),
             "Test clue 4 (cont. 1 Across/1 Down) "
                 + "(ref. 1&2 Across) (clues 2/1/3) (3-2-1)"
         );
@@ -98,16 +98,24 @@ public class IPuzIOTest extends TestCase {
         assertTrue(boxes[1][2].isCircled());
         assertFalse(boxes[2][1].isCircled());
 
-        assertTrue(boxes[0][7].isPartOf(new ClueID("5", "Across")));
-        assertFalse(boxes[0][7].isPartOf(new ClueID("5", "Down")));
-        assertTrue(boxes[1][7].isPartOf(new ClueID("6", "Down")));
-        assertFalse(boxes[1][7].isPartOf(new ClueID("5", "Down")));
-
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue("5").getHint(), "Clue 5");
-        assertEquals(downClues.getClue("2").getHint(), "Clue 2d");
+        assertTrue(
+            boxes[0][7].isPartOf(acrossClues.getClueByNumber("5"))
+        );
+        assertFalse(
+            boxes[0][7].isPartOf(downClues.getClueByNumber("5"))
+        );
+        assertTrue(
+            boxes[1][7].isPartOf(downClues.getClueByNumber("6"))
+        );
+        assertFalse(
+            boxes[1][7].isPartOf(downClues.getClueByNumber("5"))
+        );
+
+        assertEquals(acrossClues.getClueByNumber("5").getHint(), "Clue 5");
+        assertEquals(downClues.getClueByNumber("2").getHint(), "Clue 2d");
     }
 
     public static void assertIsTestPuzzleExtras(Puzzle puz) throws Exception {
@@ -132,24 +140,37 @@ public class IPuzIOTest extends TestCase {
 
         ClueList oddClues = puz.getClues("OddOnes");
 
-        assertEquals(oddClues.getUnnumberedClue(5).getHint(), "Odd sixth");
-        assertEquals(oddClues.getUnnumberedClue(0).getHint(), "Odd first");
+        assertEquals(oddClues.getClueByIndex(5).getHint(), "Odd sixth");
+        assertEquals(oddClues.getClueByIndex(0).getHint(), "Odd first");
     }
 
     public static void assertIsTestPuzzleZones(Puzzle puz) throws Exception {
         Box[][] boxes = puz.getBoxes();
 
-        assertTrue(boxes[2][2].isPartOf(new ClueID("&#x1f332;", "Bases")));
-        assertFalse(boxes[2][2].isPartOf(new ClueID("1", "Pathways")));
-        assertTrue(boxes[1][8].isPartOf(new ClueID("&#x2615;", "Bases")));
-        assertFalse(boxes[1][8].isPartOf(new ClueID("2", "Pathways")));
-        assertTrue(boxes[7][1].isPartOf(new ClueID("5", "Pathways")));
-        assertFalse(boxes[7][1].isPartOf(new ClueID("&#x1f98a;", "Bases")));
-
         ClueList bases = puz.getClues("Bases");
+        ClueList pathways = puz.getClues("Pathways");
 
-        Zone zoneTree = bases.getClue("&#x2615;").getZone();
-        Zone zoneThumb = bases.getClue("&#x1f44d;").getZone();
+        assertTrue(
+            boxes[2][2].isPartOf(bases.getClueByNumber("&#x1f332;"))
+        );
+        assertFalse(
+            boxes[2][2].isPartOf(pathways.getClueByNumber("1"))
+        );
+        assertTrue(
+            boxes[1][8].isPartOf(bases.getClueByNumber("&#x2615;"))
+        );
+        assertFalse(
+            boxes[1][8].isPartOf(pathways.getClueByNumber("2"))
+        );
+        assertTrue(
+            boxes[7][1].isPartOf(pathways.getClueByNumber("5"))
+        );
+        assertFalse(
+            boxes[7][1].isPartOf(bases.getClueByNumber("&#x1f98a;"))
+        );
+
+        Zone zoneTree = bases.getClueByNumber("&#x2615;").getZone();
+        Zone zoneThumb = bases.getClueByNumber("&#x1f44d;").getZone();
 
         assertEquals(zoneTree.size(), 8);
         assertEquals(zoneThumb.size(), 8);
@@ -157,9 +178,7 @@ public class IPuzIOTest extends TestCase {
         assertEquals(zoneTree.getPosition(3), new Position(1, 8));
         assertEquals(zoneThumb.getPosition(6), new Position(6, 6));
 
-        ClueList pathways = puz.getClues("Pathways");
-
-        Zone zone3 = pathways.getClue("4").getZone();
+        Zone zone3 = pathways.getClueByNumber("4").getZone();
 
         assertEquals(zone3.size(), 5);
         assertEquals(zone3.getPosition(3), new Position(3, 5));
@@ -184,7 +203,7 @@ public class IPuzIOTest extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
 
         assertEquals(
-            acrossClues.getClue("1").getHint(),
+            acrossClues.getClueByNumber("1").getHint(),
             "Test <b>clue</b> 1<br>A clue&excl;"
         );
     }
@@ -217,24 +236,33 @@ public class IPuzIOTest extends TestCase {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
 
+            ClueList across = puz.getClues("Across");
+            ClueList vertical = puz.getClues("Vertical");
+
+            ClueID cidA1 = across.getClueByNumber("1").getClueID();
+            ClueID cidA3 = across.getClueByNumber("3").getClueID();
+            ClueID cidV1 = vertical.getClueByNumber("1").getClueID();
+            ClueID cidV2 = vertical.getClueByNumber("2").getClueID();
+
+
             puz.setSupportUrl("http://test.url");
             puz.setTime(1234L);
             puz.setPosition(new Position(2, 1));
-            puz.setCurrentClueID(new ClueID("3", "Across"));
+            puz.setCurrentClueID(cidA3);
 
-            puz.updateHistory(new ClueID("3", "Across"));
-            puz.updateHistory(new ClueID("1", "Vertical"));
+            puz.updateHistory(cidA3);
+            puz.updateHistory(cidV1);
 
             puz.setNote(
-                new ClueID("1", "Across"),
+                cidA1,
                 new Note("test1", "test2", "test3", "test4")
             );
             puz.setNote(
-                new ClueID("2", "Vertical"),
+                cidV2,
                 new Note("test5", "test6\nnew line", "test7", "test8")
             );
-            puz.flagClue(new ClueID("3", "Across"), true);
-            puz.flagClue(new ClueID("1", "Vertical"), true);
+            puz.flagClue(cidA3, true);
+            puz.flagClue(cidV1, true);
 
             puz.setPlayerNote(
                 new Note("scratch", "a note", "anagsrc", "anagsol")
@@ -261,38 +289,21 @@ public class IPuzIOTest extends TestCase {
             assertEquals(puz2.getSupportUrl(), "http://test.url");
             assertEquals(puz2.getTime(), 1234L);
             assertEquals(puz.getPosition(), puz2.getPosition());
-            assertEquals(
-                puz.getCurrentClueID(),
-                new ClueID("3", "Across")
+            assertEquals(puz.getCurrentClueID(), cidA3);
+            assertEquals(puz.getHistory().get(0), cidV1);
+            assertEquals(puz.getHistory().get(1), cidA3);
+            assertEquals(puz.getNote(cidA1).getText(), "test2"
             );
-            assertEquals(
-                puz.getHistory().get(0),
-                new ClueID("1", "Vertical")
-            );
-            assertEquals(
-                puz.getHistory().get(1),
-                new ClueID("3", "Across")
-            );
-            assertEquals(
-                puz.getNote(new ClueID("1", "Across")).getText(),
-                "test2"
-            );
-            assertEquals(
-                puz.getNote(new ClueID("2", "Vertical")).getText(),
-                "test6\nnew line"
-            );
-            assertEquals(
-                puz.getNote(new ClueID("2", "Vertical")).getAnagramSource(),
-                "test7"
-            );
+            assertEquals(puz.getNote(cidV2).getText(), "test6\nnew line");
+            assertEquals(puz.getNote(cidV2).getAnagramSource(), "test7");
             assertEquals(boxes2[0][1].getResponse(), 'X');
             assertEquals(boxes2[1][2].getResponse(), 'Y');
             assertEquals(boxes2[0][1].getResponder(), "Test");
             assertFalse(boxes2[0][1].isCheated());
             assertTrue(boxes2[1][0].isCheated());
-            assertTrue(puz.isFlagged(new ClueID("1", "Vertical")));
-            assertTrue(puz.isFlagged(new ClueID("3", "Across")));
-            assertFalse(puz.isFlagged(new ClueID("1", "Across")));
+            assertTrue(puz.isFlagged(cidV1));
+            assertTrue(puz.isFlagged(cidA3));
+            assertFalse(puz.isFlagged(cidA1));
 
             assertEquals(puz, puz2);
         }
@@ -333,20 +344,25 @@ public class IPuzIOTest extends TestCase {
         try (InputStream is = getTestPuzzle2InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
 
+            ClueList across = puz.getClues("Across");
+            ClueList down = puz.getClues("Down");
+
+            ClueID cidD2 = down.getClueByNumber("2").getClueID();
+            ClueID cidD3 = down.getClueByNumber("3").getClueID();
+            ClueID cidD12 = down.getClueByNumber("12").getClueID();
+            ClueID cidA1 = across.getClueByNumber("1").getClueID();
+
             puz.setSupportUrl("http://test.url");
             puz.setTime(1234L);
             puz.setPosition(new Position(1, 2));
-            puz.setCurrentClueID(new ClueID("12", "Down"));
+            puz.setCurrentClueID(cidD12);
 
-            puz.updateHistory(new ClueID("3", "Down"));
-            puz.updateHistory(new ClueID("1", "Across"));
+            puz.updateHistory(cidD3);
+            puz.updateHistory(cidA1);
 
+            puz.setNote(cidA1, new Note("test1", "test2", "test3", "test4"));
             puz.setNote(
-                new ClueID("1", "Across"),
-                new Note("test1", "test2", "test3", "test4")
-            );
-            puz.setNote(
-                new ClueID("2", "Down"),
+                cidD2,
                 new Note("test5", "test6\nnew line", "test7", "test8")
             );
 
@@ -371,30 +387,12 @@ public class IPuzIOTest extends TestCase {
             assertEquals(puz2.getSupportUrl(), "http://test.url");
             assertEquals(puz2.getTime(), 1234L);
             assertEquals(puz.getPosition(), puz2.getPosition());
-            assertEquals(
-                puz.getCurrentClueID(),
-                new ClueID("12", "Down")
-            );
-            assertEquals(
-                puz.getHistory().get(0),
-                new ClueID("1", "Across")
-            );
-            assertEquals(
-                puz.getHistory().get(1),
-                new ClueID("3", "Down")
-            );
-            assertEquals(
-                puz.getNote(new ClueID("1", "Across")).getText(),
-                "test2"
-            );
-            assertEquals(
-                puz.getNote(new ClueID("2", "Down")).getText(),
-                "test6\nnew line"
-            );
-            assertEquals(
-                puz.getNote(new ClueID("2", "Down")).getAnagramSource(),
-                "test7"
-            );
+            assertEquals(puz.getCurrentClueID(), cidD12);
+            assertEquals(puz.getHistory().get(0), cidA1);
+            assertEquals(puz.getHistory().get(1), cidD3);
+            assertEquals(puz.getNote(cidA1).getText(), "test2");
+            assertEquals(puz.getNote(cidD2).getText(), "test6\nnew line");
+            assertEquals(puz.getNote(cidD2).getAnagramSource(), "test7");
             assertEquals(boxes2[0][1].getResponse(), 'X');
             assertEquals(boxes2[1][2].getResponse(), 'Y');
             assertEquals(boxes2[0][1].getResponder(), "Test");

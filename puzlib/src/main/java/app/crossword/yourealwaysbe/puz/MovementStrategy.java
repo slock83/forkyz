@@ -99,26 +99,26 @@ public interface MovementStrategy extends Serializable {
             Position end = board.getHighlightLetter();
 
             // if did not move, assume at end of zone and move to
-            // previous clue in same list
+            // previous zoned clue in same list
             if (Objects.equals(start, end)) {
-                ClueID clueID = board.getClue();
-                if (clueID != null && clueID.hasClueNumber()) {
+                ClueID clueID = board.getClueID();
+                if (clueID != null) {
                     Puzzle puz = board.getPuzzle();
-                    String number = clueID.getClueNumber();
                     String listName = clueID.getListName();
+                    int curIndex = clueID.getIndex();
                     ClueList clues = puz.getClues(listName);
 
                     // Move to prev clue or wrap to end of prev list
-                    String firstNumber = clues.getFirstClueNumber(true);
-                    if (Objects.equals(number, firstNumber)) {
+                    int firstIndex = clues.getFirstZonedIndex();
+                    if (curIndex == firstIndex) {
                         String prevList = getPrevList(puz, listName);
                         ClueList prevClues = puz.getClues(prevList);
-                        String lastClue = prevClues.getLastClueNumber(true);
-                        board.jumpToClueEnd(new ClueID(lastClue, prevList));
+                        int lastIndex = prevClues.getLastZonedIndex();
+                        board.jumpToClueEnd(new ClueID(prevList, lastIndex));
                     } else {
-                        String nextNum
-                            = clues.getPreviousClueNumber(number, true, true);
-                        board.jumpToClueEnd(new ClueID(nextNum, listName));
+                        int prevIndex
+                            = clues.getPreviousZonedIndex(curIndex, true);
+                        board.jumpToClueEnd(new ClueID(listName, prevIndex));
                     }
                 }
             }
@@ -148,24 +148,24 @@ public interface MovementStrategy extends Serializable {
             Position newPos = board.getHighlightLetter();
 
             if (Objects.equals(start, newPos)) {
-                ClueID clueID = board.getClue();
-                if (clueID != null && clueID.hasClueNumber()) {
+                ClueID clueID = board.getClueID();
+                if (clueID != null) {
                     Puzzle puz = board.getPuzzle();
-                    String number = clueID.getClueNumber();
                     String listName = clueID.getListName();
+                    int curIndex = clueID.getIndex();
                     ClueList clues = puz.getClues(listName);
 
                     // Move to next clue or wrap to start of next list
-                    String lastNumber = clues.getLastClueNumber(true);
-                    if (Objects.equals(number, lastNumber)) {
+                    int lastIndex = clues.getLastZonedIndex();
+                    if (curIndex == lastIndex) {
                         String nextList = getNextList(puz, listName);
                         ClueList nextClues = puz.getClues(nextList);
-                        String firstClue = nextClues.getFirstClueNumber(true);
-                        board.jumpToClue(new ClueID(firstClue, nextList));
+                        int firstIndex = nextClues.getFirstZonedIndex();
+                        board.jumpToClue(new ClueID(nextList, firstIndex));
                     } else {
-                        String nextNum
-                            = clues.getNextClueNumber(number, true, true);
-                        board.jumpToClue(new ClueID(nextNum, listName));
+                        int nextIndex
+                            = clues.getNextZonedIndex(curIndex, true);
+                        board.jumpToClue(new ClueID(listName, nextIndex));
                     }
 
                     // Check if we should skip

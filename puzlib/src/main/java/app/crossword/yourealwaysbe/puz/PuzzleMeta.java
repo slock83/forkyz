@@ -13,6 +13,19 @@ import java.util.Objects;
  */
 public class PuzzleMeta implements Serializable {
 
+    public static class ListNum {
+        private String listName;
+        private int number;
+
+        public ListNum(String listName, int number) {
+            this.listName = listName;
+            this.number = number;
+        }
+
+        public String getListName() { return listName; }
+        public int getNumber() { return number; }
+    }
+
     public String author;
     public String title;
     public String source;
@@ -24,7 +37,7 @@ public class PuzzleMeta implements Serializable {
     public String supportUrl;
     public Position position;
     public boolean across;
-    public List<ClueID> historyList;
+    public List<ListNum> historyList;
     public Note[] acrossNotes;
     public Note[] downNotes;
     public Note playerNote;

@@ -189,7 +189,7 @@ public class ClueListActivity extends PuzzleActivity
         if (board == null)
             return;
 
-        if (getPuzzle().isNotableClue(clue)) {
+        if (clue.hasZone()) {
             board.jumpToClue(clue);
             launchClueNotes();
         } else {
@@ -234,9 +234,9 @@ public class ClueListActivity extends PuzzleActivity
             last = zone.getPosition(zone.size() - 1);
         }
 
-        Clue clue = board.getClue();
-        String curList = clue == null ? null : clue.getListName();
-        String curClueNumber = clue == null ? null : clue.getClueNumber();
+        ClueID cid = board.getClueID();
+        String curList = cid == null ? null : cid.getListName();
+        int curClueIndex = cid == null ? -1 : cid.getIndex();
 
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
@@ -264,11 +264,11 @@ public class ClueListActivity extends PuzzleActivity
             return true;
 
         case KeyEvent.KEYCODE_DPAD_UP:
-            if (curList != null && curClueNumber != null) {
-                String prev = puz.getClues(curList)
-                    .getPreviousClueNumber(curClueNumber, true, true);
+            if (curList != null && curClueIndex >= 0) {
+                int prev = puz.getClues(curList)
+                    .getPreviousZonedIndex(curClueIndex, true);
                 clueTabs.setForceSnap(true);
-                board.jumpToClue(new ClueID(prev, curList));
+                board.jumpToClue(new ClueID(curList, prev));
                 clueTabs.setForceSnap(false);
             } else {
                 selectFirstSelectableClue(false);
@@ -276,11 +276,11 @@ public class ClueListActivity extends PuzzleActivity
             break;
 
         case KeyEvent.KEYCODE_DPAD_DOWN:
-            if (curList != null && curClueNumber != null) {
-                String next = puz.getClues(curList)
-                    .getNextClueNumber(curClueNumber, true, true);
+            if (curList != null && curClueIndex >= 0) {
+                int next = puz.getClues(curList)
+                    .getNextZonedIndex(curClueIndex, true);
                 clueTabs.setForceSnap(true);
-                board.jumpToClue(new ClueID(next, curList));
+                board.jumpToClue(new ClueID(curList, next));
                 clueTabs.setForceSnap(false);
             } else {
                 selectFirstSelectableClue(true);
@@ -444,11 +444,11 @@ public class ClueListActivity extends PuzzleActivity
         switch (clueTabs.getCurrentPageType()) {
         case CLUES:
             String listName = clueTabs.getCurrentPageListName();
-            String firstClue = puz.getClues(listName).getFirstClueNumber(true);
-            if (firstClue == null) {
+            int firstClue = puz.getClues(listName).getFirstZonedIndex();
+            if (firstClue < 0) {
                 return false;
             } else {
-                board.jumpToClue(new ClueID(firstClue, listName));
+                board.jumpToClue(new ClueID(listName, firstClue));
                 return true;
             }
         case HISTORY:

@@ -708,7 +708,7 @@ public class PlayActivity extends PuzzleActivity
             return;
 
         Puzzle puz = getPuzzle();
-        if (puz != null && puz.isNotableClue(clue)) {
+        if (puz != null) {
             board.jumpToClue(clue);
             launchClueNotes();
         } else {

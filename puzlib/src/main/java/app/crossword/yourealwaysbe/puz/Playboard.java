@@ -80,10 +80,14 @@ public class Playboard implements Serializable {
      * Returns null if no clue for current position
      */
     public Clue getClue() {
-        ClueID clueID = puzzle.getCurrentClueID();
+        ClueID clueID = getClueID();
         if (clueID == null)
             return null;
         return puzzle.getClue(clueID);
+    }
+
+    public ClueID getClueID() {
+        return puzzle.getCurrentClueID();
     }
 
     /**
@@ -92,7 +96,7 @@ public class Playboard implements Serializable {
      * Or null if none selected
      */
     public ClueList getCurrentClueList() {
-        ClueID clueID = puzzle.getCurrentClueID();
+        ClueID clueID = getClueID();
         return (clueID == null) ? null : puzzle.getClues(clueID.getListName());
     }
 
@@ -100,8 +104,13 @@ public class Playboard implements Serializable {
      * Clue number for current position or null if none
      */
     public String getClueNumber() {
-        ClueID clueID = puzzle.getCurrentClueID();
-        return (clueID == null) ? null : clueID.getClueNumber();
+        ClueID cid = getClueID();
+        if (cid == null)
+            return null;
+        Clue clue = puzzle.getClue(cid);
+        if (clue == null)
+            return null;
+        return clue.getClueNumber();
     }
 
     /**
@@ -109,17 +118,12 @@ public class Playboard implements Serializable {
      */
     public int getCurrentClueIndex() {
         Clue clue = getClue();
-        if (clue != null) {
-            String listName = clue.getListName();
-            return puzzle.getClues(listName)
-                .getClueIndex(clue.getClueNumber());
-        }
-        return -1;
+        return clue == null ? -1 : clue.getClueID().getIndex();
     }
 
     public Note getNote() {
         Clue c = this.getClue();
-        return (c == null) ? null : this.puzzle.getNote(c);
+        return (c == null) ? null : this.puzzle.getNote(c.getClueID());
     }
 
     public Box getCurrentBox() {
@@ -147,7 +151,7 @@ public class Playboard implements Serializable {
             zone.addPosition(pos);
             return new Word(zone);
         } else {
-            return new Word(clue.getZone(), clue);
+            return new Word(clue.getZone(), clue.getClueID());
         }
     }
 
@@ -216,7 +220,7 @@ public class Playboard implements Serializable {
                 puzzle.setPosition(highlightLetter);
 
                 // toggle if not part of current clue
-                Zone zone = getZone(getClue());
+                Zone zone = getZone(getClueID());
                 if (zone == null || !zone.hasPosition(highlightLetter)) {
                     toggleSelection();
                 }
@@ -392,8 +396,8 @@ public class Playboard implements Serializable {
             Note note = this.getNote();
 
             if (note != null) {
-                Clue clue = getClue();
-                int cluePos = currentBox.getCluePosition(clue);
+                ClueID cid = getClueID();
+                int cluePos = currentBox.getCluePosition(cid);
                 String response = this.getCurrentWordResponse();
                 if (cluePos >= 0 && cluePos < response.length())
                     note.deleteScratchLetterAt(cluePos);
@@ -427,7 +431,7 @@ public class Playboard implements Serializable {
     }
 
     private boolean currentBoxHasFilledAdjacent() {
-        ClueID currentCID = getClue();
+        ClueID currentCID = getClueID();
         if (currentCID == null)
             return false;
 
@@ -483,6 +487,11 @@ public class Playboard implements Serializable {
             notifyChange();
     }
 
+    public void jumpToClue(Clue clue) {
+        if (clue != null)
+            jumpToClue(clue.getClueID());
+    }
+
     /**
      * Ignored if clue not on board
      */
@@ -503,6 +512,11 @@ public class Playboard implements Serializable {
 
         if (pos != null)
             notifyChange();
+    }
+
+    public void jumpToClueEnd(Clue clue) {
+        if (clue != null)
+            jumpToClueEnd(clue.getClueID());
     }
 
     /**
@@ -724,7 +738,7 @@ public class Playboard implements Serializable {
     public Word nextWord() {
         Word previous = this.getCurrentWord();
         Position curPos = this.getHighlightLetter();
-        Position newPos = getClueEnd(getClue());
+        Position newPos = getClueEnd(getClueID());
 
         if (!Objects.equals(newPos, curPos)) {
             pushNotificationDisabled();
@@ -767,18 +781,18 @@ public class Playboard implements Serializable {
 
         pushNotificationDisabled();
 
-        Clue clue = getClue();
+        ClueID cid = getClueID();
         Note note = getNote();
         String response = getCurrentWordResponse();
 
         // Create a note for this clue if we don't already have one
         if (note == null) {
             note = new Note(response.length());
-            this.puzzle.setNote(clue, note);
+            this.puzzle.setNote(cid, note);
         }
 
         // Update the scratch text
-        int pos = box.getCluePosition(clue);
+        int pos = box.getCluePosition(cid);
         if (pos >= 0 && pos < response.length())
             note.setScratchLetter(pos, letter);
 
@@ -799,7 +813,7 @@ public class Playboard implements Serializable {
         Word previous = getCurrentWord();
 
         Position curPos = getHighlightLetter();
-        Position newPos = getClueStart(getClue());
+        Position newPos = getClueStart(getClueID());
 
         pushNotificationDisabled();
 
@@ -810,7 +824,7 @@ public class Playboard implements Serializable {
 
         popNotificationDisabled();
 
-        setHighlightLetter(getClueStart(getClue()));
+        setHighlightLetter(getClueStart(getClueID()));
 
         return previous;
     }
@@ -884,9 +898,9 @@ public class Playboard implements Serializable {
     public List<Position> revealWord() {
         ArrayList<Position> changes = new ArrayList<Position>();
         Position curPos = getHighlightLetter();
-        Clue clue = getClue();
-        Position startPos = getClueStart(clue);
-        Zone zone = getZone(clue);
+        ClueID cid = getClueID();
+        Position startPos = getClueStart(cid);
+        Zone zone = getZone(cid);
 
         pushNotificationDisabled();
 
@@ -937,7 +951,7 @@ public class Playboard implements Serializable {
         } else {
             Collections.sort(boxClues);
 
-            int curPos = boxClues.indexOf(getClue());
+            int curPos = boxClues.indexOf(getClueID());
 
             // if in current clue, toggle, else try to stay in same list
             if (curPos >= 0) {
@@ -945,10 +959,10 @@ public class Playboard implements Serializable {
                 puzzle.setCurrentClueID(boxClues.get(nextPos));
                 changed = (nextPos != curPos);
             } else {
-                Clue clue = getClue();
+                ClueID curClue = getClueID();
                 ClueID newClue = null;
-                if (clue != null)
-                    newClue = box.getIsPartOfClue(clue.getListName());
+                if (curClue != null)
+                    newClue = box.getIsPartOfClue(curClue.getListName());
                 if (newClue == null)
                     newClue = boxClues.get(0);
                 puzzle.setCurrentClueID(newClue);
@@ -996,10 +1010,10 @@ public class Playboard implements Serializable {
     }
 
     private void updateHistory() {
-        Clue c = getClue();
-        if (c == null)
+        ClueID cid = getClueID();
+        if (cid == null)
             return;
-        puzzle.updateHistory(c);
+        puzzle.updateHistory(cid);
     }
 
     /**
@@ -1021,7 +1035,7 @@ public class Playboard implements Serializable {
         for (Clue clue : puzzle.getAllClues()) {
             if (clue.hasZone()) {
                 puzzle.setPosition(clue.getZone().getPosition(0));
-                puzzle.setCurrentClueID(clue);
+                puzzle.setCurrentClueID(clue.getClueID());
                 return;
             }
         }

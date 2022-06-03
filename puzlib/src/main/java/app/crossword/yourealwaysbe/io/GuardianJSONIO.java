@@ -147,7 +147,9 @@ public class GuardianJSONIO implements PuzzleParser {
     }
 
     private static void addClue(
-        JSONObject entry, Map<String, Zone> zones, PuzzleBuilder builder
+        JSONObject entry,
+        Map<String, Zone> zones,
+        PuzzleBuilder builder
     ) {
         String id = entry.getString("id");
         String num = entry.getString("humanNumber");
@@ -163,8 +165,9 @@ public class GuardianJSONIO implements PuzzleParser {
         }
 
         String listName = across ? ACROSS_LIST : DOWN_LIST;
+        int index = builder.getNextClueIndex(listName);
 
-        builder.addClue(new Clue(num, listName, hint, zone));
+        builder.addClue(new Clue(listName, index, num, hint, zone));
     }
 
     /**

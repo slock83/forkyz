@@ -195,12 +195,16 @@ public class IO implements PuzzleParser {
 
                 if (builder.isStartClue(x, y, true) && (clueNumber != null)) {
                     String value = readNullTerminatedString(input);
-                    builder.addAcrossClue(ACROSS_LIST, clueNumber, value);
+                    builder.addAcrossClue(
+                        ACROSS_LIST, clueNumber, value
+                    );
                 }
 
                 if (builder.isStartClue(x, y, false) && (clueNumber != null)) {
                     String value = readNullTerminatedString(input);
-                    builder.addDownClue(DOWN_LIST, clueNumber, value);
+                    builder.addDownClue(
+                        DOWN_LIST, clueNumber, value
+                    );
                 }
             }
         }
@@ -760,18 +764,18 @@ public class IO implements PuzzleParser {
             downClues = puz.getClues(downList);
 
         for (ClueID cid : puz.getBoardClueIDs()) {
-            String clueNum = cid.getClueNumber();
             String listName = cid.getListName();
+            int index = cid.getIndex();
 
             // only support Across/Down in puz files
             if (Objects.equals(acrossList, listName)) {
-                if (acrossClues != null && acrossClues.hasClue(clueNum))
-                    rawClues.add(acrossClues.getClue(clueNum).getHint());
+                if (acrossClues != null && acrossClues.hasClueByIndex(index))
+                    rawClues.add(acrossClues.getClueByIndex(index).getHint());
                 else
                     rawClues.add(UNKNOWN_CLUE);
             } else if (Objects.equals(downList, listName)) {
-                if (downClues != null && downClues.hasClue(clueNum))
-                    rawClues.add(downClues.getClue(clueNum).getHint());
+                if (downClues != null && downClues.hasClueByIndex(index))
+                    rawClues.add(downClues.getClueByIndex(index).getHint());
                 else
                     rawClues.add(UNKNOWN_CLUE);
             }

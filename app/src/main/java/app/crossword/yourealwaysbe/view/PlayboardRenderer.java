@@ -496,12 +496,21 @@ public class PlayboardRenderer {
             ? context.getString(R.string.cur_box_number, clueNumber)
             : context.getString(R.string.cur_box_no_number);
 
+        Puzzle puz = board.getPuzzle();
+
         String clueInfo = "";
         for (ClueID cid : box.getIsPartOfClues()) {
+            Clue clue = puz.getClue(cid);
+
+            String partOfClueNumber = clue.getClueNumber();
+            if (partOfClueNumber == null)
+                partOfClueNumber = "";
+
             clueInfo += context.getString(
                 R.string.cur_box_clue_info,
                 cid.getListName(),
-                cid.getClueNumber()
+                partOfClueNumber,
+                cid.getIndex()
             );
         }
 

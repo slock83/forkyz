@@ -62,7 +62,7 @@ public class Puzzle implements Serializable{
     public byte[] unscrambleBuf;
 
     public void addClue(Clue clue) {
-        String listName = clue.getListName();
+        String listName = clue.getClueID().getListName();
         if (!clueLists.containsKey(listName))
             clueLists.put(listName, new MutableClueList());
         clueLists.get(listName).addClue(clue);
@@ -100,7 +100,7 @@ public class Puzzle implements Serializable{
         if (clues == null)
             return false;
 
-        if (!clues.hasClue(clueID.getClueNumber()))
+        if (!clues.hasClueByIndex(clueID.getIndex()))
             return false;
 
         return true;
@@ -119,7 +119,7 @@ public class Puzzle implements Serializable{
 
         return (clues == null)
             ? null
-            : clues.getClue(clueID.getClueNumber());
+            : clues.getClueByIndex(clueID.getIndex());
     }
 
     public int getNumberOfClues() {
@@ -242,9 +242,10 @@ public class Puzzle implements Serializable{
                     @Override
                     public ClueID next() {
                         String number = boxes[row][col].getClueNumber();
-                        ClueID result = new ClueID(
-                            number, getCurrentListName()
-                        );
+                        ClueList curList = getCurrentClueList();
+                        // not be null by moveToNext
+                        Clue curClue = curList.getClueByNumber(number);
+                        ClueID result = curClue.getClueID();
                         moveOneStep();
                         moveToNext();
                         return result;
@@ -259,7 +260,7 @@ public class Puzzle implements Serializable{
                             if (box != null && box.hasClueNumber()) {
                                 String number = box.getClueNumber();
                                 ClueList clues = getCurrentClueList();
-                                if (clues.hasClue(number))
+                                if (clues.hasClueByNumber(number))
                                     return;
                             }
                             moveOneStep();
@@ -502,6 +503,10 @@ public class Puzzle implements Serializable{
         return clueNotes.get(clueID);
     }
 
+    public Note getNote(Clue clue) {
+        return clue == null ? null : getNote(clue.getClueID());
+    }
+
     /**
      * Set note for a clue only if clue exists in puzzle
      */
@@ -737,10 +742,10 @@ public class Puzzle implements Serializable{
     }
 
     /**
-     * Flag or unflag clue (only if has number)
+     * Flag or unflag clue
      */
     public void flagClue(ClueID clueID, boolean flag) {
-        if (clueID == null || !clueID.hasClueNumber())
+        if (clueID == null)
             return;
 
         if (flag)
@@ -753,15 +758,12 @@ public class Puzzle implements Serializable{
         return flaggedClues.contains(clueID);
     }
 
-    public Iterable<ClueID> getFlaggedClues() {
-        return flaggedClues;
+    public boolean isFlagged(Clue clue) {
+        return (clue == null) ? false : isFlagged(clue.getClueID());
     }
 
-    /**
-     * Returns true if the clue can have its own note
-     */
-    public boolean isNotableClue(ClueID clueID) {
-        return clueID != null && clueID.hasClueNumber();
+    public Iterable<ClueID> getFlaggedClues() {
+        return flaggedClues;
     }
 
     /**
@@ -795,11 +797,11 @@ public class Puzzle implements Serializable{
             Box box = checkedGetBox(pos);
             if (box == null) {
                 throw new IllegalArgumentException(
-                    "Clue " + number + " " + clue.getListName()
+                    "Clue " + number + " " + clue.getClueID().getListName()
                     + " zone has a null box at position " + pos
                 );
             }
-            box.setCluePosition(clue, offset);
+            box.setCluePosition(clue.getClueID(), offset);
         }
     }
 }

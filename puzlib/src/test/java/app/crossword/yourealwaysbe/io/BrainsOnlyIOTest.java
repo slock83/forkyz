@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -34,9 +35,9 @@ public class BrainsOnlyIOTest  extends TestCase {
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
         assertEquals("1", boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isStartOf("Across"));
-        assertEquals(true, boxes[0][0].isStartOf("Down"));
-        assertEquals(false, boxes[0][3].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID("Across", 0)));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID("Down", 0)));
+        assertEquals(false, boxes[0][3].isStartOf(new ClueID("Across", 1)));
 
         assertEquals(boxes[0][0].getSolution(), 'D');
         assertEquals(boxes[5][14].getSolution(), 'Y');
@@ -47,10 +48,18 @@ public class BrainsOnlyIOTest  extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue("1").getHint(), "Toss out");
-        assertEquals(acrossClues.getClue("41").getHint(), "Straighten out");
-        assertEquals(downClues.getClue("1").getHint(), "Sancho Panza's mount");
-        assertEquals(downClues.getClue("59").getHint(), "Part of pewter");
+        assertEquals(
+            acrossClues.getClueByNumber("1").getHint(), "Toss out"
+        );
+        assertEquals(
+            acrossClues.getClueByNumber("41").getHint(), "Straighten out"
+        );
+        assertEquals(
+            downClues.getClueByNumber("1").getHint(), "Sancho Panza's mount"
+        );
+        assertEquals(
+            downClues.getClueByNumber("59").getHint(), "Part of pewter"
+        );
     }
 
     public void testParse() throws Exception {
@@ -66,9 +75,11 @@ public class BrainsOnlyIOTest  extends TestCase {
             "OCCUPIED NATIONS: Surrounding the long answers"
         );
         ClueList acrossClues = puz.getClues("Across");
-        assertEquals(acrossClues.getClue("15").getHint(), "Elevator guy");
         assertEquals(
-            acrossClues.getClue("5").getHint(),
+            acrossClues.getClueByNumber("15").getHint(), "Elevator guy"
+        );
+        assertEquals(
+            acrossClues.getClueByNumber("5").getHint(),
             "Company with a duck mascot"
         );
     }

@@ -108,6 +108,7 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_CLUES_DOWN = "Down";
 
     private static final String FIELD_CLUE_NUMBER = "number";
+    private static final String FIELD_CLUE_INDEX = "index";
     private static final String FIELD_CLUE_NUMBERS = "numbers";
     private static final String FIELD_CLUE_HINT = "clue";
     private static final String FIELD_CLUE_CONTINUED = "continued";
@@ -671,8 +672,9 @@ public class IPuzIO implements PuzzleParser {
                     );
                 } else {
                     builder.addClue(new Clue(
-                        ipc.getClueNumber(),
                         displayName,
+                        i,
+                        ipc.getClueNumber(),
                         ipc.getHint(),
                         ipc.getZone()
                     ));
@@ -984,7 +986,7 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read the position from playData
      *
-     * Assumes puz.getWidth() and puz.getHeight() returns accurate data
+     * Assumes builder already provides a puzzle with boxes and clues set up.
      */
     private static void readPosition(
         JSONObject playData, PuzzleBuilder builder
@@ -1024,13 +1026,15 @@ public class IPuzIO implements PuzzleParser {
             } else if (positionJson.has(FIELD_POSITION_CLUEID)) {
                 JSONObject cidJson
                     = positionJson.getJSONObject(FIELD_POSITION_CLUEID);
-                builder.setCurrentClueID(decodeClueID(cidJson));
+                builder.setCurrentClueID(decodeClueID(cidJson, builder));
             }
         }
     }
 
     /**
      * Reads clue history from playData
+     *
+     * Assumes builder returns a puzzle with clue lists set up.
      */
     private static void readClueHistory(
         JSONObject playData, PuzzleBuilder builder
@@ -1044,7 +1048,7 @@ public class IPuzIO implements PuzzleParser {
 
         for (int i = 0; i < historyJson.length(); i++) {
             JSONObject itemJson = historyJson.getJSONObject(i);
-            ClueID cid = decodeClueID(itemJson);
+            ClueID cid = decodeClueID(itemJson, builder);
             if (cid != null)
                 history.add(cid);
         }
@@ -1054,6 +1058,8 @@ public class IPuzIO implements PuzzleParser {
 
     /**
      * Read notes from playData
+     *
+     * Assumes builder returns a puzzle with clue lists set up
      */
     private static void readClueNotes(
         JSONObject playData, PuzzleBuilder builder
@@ -1066,7 +1072,7 @@ public class IPuzIO implements PuzzleParser {
         for (int i = 0; i < notesJson.length(); i++) {
             JSONObject noteJson = notesJson.getJSONObject(i);
             JSONObject cndJson = noteJson.optJSONObject(FIELD_CLUE_NOTE_CLUE);
-            ClueID cid = decodeClueID(cndJson);
+            ClueID cid = decodeClueID(cndJson, builder);
 
             if (cid != null) {
                 String scratch
@@ -1121,6 +1127,12 @@ public class IPuzIO implements PuzzleParser {
         }
     }
 
+    /**
+     * Read which clues are flagged
+     *
+     * Assumes builder returns a puzzle whose clue lists have been set
+     * up
+     */
     private static void readFlaggedClues(
         JSONObject playData, PuzzleBuilder builder
     ) throws IPuzFormatException {
@@ -1131,7 +1143,7 @@ public class IPuzIO implements PuzzleParser {
 
         for (int i = 0; i < flagsJson.length(); i++) {
             JSONObject cndJson = flagsJson.getJSONObject(i);
-            ClueID cnd = decodeClueID(cndJson);
+            ClueID cnd = decodeClueID(cndJson, builder);
             if (cnd != null)
                 builder.flagClue(cnd, true);
         }
@@ -1140,38 +1152,81 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read a JSON representation of ClueID to ClueID
      *
+     * Assumes (for legacy clue ids) that builder already returns a
+     * puzzle with clue lists set up.
+     *
+     * ClueIDs version 1: list name and across/down boolean
+     * ClueIDs version 2: list name and clue number
+     * ClueIDs version 3: list name and index in clue list
+     *
+     * Version 2 was created to handle clue lists apart from
+     * across/down. Extended to Version 3 to better handle unnumbered clues.
+     *
      * @return null if not right
      */
-    private static ClueID decodeClueID(JSONObject cid)
+    private static ClueID decodeClueID(JSONObject cid, PuzzleBuilder builder)
             throws IPuzFormatException {
         if (cid == null)
             return null;
         if (JSONObject.NULL.equals(cid))
             return null;
-        if (!cid.has(FIELD_CLUE_NUMBER))
-            return null;
-        // new format has listname, old has across
-        if (!(cid.has(FIELD_CLUE_LISTNAME) || cid.has(FIELD_CLUE_ACROSS)))
-            return null;
 
-        String number = cid.optString(FIELD_CLUE_NUMBER);
-        if (number == null)
-            number = String.valueOf(cid.getInt(FIELD_CLUE_NUMBER));
-
-        String listName;
-        // old version used to have across boolean rather than list name
-        if (cid.has(FIELD_CLUE_ACROSS)) {
+        // Version 3
+        if (cid.has(FIELD_CLUE_LISTNAME) && cid.has(FIELD_CLUE_INDEX)) {
+            String listName = cid.getString(FIELD_CLUE_LISTNAME);
+            int index = cid.getInt(FIELD_CLUE_INDEX);
+            return new ClueID(listName, index);
+        // Version 2
+        } else if (cid.has(FIELD_CLUE_LISTNAME) && cid.has(FIELD_CLUE_NUMBER)) {
+            String number = cid.optString(FIELD_CLUE_NUMBER);
+            if (number == null)
+                number = String.valueOf(cid.getInt(FIELD_CLUE_NUMBER));
+            String listName = cid.getString(FIELD_CLUE_LISTNAME);
+            return getClueIDFromListNum(listName, number, builder);
+        // Version 1
+        } else if (cid.has(FIELD_CLUE_NUMBER) && cid.has(FIELD_CLUE_ACROSS)) {
             boolean across = cid.getBoolean(FIELD_CLUE_ACROSS);
-            listName = across ? OLD_ACROSS_LIST_NAME : OLD_DOWN_LIST_NAME;
-        } else if (cid.has(FIELD_CLUE_LISTNAME)) {
-            listName = cid.getString(FIELD_CLUE_LISTNAME);
+            String listName = across
+                ? OLD_ACROSS_LIST_NAME
+                : OLD_DOWN_LIST_NAME;
+            String number = cid.optString(FIELD_CLUE_NUMBER);
+            if (number == null)
+                number = String.valueOf(cid.getInt(FIELD_CLUE_NUMBER));
+            return getClueIDFromListNum(listName, number, builder);
         } else {
             throw new IPuzFormatException(
-                "Clue ID " + cid + " has no associated list"
+                "Could not decode ClueID from " + cid
+            );
+        }
+    }
+
+    /**
+     * Find the clue ID from listname and clue number
+     *
+     * Requires buidler to return a puzzle with clue lists already set
+     * up.
+     */
+    private static ClueID getClueIDFromListNum(
+        String listName, String number, PuzzleBuilder builder
+    ) throws IPuzFormatException {
+        Puzzle puz = builder.getPuzzle();
+
+        ClueList clues = puz.getClues(listName);
+        if (clues == null) {
+            throw new IPuzFormatException(
+                "Clue ID with non-existent list name: " + listName
             );
         }
 
-        return new ClueID(number, listName);
+        int index = clues.getClueIndex(number);
+        if (index < 0) {
+            throw new IPuzFormatException(
+                "Clue ID with non-existent number " + number
+                + " in list " + listName
+            );
+        }
+
+        return new ClueID(listName, index);
     }
 
     /**
@@ -1561,7 +1616,8 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (ClueID cid : puz.getAllClues()) {
+        for (Clue clue : puz.getAllClues()) {
+            ClueID cid = clue.getClueID();
             Note note = puz.getNote(cid);
             if (note != null && !note.isEmpty()) {
                 writer.indent(2)
@@ -1660,8 +1716,8 @@ public class IPuzIO implements PuzzleParser {
     ) throws IOException {
         if (cid != null) {
             writer.object()
-                .key(FIELD_CLUE_NUMBER).value(cid.getClueNumber())
                 .key(FIELD_CLUE_LISTNAME).value(cid.getListName())
+                .key(FIELD_CLUE_INDEX).value(cid.getIndex())
                 .endObject();
         }
     }

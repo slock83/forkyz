@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import junit.framework.TestCase;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle;
@@ -56,9 +57,9 @@ public class IOTest extends TestCase {
         assertEquals(15, boxes.length);
         assertEquals(15, boxes[0].length);
         assertEquals("1", boxes[0][0].getClueNumber());
-        assertEquals(true, boxes[0][0].isStartOf("Across"));
-        assertEquals(true, boxes[0][0].isStartOf("Down"));
-        assertEquals(false, boxes[0][3].isStartOf("Across"));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID("Across", 0)));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID("Down", 0)));
+        assertEquals(false, boxes[0][3].isStartOf(new ClueID("Across", 1)));
 
         assertEquals(boxes[0][0].getSolution(), 'R');
         assertEquals(boxes[5][14], null);
@@ -69,16 +70,28 @@ public class IOTest extends TestCase {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
 
-        assertEquals(acrossClues.getClue("1").getHint(), "Bring to perfection");
-        assertEquals(acrossClues.getClue("23").getHint(), "Surprised reaction");
         assertEquals(
-            downClues.getClue("5").getHint(),
+            acrossClues.getClueByNumber("1").getHint(),
+            "Bring to perfection"
+        );
+        assertEquals(
+            acrossClues.getClueByNumber("23").getHint(),
+            "Surprised reaction"
+        );
+        assertEquals(
+            downClues.getClueByNumber("5").getHint(),
             "Sch. whose sports teams are the Violets"
         );
-        assertEquals(downClues.getClue("6").getHint(), "Not work at all");
-        assertEquals(downClues.getClue("7").getHint(), "Kale kin");
         assertEquals(
-            downClues.getClue("13").getHint(),
+            downClues.getClueByNumber("6").getHint(),
+            "Not work at all"
+        );
+        assertEquals(
+            downClues.getClueByNumber("7").getHint(),
+            "Kale kin"
+        );
+        assertEquals(
+            downClues.getClueByNumber("13").getHint(),
             "President who was born a King"
         );
     }
