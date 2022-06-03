@@ -4,10 +4,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
 >
     <item
-        android:id="@+id/puzzle_menu_special_char"
-        android:title="@string/insert_special_character"
-    />
-    <item
         android:id="@+id/play_menu_clues"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/clues"
@@ -129,6 +125,10 @@
     <item
         android:id="@+id/play_menu_support_source"
         android:title="@string/support_puzzle_source"
+    />
+    <item
+        android:id="@+id/puzzle_menu_special_char"
+        android:title="@string/insert_special_character"
     />
     <item
         android:id="@+id/play_menu_help"
