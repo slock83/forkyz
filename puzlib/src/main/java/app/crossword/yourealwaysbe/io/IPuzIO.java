@@ -105,6 +105,16 @@ public class IPuzIO implements PuzzleParser {
     private static final char BARRED_BOTTOM = 'B';
     private static final char BARRED_LEFT = 'L';
     private static final char BARRED_RIGHT = 'R';
+    private static final String FIELD_MARK = "mark";
+    private static final String FIELD_MARK_TOP_LEFT = "TL";
+    private static final String FIELD_MARK_TOP = "T";
+    private static final String FIELD_MARK_TOP_RIGHT = "TR";
+    private static final String FIELD_MARK_LEFT = "L";
+    private static final String FIELD_MARK_CENTER = "C";
+    private static final String FIELD_MARK_RIGHT = "R";
+    private static final String FIELD_MARK_BOTTOM_LEFT = "BL";
+    private static final String FIELD_MARK_BOTTOM = "B";
+    private static final String FIELD_MARK_BOTTOM_RIGHT = "BR";
 
     private static final String FIELD_CLUES_ACROSS = "Across";
     private static final String FIELD_CLUES_DOWN = "Down";
@@ -464,29 +474,8 @@ public class IPuzIO implements PuzzleParser {
                     box.setColor(hexToColor(color));
                 }
 
-                String barred = optStringNull(style, FIELD_BARRED);
-                if (barred != null) {
-                    barred = barred.toUpperCase();
-                    for (int i = 0; i < barred.length(); i++) {
-                        char c = barred.charAt(i);
-                        switch(c) {
-                        case BARRED_TOP:
-                            box.setBarredTop(true);
-                            break;
-                        case BARRED_BOTTOM:
-                            box.setBarredBottom(true);
-                            break;
-                        case BARRED_LEFT:
-                            box.setBarredLeft(true);
-                            break;
-                        case BARRED_RIGHT:
-                            box.setBarredRight(true);
-                            break;
-                        default:
-                            // do nothing
-                        }
-                    }
-                }
+                getBarredFromStyleObj(style, box);
+                getMarksFromStyleObj(style, box);
             }
 
             return box;
@@ -505,6 +494,51 @@ public class IPuzIO implements PuzzleParser {
                 );
             }
         }
+    }
+
+    private static void getBarredFromStyleObj(JSONObject style, Box box) {
+        String barred = optStringNull(style, FIELD_BARRED);
+        if (barred != null) {
+            barred = barred.toUpperCase();
+            for (int i = 0; i < barred.length(); i++) {
+                char c = barred.charAt(i);
+                switch(c) {
+                case BARRED_TOP:
+                    box.setBarredTop(true);
+                    break;
+                case BARRED_BOTTOM:
+                    box.setBarredBottom(true);
+                    break;
+                case BARRED_LEFT:
+                    box.setBarredLeft(true);
+                    break;
+                case BARRED_RIGHT:
+                    box.setBarredRight(true);
+                    break;
+                default:
+                    // do nothing
+                }
+            }
+        }
+    }
+
+    private static void getMarksFromStyleObj(JSONObject style, Box box) {
+        JSONObject markObj = style.optJSONObject(FIELD_MARK);
+        if (markObj == null)
+            return;
+
+        String[][] marks = new String[3][3];
+        marks[0][0] = optStringNull(markObj, FIELD_MARK_TOP_LEFT);
+        marks[0][1] = optStringNull(markObj, FIELD_MARK_TOP);
+        marks[0][2] = optStringNull(markObj, FIELD_MARK_TOP_RIGHT);
+        marks[1][0] = optStringNull(markObj, FIELD_MARK_LEFT);
+        marks[1][1] = optStringNull(markObj, FIELD_MARK_CENTER);
+        marks[1][2] = optStringNull(markObj, FIELD_MARK_RIGHT);
+        marks[2][0] = optStringNull(markObj, FIELD_MARK_BOTTOM_LEFT);
+        marks[2][1] = optStringNull(markObj, FIELD_MARK_BOTTOM);
+        marks[2][2] = optStringNull(markObj, FIELD_MARK_BOTTOM_RIGHT);
+
+        box.setMarks(marks);
     }
 
     /**
@@ -1339,36 +1373,11 @@ public class IPuzIO implements PuzzleParser {
                     writer.value(DEFAULT_BLOCK);
                 } else {
                     String clueNumber = box.getClueNumber();
-
-                    if (box.isCircled() || box.isBarred() || box.hasColor()) {
+                    if (isCellWithStyle(box)) {
                         writer.object()
-                            .key(FIELD_STYLE)
-                            .object();
+                            .key(FIELD_STYLE);
 
-                        if (box.hasColor()) {
-                            writer.key(FIELD_COLOR)
-                                .value(colorToHex(box.getColor()));
-                        }
-
-                        if (box.isCircled()) {
-                            writer.key(FIELD_SHAPE_BG).value(SHAPE_BG_CIRCLE);
-                        }
-
-                        if (box.isBarred()) {
-                            String barred = "";
-                            if (box.isBarredTop())
-                                barred += BARRED_TOP;
-                            if (box.isBarredRight())
-                                barred += BARRED_RIGHT;
-                            if (box.isBarredBottom())
-                                barred += BARRED_BOTTOM;
-                            if (box.isBarredLeft())
-                                barred += BARRED_LEFT;
-
-                            writer.key(FIELD_BARRED).value(barred.toString());
-                        }
-
-                        writer.endObject();
+                        writeCellStyleObj(box, writer);
 
                         if (clueNumber != null)
                             writer.key(FIELD_CELL).value(clueNumber);
@@ -1390,6 +1399,77 @@ public class IPuzIO implements PuzzleParser {
 
         writer.endArray();
         writer.newLine();
+    }
+
+    private static boolean isCellWithStyle(Box box) {
+        return box.isCircled()
+            || box.isBarred()
+            || box.hasColor()
+            || box.hasMarks();
+    }
+
+    private static void writeCellStyleObj(
+        Box box, FormatableJSONWriter writer
+    ) {
+        writer.object();
+
+        if (box.hasColor()) {
+            writer.key(FIELD_COLOR)
+                .value(colorToHex(box.getColor()));
+        }
+
+        if (box.isCircled()) {
+            writer.key(FIELD_SHAPE_BG).value(SHAPE_BG_CIRCLE);
+        }
+
+        writeBarredField(box, writer);
+        writeMarkField(box, writer);
+
+        writer.endObject();
+    }
+
+    private static void writeBarredField(Box box, FormatableJSONWriter writer) {
+        if (box.isBarred()) {
+            String barred = "";
+            if (box.isBarredTop())
+                barred += BARRED_TOP;
+            if (box.isBarredRight())
+                barred += BARRED_RIGHT;
+            if (box.isBarredBottom())
+                barred += BARRED_BOTTOM;
+            if (box.isBarredLeft())
+                barred += BARRED_LEFT;
+
+            writer.key(FIELD_BARRED).value(barred.toString());
+        }
+    }
+
+    private static void writeMarkField(Box box, FormatableJSONWriter writer) {
+        if (box.hasMarks()) {
+            writer.key(FIELD_MARK)
+                .object();
+
+            String[][] marks = box.getMarks();
+            writeMark(FIELD_MARK_TOP_LEFT, marks[0][0], writer);
+            writeMark(FIELD_MARK_TOP, marks[0][1], writer);
+            writeMark(FIELD_MARK_TOP_RIGHT, marks[0][2], writer);
+            writeMark(FIELD_MARK_LEFT, marks[1][0], writer);
+            writeMark(FIELD_MARK_CENTER, marks[1][1], writer);
+            writeMark(FIELD_MARK_RIGHT, marks[1][2], writer);
+            writeMark(FIELD_MARK_BOTTOM_LEFT, marks[2][0], writer);
+            writeMark(FIELD_MARK_BOTTOM, marks[2][1], writer);
+            writeMark(FIELD_MARK_BOTTOM_RIGHT, marks[2][2], writer);
+
+            writer.endObject();
+        }
+    }
+
+    private static void writeMark(
+        String markField, String text, FormatableJSONWriter writer
+    ) {
+        if (text == null)
+            return;
+        writer.key(markField).value(text);
     }
 
     /**

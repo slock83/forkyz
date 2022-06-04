@@ -11,7 +11,10 @@
     "dimensions": { "width": 3, "height": 2 },
     "puzzle": [
         [ 1, 2, "#" ],
-        [ { "cell": 3, "value": "A", "style": { "shapebg": "circle" } }, 0, 0 ]
+        [ { "cell": 3, 
+            "value": "A", 
+            "style": { "shapebg": "circle", "mark": { "R": "t" } } 
+          }, 0, 0 ]
     ],
     "saved": [
         [ null, "B", "#" ],

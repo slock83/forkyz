@@ -70,6 +70,11 @@ public class IPuzIOTest extends TestCase {
         assertEquals(boxes[1][1].getSolution(), 'C');
         assertEquals(boxes[1][2].getSolution(), 'D');
 
+        assertFalse(boxes[0][0].hasMarks());
+        assertTrue(boxes[1][0].hasMarks());
+        assertEquals(boxes[1][0].getMarks()[1][2], "t");
+        assertNull(boxes[1][0].getMarks()[0][2]);
+
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Vertical");
 

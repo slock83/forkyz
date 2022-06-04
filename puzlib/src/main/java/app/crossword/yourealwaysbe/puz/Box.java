@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +25,8 @@ public class Box implements Serializable {
     private boolean barBottom = false;
     private boolean barLeft = false;
     private boolean barRight = false;
+    // 3x3 grid of small text marks
+    private String[][] marks = null;
 
     // 24-bit representation 0x00rrggbb
     private int color = NOCOLOR;
@@ -91,6 +94,20 @@ public class Box implements Serializable {
         if (getColor() != other.getColor())
             return false;
 
+        // Annoying Arrays.equals doesn't do arrays of arrays..
+        String[][] marks = getMarks();
+        String[][] otherMarks = other.getMarks();
+        if (marks != null || otherMarks != null) {
+            if (marks == null || otherMarks == null)
+                return false;
+            if (marks.length != otherMarks.length)
+                return false;
+            for (int row = 0; row < marks.length; row++) {
+                if (!Arrays.equals(marks[row], otherMarks[row]))
+                    return false;
+            }
+        }
+
         return true;
     }
 
@@ -111,6 +128,7 @@ public class Box implements Serializable {
         result = (prime * result) + getResponse();
         result = (prime * result) + getSolution();
         result = (prime * result) + getColor();
+        // ignore marks, too awkward and probably empty
 
         return result;
     }
@@ -135,7 +153,6 @@ public class Box implements Serializable {
      * @return if start of clue in list name with box number
      */
     public boolean isStartOf(ClueID clueID) {
-        System.out.println(cluePositions);
         Integer position = cluePositions.get(clueID);
         return position != null && position == 0;
     }
@@ -300,6 +317,33 @@ public class Box implements Serializable {
     public boolean isBarredBottom() { return barBottom; }
     public boolean isBarredLeft() { return barLeft; }
     public boolean isBarredRight() { return barRight; }
+
+    /**
+     * 3x3 array of text marks to put in box, can have null entries
+     */
+    public String[][] getMarks() { return marks; }
+    public boolean hasMarks() { return marks != null; }
+
+    /**
+     * 3x3 array of text marks to put in box
+     *
+     * row x col, can have null entries
+     */
+    public void setMarks(String[][] marks) {
+        if (marks != null) {
+            if (marks.length != 3) {
+                throw new IllegalArgumentException("Marks array must be 3x3.");
+            }
+            for (int row = 0; row < marks.length; row++) {
+                if (marks[row] == null || marks[row].length != 3) {
+                    throw new IllegalArgumentException(
+                        "Marks array must be 3x3."
+                    );
+                }
+            }
+        }
+        this.marks = marks;
+    }
 
     /**
      * True if box has any bars
