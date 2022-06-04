@@ -175,14 +175,14 @@ public class Box implements Serializable {
      * @return if the box is circled
      */
     public boolean isCircled() {
-	return circled;
+        return circled;
     }
 
     /**
      * @param circled the circled to set
      */
     public void setCircled(boolean circled) {
-	this.circled = circled;
+        this.circled = circled;
     }
 
     /**
