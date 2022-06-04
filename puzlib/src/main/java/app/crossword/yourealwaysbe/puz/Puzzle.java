@@ -762,7 +762,7 @@ public class Puzzle implements Serializable{
         return (clue == null) ? false : isFlagged(clue.getClueID());
     }
 
-    public Iterable<ClueID> getFlaggedClues() {
+    public Collection<ClueID> getFlaggedClues() {
         return flaggedClues;
     }
 

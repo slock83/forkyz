@@ -9,7 +9,9 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -1471,7 +1473,11 @@ public class IPuzIO implements PuzzleParser {
             .object();
         writer.newLine();
 
-        for (String listName : puz.getClueListNames()) {
+        // Sort so guaranteed output order
+        List<String> listNames = new ArrayList<>(puz.getClueListNames());
+        Collections.sort(listNames);
+
+        for (String listName : listNames) {
             ClueList clues = puz.getClues(listName);
             String direction = null;
 
@@ -1616,37 +1622,43 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (Clue clue : puz.getAllClues()) {
-            ClueID cid = clue.getClueID();
-            Note note = puz.getNote(cid);
-            if (note != null && !note.isEmpty()) {
-                writer.indent(2)
-                    .object();
-                writer.newLine()
-                    .indent(3)
-                    .key(FIELD_CLUE_NOTE_CLUE);
-                writeClueID(cid, writer);
-                writer.newLine()
-                    .keyValueNonNull(
-                        3,
-                        FIELD_NOTE_SCRATCH,
-                        note.getCompressedScratch()
-                    ).keyValueNonNull(
-                        3,
-                        FIELD_NOTE_TEXT,
-                        htmlString(note.getText())
-                    ).keyValueNonNull(
-                        3,
-                        FIELD_NOTE_ANAGRAM_SRC,
-                        note.getCompressedAnagramSource()
-                    ).keyValueNonNull(
-                        3,
-                        FIELD_NOTE_ANAGRAM_SOL,
-                        note.getCompressedAnagramSolution()
-                    );
-                writer.indent(2)
-                    .endObject();
-                writer.newLine();
+        // Sort so guaranteed output order
+        List<String> listNames = new ArrayList<>(puz.getClueListNames());
+        Collections.sort(listNames);
+
+        for (String listName : listNames) {
+            for (Clue clue : puz.getClues(listName)) {
+                ClueID cid = clue.getClueID();
+                Note note = puz.getNote(cid);
+                if (note != null && !note.isEmpty()) {
+                    writer.indent(2)
+                        .object();
+                    writer.newLine()
+                        .indent(3)
+                        .key(FIELD_CLUE_NOTE_CLUE);
+                    writeClueID(cid, writer);
+                    writer.newLine()
+                        .keyValueNonNull(
+                            3,
+                            FIELD_NOTE_SCRATCH,
+                            note.getCompressedScratch()
+                        ).keyValueNonNull(
+                            3,
+                            FIELD_NOTE_TEXT,
+                            htmlString(note.getText())
+                        ).keyValueNonNull(
+                            3,
+                            FIELD_NOTE_ANAGRAM_SRC,
+                            note.getCompressedAnagramSource()
+                        ).keyValueNonNull(
+                            3,
+                            FIELD_NOTE_ANAGRAM_SOL,
+                            note.getCompressedAnagramSolution()
+                        );
+                    writer.indent(2)
+                        .endObject();
+                    writer.newLine();
+                }
             }
         }
 
@@ -1697,7 +1709,11 @@ public class IPuzIO implements PuzzleParser {
             .array();
         writer.newLine();
 
-        for (ClueID cnd : puz.getFlaggedClues()) {
+        // guarantee writing order
+        List<ClueID> flagged = new ArrayList<>(puz.getFlaggedClues());
+        Collections.sort(flagged);
+
+        for (ClueID cnd : flagged) {
             writer.indent(2);
             writeClueID(cnd, writer);
             writer.newLine();
