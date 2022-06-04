@@ -74,12 +74,18 @@
     <string name="player_notes">Puzzle Notes</string>
 
     <!-- clue formats -->
-    <string name="clue_format_no_direction_short">%1$s. %2$s</string>
-    <string name="clue_format_no_direction_short_with_count">%1$s. %2$s [%3$d]</string>
+    <string name="clue_format_short_no_dir">%1$s. %2$s</string>
+    <string name="clue_format_short_no_dir_with_count">%1$s. %2$s [%3$d]</string>
     <string name="clue_format_short">%1$s%2$s. %3$s</string>
     <string name="clue_format_short_with_count">%1$s%2$s. %3$s [%4$d]</string>
     <string name="clue_format_long">(%1$s) %2$s. %3$s</string>
     <string name="clue_format_long_with_count">(%1$s) %2$s. %3$s [%4$d]</string>
+    <string name="clue_format_long_no_num">(%1$s) %2$s</string>
+    <string name="clue_format_long_no_num_with_count">(%1$s) %2$s [%3$d]</string>
+    <string name="clue_format_short_no_num">%1$s. %2$s</string>
+    <string name="clue_format_short_no_num_with_count">%1$s. %2$s [%3$d]</string>
+    <string name="clue_format_short_no_num_no_dir">%1$s</string>
+    <string name="clue_format_short_no_num_no_dir_with_count">%1$s [%2$d]</string>
 
     <!-- Puzzle Info Dialog -->
     <string name="tap_to_show_full_notes_no_text">(Tap to show full notes.)</string>

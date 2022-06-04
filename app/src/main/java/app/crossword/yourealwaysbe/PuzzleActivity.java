@@ -10,10 +10,10 @@ import android.view.MenuItem;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
-import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.view.InsertSpecialCharacterDialog;
 
@@ -211,44 +211,63 @@ public abstract class PuzzleActivity
         if (clue == null)
             return getString(R.string.unknown_hint);
 
-        Zone zone = clue.getZone();
-        int wordLen = (zone == null) ? -1 : zone.size();
+        int wordLen = clue.hasZone() ? clue.getZone().size() : -1;
 
         if (showCount && wordLen >= 0) {
-            return getString(
-                R.string.clue_format_long_with_count,
-                clue.getClueID().getListName(),
-                clue.getClueNumber(),
-                clue.getHint(),
-                wordLen
-            );
+            if (clue.hasClueNumber()) {
+                return getString(
+                    R.string.clue_format_long_with_count,
+                    clue.getClueID().getListName(),
+                    clue.getClueNumber(),
+                    clue.getHint(),
+                    wordLen
+                );
+            } else {
+                return getString(
+                    R.string.clue_format_long_no_num_with_count,
+                    clue.getClueID().getListName(),
+                    clue.getHint(),
+                    wordLen
+                );
+            }
         } else {
-            return getString(
-                R.string.clue_format_long,
-                clue.getClueID().getListName(),
-                clue.getClueNumber(),
-                clue.getHint()
-            );
+            if (clue.hasClueNumber()) {
+                return getString(
+                    R.string.clue_format_long,
+                    clue.getClueID().getListName(),
+                    clue.getClueNumber(),
+                    clue.getHint()
+                );
+            } else {
+                return getString(
+                    R.string.clue_format_long_no_num,
+                    clue.getClueID().getListName(),
+                    clue.getHint()
+                );
+            }
         }
     }
 
-    protected void launchClueNotes() {
-        Playboard board = getBoard();
-        Clue clue = (board ==  null) ? null : board.getClue();
-        Puzzle puz = getPuzzle();
-
-        if (clue != null && puz != null) {
+    protected void launchClueNotes(ClueID cid) {
+        if (cid != null) {
             Intent i = new Intent(this, NotesActivity.class);
-            i.putExtra(NotesActivity.PUZZLE_NOTES, false);
+            i.putExtra(NotesActivity.CLUE_NOTE_LISTNAME, cid.getListName());
+            i.putExtra(NotesActivity.CLUE_NOTE_INDEX, cid.getIndex());
             this.startActivity(i);
         } else {
             launchPuzzleNotes();
         }
     }
 
+    protected void launchClueNotes(Clue clue) {
+        if (clue != null)
+            launchClueNotes(clue.getClueID());
+        else
+            launchPuzzleNotes();
+    }
+
     protected void launchPuzzleNotes() {
         Intent i = new Intent(this, NotesActivity.class);
-        i.putExtra(NotesActivity.PUZZLE_NOTES, true);
         this.startActivity(i);
     }
 

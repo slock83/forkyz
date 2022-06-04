@@ -674,42 +674,64 @@ public class ClueTabs extends LinearLayout
         private String getClueText(Clue clue) {
             this.clue = clue;
 
-            Playboard board = ClueTabs.this.board;
+            String listName = getShortListName(clue);
+            String number = clue.getClueNumber();
             String hint = clue.getHint();
+            boolean hasCount = clue.hasZone();
+            int count = hasCount ? clue.getZone().size() : -1;
 
-            if (clue.hasClueNumber()) {
-                String number = clue.getClueNumber();
-                boolean hasCount = clue.hasZone();
-                int count = hasCount ? clue.getZone().size() : -1;
-                String listName = getShortListName(clue);
-
-                if (showDirection) {
-                    if (hasCount && isShowCount()) {
+            if (showDirection) {
+                if (hasCount && isShowCount()) {
+                    if (clue.hasClueNumber()) {
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_short_with_count,
                             number, listName, hint, count
                         );
                     } else {
                         return ClueTabs.this.getContext().getString(
-                            R.string.clue_format_short,
-                            number, listName, hint
+                            R.string.clue_format_short_no_num_with_count,
+                            listName, hint, count
                         );
                     }
                 } else {
-                    if (hasCount && isShowCount()) {
+                    if (clue.hasClueNumber()) {
                         return ClueTabs.this.getContext().getString(
-                            R.string.clue_format_no_direction_short_with_count,
-                            number, hint, count
+                            R.string.clue_format_short,
+                            number, listName, hint
                         );
                     } else {
                         return ClueTabs.this.getContext().getString(
-                            R.string.clue_format_no_direction_short,
-                            number, hint
+                            R.string.clue_format_short_no_num,
+                            listName, hint
                         );
                     }
                 }
             } else {
-                return hint;
+                if (hasCount && isShowCount()) {
+                    if (clue.hasClueNumber()) {
+                        return ClueTabs.this.getContext().getString(
+                            R.string.clue_format_short_no_dir_with_count,
+                            number, hint, count
+                        );
+                    } else {
+                        return ClueTabs.this.getContext().getString(
+                            R.string.clue_format_short_no_num_no_dir_with_count,
+                            hint, count
+                        );
+                    }
+                } else {
+                    if (clue.hasClueNumber()) {
+                        return ClueTabs.this.getContext().getString(
+                            R.string.clue_format_short_no_dir,
+                            number, hint
+                        );
+                    } else {
+                        return ClueTabs.this.getContext().getString(
+                            R.string.clue_format_short_no_num_no_dir,
+                            hint
+                        );
+                    }
+                }
             }
         }
 

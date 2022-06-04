@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -50,9 +51,11 @@ public class NotesActivity extends PuzzleActivity {
     );
 
     /**
-     * Start with intent extra indicating if clue notes or puzzle notes
+     * Start with intent extras Clue ID to note for, omit if puzzle
+     * notes.
      */
-    public static final String PUZZLE_NOTES = "puzzleNotes";
+    public static final String CLUE_NOTE_LISTNAME = "clueNoteListName";
+    public static final String CLUE_NOTE_INDEX = "clueNoteIndex";
 
     private static final String TRANSFER_RESPONSE_REQUEST_KEY
         = "transferResponseRequest";
@@ -196,7 +199,7 @@ public class NotesActivity extends PuzzleActivity {
         scratchView = (BoardEditText) this.findViewById(R.id.scratchMiniboard);
         scratchView.setContextMenuListener(new ClickListener() {
             public void onContextMenu(Point e) {
-                if (!isPuzzleNotes()) {
+                if (isClueOnBoard()) {
                     executeTransferResponseRequest(
                         TransferResponseRequest.SCRATCH_TO_BOARD, true
                     );
@@ -237,7 +240,7 @@ public class NotesActivity extends PuzzleActivity {
 
         anagramSolView.setContextMenuListener(new ClickListener() {
             public void onContextMenu(Point e) {
-                if (!isPuzzleNotes()) {
+                if (isClueOnBoard()) {
                     executeTransferResponseRequest(
                         TransferResponseRequest.ANAGRAM_SOL_TO_BOARD, true
                     );
@@ -301,9 +304,9 @@ public class NotesActivity extends PuzzleActivity {
         if (isPuzzleNotes()) {
             puz.setPlayerNote(note);
         } else {
-            ClueID cid = getBoard().getClueID();
-            puz.setNote(cid, note);
-            puz.flagClue(cid, flagClue.isChecked());
+            Clue clue = getNotesClue();
+            puz.setNote(clue, note);
+            puz.flagClue(clue, flagClue.isChecked());
         }
 
         super.onPause();
@@ -410,7 +413,6 @@ public class NotesActivity extends PuzzleActivity {
 
         Playboard board = getBoard();
         Puzzle puz = board.getPuzzle();
-        Clue clue = board.getClue();
 
         if (board == null || puz == null) {
             LOG.info(
@@ -431,9 +433,11 @@ public class NotesActivity extends PuzzleActivity {
             this
         );
 
-        final int curWordLen = isPuzzleNotes()
+        Clue clue = getNotesClue();
+
+        final int curWordLen = (clue == null || !clue.hasZone())
             ? Math.max(puz.getWidth(), puz.getHeight())
-            : getBoard().getCurrentWord().getLength();
+            : clue.getZone().size();
 
         if (curWordLen < 0) {
             LOG.info("NotesActivity needs a non-empty word");
@@ -442,22 +446,22 @@ public class NotesActivity extends PuzzleActivity {
         }
 
         Note note;
-        int clueVisibility;
 
         if (isPuzzleNotes()) {
             clueLine.setText(getString(R.string.player_notes));
             note = puz.getPlayerNote();
-            clueVisibility = View.GONE;
+            imageViewLabel.setVisibility(View.GONE);
+            imageView.setVisibility(View.GONE);
+            flagClue.setVisibility(View.GONE);
         } else {
             clueLine.setText(smartHtml(getLongClueText(clue)));
             note = puz.getNote(clue);
             flagClue.setChecked(puz.isFlagged(clue));
-            clueVisibility = View.VISIBLE;
+            int clueVisibility = isClueOnBoard() ? View.VISIBLE : View.GONE;
+            imageViewLabel.setVisibility(clueVisibility);
+            imageView.setVisibility(clueVisibility);
+            flagClue.setVisibility(View.VISIBLE);
         }
-
-        imageViewLabel.setVisibility(clueVisibility);
-        imageView.setVisibility(clueVisibility);
-        flagClue.setVisibility(clueVisibility);
 
         double scale = renderer.fitWidthTo(metrics.widthPixels, curWordLen);
         if (scale > 1)
@@ -560,7 +564,7 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     protected void render() {
-        if (!isPuzzleNotes()) {
+        if (isClueOnBoard()) {
             this.imageView.setBitmap(
                 renderer.drawWord(getSuppressNotesList())
             );
@@ -800,10 +804,40 @@ public class NotesActivity extends PuzzleActivity {
         }
     }
 
+    /**
+     * Read clue id from intent, or null if not valid or not present
+     *
+     * Will return null if isPuzzleNotes
+     */
+    private Clue getNotesClue() {
+        Playboard board = getBoard();
+        Puzzle puz = board == null ? null : board.getPuzzle();
+        if (puz == null)
+            return null;
+
+        Intent intent = getIntent();
+        String listName = intent.getStringExtra(CLUE_NOTE_LISTNAME);
+        int index = intent.getIntExtra(CLUE_NOTE_INDEX, -1);
+
+        if (listName == null || index < 0)
+            return null;
+
+        ClueID cid = new ClueID(listName, index);
+
+        return puz.getClue(cid);
+    }
+
     private boolean isPuzzleNotes() {
-        Clue clue = getBoard().getClue();
-        return getIntent().getBooleanExtra(PUZZLE_NOTES, false)
-            || clue == null
-            || !clue.hasZone();
+        return getNotesClue() == null;
+    }
+
+    /**
+     * If the clue is on the board
+     *
+     * Returns false if isPuzzleNotes
+     */
+    private boolean isClueOnBoard() {
+        Clue clue = getNotesClue();
+        return clue != null && clue.hasZone();
     }
 }

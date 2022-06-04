@@ -44,7 +44,7 @@ public class ClueListActivity extends PuzzleActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.clue_list_menu_clue_notes) {
-            launchClueNotes();
+            launchClueNotes(getBoard().getClueID());
             return true;
         } else if (id == R.id.clue_list_menu_puzzle_notes) {
             launchPuzzleNotes();
@@ -87,14 +87,11 @@ public class ClueListActivity extends PuzzleActivity
         this.imageView.setContextMenuListener(new ClickListener() {
             public void onContextMenu(Point e) {
                 onTap(e);
-                launchClueNotes();
+                launchClueNotes(getBoard().getClueID());
             }
 
             public void onTap(Point e) {
                 Playboard board = getBoard();
-
-                if (board == null)
-                    return;
 
                 Word current = board.getCurrentWord();
                 Zone zone = (current == null) ? null : current.getZone();
@@ -105,7 +102,7 @@ public class ClueListActivity extends PuzzleActivity
                 Position newPos = zone.getPosition(box);
 
                 if (!Objects.equals(newPos, getBoard().getHighlightLetter())) {
-                    getBoard().setHighlightLetter(newPos);
+                    board.setHighlightLetter(newPos);
                 }
 
                 displayKeyboard();
@@ -188,13 +185,8 @@ public class ClueListActivity extends PuzzleActivity
         Playboard board = getBoard();
         if (board == null)
             return;
-
-        if (clue.hasZone()) {
-            board.jumpToClue(clue);
-            launchClueNotes();
-        } else {
-            launchPuzzleNotes();
-        }
+        board.jumpToClue(clue);
+        launchClueNotes(clue);
     }
 
     @Override

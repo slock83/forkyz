@@ -241,11 +241,11 @@ public class PlayActivity extends PuzzleActivity
             public void onContextMenu(final Point e) {
                 handler.post(() -> {
                     try {
+                        Playboard board = getBoard();
                         Position p = renderer.findBox(e);
-                        Word w = getBoard().setHighlightLetter(p);
+                        Word w = board.setHighlightLetter(p);
                         renderer.draw(w, getSuppressNotesList());
-
-                        launchClueNotes();
+                        launchClueNotes(board.getClueID());
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
@@ -650,7 +650,7 @@ public class PlayActivity extends PuzzleActivity
                 PlayActivity.this.launchClueList();
                 return true;
             } else if (id == R.id.play_menu_clue_notes) {
-                launchClueNotes();
+                launchClueNotes(getBoard().getClueID());
                 return true;
             } else if (id == R.id.play_menu_player_notes) {
                 launchPuzzleNotes();
@@ -706,14 +706,8 @@ public class PlayActivity extends PuzzleActivity
         Playboard board = getBoard();
         if (board == null)
             return;
-
-        Puzzle puz = getPuzzle();
-        if (puz != null) {
-            board.jumpToClue(clue);
-            launchClueNotes();
-        } else {
-            launchPuzzleNotes();
-        }
+        board.jumpToClue(clue);
+        launchClueNotes(clue);
     }
 
     @Override

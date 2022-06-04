@@ -516,6 +516,11 @@ public class Puzzle implements Serializable{
         clueNotes.put(clueID, note);
     }
 
+    public void setNote(Clue clue, Note note) {
+        if (clue != null)
+            setNote(clue.getClueID(), note);
+    }
+
     public Note getPlayerNote() {
         return playerNote;
     }
@@ -752,6 +757,11 @@ public class Puzzle implements Serializable{
             flaggedClues.add(clueID);
         else
             flaggedClues.remove(clueID);
+    }
+
+    public void flagClue(Clue clue, boolean flag) {
+        if (clue != null)
+            flagClue(clue.getClueID(), flag);
     }
 
     public boolean isFlagged(ClueID clueID) {
