@@ -61,6 +61,7 @@ The majority of the links on this page come from [Michael F. Gill
 * [Square Pursuit][square-pursuit] -- by Steve Mossberg.
 * [The Inkubator][inkubator] -- female-led puzzles going beyond the
   mainstream.
+* [The Rackenfracker][rackenfracker] -- puzzles from a variety of editors.
 * [Tough as Nails][tough-as-nails] -- by Stella Zawistowski.
 
 [mokelfish]: http://bbtp.net/puzzle/links.html
@@ -93,6 +94,7 @@ The majority of the links on this page come from [Michael F. Gill
 [outofleftfield]: http://www.leftfieldcryptics.com/
 [outside-the-box]: https://www.joonpahk.com/blog/2021/04/12/year-6-variety-puzzle-16-starting-square-hint/
 [private-eye]: https://www.private-eye.co.uk/crossword
+[rackenfracker]: https://www.therackenfracker.com/
 [something-different]: https://dandoesnotblog.blogspot.com/2020/04/something-different.html
 [square-pursuit]: https://squarepursuit.com/
 [squarechase]: https://www.patreon.com/squarechase
