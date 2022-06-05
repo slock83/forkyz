@@ -611,10 +611,13 @@ public class NotesActivity extends PuzzleActivity {
     private void copyBoxesToAnagramSol(Box[] boxes) {
         for (int i = 0; i < boxes.length; i++) {
             if (!boxes[i].isBlank()) {
-                char newChar = boxes[i].getResponse();
-                boolean allowed = preAnagramSolResponse(i, newChar);
-                if (allowed)
-                    anagramSolView.setResponse(i, newChar);
+                String newResponse = boxes[i].getResponse();
+                if (newResponse != null && !newResponse.isEmpty()) {
+                    char newChar = newResponse.charAt(0);
+                    boolean allowed = preAnagramSolResponse(i, newChar);
+                    if (allowed)
+                        anagramSolView.setResponse(i, newChar);
+                }
             }
         }
     }
@@ -624,9 +627,13 @@ public class NotesActivity extends PuzzleActivity {
                                 boolean copyBlanks) {
         int length = Math.min(source.length, dest.length);
         for (int i = 0; i < length; i++) {
-            if ((copyBlanks || !source[i].isBlank()) &&
+            if (
+                (copyBlanks || !source[i].isBlank()) &&
                 !dest[i].isBlank() &&
-                source[i].getResponse() != dest[i].getResponse()) {
+                !Objects.equals(
+                    source[i].getResponse(), dest[i].getResponse()
+                )
+            ) {
                 return true;
             }
         }

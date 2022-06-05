@@ -39,9 +39,9 @@ public class BrainsOnlyIOTest  extends TestCase {
         assertEquals(true, boxes[0][0].isStartOf(new ClueID("Down", 0)));
         assertEquals(false, boxes[0][3].isStartOf(new ClueID("Across", 1)));
 
-        assertEquals(boxes[0][0].getSolution(), 'D');
-        assertEquals(boxes[5][14].getSolution(), 'Y');
-        assertEquals(boxes[14][14].getSolution(), 'P');
+        assertEquals(boxes[0][0].getSolution(), "D");
+        assertEquals(boxes[5][14].getSolution(), "Y");
+        assertEquals(boxes[14][14].getSolution(), "P");
         assertEquals(boxes[14][5], null);
         assertEquals(boxes[3][6], null);
 

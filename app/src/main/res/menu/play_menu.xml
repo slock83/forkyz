@@ -108,8 +108,8 @@
         android:title="@string/support_puzzle_source"
     />
     <item
-        android:id="@+id/puzzle_menu_special_char"
-        android:title="@string/insert_special_character"
+        android:id="@+id/puzzle_menu_special_entry"
+        android:title="@string/special_entry"
     />
     <item
         android:id="@+id/play_menu_help"

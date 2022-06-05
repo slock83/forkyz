@@ -45,11 +45,11 @@ public class JPZIOTest extends TestCase {
         assertEquals(true, boxes[0][0].isStartOf(new ClueID(DOWN_CLUES, 0)));
         assertEquals(false, boxes[0][3].isStartOf(new ClueID(ACROSS_CLUES, 1)));
 
-        assertEquals(boxes[0][0].getSolution(), 'C');
-        assertEquals(boxes[5][14].getSolution(), 'Y');
-        assertEquals(boxes[14][14].getSolution(), 'S');
+        assertEquals(boxes[0][0].getSolution(), "C");
+        assertEquals(boxes[5][14].getSolution(), "Y");
+        assertEquals(boxes[14][14].getSolution(), "S");
         assertEquals(boxes[14][5], null);
-        assertEquals(boxes[3][6].getSolution(), 'N');
+        assertEquals(boxes[3][6].getSolution(), "N");
 
         assertTrue(boxes[2][2].isBarredTop());
         assertFalse(boxes[3][2].isBarredTop());

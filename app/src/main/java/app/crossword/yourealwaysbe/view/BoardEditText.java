@@ -172,7 +172,11 @@ public class BoardEditText extends ScrollingImageView {
 
     public char getResponse(int pos) {
         if (boxes != null && 0 <= pos && pos < boxes.length) {
-            return boxes[pos].getResponse();
+            String response = boxes[pos].getResponse();
+            if (response == null || response.isEmpty())
+                return '\0';
+            else
+                return response.charAt(0);
         } else {
             return '\0';
         }
@@ -183,6 +187,11 @@ public class BoardEditText extends ScrollingImageView {
             boxes[pos].setResponse(c);
             render();
         }
+    }
+
+    public void setResponse(int pos, String c) {
+        if (c != null && !c.isEmpty())
+            setResponse(pos, c.charAt(0));
     }
 
     public void setFromString(String text) {
@@ -326,7 +335,7 @@ public class BoardEditText extends ScrollingImageView {
         if (boxes == null || pos.getCol() < 0 || pos.getCol() >= boxes.length)
             return false;
 
-        char oldChar = boxes[pos.getCol()].getResponse();
+        char oldChar = getResponse(pos.getCol());
 
         for (BoardEditFilter filter : filters) {
             if (filter != null && !filter.delete(oldChar, pos.getCol())) {
@@ -344,7 +353,7 @@ public class BoardEditText extends ScrollingImageView {
         if (boxes == null || pos.getCol() < 0 || pos.getCol() >= boxes.length)
             return '\0';
 
-        char oldChar = boxes[pos.getCol()].getResponse();
+        char oldChar = getResponse(pos.getCol());
 
         for (BoardEditFilter filter : filters) {
             if (filter != null) {

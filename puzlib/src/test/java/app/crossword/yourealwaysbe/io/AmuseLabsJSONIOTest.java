@@ -37,8 +37,8 @@ public class AmuseLabsJSONIOTest extends TestCase {
         assertEquals(boxes[5][5].getClueNumber(), "28");
         assertEquals(boxes[5][7], null);
 
-        assertEquals(boxes[0][0].getSolution(), 'A');
-        assertEquals(boxes[5][3].getSolution(), 'B');
+        assertEquals(boxes[0][0].getSolution(), "A");
+        assertEquals(boxes[5][3].getSolution(), "B");
 
         assertTrue(boxes[10][3].isCircled());
         assertTrue(boxes[7][6].isCircled());

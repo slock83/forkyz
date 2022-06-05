@@ -61,11 +61,11 @@ public class IOTest extends TestCase {
         assertEquals(true, boxes[0][0].isStartOf(new ClueID("Down", 0)));
         assertEquals(false, boxes[0][3].isStartOf(new ClueID("Across", 1)));
 
-        assertEquals(boxes[0][0].getSolution(), 'R');
+        assertEquals(boxes[0][0].getSolution(), "R");
         assertEquals(boxes[5][14], null);
-        assertEquals(boxes[14][14].getSolution(), 'S');
-        assertEquals(boxes[14][5].getSolution(), 'T');
-        assertEquals(boxes[3][6].getSolution(), 'E');
+        assertEquals(boxes[14][14].getSolution(), "S");
+        assertEquals(boxes[14][5].getSolution(), "T");
+        assertEquals(boxes[3][6].getSolution(), "E");
 
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");

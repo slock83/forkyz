@@ -112,8 +112,8 @@ public class PlayboardTest extends TestCase {
          assertBoxBlank(puz, 1, 2);
          assertBoxBlank(puz, 1, 3);
          assertBoxBlank(puz, 1, 4);
-         assertBoxLetter(puz, 0, 1, 'A');
-         assertBoxLetter(puz, 2, 3, 'A');
+         assertBoxLetter(puz, 0, 1, "A");
+         assertBoxLetter(puz, 2, 3, "A");
     }
 
     public void testDeleteLetterCrossing() throws Exception {
@@ -148,9 +148,9 @@ public class PlayboardTest extends TestCase {
              board.deleteLetter();
 
          assertBoxBlank(puz, 1, 0);
-         assertBoxLetter(puz, 1, 1, 'B');
+         assertBoxLetter(puz, 1, 1, "B");
          assertBoxBlank(puz, 1, 2);
-         assertBoxLetter(puz, 1, 3, 'D');
+         assertBoxLetter(puz, 1, 3, "D");
          assertBoxBlank(puz, 1, 4);
     }
 
@@ -402,7 +402,7 @@ public class PlayboardTest extends TestCase {
     }
 
     private void assertBoxLetter(
-        Puzzle puz, int row, int col, char letter
+        Puzzle puz, int row, int col, String letter
     ) throws Exception {
         assertEquals(puz.checkedGetBox(row, col).getResponse(), letter);
     }

@@ -4,7 +4,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
 >
     <item
-        android:id="@+id/puzzle_menu_special_char"
-        android:title="@string/insert_special_character"
+        android:id="@+id/puzzle_menu_special_entry"
+        android:title="@string/special_entry"
     />
 </menu>

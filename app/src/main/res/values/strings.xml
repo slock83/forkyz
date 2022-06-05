@@ -279,7 +279,7 @@
     <string name="menu_puzzle_notes">Puzzle Notes</string>
 
     <!-- play menu -->
-    <string name="insert_special_character">Insert Special Character</string>
+    <string name="special_entry">Insert Special</string>
     <string name="grid">Grid</string>
     <string name="clues">Clues</string>
     <string name="zoom">Zoom</string>
@@ -431,7 +431,7 @@
     <string name="keyboard_dvorak">Dvorak</string>
     <string name="keyboard_colemak">Colemak</string>
 
-    <!-- special characters -->
-    <string name="enter_special_character">Enter desired character.</string>
-    <string name="enter_special_character_desc">Enter the special character below. The character will be entered onto the board as is. E.g. lowercase letters will not be converted to uppercase.</string>
+    <!-- special entry -->
+    <string name="enter_special">Enter desired box response.</string>
+    <string name="enter_special_desc">Enter the response in the box below. The character(s) will be entered onto the board as is. E.g. lowercase letters will not be converted to uppercase. Special characters and multiple characters are allowed.</string>
 </resources>

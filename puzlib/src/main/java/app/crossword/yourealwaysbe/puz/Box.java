@@ -8,14 +8,14 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Box implements Serializable {
-    public static final char BLANK = ' ';
+    public static final String BLANK = " ";
     private static final int NOCOLOR = -1;
 
     private String responder;
     private boolean cheated;
     private boolean circled;
-    private char response = BLANK;
-    private char solution;
+    private String response = BLANK;
+    private String solution = null;
     private String clueNumber;
     // for each clue this box is a part of, the index of the cell it is
     // the clue word
@@ -54,7 +54,6 @@ public class Box implements Serializable {
         if (isCheated() != other.isCheated()) {
             return false;
         }
-
         if (!Objects.equals(getClueNumber(), other.getClueNumber())) {
             return false;
         }
@@ -71,11 +70,11 @@ public class Box implements Serializable {
             return false;
         }
 
-        if (getResponse() != other.getResponse()) {
+        if (!Objects.equals(getResponse(), other.getResponse())) {
             return false;
         }
 
-        if (getSolution() != other.getSolution()) {
+        if (!Objects.equals(getSolution(), other.getSolution())) {
             return false;
         }
 
@@ -93,7 +92,6 @@ public class Box implements Serializable {
 
         if (getColor() != other.getColor())
             return false;
-
         // Annoying Arrays.equals doesn't do arrays of arrays..
         String[][] marks = getMarks();
         String[][] otherMarks = other.getMarks();
@@ -107,7 +105,6 @@ public class Box implements Serializable {
                     return false;
             }
         }
-
         return true;
     }
 
@@ -125,8 +122,8 @@ public class Box implements Serializable {
         result = (prime * result) + (isBarredRight() ? 1231 : 1237);
         result = (prime * result) +
             ((getResponder() == null) ? 0 : getResponder().hashCode());
-        result = (prime * result) + getResponse();
-        result = (prime * result) + getSolution();
+        result = (prime * result) + Objects.hash(getResponse());
+        result = (prime * result) + Objects.hash(getSolution());
         result = (prime * result) + getColor();
         // ignore marks, too awkward and probably empty
 
@@ -188,7 +185,7 @@ public class Box implements Serializable {
     /**
      * @return the response
      */
-    public char getResponse() {
+    public String getResponse() {
         return response;
     }
 
@@ -196,6 +193,10 @@ public class Box implements Serializable {
      * @param response the response to set
      */
     public void setResponse(char response) {
+        setResponse(String.valueOf(response));
+    }
+
+    public void setResponse(String response) {
         this.response = response;
     }
 
@@ -203,13 +204,13 @@ public class Box implements Serializable {
      * True if box has solution (i.e. not '\0')
      */
     public boolean hasSolution() {
-        return getSolution() != '\0';
+        return getSolution() != null;
     }
 
     /**
      * @return the solution
      */
-    public char getSolution() {
+    public String getSolution() {
         return solution;
     }
 
@@ -217,7 +218,11 @@ public class Box implements Serializable {
      * @param solution the solution to set
      */
     public void setSolution(char solution) {
-        this.solution = solution;
+        setSolution(String.valueOf(solution));
+    }
+
+    public void setSolution(String solution) {
+        this.solution = String.valueOf(solution);
     }
 
     /**
@@ -251,7 +256,7 @@ public class Box implements Serializable {
     /**
      * @return if the current box is blank
      */
-    public boolean isBlank() { return getResponse() == BLANK; }
+    public boolean isBlank() { return BLANK.equals(getResponse()); }
 
     public void setBlank() { setResponse(BLANK); }
 

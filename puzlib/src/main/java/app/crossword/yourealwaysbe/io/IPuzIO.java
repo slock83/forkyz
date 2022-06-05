@@ -585,7 +585,7 @@ public class IPuzIO implements PuzzleParser {
             int width = Math.min(rowCells.length(), boxes[row].length);
 
             for (int col = 0; col < width; col++) {
-                Character value = getCrosswordValueFromObj(
+                String value = getCrosswordValueFromObj(
                     rowCells.get(col), block, empty
                 );
 
@@ -608,7 +608,7 @@ public class IPuzIO implements PuzzleParser {
      * @return value of response if given, Box.BLANK if empty, null if
      * block or omitted
      */
-    private static Character getCrosswordValueFromObj(
+    private static String getCrosswordValueFromObj(
         Object cell, String block, String empty
     ) throws IPuzFormatException {
         if (cell == null || JSONObject.NULL.equals(cell)) {
@@ -624,34 +624,20 @@ public class IPuzIO implements PuzzleParser {
         } else if (cell instanceof JSONObject) {
             JSONObject json = (JSONObject) cell;
             String value = optStringNull(json, FIELD_VALUE);
-            if (value == null) {
+            if (value == null)
                 return null;
-            } else {
-                if (value.length() != 1) {
-                    throw new IPuzFormatException(
-                        "Cannot represent cell values of more "
-                        + "than one character: '"
-                        + value
-                        + "'"
-                    );
-                }
-                return value.charAt(0);
-            }
+            else if (value.isEmpty())
+                return Box.BLANK;
+            else
+                return value;
         } else {
             String value = cell.toString();
-            if (block.equals(value)) {
+            if (block.equals(value))
                 return null;
-            } else if (empty.equals(value) || value.isEmpty()) {
+            else if (empty.equals(value) || value.isEmpty())
                 return Box.BLANK;
-            } else if (value.length() != 1) {
-                throw new IPuzFormatException(
-                    "Cannot represent cell values of more "
-                    + "than one character: '"
-                    + value
-                    + "'"
-                );
-            }
-            return value.charAt(0);
+            else
+                return value;
         }
     }
 

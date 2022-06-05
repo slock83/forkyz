@@ -401,7 +401,10 @@ public class IO implements PuzzleParser {
                 if (boxes[x][y] == null) {
                     tmpDos.writeByte('.');
                 } else {
-                    byte val = (byte) boxes[x][y].getSolution(); // Character.toString().getBytes("Cp1252")[0];
+                    String sSol = boxes[x][y].getSolution();
+                    byte val = (sSol == null || sSol.isEmpty())
+                        ? 0
+                        : (byte) sSol.charAt(0);
 
                     if (hasGEXT && boxes[x][y].isCircled()) {
                         gextSection[(width * x) + y] = GEXT_SQUARE_CIRCLED;
@@ -417,7 +420,11 @@ public class IO implements PuzzleParser {
                 if (boxes[x][y] == null) {
                     tmpDos.writeByte('.');
                 } else {
-                    byte val = (byte) boxes[x][y].getResponse(); // Character.toString().getBytes("Cp1252")[0];
+                    String sRes = boxes[x][y].getResponse();
+                    byte val = (sRes == null || sRes.isEmpty())
+                        ? 0
+                        : (byte) sRes.charAt(0);
+
                     tmpDos.writeByte((boxes[x][y].isBlank()) ? '-' : val);
                 }
             }

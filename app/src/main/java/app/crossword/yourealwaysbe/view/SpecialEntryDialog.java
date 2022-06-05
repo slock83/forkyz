@@ -22,10 +22,10 @@ import app.crossword.yourealwaysbe.puz.Playboard;
  * Pass the board to the constructor. The dialog will play the special letter
  * when entered.
  */
-public class InsertSpecialCharacterDialog extends DialogFragment {
+public class SpecialEntryDialog extends DialogFragment {
     private Playboard board;
 
-    public InsertSpecialCharacterDialog(Playboard board) {
+    public SpecialEntryDialog(Playboard board) {
         this.board = board;
     }
 
@@ -34,28 +34,33 @@ public class InsertSpecialCharacterDialog extends DialogFragment {
         LayoutInflater inflater = (LayoutInflater)
             getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         ViewGroup root = (ViewGroup) getActivity().findViewById(
-            R.id.special_character_root
+            R.id.special_entry_root
         );
         final View layout = inflater.inflate(
-            R.layout.special_character_dialog, root
+            R.layout.special_entry_dialog, root
         );
+
+        Box curBox = board.getCurrentBox();
+        String curLetter = null;
+        if (!curBox.isBlank()) {
+            EditText input = layout.findViewById(R.id.special_entry_edit_box);
+            input.setText(curBox.getResponse());
+        }
 
         AlertDialog.Builder builder
             = new AlertDialog.Builder(getActivity());
 
-        builder.setTitle(getString(R.string.insert_special_character))
+        builder.setTitle(getString(R.string.special_entry))
             .setView(layout)
             .setPositiveButton(
                 R.string.ok,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         EditText input = layout.findViewById(
-                            R.id.special_character_edit_box
+                            R.id.special_entry_edit_box
                         );
                         String text = input.getText().toString();
-                        char letter = text.length() < 1
-                            ? Box.BLANK
-                            : text.charAt(0);
+                        String letter = text.length() < 1 ? Box.BLANK : text;
                         if (board != null)
                             board.playLetter(letter);
                     }

@@ -52,11 +52,11 @@ public class UclickXMLIOTest extends TestCase {
         assertEquals(true, boxes[0][0].isStartOf(new ClueID("Down", 0)));
         assertEquals(false, boxes[0][3].isStartOf(new ClueID("Across", 1)));
 
-        assertEquals(boxes[0][0].getSolution(), 'G');
+        assertEquals(boxes[0][0].getSolution(), "G");
         assertEquals(boxes[5][14], null);
-        assertEquals(boxes[14][14].getSolution(), 'S');
-        assertEquals(boxes[14][5].getSolution(), 'L');
-        assertEquals(boxes[3][6].getSolution(), 'N');
+        assertEquals(boxes[14][14].getSolution(), "S");
+        assertEquals(boxes[14][5].getSolution(), "L");
+        assertEquals(boxes[3][6].getSolution(), "N");
 
 
         ClueList acrossClues = puz.getClues("Across");

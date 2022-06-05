@@ -173,26 +173,6 @@ public class Playboard implements Serializable {
 
     }
 
-    public String getCurrentWordResponse() {
-        Box[] boxes = getCurrentWordBoxes();
-        char[] letters = new char[boxes.length];
-
-        for (int i = 0; i < boxes.length; i++) {
-            letters[i] = boxes[i].getResponse();
-        }
-
-        return new String(letters);
-    }
-
-    public void setCurrentWord(String response) {
-        Box[] boxes = getCurrentWordBoxes();
-        int length = Math.min(boxes.length, response.length());
-        for (int i = 0; i < length; i++) {
-            boxes[i].setResponse(response.charAt(i));
-        }
-        notifyChange();
-    }
-
     public void setCurrentWord(Box[] response) {
         Box[] boxes = getCurrentWordBoxes();
         int length = Math.min(boxes.length, response.length);
@@ -398,8 +378,8 @@ public class Playboard implements Serializable {
             if (note != null) {
                 ClueID cid = getClueID();
                 int cluePos = currentBox.getCluePosition(cid);
-                String response = this.getCurrentWordResponse();
-                if (cluePos >= 0 && cluePos < response.length())
+                int length = this.getCurrentWordLength();
+                if (cluePos >= 0 && cluePos < length)
                     note.deleteScratchLetterAt(cluePos);
             }
         }
@@ -419,10 +399,13 @@ public class Playboard implements Serializable {
         Box currentBox = getCurrentBox();
 
         // Prohibit deleting correct letters
-        boolean skipCorrect
-            = (preserveCorrectLettersInShowErrors &&
-               currentBox.getResponse() == currentBox.getSolution() &&
-               this.isShowErrors());
+        boolean skipCorrect = (
+            preserveCorrectLettersInShowErrors
+            && Objects.equals(
+                currentBox.getResponse(), currentBox.getSolution()
+            )
+            && this.isShowErrors()
+        );
 
         boolean skipAdjacent = dontDeleteCrossing
             && currentBoxHasFilledAdjacent();
@@ -752,13 +735,21 @@ public class Playboard implements Serializable {
     }
 
     public Word playLetter(char letter) {
+        return playLetter(String.valueOf(letter));
+    }
+
+    public Word playLetter(String letter) {
         Box b = puzzle.checkedGetBox(getHighlightLetter());
 
         if (b == null) {
             return null;
         }
 
-        if (preserveCorrectLettersInShowErrors && b.getResponse() == b.getSolution() && isShowErrors()) {
+        if (
+            preserveCorrectLettersInShowErrors
+            && Objects.equals(b.getResponse(), b.getSolution())
+            && isShowErrors()
+        ) {
             // Prohibit replacing correct letters
             return this.getCurrentWord();
         } else {
@@ -783,17 +774,17 @@ public class Playboard implements Serializable {
 
         ClueID cid = getClueID();
         Note note = getNote();
-        String response = getCurrentWordResponse();
+        int length = getCurrentWordLength();
 
         // Create a note for this clue if we don't already have one
         if (note == null) {
-            note = new Note(response.length());
+            note = new Note(length);
             this.puzzle.setNote(cid, note);
         }
 
         // Update the scratch text
         int pos = box.getCluePosition(cid);
-        if (pos >= 0 && pos < response.length())
+        if (pos >= 0 && pos < length)
             note.setScratchLetter(pos, letter);
 
         nextLetter();
@@ -927,8 +918,12 @@ public class Playboard implements Serializable {
     }
 
     public boolean skipBox(Box b, boolean skipCompleted) {
-        return skipCompleted && !b.isBlank() &&
-        (!this.isShowErrors() || (b.getResponse() == b.getSolution()));
+        return skipCompleted
+            && !b.isBlank()
+            && (
+                !this.isShowErrors()
+                || Objects.equals(b.getResponse(), b.getSolution())
+            );
     }
 
     public Word toggleSelection() {
@@ -1091,6 +1086,12 @@ public class Playboard implements Serializable {
             return null;
         else
             return zone.getPosition(zone.size() - 1);
+    }
+
+    private int getCurrentWordLength() {
+        Word word = getCurrentWord();
+        Zone zone = (word == null) ? null : word.getZone();
+        return zone == null ? 0 : zone.size();
     }
 
     /**

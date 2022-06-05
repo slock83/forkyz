@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class Note implements Serializable {
-    private static final Logger LOG = Logger.getLogger(Note.class.getCanonicalName());
+    private static final Logger LOG
+        = Logger.getLogger(Note.class.getCanonicalName());
+
+    private static final char BLANK_CHAR = Box.BLANK.charAt(0);
+
     private String scratch;
     private String text;
     private String anagramSource;
@@ -135,7 +139,7 @@ public class Note implements Serializable {
         if (len == 0) return "";
 
         char[] padding = new char[len];
-        Arrays.fill(padding, Box.BLANK);
+        Arrays.fill(padding, BLANK_CHAR);
         return new String(padding);
     }
 
@@ -143,7 +147,7 @@ public class Note implements Serializable {
         if (s == null)
             return true;
         for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) != Box.BLANK)
+            if (s.charAt(i) != BLANK_CHAR)
                 return false;
         }
         return true;
@@ -170,6 +174,6 @@ public class Note implements Serializable {
     }
 
     public void deleteScratchLetterAt(int pos) {
-        setScratchLetter(pos, Box.BLANK);
+        setScratchLetter(pos, BLANK_CHAR);
     }
 }

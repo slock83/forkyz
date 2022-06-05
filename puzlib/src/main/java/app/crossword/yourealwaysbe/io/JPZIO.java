@@ -228,11 +228,11 @@ public class JPZIO implements PuzzleParser {
 
                     String solution = attributes.getValue("solution");
                     if (solution != null && solution.length() > 0)
-                        box.setSolution(solution.charAt(0));
+                        box.setSolution(solution);
 
                     String response = attributes.getValue("solve-state");
                     if (response != null && response.length() > 0)
-                        box.setResponse(response.charAt(0));
+                        box.setResponse(response);
                     else
                         box.setBlank();
 

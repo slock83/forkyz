@@ -15,7 +15,7 @@ import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
-import app.crossword.yourealwaysbe.view.InsertSpecialCharacterDialog;
+import app.crossword.yourealwaysbe.view.SpecialEntryDialog;
 
 import java.util.logging.Logger;
 
@@ -101,8 +101,8 @@ public abstract class PuzzleActivity
         if (id == android.R.id.home) {
             finish();
             return true;
-        } else if (id == R.id.puzzle_menu_special_char) {
-            insertSpecialCharacter();
+        } else if (id == R.id.puzzle_menu_special_entry) {
+            specialEntry();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -271,9 +271,9 @@ public abstract class PuzzleActivity
         this.startActivity(i);
     }
 
-    protected void insertSpecialCharacter() {
-        InsertSpecialCharacterDialog dialog
-            = new InsertSpecialCharacterDialog(getBoard());
-        dialog.show(getSupportFragmentManager(), "SpecialCharacterDialog");
+    protected void specialEntry() {
+        SpecialEntryDialog dialog
+            = new SpecialEntryDialog(getBoard());
+        dialog.show(getSupportFragmentManager(), "SpecialEntryDialog");
     }
 }

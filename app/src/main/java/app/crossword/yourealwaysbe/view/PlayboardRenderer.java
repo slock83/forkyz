@@ -31,6 +31,7 @@ import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -868,7 +869,7 @@ public class PlayboardRenderer {
         TextPaint thisLetter = this.letterText;
         String letterString = box.isBlank()
             ? null
-            : Character.toString(box.getResponse());
+            : box.getResponse();
 
         if (highlightError(box, isHighlighted)) {
             boolean inCurrentWord =
@@ -879,6 +880,13 @@ public class PlayboardRenderer {
             } else if (inCurrentWord) {
                 thisLetter = this.redHighlight;
             }
+        }
+
+        float letterTextSize = thisLetter.getTextSize();
+        int length = letterString.length();
+        if (length > 1) {
+            System.out.println("FORKYZ: " + length + " from " + letterTextSize + " to " + (letterTextSize / ((length + 1) / 2)));
+            thisLetter.setTextSize(letterTextSize / ((length + 1) / 2));
         }
 
         int yoffset = (int) (
@@ -893,6 +901,8 @@ public class PlayboardRenderer {
             boxSize,
             thisLetter
         );
+
+        thisLetter.setTextSize(letterTextSize);
     }
 
     private void drawBoxNotes(
@@ -1032,7 +1042,7 @@ public class PlayboardRenderer {
         return showErrors
             && !box.isBlank()
             && box.hasSolution()
-            && box.getSolution() != box.getResponse();
+            && !Objects.equals(box.getSolution(), box.getResponse());
     }
 
     /**

@@ -372,7 +372,9 @@ public class Puzzle implements Serializable{
                 if (boxes[x][y] != null) {
                     total++;
 
-                    if (boxes[x][y].getResponse() == boxes[x][y].getSolution()) {
+                    if (Objects.equals(
+                        boxes[x][y].getResponse(), boxes[x][y].getSolution()
+                    )) {
                         correct++;
                     }
                 }

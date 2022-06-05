@@ -56,19 +56,19 @@ public class IPuzIOTest extends TestCase {
         assertFalse(boxes[0][1].isCircled());
         assertEquals(boxes[0][2], null);
         assertEquals(boxes[1][0].getClueNumber(), "3");
-        assertEquals(boxes[1][0].getResponse(), 'A');
+        assertEquals(boxes[1][0].getResponse(), "A");
         assertTrue(boxes[1][0].isCircled());
 
         assertTrue(boxes[0][0].isBlank());
-        assertEquals(boxes[0][1].getResponse(), 'B');
-        assertEquals(boxes[1][1].getResponse(), 'C');
+        assertEquals(boxes[0][1].getResponse(), "B");
+        assertEquals(boxes[1][1].getResponse(), "C");
         assertTrue(boxes[1][2].isBlank());
 
-        assertEquals(boxes[0][0].getSolution(), 'A');
-        assertEquals(boxes[0][1].getSolution(), 'B');
-        assertEquals(boxes[1][0].getSolution(), 'A');
-        assertEquals(boxes[1][1].getSolution(), 'C');
-        assertEquals(boxes[1][2].getSolution(), 'D');
+        assertEquals(boxes[0][0].getSolution(), "A");
+        assertEquals(boxes[0][1].getSolution(), "B");
+        assertEquals(boxes[1][0].getSolution(), "A");
+        assertEquals(boxes[1][1].getSolution(), "C");
+        assertEquals(boxes[1][2].getSolution(), "D");
 
         assertFalse(boxes[0][0].hasMarks());
         assertTrue(boxes[1][0].hasMarks());
@@ -96,9 +96,9 @@ public class IPuzIOTest extends TestCase {
         assertTrue(boxes[3][4].isBarredLeft());
         assertFalse(boxes[3][4].isBarredRight());
 
-        assertEquals(boxes[8][3].getSolution(), 'V');
-        assertEquals(boxes[10][1].getSolution(), 'R');
-        assertEquals(boxes[1][10].getSolution(), 'W');
+        assertEquals(boxes[8][3].getSolution(), "V");
+        assertEquals(boxes[10][1].getSolution(), "R");
+        assertEquals(boxes[1][10].getSolution(), "W");
 
         assertTrue(boxes[1][2].isCircled());
         assertFalse(boxes[2][1].isCircled());
@@ -275,8 +275,8 @@ public class IPuzIOTest extends TestCase {
 
             Box[][] boxes = puz.getBoxes();
 
-            boxes[0][1].setResponse('X');
-            boxes[1][2].setResponse('Y');
+            boxes[0][1].setResponse("X");
+            boxes[1][2].setResponse("Y");
             boxes[0][1].setResponder("Test");
             boxes[1][0].setCheated(true);
 
@@ -301,8 +301,8 @@ public class IPuzIOTest extends TestCase {
             );
             assertEquals(puz.getNote(cidV2).getText(), "test6\nnew line");
             assertEquals(puz.getNote(cidV2).getAnagramSource(), "test7");
-            assertEquals(boxes2[0][1].getResponse(), 'X');
-            assertEquals(boxes2[1][2].getResponse(), 'Y');
+            assertEquals(boxes2[0][1].getResponse(), "X");
+            assertEquals(boxes2[1][2].getResponse(), "Y");
             assertEquals(boxes2[0][1].getResponder(), "Test");
             assertFalse(boxes2[0][1].isCheated());
             assertTrue(boxes2[1][0].isCheated());
@@ -373,8 +373,8 @@ public class IPuzIOTest extends TestCase {
 
             Box[][] boxes = puz.getBoxes();
 
-            boxes[0][1].setResponse('X');
-            boxes[1][2].setResponse('Y');
+            boxes[0][1].setResponse("X");
+            boxes[1][2].setResponse("Y");
             boxes[0][1].setResponder("Test");
             boxes[1][0].setCheated(true);
 
@@ -398,8 +398,8 @@ public class IPuzIOTest extends TestCase {
             assertEquals(puz.getNote(cidA1).getText(), "test2");
             assertEquals(puz.getNote(cidD2).getText(), "test6\nnew line");
             assertEquals(puz.getNote(cidD2).getAnagramSource(), "test7");
-            assertEquals(boxes2[0][1].getResponse(), 'X');
-            assertEquals(boxes2[1][2].getResponse(), 'Y');
+            assertEquals(boxes2[0][1].getResponse(), "X");
+            assertEquals(boxes2[1][2].getResponse(), "Y");
             assertEquals(boxes2[0][1].getResponder(), "Test");
             assertFalse(boxes2[0][1].isCheated());
             assertTrue(boxes2[1][0].isCheated());

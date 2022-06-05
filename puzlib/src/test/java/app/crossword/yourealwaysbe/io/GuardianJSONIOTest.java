@@ -38,8 +38,8 @@ public class GuardianJSONIOTest extends TestCase {
         assertEquals(boxes[0][7], null);
         assertEquals(boxes[0][8].getClueNumber(), "5");
 
-        assertEquals(boxes[0][0].getSolution(), 'A');
-        assertEquals(boxes[0][6].getSolution(), 'B');
+        assertEquals(boxes[0][0].getSolution(), "A");
+        assertEquals(boxes[0][6].getSolution(), "B");
 
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");
