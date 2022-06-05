@@ -128,11 +128,11 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     @SuppressWarnings("deprecation")
     @Override
     public StaticLayout getStaticLayout(
-        CharSequence text, TextPaint style, int width
+        CharSequence text, TextPaint style, int width, Layout.Alignment align
     ) {
         return new StaticLayout(
             text,
-            style, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0, false
+            style, width, align, 1.0f, 0, false
         );
     }
 

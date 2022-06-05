@@ -10,6 +10,7 @@ import android.graphics.Paint.Style;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 
@@ -498,7 +499,7 @@ public class PlayboardRenderer {
             : String.valueOf(box.getResponse());
 
         String clueNumber = box.getClueNumber();
-        String number = drawClueNumber(box)
+        String number = box.hasClueNumber()
             ? context.getString(R.string.cur_box_number, clueNumber)
             : context.getString(R.string.cur_box_no_number);
 
@@ -622,16 +623,14 @@ public class PlayboardRenderer {
             if (fullBoard)
                 drawBoxBars(canvas, x, y, box, boxSize, barSize);
 
-            if (drawClueNumber(box)) {
-                drawBoxMarks(
-                    canvas, x, y, box, boxSize, numberOffset, numberText
+            drawBoxMarks(
+                canvas, x, y, box, boxSize, numberOffset, numberText
+            );
+            if (fullBoard) {
+                drawBoxFlags(
+                    canvas, x, y, box,
+                    boxSize, barSize, numberOffset, numberTextSize
                 );
-                if (fullBoard) {
-                    drawBoxFlags(
-                        canvas, x, y, box,
-                        boxSize, barSize, numberOffset, numberTextSize
-                    );
-                }
             }
 
             drawBoxCircle(canvas, x, y, box, boxSize);
@@ -749,16 +748,64 @@ public class PlayboardRenderer {
         Canvas canvas, int x, int y, Box box,
         int boxSize, int numberOffset, TextPaint numberText
     ) {
-        String clueNumber = box.getClueNumber();
+        if (box.hasClueNumber()) {
+            String clueNumber = box.getClueNumber();
+            drawHtmlText(
+                canvas,
+                clueNumber,
+                x + numberOffset,
+                y + numberOffset / 2,
+                boxSize,
+                numberText
+            );
+        }
 
-        drawHtmlText(
-            canvas,
-            clueNumber,
-            x + numberOffset,
-            y + numberOffset / 2,
-            boxSize,
-            numberText
-        );
+        if (box.hasMarks()) {
+            int markHeight = (int) (numberText.descent() - numberText.ascent());
+
+            // 3x3 by guarantee of Box
+            String[][] marks = box.getMarks();
+            for (int row = 0; row < 3; row++) {
+                int markY;
+                switch (row) {
+                case 1: // middle
+                    markY = boxSize / 2 - markHeight / 2 - numberOffset / 2;
+                    break;
+                case 2: // bottom
+                    markY = boxSize - numberOffset - markHeight;
+                    break;
+                default: // top
+                    markY = numberOffset / 2;
+                }
+
+                for (int col = 0; col < 3; col++) {
+                    if (marks[row][col] != null) {
+                        int fullWidth = boxSize - 2 * numberOffset;
+                        Layout.Alignment align;
+                        switch (col) {
+                        case 1: // centre
+                            align = Layout.Alignment.ALIGN_CENTER;
+                            break;
+                        case 2: // right
+                            align = Layout.Alignment.ALIGN_OPPOSITE;
+                            break;
+                        default: // left
+                            align = Layout.Alignment.ALIGN_NORMAL;
+                        }
+
+                        drawHtmlText(
+                            canvas,
+                            marks[row][col],
+                            x + numberOffset,
+                            y + markY,
+                            fullWidth,
+                            align,
+                            numberText
+                        );
+                    }
+                }
+            }
+        }
     }
 
     private void drawBoxFlags(
@@ -988,10 +1035,6 @@ public class PlayboardRenderer {
             && box.getSolution() != box.getResponse();
     }
 
-    private boolean drawClueNumber(Box box) {
-        return box.hasClueNumber();
-    }
-
     /**
      * Return a new paint based on color
      *
@@ -1035,10 +1078,21 @@ public class PlayboardRenderer {
         int x, int  y, int width,
         TextPaint style
     ) {
+        drawText(
+            canvas, text, x, y, width, Layout.Alignment.ALIGN_NORMAL, style
+        );
+    }
+
+    private static void drawText(
+        Canvas canvas,
+        CharSequence text,
+        int x, int  y, int width, Layout.Alignment align,
+        TextPaint style
+    ) {
         // with some help from:
         // https://stackoverflow.com/a/41870464
         StaticLayout staticLayout
-            = versionUtils.getStaticLayout(text, style, width);
+            = versionUtils.getStaticLayout(text, style, width, align);
         canvas.save();
         canvas.translate(x, y);
         staticLayout.draw(canvas);
@@ -1049,6 +1103,16 @@ public class PlayboardRenderer {
         Canvas canvas, String text, int x, int y, int width, TextPaint style
     ) {
         drawText(canvas, HtmlCompat.fromHtml(text, 0), x, y, width, style);
+    }
+
+    private static void drawHtmlText(
+        Canvas canvas, String text,
+        int x, int y, int width, Layout.Alignment align,
+        TextPaint style
+    ) {
+        drawText(
+            canvas, HtmlCompat.fromHtml(text, 0), x, y, width, align, style
+        );
     }
 
     private float calculateScale(int numPixels, int numBoxes) {

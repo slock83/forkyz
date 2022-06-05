@@ -10,6 +10,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
+import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.DisplayMetrics;
@@ -70,7 +71,17 @@ public interface AndroidVersionUtils {
 
     int immutablePendingIntentFlag();
 
-    StaticLayout getStaticLayout(CharSequence text, TextPaint style, int width);
+    StaticLayout getStaticLayout(
+        CharSequence text, TextPaint style, int width, Layout.Alignment align
+    );
+
+    default StaticLayout getStaticLayout(
+        CharSequence text, TextPaint style, int width
+    ) {
+        return getStaticLayout(
+            text, style, width, Layout.Alignment.ALIGN_NORMAL
+        );
+    }
 
     void migrateLegacyBackgroundDownloads();
 
