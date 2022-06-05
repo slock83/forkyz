@@ -15,7 +15,7 @@ The majority of the links on this page come from [Michael F. Gill
 
 * [Andrew Marc Greene][andrew-marc-greene] -- some puzzles have PUZ
   links.
-* [Aries Puzzles][aries-puzzles] -- monthly puzzles by Andrew Ries.
+* [Aries Puzzles][aries-puzzles] -- monthly puzzles by Andrew Ries. Rows gardens, marching bands, twists and turns, &c.
 * [Avid Puzzler][avid-puzzler] -- by David Gold.
 * [Beneath the Surface][beneath-the-surface] -- by Kyle Dolan.
 * Big Dave's [Monthly Prize][big-dave-monthly], [Weekly
