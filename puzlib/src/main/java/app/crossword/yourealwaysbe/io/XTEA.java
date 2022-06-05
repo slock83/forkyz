@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-
 /*
  * Copyright 2004-2011 H2 Group. Multiple-Licensed under the H2 License,
  * Version 1.0, and under the Eclipse Public License, Version 1.0
@@ -38,7 +37,9 @@ public class XTEA  {
         }
         xtea.setKey(revered.getBytes(Charset.forName("utf-8")));
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IO.copyStream(new FileInputStream("/Users/rcooper/Downloads/cs150608.jpz"), baos);
+        StreamUtils.copyStream(
+            new FileInputStream("/Users/rcooper/Downloads/cs150608.jpz"), baos
+        );
         byte[] original = baos.toByteArray();
         System.out.println(baos.toByteArray().length);
         byte[] bytes = new byte[original.length];
@@ -50,7 +51,10 @@ public class XTEA  {
         for(int i=0; i < bytes.length; i++){
             System.out.print((int) bytes[i]);
         }
-        IO.copyStream(new ByteArrayInputStream(bytes), new FileOutputStream("/Users/rcooper/test.zip"));
+        StreamUtils.copyStream(
+            new ByteArrayInputStream(bytes),
+            new FileOutputStream("/Users/rcooper/test.zip")
+        );
     }
 
     public void setKey(byte[] b) {

@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class IO implements PuzzleParser {
-    public static final int DEFAULT_BUFFER_SIZE = 1024;
     public static final String FILE_MAGIC = "ACROSS&DOWN";
     public static final String VERSION_STRING = "1.2";
     private static final Charset CHARSET = Charset.forName("Cp1252");
@@ -620,39 +619,6 @@ public class IO implements PuzzleParser {
     private static int cksum_solution(byte[] puzByteArray, int numberOfBoxes,
                                       int cksum) {
         return cksum_region(puzByteArray, 0x34, numberOfBoxes, cksum);
-    }
-
-    /**
-     * Copies the data from an InputStream object to an OutputStream object.
-     *
-     * @param sourceStream
-     *            The input stream to be read.
-     * @param destinationStream
-     *            The output stream to be written to.
-     * @return int value of the number of bytes copied.
-     * @exception IOException
-     *                from java.io calls.
-     */
-    public static int copyStream(InputStream sourceStream, OutputStream destinationStream)
-            throws IOException {
-        int bytesRead = 0;
-        int totalBytes = 0;
-        byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-
-        while (bytesRead >= 0) {
-            bytesRead = sourceStream.read(buffer, 0, buffer.length);
-
-            if (bytesRead > 0) {
-                destinationStream.write(buffer, 0, bytesRead);
-            }
-
-            totalBytes += bytesRead;
-        }
-
-        destinationStream.flush();
-        destinationStream.close();
-
-        return totalBytes;
     }
 
     /**

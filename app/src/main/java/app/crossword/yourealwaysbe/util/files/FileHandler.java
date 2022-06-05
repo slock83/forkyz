@@ -28,6 +28,7 @@ import android.net.Uri;
 
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.IPuzIO;
+import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 /**
@@ -512,7 +513,7 @@ public abstract class FileHandler {
                 = new ByteArrayInputStream(baosMeta.toByteArray());
             OutputStream meta = getBufferedOutputStream(metaFile);
         ) {
-            IO.copyStream(baisMeta, meta);
+            StreamUtils.copyStream(baisMeta, meta);
             metaSuccess = true;
         } finally {
             if (!metaSuccess && metaCreated)
@@ -526,7 +527,7 @@ public abstract class FileHandler {
                 = new ByteArrayInputStream(baosPuz.toByteArray());
             OutputStream puzzle = getBufferedOutputStream(puzFile);
         ) {
-            IO.copyStream(baisPuz, puzzle);
+            StreamUtils.copyStream(baisPuz, puzzle);
             puzSuccess = true;
         } finally {
             if (!puzSuccess && metaCreated)
@@ -552,7 +553,7 @@ public abstract class FileHandler {
             InputStream bais = new ByteArrayInputStream(baos.toByteArray());
             OutputStream os = getBufferedOutputStream(ipuzFile)
         ) {
-            IO.copyStream(bais, os);
+            StreamUtils.copyStream(bais, os);
             return true;
         }
     }

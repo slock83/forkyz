@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.io.IO;
+import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 
@@ -160,7 +161,7 @@ public class PageScraper implements Downloader {
         URL u = new URL(url);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (InputStream is = new BufferedInputStream(u.openStream())) {
-            IO.copyStream(is, baos);
+            StreamUtils.copyStream(is, baos);
         }
         return new String(baos.toByteArray());
     }

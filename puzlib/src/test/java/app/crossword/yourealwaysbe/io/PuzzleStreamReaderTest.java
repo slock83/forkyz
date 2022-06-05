@@ -6,49 +6,49 @@ import junit.framework.TestCase;
 public class PuzzleStreamReaderTest extends TestCase {
     public void testAcrossLite() {
         IOTest.assertIsTestPuzzle1(
-            PuzzleStreamReader.parseInput(() -> {
-                return IOTest.getTestPuzzle1InputStream();
-            })
+            PuzzleStreamReader.parseInput(
+                IOTest.getTestPuzzle1InputStream()
+            )
         );
     }
 
     public void testJPZ() {
         JPZIOTest.assertIsTestPuzzle1(
-            PuzzleStreamReader.parseInput(() -> {
-                return JPZIOTest.getTestPuzzle1InputStream();
-            })
+            PuzzleStreamReader.parseInput(
+                JPZIOTest.getTestPuzzle1InputStream()
+            )
         );
     }
 
     public void testBrainsOnly() {
         BrainsOnlyIOTest.assertIsTestPuzzle1(
-            PuzzleStreamReader.parseInput(() -> {
-                return BrainsOnlyIOTest.getTestPuzzle1InputStream();
-            })
+            PuzzleStreamReader.parseInput(
+                BrainsOnlyIOTest.getTestPuzzle1InputStream()
+            )
         );
     }
 
     public void testKingFeaturesPlaintext() {
         KingFeaturesPlaintextIOTest.assertIsTestPuzzle1(
-            PuzzleStreamReader.parseInput(() -> {
-                return KingFeaturesPlaintextIOTest.getTestPuzzle1InputStream();
-            })
+            PuzzleStreamReader.parseInput(
+                KingFeaturesPlaintextIOTest.getTestPuzzle1InputStream()
+            )
         );
     }
 
     public void testUclick() {
         UclickXMLIOTest.assertIsTestPuzzle1(
-            PuzzleStreamReader.parseInput(() -> {
-                return UclickXMLIOTest.getTestPuzzle1InputStream();
-            })
+            PuzzleStreamReader.parseInput(
+                UclickXMLIOTest.getTestPuzzle1InputStream()
+            )
         );
     }
 
     public void testIPuz() throws Exception {
         IPuzIOTest.assertIsTestPuzzle1(
-            PuzzleStreamReader.parseInput(() -> {
-                return IPuzIOTest.getTestPuzzle1InputStream();
-            })
+            PuzzleStreamReader.parseInput(
+                IPuzIOTest.getTestPuzzle1InputStream()
+            )
         );
     }
 }

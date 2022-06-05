@@ -27,7 +27,7 @@ public class JPZIOTest extends TestCase {
 
         assertEquals("LA Times, Mon, Nov 28, 2011", puz.getTitle());
         assertEquals("Jeff Chen / Ed. Rich Norris", puz.getAuthor());
-        assertEquals("(c) 2011 Tribune Media Services, Inc.", puz.getCopyright());
+        assertEquals("© 2011 Tribune Media Services, Inc.", puz.getCopyright());
         assertEquals(
             "Test"
                 + "<h1>Down</h1>"
@@ -92,7 +92,7 @@ public class JPZIOTest extends TestCase {
 
     public void testJPZ() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IO.copyStream(getTestPuzzle1InputStream(), baos);
+        StreamUtils.copyStream(getTestPuzzle1InputStream(), baos);
         Puzzle puz = JPZIO.readPuzzle(
             new ByteArrayInputStream(baos.toByteArray())
         );

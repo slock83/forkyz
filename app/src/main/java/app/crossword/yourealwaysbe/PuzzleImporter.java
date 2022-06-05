@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe;
 
 import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.Normalizer;
 import java.time.LocalDate;
@@ -50,9 +51,15 @@ public class PuzzleImporter {
         FileHandler fileHandler =
             ForkyzApplication.getInstance().getFileHandler();
 
-        Puzzle puz = PuzzleStreamReader.parseInput(() -> {
-            return new BufferedInputStream(resolver.openInputStream(uri));
-        });
+        Puzzle puz = null;
+
+        try {
+            puz = PuzzleStreamReader.parseInput(
+                new BufferedInputStream(resolver.openInputStream(uri))
+            );
+        } catch (FileNotFoundException e) {
+            LOGGER.info("FileNotFoundException with " + uri);
+        }
 
         if (puz == null)
             return null;

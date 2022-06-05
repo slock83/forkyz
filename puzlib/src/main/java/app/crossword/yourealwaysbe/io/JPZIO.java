@@ -15,13 +15,8 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,10 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Logger;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -509,7 +501,7 @@ public class JPZIO implements PuzzleParser {
         XMLReader xr = parser.getXMLReader();
         JPZXMLParser handler = new JPZXMLParser();
         xr.setContentHandler(handler);
-        xr.parse(new InputSource(unzipOrPassthrough(is)));
+        xr.parse(new InputSource(is));
 
         if (!handler.isSuccessfulRead())
             return null;
@@ -592,55 +584,5 @@ public class JPZIO implements PuzzleParser {
         }
 
         builder.setNotes(notes.toString());
-    }
-
-    /**
-     * Returns a new input stream that either passes through is or
-     * unzips.
-     *
-     * Closing return stream has no effect (it's a byte array stream)
-     */
-    private static ByteArrayInputStream unzipOrPassthrough(InputStream is)
-            throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        IO.copyStream(is, baos);
-
-        try (
-            ZipInputStream zis = new ZipInputStream(
-                new ByteArrayInputStream(baos.toByteArray())
-            )
-        ) {
-            ZipEntry entry = zis.getNextEntry();
-            while (entry.isDirectory()) {
-                entry = zis.getNextEntry();
-            }
-            baos = new ByteArrayOutputStream();
-            IO.copyStream(zis, baos);
-        } catch (Exception e) {
-            // not zipped, carry on
-        }
-
-        // replace &nbsp; with space
-        // and copyright symbol with (c) (else encoding error on
-        // android)
-        try (
-            Scanner in = new Scanner(
-                new ByteArrayInputStream(baos.toByteArray())
-            );
-            ByteArrayOutputStream replaced = new ByteArrayOutputStream();
-            BufferedWriter out = new BufferedWriter(
-                new OutputStreamWriter(replaced)
-            );
-        ) {
-            while (in.hasNextLine()) {
-                String line = in.nextLine();
-                line = line.replaceAll("&nbsp;", " ");
-                line = line.replaceAll("©", "(c)");
-                out.write(line + "\n");
-            }
-            out.flush();
-            return new ByteArrayInputStream(replaced.toByteArray());
-        }
     }
 }
