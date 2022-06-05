@@ -52,25 +52,6 @@
         </menu>
     </item>
     <item
-        android:id="@+id/play_menu_clue_size"
-        android:title="@string/clue_text_size"
-    >
-        <menu>
-            <item
-                android:id="@+id/play_menu_clue_size_s"
-                android:title="@string/small"
-            />
-            <item
-                android:id="@+id/play_menu_clue_size_m"
-                android:title="@string/medium"
-            />
-            <item
-                android:id="@+id/play_menu_clue_size_l"
-                android:title="@string/large"
-            />
-        </menu>
-    </item>
-    <item
         android:id="@+id/play_menu_show_errors"
         android:icon="@android:drawable/ic_menu_view"
         android:title="@string/show_errors"

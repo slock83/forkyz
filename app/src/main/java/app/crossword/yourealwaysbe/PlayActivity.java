@@ -346,9 +346,12 @@ public class PlayActivity extends PuzzleActivity
             }
         });
 
-        int smallClueTextSize
-            = getResources().getInteger(R.integer.small_clue_text_size);
-        this.setClueSize(prefs.getInt("clueSize", smallClueTextSize));
+        int clueTextSize
+            = getResources().getInteger(R.integer.clue_text_size);
+        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+            clue, 5, clueTextSize, 1, TypedValue.COMPLEX_UNIT_SP
+        );
+
         if (this.prefs.getBoolean("fitToScreen", false) || (ForkyzApplication.isLandscape(metrics)) && (ForkyzApplication.isTabletish(metrics) || ForkyzApplication.isMiniTabletish(metrics))) {
             this.handler.postDelayed(new Runnable() {
                 @Override
@@ -664,21 +667,6 @@ public class PlayActivity extends PuzzleActivity
                 );
                 this.startActivity(helpIntent);
                 return true;
-            } else if (id == R.id.play_menu_clue_size_s) {
-                this.setClueSize(
-                    getResources().getInteger(R.integer.small_clue_text_size)
-                );
-                return true;
-            } else if (id == R.id.play_menu_clue_size_m) {
-                this.setClueSize(
-                    getResources().getInteger(R.integer.medium_clue_text_size)
-                );
-                return true;
-            } else if (id == R.id.play_menu_clue_size_l) {
-                this.setClueSize(
-                    getResources().getInteger(R.integer.large_clue_text_size)
-                );
-                return true;
             } else if (id == R.id.play_menu_support_source) {
                 actionSupportSource();
                 return true;
@@ -865,18 +853,6 @@ public class PlayActivity extends PuzzleActivity
         super.onDestroy();
         if (keyboardManager != null)
             keyboardManager.onDestroy();
-    }
-
-    private void setClueSize(int dps) {
-        TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
-            clue, 5, dps, 1, TypedValue.COMPLEX_UNIT_SP
-        );
-
-        int smallClueTextSize
-            = getResources().getInteger(R.integer.small_clue_text_size);
-        if (prefs.getInt("clueSize", smallClueTextSize) != dps) {
-            this.prefs.edit().putInt("clueSize", dps).apply();
-        }
     }
 
     protected MovementStrategy getMovementStrategy() {

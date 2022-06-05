@@ -288,10 +288,6 @@
     <string name="zoom_out">Zoom Out</string>
     <string name="fit_to_screen">Fit to Screen</string>
     <string name="zoom_reset">Zoom Reset</string>
-    <string name="clue_text_size">Clue Text Size</string>
-    <string name="small">Small</string>
-    <string name="medium">Medium</string>
-    <string name="large">Large</string>
     <string name="show_errors">Show Errors</string>
     <string name="showing_errors">Showing Errors</string>
     <string name="show_errors_full_grid">Grid</string>

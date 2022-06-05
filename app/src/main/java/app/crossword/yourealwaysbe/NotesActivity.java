@@ -122,10 +122,10 @@ public class NotesActivity extends PuzzleActivity {
                     .findViewById(R.id.clueLine);
         }
 
+        int clueTextSize
+            = getResources().getInteger(R.integer.clue_text_size);
         TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
-            clueLine,
-            5, prefs.getInt("clueSize", 12), 1,
-            TypedValue.COMPLEX_UNIT_SP
+            clueLine, 5, clueTextSize, 1, TypedValue.COMPLEX_UNIT_SP
         );
 
         imageViewLabel = this.findViewById(R.id.boardLab);
