@@ -51,6 +51,7 @@ public class PlayboardRenderer {
     private final TextPaint letterText = new TextPaint();
     private final TextPaint numberText = new TextPaint();
     private final TextPaint noteText = new TextPaint();
+    private final TextPaint miniNoteText = new TextPaint();
     private final Paint red = new Paint();
     private final TextPaint redHighlight = new TextPaint();
     private final TextPaint white = new TextPaint();
@@ -104,6 +105,11 @@ public class PlayboardRenderer {
         noteText.setColor(boardNoteColor);
         noteText.setAntiAlias(true);
         noteText.setTypeface(TYPEFACE_SEMI_BOLD_SANS);
+
+        miniNoteText.setTextAlign(Align.CENTER);
+        miniNoteText.setColor(boardNoteColor);
+        miniNoteText.setAntiAlias(true);
+        miniNoteText.setTypeface(TYPEFACE_SEMI_BOLD_SANS);
 
         letterText.setTextAlign(Align.CENTER);
         letterText.setColor(boardLetterColor);
@@ -593,15 +599,72 @@ public class PlayboardRenderer {
         red.setTextSize(letterTextSize);
         redHighlight.setTextSize(letterTextSize);
         white.setTextSize(letterTextSize);
+        noteText.setTextSize(noteTextSize);
+        miniNoteText.setTextSize(miniNoteTextSize);
 
-        boolean inCurrentWord = (currentWord != null) && currentWord.checkInWord(row, col);
         boolean isHighlighted
-            = (highlight.getCol() == col) && (highlight.getRow() == row);
+            = highlight.getCol() == col
+                && highlight.getRow() == row;
 
-        TextPaint thisLetter;
+        drawBoxOutline(canvas, x, y, row, col, boxSize, highlight, currentWord);
 
-        Paint boxColor = (((highlight.getCol() == col) && (highlight.getRow() == row)) && (currentWord != null))
-                ? this.currentLetterBox : this.blackLine;
+        Rect r = new Rect(x + 1, y + 1, (x + boxSize) - 1, (y + boxSize) - 1);
+
+        if (box == null) {
+            canvas.drawRect(r, this.blackBox);
+        } else {
+            if (highlightError(box, isHighlighted))
+                box.setCheated(true);
+
+            drawBoxBackground(canvas, box, row, col, r, highlight, currentWord);
+
+            // Bars before clue numbers to avoid obfuscating
+            if (fullBoard)
+                drawBoxBars(canvas, x, y, box, boxSize, barSize);
+
+            if (drawClueNumber(box)) {
+                drawBoxMarks(
+                    canvas, x, y, box, boxSize, numberOffset, numberText
+                );
+                if (fullBoard) {
+                    drawBoxFlags(
+                        canvas, x, y, box,
+                        boxSize, barSize, numberOffset, numberTextSize
+                    );
+                }
+            }
+
+            drawBoxCircle(canvas, x, y, box, boxSize);
+
+            if (box.isBlank()) {
+                if (suppressNotesLists != null) {
+                    drawBoxNotes(
+                        canvas, x, y, box,
+                        boxSize, textOffset,
+                        noteText, miniNoteText,
+                        suppressNotesLists
+                    );
+                }
+            } else {
+                drawBoxLetter(
+                    canvas, x, y,
+                    box, row, col,
+                    boxSize, textOffset, isHighlighted, currentWord
+                );
+            }
+        }
+    }
+
+    private void drawBoxOutline(
+        Canvas canvas, int x, int y,
+        int row, int col,
+        int boxSize, Position highlight, Word currentWord
+    ) {
+        boolean isHighlighted
+            = highlight.getCol() == col
+                && highlight.getRow() == row
+                && currentWord != null;
+        Paint boxColor = isHighlighted ? this.currentLetterBox : this.blackLine;
 
         // Draw left
         if ((col != (highlight.getCol() + 1)) || (row != highlight.getRow())) {
@@ -619,256 +682,278 @@ public class PlayboardRenderer {
         if ((row != (highlight.getRow() - 1)) || (col != highlight.getCol())) {
             canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, boxColor);
         }
+    }
 
-        Rect r = new Rect(x + 1, y + 1, (x + boxSize) - 1, (y + boxSize) - 1);
+    private void drawBoxBackground(
+        Canvas canvas, Box box, int row, int col,
+        Rect boxRect, Position highlight, Word currentWord
+    ) {
+        // doesn't depend on current word (for BoxEditText)
+        boolean isHighlighted
+            = highlight.getCol() == col
+                && highlight.getRow() == row;
+        boolean highlightError = highlightError(box, isHighlighted);
 
-        if (box == null) {
-            canvas.drawRect(r, this.blackBox);
+        if (isHighlighted && !highlightError) {
+            canvas.drawRect(boxRect, this.currentLetterHighlight);
+        } else if (isHighlighted && highlightError) {
+            canvas.drawRect(boxRect, this.redHighlight);
+        } else if ((currentWord != null) && currentWord.checkInWord(row, col)) {
+            canvas.drawRect(boxRect, this.currentWordHighlight);
+        } else if (highlightError) {
+            canvas.drawRect(boxRect, this.red);
+        } else if (this.hintHighlight && box.isCheated()) {
+            canvas.drawRect(boxRect, this.cheated);
         } else {
-            boolean highlightError = highlightError(box, isHighlighted);
-
-            if (highlightError)
-                box.setCheated(true);
-
-            // Background colors
-            if (isHighlighted && !highlightError) {
-                canvas.drawRect(r, this.currentLetterHighlight);
-            } else if (isHighlighted && highlightError) {
-                canvas.drawRect(r, this.redHighlight);
-            } else if ((currentWord != null) && currentWord.checkInWord(row, col)) {
-                canvas.drawRect(r, this.currentWordHighlight);
-            } else if (highlightError) {
-                canvas.drawRect(r, this.red);
-            } else if (this.hintHighlight && box.isCheated()) {
-                canvas.drawRect(r, this.cheated);
+            if (!box.hasColor()) {
+                canvas.drawRect(boxRect, this.white);
             } else {
-                if (!box.hasColor()) {
-                    canvas.drawRect(r, this.white);
-                } else {
-                    Paint paint = getRelativePaint(this.white, box.getColor());
-                    canvas.drawRect(r, paint);
-                }
+                Paint paint = getRelativePaint(this.white, box.getColor());
+                canvas.drawRect(boxRect, paint);
             }
+        }
+    }
 
-            // Bars before clue numbers to avoid obfuscating
-            if (fullBoard) {
-                if (box.isBarredLeft()) {
-                    Rect bar = new Rect(x, y, x + barSize, y + boxSize);
-                    canvas.drawRect(bar, this.blackBox);
-                }
+    private void drawBoxBars(
+        Canvas canvas, int x, int y, Box box,
+        int boxSize, int barSize
+    ) {
+        if (box.isBarredLeft()) {
+            Rect bar = new Rect(x, y, x + barSize, y + boxSize);
+            canvas.drawRect(bar, this.blackBox);
+        }
 
-                if (box.isBarredTop()) {
-                    Rect bar = new Rect(x, y, x + boxSize, y + barSize);
-                    canvas.drawRect(bar, this.blackBox);
-                }
+        if (box.isBarredTop()) {
+            Rect bar = new Rect(x, y, x + boxSize, y + barSize);
+            canvas.drawRect(bar, this.blackBox);
+        }
 
-                if (box.isBarredRight()) {
-                    Rect bar = new Rect(
-                        x + boxSize - barSize, y,
-                        x + boxSize, y + boxSize
-                    );
-                    canvas.drawRect(bar, this.blackBox);
-                }
+        if (box.isBarredRight()) {
+            Rect bar = new Rect(
+                x + boxSize - barSize, y,
+                x + boxSize, y + boxSize
+            );
+            canvas.drawRect(bar, this.blackBox);
+        }
 
-                if (box.isBarredBottom()) {
-                    Rect bar = new Rect(
-                        x, y + boxSize - barSize,
-                        x + boxSize, y + boxSize
-                    );
-                    canvas.drawRect(bar, this.blackBox);
-                }
+        if (box.isBarredBottom()) {
+            Rect bar = new Rect(
+                x, y + boxSize - barSize,
+                x + boxSize, y + boxSize
+            );
+            canvas.drawRect(bar, this.blackBox);
+        }
+    }
+
+    private void drawBoxMarks(
+        Canvas canvas, int x, int y, Box box,
+        int boxSize, int numberOffset, TextPaint numberText
+    ) {
+        String clueNumber = box.getClueNumber();
+
+        drawHtmlText(
+            canvas,
+            clueNumber,
+            x + numberOffset,
+            y + numberOffset / 2,
+            boxSize,
+            numberText
+        );
+    }
+
+    private void drawBoxFlags(
+        Canvas canvas, int x, int y, Box box,
+        int boxSize, int barSize, int numberOffset, int numberTextSize
+    ) {
+        Puzzle puz = board.getPuzzle();
+
+        boolean flagAcross = false;
+        boolean flagDown = false;
+
+        for (ClueID cid : box.getIsPartOfClues()) {
+            if (box.isStartOf(cid) && puz.isFlagged(cid)) {
+                if (isClueProbablyAcross(cid))
+                    flagAcross = true;
+                else
+                    flagDown = true;
+
             }
+        }
 
-            if (drawClueNumber(box)) {
-                String clueNumber = box.getClueNumber();
-                drawHtmlText(
-                    canvas,
-                    clueNumber,
-                    x + numberOffset,
-                    y + numberOffset / 2,
-                    boxSize,
-                    numberText
-                );
+        if (flagDown) {
+            String clueNumber = box.getClueNumber();
+            int numDigits = clueNumber == null ? 0 : clueNumber.length();
+            int numWidth = numDigits * numberTextSize / 2;
+            Rect bar = new Rect(
+                x + numberOffset + numWidth + barSize,
+                y + 1 * barSize,
+                x + boxSize - barSize,
+                y + 2 * barSize
+            );
+            canvas.drawRect(bar, this.flag);
+        }
 
-                Puzzle puz = board.getPuzzle();
+        if (flagAcross) {
+            Rect bar = new Rect(
+                x + 1 * barSize,
+                y + barSize + numberOffset + numberTextSize,
+                x + 2 * barSize,
+                y + boxSize - barSize
+            );
+            canvas.drawRect(bar, this.flag);
+        }
+    }
 
-                if (fullBoard) {
-                    boolean flagAcross = false;
-                    boolean flagDown = false;
+    private void drawBoxCircle(
+        Canvas canvas, int x, int y, Box box, int boxSize
+    ) {
+        // Draw circle
+        if (box.isCircled()) {
+            canvas.drawCircle(x + (boxSize / 2) + 0.5F, y + (boxSize / 2) + 0.5F, (boxSize / 2) - 1.5F, blackCircle);
+        }
+    }
 
-                    for (ClueID cid : box.getIsPartOfClues()) {
-                        if (box.isStartOf(cid) && puz.isFlagged(cid)) {
-                            if (isClueProbablyAcross(cid))
-                                flagAcross = true;
-                            else
-                                flagDown = true;
+    private void drawBoxLetter(
+        Canvas canvas, int x, int y,
+        Box box, int row, int col,
+        int boxSize, int textOffset, boolean isHighlighted, Word currentWord
+    ) {
+        TextPaint thisLetter = this.letterText;
+        String letterString = box.isBlank()
+            ? null
+            : Character.toString(box.getResponse());
 
-                        }
-                    }
+        if (highlightError(box, isHighlighted)) {
+            boolean inCurrentWord =
+                (currentWord != null) && currentWord.checkInWord(row, col);
 
-                    if (flagDown) {
-                        int numDigits = clueNumber.length();
-                        int numWidth = numDigits * numberTextSize / 2;
-                        Rect bar = new Rect(
-                            x + numberOffset + numWidth + barSize,
-                            y + 1 * barSize,
-                            x + boxSize - barSize,
-                            y + 2 * barSize
-                        );
-                        canvas.drawRect(bar, this.flag);
-                    }
-
-                    if (flagAcross) {
-                        Rect bar = new Rect(
-                            x + 1 * barSize,
-                            y + barSize + numberOffset + numberTextSize,
-                            x + 2 * barSize,
-                            y + boxSize - barSize
-                        );
-                        canvas.drawRect(bar, this.flag);
-                    }
-                }
+            if (isHighlighted) {
+                thisLetter = this.white;
+            } else if (inCurrentWord) {
+                thisLetter = this.redHighlight;
             }
+        }
 
-            // Draw circle
-            if (box.isCircled()) {
-                canvas.drawCircle(x + (boxSize / 2) + 0.5F, y + (boxSize / 2) + 0.5F, (boxSize / 2) - 1.5F, blackCircle);
+        int yoffset = (int) (
+            boxSize - textOffset
+            + letterText.ascent() - letterText.descent()
+        );
+        drawText(
+            canvas,
+            letterString,
+            x + (boxSize / 2),
+            y + yoffset,
+            boxSize,
+            thisLetter
+        );
+    }
+
+    private void drawBoxNotes(
+        Canvas canvas, int x, int y, Box box,
+        int boxSize, int textOffset,
+        TextPaint noteText, TextPaint miniNoteText,
+        Set<String> suppressNotesLists
+    ) {
+        String noteStringAcross = null;
+        String noteStringDown = null;
+
+        for (ClueID cid : box.getIsPartOfClues()) {
+            if (suppressNotesLists.contains(cid.getListName()))
+                continue;
+
+            Note note = board.getPuzzle().getNote(cid);
+            if (note == null)
+                continue;
+
+            String scratch = note.getScratch();
+            if (scratch == null)
+                continue;
+
+            int pos = box.getCluePosition(cid);
+            if (pos < 0 || pos >= scratch.length())
+                continue;
+
+            char noteChar = scratch.charAt(pos);
+            if (noteChar == ' ')
+                continue;
+
+            if (isClueProbablyAcross(cid)) {
+                noteStringAcross =
+                    Character.toString(noteChar);
+            } else {
+                noteStringDown =
+                    Character.toString(noteChar);
             }
+        }
 
-            thisLetter = this.letterText;
-            String letterString = box.isBlank() ? null : Character.toString(box.getResponse());
-            String noteStringAcross = null;
-            String noteStringDown = null;
+        float[] mWidth = new float[1];
+        letterText.getTextWidths("M", mWidth);
+        float letterTextHalfWidth = mWidth[0] / 2;
 
-            if (highlightError) {
-                if (isHighlighted) {
-                    thisLetter = this.white;
-                } else if (inCurrentWord) {
-                    thisLetter = this.redHighlight;
-                }
-            }
-
-            // check for notes if needed
-            if (box.isBlank() && !(suppressNotesLists == null)) {
-                for (ClueID cid : box.getIsPartOfClues()) {
-                    if (suppressNotesLists.contains(cid.getListName()))
-                        continue;
-
-                    Note note = board.getPuzzle().getNote(cid);
-                    if (note == null)
-                        continue;
-
-                    String scratch = note.getScratch();
-                    if (scratch == null)
-                        continue;
-
-                    int pos = box.getCluePosition(cid);
-                    if (pos < 0 || pos >= scratch.length())
-                        continue;
-
-                    char noteChar = scratch.charAt(pos);
-                    if (noteChar == ' ')
-                        continue;
-
-                    if (isClueProbablyAcross(cid)) {
-                        noteStringAcross =
-                            Character.toString(noteChar);
-                    } else {
-                        noteStringDown =
-                            Character.toString(noteChar);
-                    }
-                }
-            }
-
-            if (letterString != null) {
-                // Full size letter in normal font
-                int yoffset = (int) (
-                    boxSize - textOffset
-                    + letterText.ascent() - letterText.descent()
-                );
+        if (noteStringAcross != null && noteStringDown != null) {
+            if (noteStringAcross.equals(noteStringDown)) {
+                // Same scratch letter in both directions
+                // Align letter with across and down answers
+                int noteTextHeight
+                    = (int) (noteText.descent() - noteText.ascent());
                 drawText(
                     canvas,
-                    letterString,
-                    x + (boxSize / 2),
-                    y + yoffset,
+                    noteStringAcross,
+                    x + (int)(boxSize - letterTextHalfWidth),
+                    y + boxSize - noteTextHeight - textOffset,
                     boxSize,
-                    thisLetter
+                    noteText
                 );
             } else {
-                float[] mWidth = new float[1];
-                letterText.getTextWidths("M", mWidth);
-                float letterTextHalfWidth = mWidth[0] / 2;
-
-                if (noteStringAcross != null && noteStringDown != null) {
-                    if (noteStringAcross.equals(noteStringDown)) {
-                        // Same scratch letter in both directions
-                        // Align letter with across and down answers
-                        noteText.setTextSize(noteTextSize);
-                        int noteTextHeight
-                            = (int) (noteText.descent() - noteText.ascent());
-                        drawText(
-                            canvas,
-                            noteStringAcross,
-                            x + (int)(boxSize - letterTextHalfWidth),
-                            y + boxSize - noteTextHeight - textOffset,
-                            boxSize,
-                            noteText
-                        );
-                    } else {
-                        // Conflicting scratch letters
-                        // Display both letters side by side
-                        noteText.setTextSize(miniNoteTextSize);
-                        int noteTextHeight
-                            = (int) (noteText.descent() - noteText.ascent());
-                        drawText(
-                            canvas,
-                            noteStringAcross,
-                            x + (int)(boxSize * 0.05 + letterTextHalfWidth),
-                            y + boxSize - noteTextHeight - textOffset,
-                            boxSize,
-                            noteText
-                        );
-                        int yoffset =
-                            boxSize
-                            - noteTextHeight
-                            + (int) noteText.ascent();
-                        drawText(
-                            canvas,
-                            noteStringDown,
-                            x + (int)(boxSize - letterTextHalfWidth),
-                            y + yoffset,
-                            boxSize,
-                            noteText
-                        );
-                    }
-                } else if (noteStringAcross != null) {
-                    // Across scratch letter only - display in bottom left
-                    noteText.setTextSize(noteTextSize);
-                    int noteTextHeight
-                        = (int) (noteText.descent() - noteText.ascent());
-                    drawText(
-                        canvas,
-                        noteStringAcross,
-                        x + (boxSize / 2),
-                        y + boxSize - noteTextHeight - textOffset,
-                        boxSize,
-                        noteText
-                    );
-                } else if (noteStringDown != null) {
-                    // Down scratch letter only - display in bottom left
-                    noteText.setTextSize(noteTextSize);
-                    int noteTextHeight
-                        = (int) (noteText.descent() - noteText.ascent());
-                    drawText(
-                        canvas,
-                        noteStringDown,
-                        x + (int)(boxSize - letterTextHalfWidth),
-                        y + boxSize - noteTextHeight - textOffset,
-                        boxSize,
-                        noteText
-                    );
-                }
+                // Conflicting scratch letters
+                // Display both letters side by side
+                int noteTextHeight
+                    = (int) (miniNoteText.descent() - miniNoteText.ascent());
+                drawText(
+                    canvas,
+                    noteStringAcross,
+                    x + (int)(boxSize * 0.05 + letterTextHalfWidth),
+                    y + boxSize - noteTextHeight - textOffset,
+                    boxSize,
+                    miniNoteText
+                );
+                int yoffset =
+                    boxSize
+                    - noteTextHeight
+                    + (int) miniNoteText.ascent();
+                drawText(
+                    canvas,
+                    noteStringDown,
+                    x + (int)(boxSize - letterTextHalfWidth),
+                    y + yoffset,
+                    boxSize,
+                    miniNoteText
+                );
             }
+        } else if (noteStringAcross != null) {
+            // Across scratch letter only - display in bottom left
+            int noteTextHeight
+                = (int) (noteText.descent() - noteText.ascent());
+            drawText(
+                canvas,
+                noteStringAcross,
+                x + (boxSize / 2),
+                y + boxSize - noteTextHeight - textOffset,
+                boxSize,
+                noteText
+            );
+        } else if (noteStringDown != null) {
+            // Down scratch letter only - display in bottom left
+            int noteTextHeight
+                = (int) (noteText.descent() - noteText.ascent());
+            drawText(
+                canvas,
+                noteStringDown,
+                x + (int)(boxSize - letterTextHalfWidth),
+                y + boxSize - noteTextHeight - textOffset,
+                boxSize,
+                noteText
+            );
         }
     }
 
