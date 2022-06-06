@@ -28,6 +28,14 @@
                 android:id="@+id/puzzle_menu_share_clue_response"
                 android:title="@string/share_clue_response"
             />
+            <item
+                android:id="@+id/puzzle_menu_share_puzzle_full"
+                android:title="@string/share_puzzle_full"
+            />
+            <item
+                android:id="@+id/puzzle_menu_share_puzzle_orig"
+                android:title="@string/share_puzzle_orig"
+            />
         </menu>
     </item>
 </menu>

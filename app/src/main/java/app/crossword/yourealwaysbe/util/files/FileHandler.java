@@ -46,7 +46,7 @@ public abstract class FileHandler {
     private static final String MIME_TYPE_PUZ = "application/x-crossword";
     private static final String MIME_TYPE_META = "application/octet-stream";
     // Android messes with application/json by adding .json extension :(
-    private static final String MIME_TYPE_IPUZ = "application/octet-stream";
+    public static final String MIME_TYPE_IPUZ = "application/octet-stream";
 
     public static final String MIME_TYPE_PLAIN_TEXT = "text/plain";
     public static final String MIME_TYPE_GENERIC = "application/octet-stream";

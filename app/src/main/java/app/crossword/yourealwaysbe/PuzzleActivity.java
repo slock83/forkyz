@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.MenuItem;
+import androidx.core.app.ShareCompat;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -15,6 +16,7 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.util.files.FileHandlerShared;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.view.SpecialEntryDialog;
 
@@ -110,6 +112,10 @@ public abstract class PuzzleActivity
             shareClue(false);
         } else if (id == R.id.puzzle_menu_share_clue_response) {
             shareClue(true);
+        } else if (id == R.id.puzzle_menu_share_puzzle_full) {
+            sharePuzzle(false);
+        } else if (id == R.id.puzzle_menu_share_puzzle_orig) {
+            sharePuzzle(true);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -296,7 +302,7 @@ public abstract class PuzzleActivity
         Box[] response = board.getCurrentWordBoxes();
 
         String shareMessage = getShareMessage(
-            clue, response, source, title, author, withResponse
+            puz, clue, response, withResponse
         );
 
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
@@ -308,63 +314,25 @@ public abstract class PuzzleActivity
     }
 
     private String getShareMessage(
-        Clue clue, Box[] response,
-        String source, String title, String author,
-        boolean withResponse
+        Puzzle puz, Clue clue, Box[] response, boolean withResponse
     ) {
         String clueText = getShareClueText(clue);
         String responseText = withResponse
             ? getShareResponseText(response)
             : null;
 
-        if (source == null)
-            source = "";
-        if (title == null)
-            title = "";
-        if (author != null) {
-            // add author if not already in title or caption
-            // case insensitive trick:
-            // https://www.baeldung.com/java-case-insensitive-string-matching
-            String quotedAuthor = Pattern.quote(author);
-            boolean removeAuthor
-                = author.isEmpty()
-                    || title.matches("(?i).*" + quotedAuthor + ".*")
-                    || source.matches("(?i).*" + quotedAuthor + ".*");
-
-            if (removeAuthor)
-                author = null;
-        }
+        String puzzleDetails = getSharePuzzleDetails(puz);
 
         if (withResponse) {
-            if (author != null) {
-                return getString(
-                    R.string.share_clue_response_text_author,
-                    clueText,
-                    responseText,
-                    source, title, author
-                );
-            } else {
-                return getString(
-                    R.string.share_clue_response_text_no_author,
-                    clueText,
-                    responseText,
-                    source, title
-                );
-            }
+            return getString(
+                R.string.share_clue_response_text,
+                clueText, responseText, puzzleDetails
+            );
         } else {
-            if (author != null) {
-                return getString(
-                    R.string.share_clue_text_author,
-                    clueText,
-                    source, title, author
-                );
-            } else {
-                return getString(
-                    R.string.share_clue_text_no_author,
-                    clueText,
-                    source, title
-                );
-            }
+            return getString(
+                R.string.share_clue_text,
+                clueText, puzzleDetails
+            );
         }
     }
 
@@ -403,4 +371,66 @@ public abstract class PuzzleActivity
         }
     }
 
+    private String getSharePuzzleDetails(Puzzle puz) {
+        if (puz == null)
+            return "";
+
+        String source = puz.getSource();
+        String title = puz.getTitle();
+        String author = puz.getAuthor();
+
+        if (source == null)
+            source = "";
+        if (title == null)
+            title = "";
+        if (author != null) {
+            // add author if not already in title or caption
+            // case insensitive trick:
+            // https://www.baeldung.com/java-case-insensitive-string-matching
+            String quotedAuthor = Pattern.quote(author);
+            boolean removeAuthor
+                = author.isEmpty()
+                    || title.matches("(?i).*" + quotedAuthor + ".*")
+                    || source.matches("(?i).*" + quotedAuthor + ".*");
+
+            if (removeAuthor)
+                author = null;
+        }
+
+        return (author != null)
+            ? getString(
+                R.string.share_puzzle_details_author,
+                source, title, author
+            ) : getString(
+                R.string.share_puzzle_details_no_author,
+                source, title
+            );
+    }
+
+    private void sharePuzzle(boolean writeOriginal) {
+        final Puzzle puz = getPuzzle();
+        if (puz == null)
+            return;
+
+        FileHandlerShared.getShareUri(
+            getApplicationContext(), getPuzzle(), writeOriginal,
+            (puzUri) -> {
+                String mimeType = FileHandlerShared.getShareUriMimeType();
+                String puzzleDetails = getSharePuzzleDetails(puz);
+
+                // ShareCompat from
+                // https://stackoverflow.com/a/39619468/6882587
+                // assume works better than the out-of-date android docs!
+                Intent shareIntent = new ShareCompat.IntentBuilder(this)
+                    .setStream(puzUri)
+                    .setType(mimeType)
+                    .getIntent()
+                    .setAction(Intent.ACTION_SEND)
+                    .setDataAndType(puzUri, mimeType)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+                startActivity(Intent.createChooser(shareIntent, null));
+            }
+        );
+    }
 }

@@ -126,5 +126,16 @@
             android:theme="@style/Theme.AppCompat.Dialog"
             android:exported="false"
         />
+        <provider
+            android:name="app.crossword.yourealwaysbe.util.files.FileHandlerShared"
+            android:authorities="app.crossword.yourealwaysbe.forkyzfiles"
+            android:exported="false"
+            android:grantUriPermissions="true"
+        >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/share_paths"
+            />
+        </provider>
     </application>
 </manifest>

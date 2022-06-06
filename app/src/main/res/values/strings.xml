@@ -276,6 +276,8 @@
     <string name="share">Share</string>
     <string name="share_clue">Clue</string>
     <string name="share_clue_response">Clue with Board</string>
+    <string name="share_puzzle_full">Current Puzzle</string>
+    <string name="share_puzzle_orig">Blank Puzzle</string>
 
     <!-- clue list menu -->
     <string name="menu_clue_notes">Clue Notes</string>
@@ -439,8 +441,8 @@
 
     <!-- share clue -->
     <string name="share_clue_blank_box">?</string>
-    <string name="share_clue_text_author">%1$s\n%2$s, %3$s by %4$s.</string>
-    <string name="share_clue_text_no_author">%1$s\n%2$s, %3$s.</string>
-    <string name="share_clue_response_text_author">%1$s\nHint: %2$s\n%3$s, %4$s by %5$s.</string>
-    <string name="share_clue_response_text_no_author">%1$s\nHint: %2$s\n%3$s, %4$s.</string>
+    <string name="share_clue_text">%1$s\n%2$s</string>
+    <string name="share_clue_response_text">%1$s\nHint: %2$s\n%3$s.</string>
+    <string name="share_puzzle_details_author">%1$s, %2$s by %3$s</string>
+    <string name="share_puzzle_details_no_author">%1$s, %2$s</string>
 </resources>

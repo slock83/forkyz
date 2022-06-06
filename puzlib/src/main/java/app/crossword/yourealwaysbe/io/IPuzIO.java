@@ -1251,11 +1251,17 @@ public class IPuzIO implements PuzzleParser {
         return new ClueID(listName, index);
     }
 
+    public static void writePuzzle(Puzzle puz, OutputStream os)
+            throws IOException {
+        writePuzzle(puz, os, false);
+    }
+
     /**
      * Write puzzle to os using WRITE_CHARSET
      */
-    public static void writePuzzle(Puzzle puz, OutputStream os)
-            throws IOException {
+    public static void writePuzzle(
+        Puzzle puz, OutputStream os, boolean omitPlayState
+    ) throws IOException {
         BufferedWriter writer = null;
         try {
             writer = new BufferedWriter(
@@ -1269,9 +1275,9 @@ public class IPuzIO implements PuzzleParser {
 
             writeIPuzHeader(jsonWriter);
             writeMetaData(puz, jsonWriter);
-            writeBoxes(puz, jsonWriter);
+            writeBoxes(puz, jsonWriter, omitPlayState);
             writeClues(puz, jsonWriter);
-            writeExtensions(puz, jsonWriter);
+            writeExtensions(puz, jsonWriter, omitPlayState);
 
             jsonWriter.endObject();
             jsonWriter.newLine();
@@ -1316,11 +1322,13 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read all IPuz supported box information to json
      */
-    private static void writeBoxes(Puzzle puz, FormatableJSONWriter writer)
-            throws IOException {
+    private static void writeBoxes(
+        Puzzle puz, FormatableJSONWriter writer, boolean omitPlayState
+    ) throws IOException {
         writeDimensions(puz, writer);
         writePuzzleCells(puz, writer);
-        writeSaved(puz, writer);
+        if (!omitPlayState)
+            writeSaved(puz, writer);
         writeSolution(puz, writer);
     }
 
@@ -1651,31 +1659,34 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Write Puzzle features not natively supported by IPuz
      */
-    private static void writeExtensions(Puzzle puz, FormatableJSONWriter writer)
-            throws IOException {
+    private static void writeExtensions(
+        Puzzle puz, FormatableJSONWriter writer, boolean omitPlayState
+    ) throws IOException {
         writeExtensionVolatility(writer);
 
         writer.keyValueNonNull(FIELD_EXT_SUPPORT_URL, puz.getSupportUrl());
         writer.keyValueNonNull(FIELD_EXT_IO_VERSION, IO_VERSION);
 
-        writer.key(FIELD_EXT_PLAY_DATA)
-            .object();
-        writer.newLine();
+        if (!omitPlayState) {
+            writer.key(FIELD_EXT_PLAY_DATA)
+                .object();
+            writer.newLine();
 
-        writeBoxExtras(puz, writer);
-        writePosition(puz, writer);
-        writeClueHistory(puz, writer);
-        writeClueNotes(puz, writer);
-        writePlayerNote(puz, writer);
-        writeFlaggedClues(puz, writer);
+            writeBoxExtras(puz, writer);
+            writePosition(puz, writer);
+            writeClueHistory(puz, writer);
+            writeClueNotes(puz, writer);
+            writePlayerNote(puz, writer);
+            writeFlaggedClues(puz, writer);
 
-        writer.keyValueNonNull(1, FIELD_COMPLETION_TIME, puz.getTime())
-            .keyValueNonNull(1, FIELD_PCNT_FILLED, puz.getPercentFilled())
-            .keyValueNonNull(1, FIELD_PCNT_COMPLETE, puz.getPercentComplete())
-            .keyValueNonNull(1, FIELD_UPDATABLE, puz.isUpdatable());
+            writer.keyValueNonNull(1, FIELD_COMPLETION_TIME, puz.getTime())
+                .keyValueNonNull(1, FIELD_PCNT_FILLED, puz.getPercentFilled())
+                .keyValueNonNull(1, FIELD_PCNT_COMPLETE, puz.getPercentComplete())
+                .keyValueNonNull(1, FIELD_UPDATABLE, puz.isUpdatable());
 
-        writer.endObject();
-        writer.newLine();
+            writer.endObject();
+            writer.newLine();
+        }
     }
 
     /**
