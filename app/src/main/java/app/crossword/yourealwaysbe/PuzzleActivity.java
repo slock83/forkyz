@@ -277,13 +277,13 @@ public abstract class PuzzleActivity
         this.startActivity(i);
     }
 
-    protected void specialEntry() {
+    private void specialEntry() {
         SpecialEntryDialog dialog
             = new SpecialEntryDialog(getBoard());
         dialog.show(getSupportFragmentManager(), "SpecialEntryDialog");
     }
 
-    protected void shareClue(boolean withResponse) {
+    private void shareClue(boolean withResponse) {
         Playboard board = getBoard();
         Clue clue = (board == null) ? null : board.getClue();
         if (clue == null)
