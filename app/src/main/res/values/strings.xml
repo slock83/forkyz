@@ -273,6 +273,9 @@
     <!-- menus general -->
     <string name="help">Help</string>
     <string name="settings">Settings</string>
+    <string name="share">Share</string>
+    <string name="share_clue">Clue</string>
+    <string name="share_clue_response">Clue with Board</string>
 
     <!-- clue list menu -->
     <string name="menu_clue_notes">Clue Notes</string>
@@ -359,7 +362,6 @@
     <string name="total_boxes">Total Boxes</string>
     <string name="hinted_boxes">Hinted Boxes</string>
     <string name="dummy_xx_w_pcnt">XX (XX%)</string>
-    <string name="share">Share</string>
     <string name="done">Done</string>
     <string name="num_hinted_boxes">%1$d (%2$d%%)</string>
     <string name="share_your_time">Share your time</string>
@@ -434,4 +436,11 @@
     <!-- special entry -->
     <string name="enter_special">Enter desired box response.</string>
     <string name="enter_special_desc">Enter the response in the box below. The character(s) will be entered onto the board as is. E.g. lowercase letters will not be converted to uppercase. Special characters and multiple characters are allowed.</string>
+
+    <!-- share clue -->
+    <string name="share_clue_blank_box">?</string>
+    <string name="share_clue_text_author">%1$s\n%2$s, %3$s by %4$s.</string>
+    <string name="share_clue_text_no_author">%1$s\n%2$s, %3$s.</string>
+    <string name="share_clue_response_text_author">%1$s\nHint: %2$s\n%3$s, %4$s by %5$s.</string>
+    <string name="share_clue_response_text_no_author">%1$s\nHint: %2$s\n%3$s, %4$s.</string>
 </resources>

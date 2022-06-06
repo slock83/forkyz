@@ -1,23 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-
-
     <item
         android:id="@+id/clue_list_menu_clue_notes"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/menu_clue_notes"
     />
-
     <item
         android:id="@+id/clue_list_menu_puzzle_notes"
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="@string/menu_puzzle_notes"
     />
-
     <item
         android:id="@+id/puzzle_menu_special_entry"
         android:title="@string/special_entry"
     />
-
+    <item
+        android:id="@+id/puzzle_menu_share"
+        android:title="@string/share"
+    >
+        <menu>
+            <item
+                android:id="@+id/puzzle_menu_share_clue"
+                android:title="@string/share_clue"
+            />
+            <item
+                android:id="@+id/puzzle_menu_share_clue_response"
+                android:title="@string/share_clue_response"
+            />
+        </menu>
+    </item>
 </menu>

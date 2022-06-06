@@ -112,6 +112,21 @@
         android:title="@string/special_entry"
     />
     <item
+        android:id="@+id/puzzle_menu_share"
+        android:title="@string/share"
+    >
+        <menu>
+            <item
+                android:id="@+id/puzzle_menu_share_clue"
+                android:title="@string/share_clue"
+            />
+            <item
+                android:id="@+id/puzzle_menu_share_clue_response"
+                android:title="@string/share_clue_response"
+            />
+        </menu>
+    </item>
+    <item
         android:id="@+id/play_menu_help"
         android:icon="@android:drawable/ic_menu_help"
         android:title="@string/help"

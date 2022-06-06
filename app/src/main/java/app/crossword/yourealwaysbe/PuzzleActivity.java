@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
+import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
@@ -18,6 +19,7 @@ import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.view.SpecialEntryDialog;
 
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 public abstract class PuzzleActivity
         extends ForkyzActivity
@@ -104,6 +106,10 @@ public abstract class PuzzleActivity
         } else if (id == R.id.puzzle_menu_special_entry) {
             specialEntry();
             return true;
+        } else if (id == R.id.puzzle_menu_share_clue) {
+            shareClue(false);
+        } else if (id == R.id.puzzle_menu_share_clue_response) {
+            shareClue(true);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -276,4 +282,125 @@ public abstract class PuzzleActivity
             = new SpecialEntryDialog(getBoard());
         dialog.show(getSupportFragmentManager(), "SpecialEntryDialog");
     }
+
+    protected void shareClue(boolean withResponse) {
+        Playboard board = getBoard();
+        Clue clue = (board == null) ? null : board.getClue();
+        if (clue == null)
+            return;
+
+        Puzzle puz = board.getPuzzle();
+        String source = (puz == null) ? null : puz.getSource();
+        String title = (puz == null) ? null : puz.getTitle();
+        String author = (puz == null) ? null : puz.getAuthor();
+        Box[] response = board.getCurrentWordBoxes();
+
+        String shareMessage = getShareMessage(
+            clue, response, source, title, author, withResponse
+        );
+
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(
+            sendIntent, getString(R.string.share_clue)
+        ));
+    }
+
+    private String getShareMessage(
+        Clue clue, Box[] response,
+        String source, String title, String author,
+        boolean withResponse
+    ) {
+        String clueText = getShareClueText(clue);
+        String responseText = withResponse
+            ? getShareResponseText(response)
+            : null;
+
+        if (source == null)
+            source = "";
+        if (title == null)
+            title = "";
+        if (author != null) {
+            // add author if not already in title or caption
+            // case insensitive trick:
+            // https://www.baeldung.com/java-case-insensitive-string-matching
+            String quotedAuthor = Pattern.quote(author);
+            boolean removeAuthor
+                = author.isEmpty()
+                    || title.matches("(?i).*" + quotedAuthor + ".*")
+                    || source.matches("(?i).*" + quotedAuthor + ".*");
+
+            if (removeAuthor)
+                author = null;
+        }
+
+        if (withResponse) {
+            if (author != null) {
+                return getString(
+                    R.string.share_clue_response_text_author,
+                    clueText,
+                    responseText,
+                    source, title, author
+                );
+            } else {
+                return getString(
+                    R.string.share_clue_response_text_no_author,
+                    clueText,
+                    responseText,
+                    source, title
+                );
+            }
+        } else {
+            if (author != null) {
+                return getString(
+                    R.string.share_clue_text_author,
+                    clueText,
+                    source, title, author
+                );
+            } else {
+                return getString(
+                    R.string.share_clue_text_no_author,
+                    clueText,
+                    source, title
+                );
+            }
+        }
+    }
+
+    private String getShareResponseText(Box[] boxes) {
+        StringBuilder responseText = new StringBuilder();
+        if (boxes != null) {
+            for (Box box : boxes) {
+                if (box.isBlank()) {
+                    responseText.append(
+                        getString(R.string.share_clue_blank_box)
+                    );
+                } else {
+                    responseText.append(box.getResponse());
+                }
+            }
+        }
+        return responseText.toString();
+    }
+
+    protected String getShareClueText(Clue clue) {
+        boolean showCount = prefs.getBoolean("showCount", false);
+
+        if (clue == null)
+            return getString(R.string.unknown_hint);
+
+        int wordLen = clue.hasZone() ? clue.getZone().size() : -1;
+
+        if (showCount && wordLen >= 0) {
+            return getString(
+                R.string.clue_format_short_no_num_no_dir_with_count,
+                clue.getHint(),
+                wordLen
+            );
+        } else {
+            return clue.getHint();
+        }
+    }
+
 }
