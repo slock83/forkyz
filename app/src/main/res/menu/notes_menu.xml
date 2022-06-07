@@ -5,6 +5,7 @@
 >
     <item
         android:id="@+id/puzzle_menu_special_entry"
+        android:icon="@android:drawable/ic_menu_share"
         android:title="@string/special_entry"
     />
     <item
