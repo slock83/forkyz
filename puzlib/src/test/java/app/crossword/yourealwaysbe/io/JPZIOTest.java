@@ -88,6 +88,17 @@ public class JPZIOTest extends TestCase {
             downClues.getClueByNumber("7").getHint(),
             "Work like __ (4)"
         );
+
+        String[][] marks = boxes[1][0].getMarks();
+        assertEquals(marks[0][0], "TL");
+        assertEquals(marks[0][1], "T");
+        assertEquals(marks[0][2], "TR");
+        assertEquals(marks[1][0], "L");
+        assertEquals(marks[1][1], "C");
+        assertEquals(marks[1][2], "R");
+        assertEquals(marks[2][0], "BL");
+        assertEquals(marks[2][1], "B");
+        assertEquals(marks[2][2], "BR");
     }
 
     public void testJPZ() throws Exception {

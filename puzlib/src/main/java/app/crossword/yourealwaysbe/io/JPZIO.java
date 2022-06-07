@@ -35,8 +35,6 @@ import javax.xml.parsers.SAXParserFactory;
  * This is not necessarily a complete implementation, but works for the
  * sources tested.
  *
- * Converts to the Across Lite .puz format.
- *
  * The (supported) XML format is:
  *
  * <crossword-compiler>
@@ -65,6 +63,14 @@ import javax.xml.parsers.SAXParserFactory;
  *     </crossword>
  *   </rectangular-puzzle>
  * </crossword-compiler>
+ *
+ * Other cell attributes include background-color, background-shape,
+ * solve-state, top|left|right|bottom-bar, top-right-number. Also
+ * assuming top-left-number, top-number, left-number,
+ * bottom-right-number &c. are valid (no
+ * examples found in wild).
+ *
+ * Does not unzip the JPZ, use StreamUnits.unzipOrPassThrough if needed.
  */
 public class JPZIO implements PuzzleParser {
     private static final Logger LOG
@@ -93,6 +99,18 @@ public class JPZIO implements PuzzleParser {
         public String getZoneID() { return zoneID; }
         public String getCitation() { return citation; }
     }
+
+    private static final String[][] markAttributes = new String[][] {
+        new String[] {
+            "top-left-number", "top-number", "top-right-number"
+        },
+        new String[] {
+            "left-number", "center-number", "right-number"
+        },
+        new String[] {
+            "bottom-left-number", "bottom-number", "bottom-right-number"
+        }
+    };
 
     private static class JPZXMLParser extends DefaultHandler {
         private String title = "";
@@ -270,6 +288,22 @@ public class JPZIO implements PuzzleParser {
                     box.setBarredLeft("true".equalsIgnoreCase(leftBar));
                     String rightBar = attributes.getValue("right-bar");
                     box.setBarredRight("true".equalsIgnoreCase(rightBar));
+
+                    boolean hasMarks = false;
+                    String[][] marks = new String[3][3];
+                    for (int row = 0; row < 3; row++) {
+                        for (int col = 0; col < 3; col++) {
+                            String mark = attributes.getValue(
+                                markAttributes[row][col]
+                            );
+                            if (mark != null) {
+                                marks[row][col] = mark;
+                                hasMarks = true;
+                            }
+                        }
+                    }
+                    if (hasMarks)
+                        box.setMarks(marks);
 
                     JPZXMLParser.this.boxes[y][x] = box;
                 }
