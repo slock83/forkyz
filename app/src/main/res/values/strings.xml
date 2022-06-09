@@ -440,6 +440,8 @@
     <string name="enter_special_desc">Enter the response in the box below. The character(s) will be entered onto the board as is. E.g. lowercase letters will not be converted to uppercase. Special characters and multiple characters are allowed.</string>
 
     <!-- share clue -->
+    <string name="share_clue_title">Clue</string>
+    <string name="share_puzzle_title">Clue</string>
     <string name="share_clue_blank_box">?</string>
     <string name="share_clue_text">%1$s\n%2$s</string>
     <string name="share_clue_response_text">%1$s\nHint: %2$s\n%3$s.</string>

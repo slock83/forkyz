@@ -305,12 +305,16 @@ public abstract class PuzzleActivity
             puz, clue, response, withResponse
         );
 
-        Intent sendIntent = new Intent(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
-        sendIntent.setType("text/plain");
-        startActivity(Intent.createChooser(
-            sendIntent, getString(R.string.share_clue)
-        ));
+        // ShareCompat from
+        // https://stackoverflow.com/a/39619468/6882587
+        // assume works better than the out-of-date android docs!
+        Intent shareIntent = new ShareCompat.IntentBuilder(this)
+            .setText(shareMessage)
+            .setType("text/plain")
+            .setChooserTitle(getString(R.string.share_clue_title))
+            .createChooserIntent();
+
+        startActivity(shareIntent);
     }
 
     private String getShareMessage(
@@ -418,18 +422,13 @@ public abstract class PuzzleActivity
                 String mimeType = FileHandlerShared.getShareUriMimeType();
                 String puzzleDetails = getSharePuzzleDetails(puz);
 
-                // ShareCompat from
-                // https://stackoverflow.com/a/39619468/6882587
-                // assume works better than the out-of-date android docs!
                 Intent shareIntent = new ShareCompat.IntentBuilder(this)
                     .setStream(puzUri)
                     .setType(mimeType)
-                    .getIntent()
-                    .setAction(Intent.ACTION_SEND)
-                    .setDataAndType(puzUri, mimeType)
-                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    .setChooserTitle(getString(R.string.share_puzzle_title))
+                    .createChooserIntent();
 
-                startActivity(Intent.createChooser(shareIntent, null));
+                startActivity(shareIntent);
             }
         );
     }
