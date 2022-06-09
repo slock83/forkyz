@@ -5,9 +5,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.Preference.OnPreferenceClickListener;
@@ -18,18 +16,15 @@ import androidx.preference.PreferenceManager;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.util.files.FileHandlerSAF;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 public class PreferencesFragment extends PreferenceFragmentCompat {
 
-    ActivityResultLauncher<Uri> getSAFURI = registerForActivityResult(
-        new OpenDocumentTree(),
-        new ActivityResultCallback<Uri>() {
-            @Override
-            public void onActivityResult(Uri uri) {
+    ActivityResultLauncher<Uri> getSAFURI
+        = AndroidVersionUtils.Factory.getInstance()
+            .registerForSAFUriResult(this, (uri) -> {
                 onNewExternalStorageSAFURI(uri);
-            }
-        }
-    );
+            });
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -117,7 +112,8 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                 Toast.LENGTH_LONG
             );
             t.show();
-            getSAFURI.launch(null);
+            if (getSAFURI != null)
+                getSAFURI.launch(null);
             return false;
         } else {
             return true;

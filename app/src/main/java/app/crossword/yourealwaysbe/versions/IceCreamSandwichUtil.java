@@ -29,6 +29,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class IceCreamSandwichUtil implements AndroidVersionUtils {
@@ -200,5 +201,13 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     @Override
     public boolean isSAFSupported() {
         return false;
+    }
+
+    @Override
+    public ActivityResultLauncher<Uri> registerForSAFUriResult(
+        Fragment fragment, Consumer<Uri> uriConsumer
+    ) {
+        // do nothing, not supported
+        return null;
     }
 }

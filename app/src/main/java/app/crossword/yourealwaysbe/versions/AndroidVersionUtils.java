@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.Window;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 public interface AndroidVersionUtils {
 
@@ -106,4 +107,8 @@ public interface AndroidVersionUtils {
     );
 
     boolean isSAFSupported();
+
+    ActivityResultLauncher<Uri> registerForSAFUriResult(
+        Fragment fragment, Consumer<Uri> uriConsumer
+    );
 }
