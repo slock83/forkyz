@@ -1,3 +1,3 @@
-Forkyz is an unofficial fork of the Shortyz crossword puzzles app. Puzzles can be downloaded and played.
+Forkyz is an unofficial fork of the Shortyz crossword puzzles app with several new features and compatible with recent Android versions.
 
-Forkyz is compatible with Android 11 and includes additional features.
+A variety of crossword puzzle types can be imported from files or downloaded and played. Imports support a variety of file formats, including AcrossLite (.puz), JPZ, and IPuz. A list of links to online puzzle creators is given. Puzzles can also be downloaded directly using the built-in downloaders.
