@@ -1,8 +1,6 @@
-<ul>
-<li>Experimental sources are now scrapers, visible in download dialog.</li>
-<li>Add Private Eye as downloadable source.</li>
-<li>Support split clues in Guardian puzzles.</li>
-<li>Add insert special characters feature.</li>
-<li>Refresh online sources list.</li>
-<li>Remove Washington Post source: AmuseLabs now obfuscate their data, i assume to prevent third-party downloads.</li>
-</ul>
+- Experimental sources are now scrapers, visible in download dialog.
+- Add Private Eye as downloadable source.
+- Support split clues in Guardian puzzles.
+- Add insert special characters feature.
+- Refresh online sources list.
+- Remove Washington Post source: AmuseLabs now obfuscate their data, i assume to prevent third-party downloads.

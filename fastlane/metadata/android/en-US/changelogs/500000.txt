@@ -1,13 +1,6 @@
-<p>Initial version, main changes from Shortyz listed below.</p>
-<p>Additions:</p>
-<ul>
-<li>Compatible with Android 11.</li>
-<li>Updated downloadable puzzles.</li>
-<li>Theme and UI adjustments.</li>
-<li>Notes/anagram solving screen.</li>
-</ul>
-<p>Removals:</p>
-<ul>
-<li>Google integration.</li>
-<li>Crashlytics.</li>
-</ul>
+- Compatible with Android 11.
+- Updated downloadable puzzles.
+- Theme and UI adjustments.
+- Notes/anagram solving screen.
+- Remove Google integration.
+- Remove Crashlytics.

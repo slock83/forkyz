@@ -1,5 +1,3 @@
-<ul>
-<li>Add share clue/board feature.</li>
-<li>Support notes on all clues, cells with numbers in different positions, and entering multiple characters into a single cell.</li>
-<li>Enable automatic clue text size scaling for older devices, remove clue text size menu option.</li>
-</ul>
+- Add share clue/board feature.
+- Support notes on all clues, cells with numbers in different positions, and entering multiple characters into a single cell.
+- Enable automatic clue text size scaling for older devices, remove clue text size menu option.

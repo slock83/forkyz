@@ -1,7 +1,5 @@
-<ul>
-<li>Repair download for Android 12</li>
-<li>Notes page: long press board while anagram source selected now copies board to anagram solution.</li>
-<li>Corrected snap-to-clue behaviour</li>
-<li>Fixed oddities in clue tabs</li>
-</ul>
+- Repair download for Android 12
+- Notes page: long press board while anagram source selected now copies board to anagram solution.
+- Corrected snap-to-clue behaviour
+- Fixed oddities in clue tabs
 

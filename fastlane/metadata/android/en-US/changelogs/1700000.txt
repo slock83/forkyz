@@ -1,1 +1,1 @@
-Fix crashes when first box is blank, and when crossword directories have been deleted.
+- Fix crashes when first box is blank, and when crossword directories have been deleted.

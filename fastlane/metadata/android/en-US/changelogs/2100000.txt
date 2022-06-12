@@ -1,5 +1,3 @@
-<ul>
-<li>Allow customisation of automatic downloads, and support older devices.</li>
-<li>Bring back the native keyboard (your mileage may vary).</li>
-<li>Restore wrap to next list behaviour for next clue movement strategy.</li>
-</ul>
+- Allow customisation of automatic downloads, and support older devices.
+- Bring back the native keyboard (your mileage may vary).
+- Restore wrap to next list behaviour for next clue movement strategy.

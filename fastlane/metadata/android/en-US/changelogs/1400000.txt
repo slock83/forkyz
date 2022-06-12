@@ -1,1 +1,1 @@
-Bug fixes and library updates.
+- Bug fixes and library updates.
