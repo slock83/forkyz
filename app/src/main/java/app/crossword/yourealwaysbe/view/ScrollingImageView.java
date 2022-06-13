@@ -4,14 +4,10 @@ import java.util.logging.Logger;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
-import android.view.inputmethod.BaseInputConnection;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputConnection;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import androidx.core.view.GestureDetectorCompat;
@@ -33,6 +29,7 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     private float runningScale = 1.0f;
     private boolean haveAdded = false;
     private boolean allowOverScroll = true;
+    private boolean allowZoom = true;
     private int boardStickyBorder;
     private int gestureStartX;
     private int gestureStartY;
@@ -62,14 +59,6 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    // Set input type to be raw keys if a keyboard is used
-    @Override
-    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        BaseInputConnection fic = new BaseInputConnection(this, false);
-        outAttrs.inputType = InputType.TYPE_NULL;
-        return fic;
     }
 
     public void setBitmap(Bitmap bitmap) {
@@ -127,8 +116,18 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
     private float currentScale = 1.0f;
 
-    public void setCurrentScale(float scale){
+    /**
+     * Sets current scale
+     *
+     * May adjust if necessary, returns final scale
+     */
+    public float setCurrentScale(float scale){
         this.currentScale = scale;
+        return this.currentScale;
+    }
+
+    public float getCurrentScale() {
+        return currentScale;
     }
 
     public boolean isVisible(Point p) {
@@ -206,10 +205,7 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
         final Point p = this.resolveToImagePoint(e.getX(), e.getY());
 
-        if (ScrollingImageView.this.ctxListener != null) {
-            ScrollingImageView.this.ctxListener.onContextMenu(p);
-            ScrollingImageView.this.longTouched = true;
-        }
+        onContextMenu(p);
     }
 
     public boolean onScroll(
@@ -237,9 +233,7 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
         if (this.longTouched) {
             this.longTouched = false;
         } else {
-            if (this.ctxListener != null) {
-                this.ctxListener.onTap(p);
-            }
+            onTap(p);
         }
 
         return true;
@@ -263,6 +257,10 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
      */
     public void setAllowOverScroll(boolean allowOverScroll) {
         this.allowOverScroll = allowOverScroll;
+    }
+
+    public void setAllowZoom(boolean allowZoom) {
+        this.allowZoom = allowZoom;
     }
 
     public void scrollBy(int x, int y) {
@@ -330,6 +328,9 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     }
 
     public void zoom(float scale, int x, int y) {
+        if (!allowZoom)
+            return;
+
         if (this.scaleScrollLocation == null) {
             this.scaleScrollLocation = new ScrollLocation(
                 this.resolveToImagePoint(x, y), this.imageView
@@ -362,8 +363,8 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     }
 
     public void zoomEnd() {
-        if ((this.scaleListener != null) && (this.scaleScrollLocation != null)) {
-            scaleListener.onScale(
+        if (this.scaleScrollLocation != null) {
+            onScale(
                 runningScale,
                 this.scaleScrollLocation.findNewPoint(
                     imageView.getWidth(), imageView.getHeight()
@@ -408,20 +409,56 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
     public interface AuxTouchHandler {
         boolean inProgress();
-
         void init(ScrollingImageView view);
-
         boolean onTouchEvent(MotionEvent ev);
     }
 
     public interface ClickListener {
-        void onContextMenu(Point e);
-
-        void onTap(Point e);
+        default void onContextMenu(Point e) { };
+        default void onTap(Point e) { };
     }
 
     public interface ScaleListener {
-        void onScale(float scale, Point center);
+        void onScale(float scale);
+    }
+
+    /**
+     * Called when scale changes
+     *
+     * Always call super.onScale, so that listeners can also be
+     * notified.
+     */
+    protected void onScale(float scale, Point center) {
+        notifyScaleChange(scale);
+    }
+
+    protected void notifyScaleChange(float scale) {
+        if (scaleListener != null)
+            scaleListener.onScale(scale);
+    }
+
+    /**
+     * Called on long press on point p
+     *
+     * Always call super.onContextMenu so that listeners can be
+     * notified.
+     */
+    protected void onContextMenu(Point p) {
+        if (ScrollingImageView.this.ctxListener != null) {
+            ScrollingImageView.this.ctxListener.onContextMenu(p);
+            ScrollingImageView.this.longTouched = true;
+        }
+    }
+
+    /**
+     * Called on tap on point p
+     *
+     * Always call super.onTap so that listeners can be notified.
+     */
+    protected void onTap(Point p) {
+        if (this.ctxListener != null) {
+            this.ctxListener.onTap(p);
+        }
     }
 
     public static class Point {

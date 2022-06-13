@@ -1,13 +1,22 @@
 package app.crossword.yourealwaysbe.view;
 
+import java.util.Collections;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -15,11 +24,11 @@ import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 
-import java.util.Collections;
-import java.util.Set;
-
 public class BoardEditText extends ScrollingImageView {
-    private static final Logger LOG = Logger.getLogger(BoardEditText.class.getCanonicalName());
+    private static final Logger LOG
+        = Logger.getLogger(BoardEditText.class.getCanonicalName());
+
+    private Handler handler = new Handler(Looper.getMainLooper());
 
     public interface BoardEditFilter {
         /**
@@ -45,18 +54,9 @@ public class BoardEditText extends ScrollingImageView {
 
     private SharedPreferences prefs;
 
-    // we have our own onTap for input, but the activity containing the widget
-    // might also need to know about on taps, so override setContextMenuListener
-    // to intercept
-    private ClickListener ctxListener;
     private BoardEditFilter[] filters;
     private CharSequence contentDescriptionBase;
 
-    /**
-     * Call setRenderer to set the same renderer as used by the activity using
-     * the boardedittext widget.  Else, falls back onto
-     * ForkyzApplication.RENDERER
-     */
     public BoardEditText(Context context, AttributeSet as) {
         super(context, as);
 
@@ -73,32 +73,47 @@ public class BoardEditText extends ScrollingImageView {
         );
 
         setAllowOverScroll(false);
-
-        super.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(Point e) {
-                if (ctxListener != null) {
-                    ctxListener.onContextMenu(e);
-                }
-            }
-
-            public void onTap(Point e) {
-                BoardEditText.this.requestFocus();
-
-                int box = renderer.findBox(e).getCol();
-                if (boxes != null && box < boxes.length) {
-                    selection.setCol(box);
-                }
-                BoardEditText.this.render();
-
-                if (ctxListener != null) {
-                    ctxListener.onTap(e);
-                }
-            }
-        });
+        setAllowZoom(false);
 
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
         contentDescriptionBase = getContentDescription();
+    }
+
+    @Override
+    protected void onSizeChanged(
+        int newWidth, int newHeight, int oldWidth, int oldHeight
+    ) {
+        super.onSizeChanged(newWidth, newHeight, oldWidth, oldHeight);
+        // do after layout pass (has no effect during pass)
+        getViewTreeObserver().addOnPreDrawListener(
+            new ViewTreeObserver.OnPreDrawListener() {
+                public boolean onPreDraw() {
+                    getViewTreeObserver().removeOnPreDrawListener(this);
+                    scrollTo(0, 0);
+                    int width = getWidth();
+                    float scale = renderer.fitWidthTo(width, boxes.length);
+                    if (scale > 1) {
+                        renderer.setScale(1.0F);
+                    }
+                    render();
+                    return false;
+                }
+            }
+        );
+    }
+
+    @Override
+    protected void onTap(Point point) {
+        BoardEditText.this.requestFocus();
+
+        int box = findPosition(point);
+        if (box >= 0) {
+            selection.setCol(box);
+            BoardEditText.this.render();
+        }
+
+        super.onTap(point);
     }
 
     @Override
@@ -116,11 +131,6 @@ public class BoardEditText extends ScrollingImageView {
                 render();
             }
         }
-    }
-
-    @Override
-    public void setContextMenuListener(ClickListener l) {
-        this.ctxListener = l;
     }
 
     public void setFilters(BoardEditFilter[] filters) {
@@ -147,11 +157,6 @@ public class BoardEditText extends ScrollingImageView {
 
             render();
         }
-    }
-
-    public void setRenderer(PlayboardRenderer renderer) {
-        this.renderer = renderer;
-        render();
     }
 
     public int getLength() {
@@ -227,6 +232,37 @@ public class BoardEditText extends ScrollingImageView {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public boolean onCheckIsTextEditor() {
+        // todo will change i think
+        return false;
+    }
+
+    // Set input type to be raw keys if a keyboard is used
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        BaseInputConnection fic = new BaseInputConnection(this, false);
+        outAttrs.inputType = InputType.TYPE_NULL;
+        return fic;
+    }
+
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+        case KeyEvent.KEYCODE_DPAD_LEFT:
+        case KeyEvent.KEYCODE_DPAD_RIGHT:
+        case KeyEvent.KEYCODE_DEL:
+        case KeyEvent.KEYCODE_SPACE:
+            return true;
+
+        default:
+            char c = Character.toUpperCase(event.getDisplayLabel());
+            if (boxes != null && Character.isLetterOrDigit(c))
+                return true;
+        }
+
+        return super.onKeyUp(keyCode, event);
     }
 
     public boolean onKeyUp(int keyCode, KeyEvent event) {
@@ -314,6 +350,9 @@ public class BoardEditText extends ScrollingImageView {
     }
 
     private void render() {
+        if (getWidth() == 0)
+            return;
+
         boolean displayScratch = prefs.getBoolean("displayScratch", false);
         Set<String> suppressNotesList
             = displayScratch
@@ -366,5 +405,21 @@ public class BoardEditText extends ScrollingImageView {
 
     private Playboard getBoard(){
         return ForkyzApplication.getInstance().getBoard();
+    }
+
+    private int findPosition(Point point) {
+        if (boxes == null)
+            return -1;
+
+        Position position = renderer.findPosition(point);
+        if (position == null)
+            return -1;
+
+        int box = position.getCol();
+
+        if (0 <= box && box < boxes.length)
+            return box;
+        else
+            return -1;
     }
 }

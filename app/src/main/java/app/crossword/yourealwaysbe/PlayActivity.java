@@ -42,16 +42,12 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
+import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
+import app.crossword.yourealwaysbe.view.BoardEditView;
 import app.crossword.yourealwaysbe.view.ClueTabs;
 import app.crossword.yourealwaysbe.view.ForkyzKeyboard;
-import app.crossword.yourealwaysbe.view.PlayboardRenderer;
-import app.crossword.yourealwaysbe.view.ScrollingImageView.ClickListener;
-import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.ScaleListener;
-import app.crossword.yourealwaysbe.view.ScrollingImageView;
 
-import java.util.Collections;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class PlayActivity extends PuzzleActivity
@@ -71,17 +67,13 @@ public class PlayActivity extends PuzzleActivity
     private Handler handler = new Handler(Looper.getMainLooper());
     private KeyboardManager keyboardManager;
     private MovementStrategy movement = null;
-    private ScrollingImageView boardView;
-    private CharSequence boardViewDescriptionBase;
+    private BoardEditView boardView;
     private TextView clue;
-    private PlayboardRenderer renderer;
 
-    private long lastTap = 0;
-    private int screenWidthInInches;
     private Runnable fitToScreenTask = new Runnable() {
         @Override
         public void run() {
-            fitToScreen();
+            PlayActivity.this.fitBoardToScreen();
         }
     };
 
@@ -89,15 +81,13 @@ public class PlayActivity extends PuzzleActivity
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
-        metrics = getResources().getDisplayMetrics();
-        this.screenWidthInInches = (metrics.widthPixels > metrics.heightPixels ? metrics.widthPixels : metrics.heightPixels) / Math.round(160 * metrics.density);
-        LOG.info("Configuration Changed "+this.screenWidthInInches+" ");
-        if(this.screenWidthInInches >= 7){
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        int screenWidthInInches = (metrics.widthPixels > metrics.heightPixels ? metrics.widthPixels : metrics.heightPixels) / Math.round(160 * metrics.density);
+        LOG.info("Configuration Changed "+screenWidthInInches+" ");
+        if(screenWidthInInches >= 7){
             this.handler.post(this.fitToScreenTask);
         }
     }
-
-    DisplayMetrics metrics;
 
     /**
      * Create the activity
@@ -111,9 +101,6 @@ public class PlayActivity extends PuzzleActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.play);
-
-        metrics = getResources().getDisplayMetrics();
-        this.screenWidthInInches = (metrics.widthPixels > metrics.heightPixels ? metrics.widthPixels : metrics.heightPixels) / Math.round(160 * metrics.density);
 
         utils.holographic(this);
         utils.finishOnHomeButton(this);
@@ -154,8 +141,7 @@ public class PlayActivity extends PuzzleActivity
             }
         }
 
-        this.boardView = (ScrollingImageView) this.findViewById(R.id.board);
-        this.boardViewDescriptionBase = this.boardView.getContentDescription();
+        this.boardView = (BoardEditView) this.findViewById(R.id.board);
         this.clueTabs = this.findViewById(R.id.playClueTab);
 
         ForkyzKeyboard keyboardView
@@ -189,26 +175,6 @@ public class PlayActivity extends PuzzleActivity
             }
         );
 
-        this.renderer = new PlayboardRenderer(
-            board,
-            metrics.densityDpi,
-            metrics.widthPixels,
-            !prefs.getBoolean("supressHints", false),
-            this
-        );
-
-        float scale = prefs.getFloat(SCALE, 1.0F);
-
-        if (scale > renderer.getDeviceMaxScale()) {
-            scale = renderer.getDeviceMaxScale();
-        } else if (scale < renderer.getDeviceMinScale()) {
-            scale = renderer.getDeviceMinScale();
-        } else if (Float.isNaN(scale)) {
-            scale = 1F;
-        }
-        prefs.edit().putFloat(SCALE, scale).apply();
-
-        renderer.setScale(scale);
         board.setSkipCompletedLetters(
             this.prefs.getBoolean("skipFilled", false)
         );
@@ -219,10 +185,8 @@ public class PlayActivity extends PuzzleActivity
                 public void onClick(View arg0) {
                     if (PlayActivity.this.prefs.getBoolean(SHOW_CLUES_TAB, true)) {
                         PlayActivity.this.hideClueTabs();
-                        PlayActivity.this.render(true);
                     } else {
                         PlayActivity.this.showClueTabs();
-                        PlayActivity.this.render(true);
                     }
                 }
             });
@@ -234,43 +198,20 @@ public class PlayActivity extends PuzzleActivity
             });
         }
 
-        this.boardView.setCurrentScale(scale);
-        this.boardView.setFocusable(true);
         this.registerForContextMenu(boardView);
-        boardView.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(final Point e) {
-                handler.post(() -> {
-                    try {
-                        Playboard board = getBoard();
-                        Position p = renderer.findBox(e);
-                        Word w = board.setHighlightLetter(p);
-                        renderer.draw(w, getSuppressNotesList());
-                        launchClueNotes(board.getClueID());
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                });
+        boardView.addBoardClickListener(new BoardClickListener() {
+            @Override
+            public void onClick(Position position, Word previousWord) {
+                displayKeyboard(previousWord);
             }
 
-            public void onTap(Point e) {
-                try {
-                    if (prefs.getBoolean("doubleTap", false)
-                            && ((System.currentTimeMillis() - lastTap) < 300)) {
-                        fitToScreen();
-                    } else {
-                        Position p = renderer.findBox(e);
-                        if (getBoard().isInWord(p)) {
-                            Word previous = getBoard().setHighlightLetter(p);
-                            displayKeyboard(previous);
-                        }
-                    }
-
-                    lastTap = System.currentTimeMillis();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+            @Override
+            public void onLongClick(Position position) {
+                Word w = board.setHighlightLetter(position);
+                launchClueNotes(board.getClueID());
             }
         });
+
         // constrain to 1:1 if clueTabs is showing
         boardView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             public void onLayoutChange(View v,
@@ -315,15 +256,14 @@ public class PlayActivity extends PuzzleActivity
                 // if the view changed size, then rescale the view
                 // cannot change layout during a layout change, so
                 // use a predraw listener that requests a new layout
-                // (via render) and returns false to cancel the
-                // current draw
+                // and returns false to cancel the current draw
                 if (constrainedDims ||
                     left != leftWas || right != rightWas ||
                     top != topWas || bottom != bottomWas) {
                     boardView.getViewTreeObserver()
                              .addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                         public boolean onPreDraw() {
-                            PlayActivity.this.render(true);
+                            boardView.forceRedraw();
                             PlayActivity.this
                                         .boardView
                                         .getViewTreeObserver()
@@ -335,14 +275,9 @@ public class PlayActivity extends PuzzleActivity
             }
         });
 
-        this.boardView.setFocusable(true);
         this.boardView.setScaleListener(new ScaleListener() {
-            public void onScale(float newScale, final Point center) {
-                int w = boardView.getImageView().getWidth();
-                int h = boardView.getImageView().getHeight();
-                float scale = renderer.fitTo(w, h);
-                prefs.edit().putFloat(SCALE, scale).apply();
-                lastTap = System.currentTimeMillis();
+            public void onScale(float newScale) {
+                prefs.edit().putFloat(SCALE, newScale).apply();
             }
         });
 
@@ -352,30 +287,15 @@ public class PlayActivity extends PuzzleActivity
             clue, 5, clueTextSize, 1, TypedValue.COMPLEX_UNIT_SP
         );
 
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
         if (this.prefs.getBoolean("fitToScreen", false) || (ForkyzApplication.isLandscape(metrics)) && (ForkyzApplication.isTabletish(metrics) || ForkyzApplication.isMiniTabletish(metrics))) {
-            this.handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    boardView.scrollTo(0, 0);
-
-                    int width = boardView.getWidth();
-                    int height = boardView.getHeight();
-
-                    if (width == 0 || height == 0) {
-                        handler.postDelayed(this, 100);
-                    }
-
-                    float newScale = renderer.fitTo(width, height);
-                    boardView.setCurrentScale(newScale);
-
-                    prefs.edit().putFloat(SCALE, newScale).apply();
-                    render();
-                }
-            }, 100);
-
+            this.handler.postDelayed(fitToScreenTask, 100);
         }
+    }
 
-        registerBoard();
+    private void fitBoardToScreen() {
+        float newScale = boardView.fitToView();
+        prefs.edit().putFloat(SCALE, newScale).apply();
     }
 
     private static String neverNull(String val) {
@@ -392,14 +312,10 @@ public class PlayActivity extends PuzzleActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         Puzzle puz = getPuzzle();
 
-        if (renderer == null
-                || renderer.getScale() >= renderer.getDeviceMaxScale()) {
-            menu.removeItem(R.id.play_menu_zoom_in_max);
-        }
-
         if (puz == null || puz.isUpdatable()) {
             menu.findItem(R.id.play_menu_reveal).setEnabled(false);
         } else {
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
             if (ForkyzApplication.isTabletish(metrics)) {
                 menu.findItem(R.id.play_menu_reveal).setShowAsAction(MenuItem.SHOW_AS_ACTION_WITH_TEXT);
             }
@@ -616,35 +532,23 @@ public class PlayActivity extends PuzzleActivity
                 this.startActivity(i);
                 return true;
             } else if (id == R.id.play_menu_zoom_in) {
-                float newScale = renderer.zoomIn();
-                this.prefs.edit().putFloat(SCALE, newScale).apply();
-                boardView.setCurrentScale(newScale);
-                this.render(true);
-
+                float newScale = boardView.zoomIn();
+                prefs.edit().putFloat(SCALE, newScale).apply();
                 return true;
             } else if (id == R.id.play_menu_zoom_in_max) {
-                float newScale = renderer.zoomInMax();
+                float newScale = boardView.zoomInMax();
                 this.prefs.edit().putFloat(SCALE, newScale).apply();
-                boardView.setCurrentScale(newScale);
-                this.render(true);
-
                 return true;
             } else if (id == R.id.play_menu_zoom_out) {
-                float newScale = renderer.zoomOut();
+                float newScale = boardView.zoomOut();
                 this.prefs.edit().putFloat(SCALE, newScale).apply();
-                boardView.setCurrentScale(newScale);
-                this.render(true);
-
                 return true;
             } else if (id == R.id.play_menu_zoom_fit) {
-                fitToScreen();
+                fitBoardToScreen();
                 return true;
             } else if (id == R.id.play_menu_zoom_reset) {
-                float newScale = renderer.zoomReset();
-                boardView.setCurrentScale(newScale);
+                float newScale = boardView.zoomReset();
                 this.prefs.edit().putFloat(SCALE, newScale).apply();
-                this.render(true);
-
                 return true;
             } else if (id == R.id.play_menu_info) {
                 showInfoDialog();
@@ -701,13 +605,11 @@ public class PlayActivity extends PuzzleActivity
     @Override
     public void onClueTabsBarSwipeDown(ClueTabs view) {
         hideClueTabs();
-        render(true);
     }
 
     @Override
     public void onClueTabsBarLongclick(ClueTabs view) {
         hideClueTabs();
-        render(true);
     }
 
     @Override
@@ -729,20 +631,7 @@ public class PlayActivity extends PuzzleActivity
             keyboardManager.hideKeyboard();
         }
 
-        if (!wholeBoard)
-            render(previousWord, false);
-        else
-            render(false);
-    }
-
-    private void fitToScreen() {
-        this.boardView.scrollTo(0, 0);
-        float newScale = renderer.fitTo(
-            boardView.getWidth(), boardView.getHeight()
-        );
-        this.prefs.edit().putFloat(SCALE, newScale).apply();
-        boardView.setCurrentScale(newScale);
-        this.render(true);
+        setClueText();
     }
 
     @Override
@@ -821,6 +710,14 @@ public class PlayActivity extends PuzzleActivity
             board.toggleShowErrorsCursor();
         }
 
+        if (boardView != null) {
+            boardView.setBoard(board);
+
+            float scale = prefs.getFloat(SCALE, 1.0F);
+            scale = boardView.setCurrentScale(scale);
+            prefs.edit().putFloat(SCALE, scale).apply();
+        }
+
         if (clueTabs != null) {
             clueTabs.setBoard(board);
             clueTabs.setPage(prefs.getInt(CLUE_TABS_PAGE, 0));
@@ -836,7 +733,7 @@ public class PlayActivity extends PuzzleActivity
 
             keyboardManager.attachKeyboardToView(boardView);
 
-            render(true);
+            setClueText();
         }
     }
 
@@ -881,68 +778,13 @@ public class PlayActivity extends PuzzleActivity
         }
     }
 
-    private void render() {
-        render(null);
-    }
-
-    private void render(boolean rescale) {
-        this.render(null, rescale);
-    }
-
-    private void render(Word previous) {
-        this.render(previous, false);
-    }
-
-    private void render(Word previous, boolean rescale) {
-        if (getBoard() == null)
+    private void setClueText() {
+        Playboard board = getBoard();
+        if (board == null)
             return;
 
-        this.boardView.setBitmap(
-            renderer.draw(previous, getSuppressNotesList()),
-            rescale
-        );
-        this.boardView.setContentDescription(
-            renderer.getContentDescription(this.boardViewDescriptionBase)
-        );
-        this.boardView.requestFocus();
-        /*
-         * If we jumped to a new word, ensure the first letter is visible.
-         * Otherwise, insure that the current letter is visible. Only necessary
-         * if the cursor is currently off screen.
-         */
-        if (this.prefs.getBoolean("ensureVisible", true)) {
-            Playboard board = getBoard();
-            Word currentWord = board.getCurrentWord();
-            Position cursorPos = board.getHighlightLetter();
-
-            Point topLeft;
-            Point bottomRight;
-            Point cursorTopLeft;
-            Point cursorBottomRight;
-
-            cursorTopLeft = renderer.findPointTopLeft(cursorPos);
-            cursorBottomRight = renderer.findPointBottomRight(cursorPos);
-
-            if ((previous != null) && previous.equals(currentWord)) {
-                topLeft = cursorTopLeft;
-                bottomRight = cursorBottomRight;
-            } else {
-                topLeft = renderer.findPointTopLeft(currentWord);
-                bottomRight = renderer.findPointBottomRight(currentWord);
-            }
-
-            this.boardView.ensureVisible(bottomRight);
-            this.boardView.ensureVisible(topLeft);
-
-            // ensure the cursor is always on the screen.
-            this.boardView.ensureVisible(cursorBottomRight);
-            this.boardView.ensureVisible(cursorTopLeft);
-        }
-
-        Clue c = getBoard().getClue();
-        this.clue.setText(smartHtml(getLongClueText(c)));
-
-        this.boardView.requestFocus();
+        Clue c = board.getClue();
+        clue.setText(smartHtml(getLongClueText(c)));
     }
 
     private void launchClueList() {
@@ -953,7 +795,7 @@ public class PlayActivity extends PuzzleActivity
     /**
      * Changes the constraints on clue tabs to show.
      *
-     * Call render(true) after to rescale board. Updates shared prefs.
+     * Updates shared prefs.
      */
     private void showClueTabs() {
         ConstraintSet set = new ConstraintSet();
@@ -971,7 +813,7 @@ public class PlayActivity extends PuzzleActivity
     /**
      * Changes the constraints on clue tabs to hide.
      *
-     * Call render(true) after to rescale board. Updates shared prefs.
+     * Updates shared prefs.
      */
     private void hideClueTabs() {
         ConstraintSet set = new ConstraintSet();
@@ -1022,16 +864,6 @@ public class PlayActivity extends PuzzleActivity
             "scratchMode", !scratchMode
         ).apply();
         invalidateOptionsMenu();
-    }
-
-    /**
-     * What scratch to suppress when rendering
-     */
-    private Set<String> getSuppressNotesList() {
-        boolean displayScratch = prefs.getBoolean("displayScratch", false);
-        return displayScratch
-            ? Collections.emptySet()
-            : null;
     }
 
     public static class InfoDialog extends DialogFragment {

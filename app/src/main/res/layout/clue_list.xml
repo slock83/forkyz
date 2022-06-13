@@ -5,7 +5,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
 >
-    <app.crossword.yourealwaysbe.view.ScrollingImageView
+    <app.crossword.yourealwaysbe.view.BoardWordEditView
         android:id="@+id/miniboard"
         android:layout_width="fill_parent"
         android:layout_height="48dp"
@@ -14,7 +14,7 @@
         android:contentDescription="@string/current_word"
     >
         <requestFocus />
-    </app.crossword.yourealwaysbe.view.ScrollingImageView>
+    </app.crossword.yourealwaysbe.view.BoardWordEditView>
     <app.crossword.yourealwaysbe.view.ClueTabs
         android:id="@+id/clueListClueTabs"
         android:layout_width="fill_parent"

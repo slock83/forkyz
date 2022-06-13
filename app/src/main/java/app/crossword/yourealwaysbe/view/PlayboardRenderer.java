@@ -37,6 +37,8 @@ import java.util.logging.Logger;
 
 
 public class PlayboardRenderer {
+    // for calculating max scale with no puzzle
+    private static final int DEFAULT_PUZZLE_WIDTH = 15;
     private static final float BASE_BOX_SIZE_INCHES = 0.25F;
     private static final Logger LOG = Logger.getLogger(PlayboardRenderer.class.getCanonicalName());
     @SuppressLint("NewApi")
@@ -151,11 +153,11 @@ public class PlayboardRenderer {
 
     public float getDeviceMaxScale(){
         float retValue;
-        LOG.info("Board "+board.getPuzzle().getWidth() +" widthPixels "+widthPixels);
         // inches * pixels per inch * units
         retValue = 2.2F;
-        float puzzleBaseSizeInInches
-            = board.getPuzzle().getWidth() * BASE_BOX_SIZE_INCHES;
+        Puzzle puz = (board == null) ? null : board.getPuzzle();
+        int width = (puz == null) ? DEFAULT_PUZZLE_WIDTH : puz.getWidth();
+        float puzzleBaseSizeInInches = width * BASE_BOX_SIZE_INCHES;
         //leave a 1/16th in gutter on the puzzle.
         float fitToScreen =  (dpi * (puzzleBaseSizeInInches + 0.0625F)) / dpi;
 
@@ -163,7 +165,6 @@ public class PlayboardRenderer {
             retValue = fitToScreen;
         }
 
-        LOG.warning("getDeviceMaxScale "+retValue);
         return retValue;
     }
 
@@ -335,7 +336,7 @@ public class PlayboardRenderer {
     }
 
 
-    public Position findBox(Point p) {
+    public Position findPosition(Point p) {
         int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
 
         if (boxSize == 0) {
@@ -504,22 +505,24 @@ public class PlayboardRenderer {
             ? context.getString(R.string.cur_box_number, clueNumber)
             : context.getString(R.string.cur_box_no_number);
 
-        Puzzle puz = board.getPuzzle();
+        Puzzle puz = board == null ? null : board.getPuzzle();
 
         String clueInfo = "";
-        for (ClueID cid : box.getIsPartOfClues()) {
-            Clue clue = puz.getClue(cid);
+        if (puz != null) {
+            for (ClueID cid : box.getIsPartOfClues()) {
+                Clue clue = puz.getClue(cid);
 
-            String partOfClueNumber = clue.getClueNumber();
-            if (partOfClueNumber == null)
-                partOfClueNumber = "";
+                String partOfClueNumber = clue.getClueNumber();
+                if (partOfClueNumber == null)
+                    partOfClueNumber = "";
 
-            clueInfo += context.getString(
-                R.string.cur_box_clue_info,
-                cid.getListName(),
-                partOfClueNumber,
-                cid.getIndex()
-            );
+                clueInfo += context.getString(
+                    R.string.cur_box_clue_info,
+                    cid.getListName(),
+                    partOfClueNumber,
+                    cid.getIndex()
+                );
+            }
         }
 
         String circled = context.getString(
@@ -885,7 +888,6 @@ public class PlayboardRenderer {
         float letterTextSize = thisLetter.getTextSize();
         int length = letterString.length();
         if (length > 1) {
-            System.out.println("FORKYZ: " + length + " from " + letterTextSize + " to " + (letterTextSize / ((length + 1) / 2)));
             thisLetter.setTextSize(letterTextSize / ((length + 1) / 2));
         }
 
@@ -1020,7 +1022,7 @@ public class PlayboardRenderer {
      * Bias towards across if unsure
      */
     private boolean isClueProbablyAcross(ClueID cid) {
-        Puzzle puz = board.getPuzzle();
+        Puzzle puz = board == null ? null : board.getPuzzle();
         if (puz == null)
             return true;
 
@@ -1036,8 +1038,10 @@ public class PlayboardRenderer {
     }
 
     private boolean highlightError(Box box, boolean hasCursor) {
-        boolean showErrors = this.board.isShowErrorsGrid()
-            || (this.board.isShowErrorsCursor() && hasCursor);
+        boolean showErrors = board != null && (
+            this.board.isShowErrorsGrid()
+            || (this.board.isShowErrorsCursor() && hasCursor)
+        );
 
         return showErrors
             && !box.isBlank()

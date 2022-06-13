@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -39,9 +38,9 @@ import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
 import app.crossword.yourealwaysbe.view.BoardEditText.BoardEditFilter;
 import app.crossword.yourealwaysbe.view.BoardEditText;
+import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
+import app.crossword.yourealwaysbe.view.BoardWordEditView;
 import app.crossword.yourealwaysbe.view.ForkyzKeyboard;
-import app.crossword.yourealwaysbe.view.PlayboardRenderer;
-import app.crossword.yourealwaysbe.view.ScrollingImageView.ClickListener;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 import app.crossword.yourealwaysbe.view.ScrollingImageView;
 
@@ -69,15 +68,13 @@ public class NotesActivity extends PuzzleActivity {
 
     protected KeyboardManager keyboardManager;
     private TextView clueLine;
-    private TextView imageViewLabel;
-    private ScrollingImageView imageView;
-    private CharSequence imageViewDescriptionBase;
+    private TextView boardViewLabel;
+    private BoardWordEditView boardView;
     private EditText notesBox;
     private BoardEditText scratchView;
     private BoardEditText anagramSourceView;
     private BoardEditText anagramSolView;
     private CheckBox flagClue;
-    private PlayboardRenderer renderer;
 
     private Random rand = new Random();
 
@@ -128,12 +125,17 @@ public class NotesActivity extends PuzzleActivity {
             clueLine, 5, clueTextSize, 1, TypedValue.COMPLEX_UNIT_SP
         );
 
-        imageViewLabel = this.findViewById(R.id.boardLab);
-        imageView = this.findViewById(R.id.miniboard);
-        imageViewDescriptionBase = imageView.getContentDescription();
-        imageView.setAllowOverScroll(false);
-        this.imageView.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(Point e) {
+        boardViewLabel = this.findViewById(R.id.boardLab);
+        boardView = this.findViewById(R.id.miniboard);
+        boardView.setAllowOverScroll(false);
+        boardView.addBoardClickListener(new BoardClickListener() {
+            @Override
+            public void onClick(Position position, Word previousWord) {
+                NotesActivity.this.keyboardManager.showKeyboard(boardView);
+            }
+
+            @Override
+            public void onLongClick(Position position) {
                 View focused = getWindow().getCurrentFocus();
                 int id = focused.getId();
                 if (id == R.id.scratchMiniboard) {
@@ -148,24 +150,8 @@ public class NotesActivity extends PuzzleActivity {
                     );
                 }
             }
-
-            public void onTap(Point e) {
-                NotesActivity.this.keyboardManager.showKeyboard(imageView);
-
-                Word current = getBoard().getCurrentWord();
-                Zone zone = (current == null) ? null : current.getZone();
-                if (zone == null)
-                    return;
-
-                int box = renderer.findBox(e).getCol();
-                Position newPos = zone.getPosition(box);
-
-                if (!Objects.equals(newPos, getBoard().getHighlightLetter())) {
-                    getBoard().setHighlightLetter(newPos);
-                }
-            }
         });
-        this.imageView.setOnKeyListener(new View.OnKeyListener() {
+        this.boardView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP)
@@ -197,68 +183,79 @@ public class NotesActivity extends PuzzleActivity {
         }
 
         scratchView = (BoardEditText) this.findViewById(R.id.scratchMiniboard);
-        scratchView.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(Point e) {
-                if (isClueOnBoard()) {
-                    executeTransferResponseRequest(
-                        TransferResponseRequest.SCRATCH_TO_BOARD, true
-                    );
+        scratchView.setContextMenuListener(
+            new ScrollingImageView.ClickListener() {
+                @Override
+                public void onTap(Point point) {
+                    NotesActivity
+                        .this
+                        .keyboardManager
+                        .showKeyboard(scratchView);
+                }
+
+                @Override
+                public void onContextMenu(Point point) {
+                    if (isClueOnBoard()) {
+                        executeTransferResponseRequest(
+                            TransferResponseRequest.SCRATCH_TO_BOARD, true
+                        );
+                    }
                 }
             }
-
-            public void onTap(Point e) {
-                NotesActivity.this.keyboardManager.showKeyboard(scratchView);
-                NotesActivity.this.render();
-            }
-        });
+        );
 
         anagramSourceView = (BoardEditText) this.findViewById(R.id.anagramSource);
         anagramSolView = (BoardEditText) this.findViewById(R.id.anagramSolution);
 
-        anagramSourceView.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(Point e) {
-                // reshuffle squares
-                int len = anagramSourceView.getLength();
-                for (int i = 0; i < len; i++) {
-                    int j = rand.nextInt(len);
-                    char ci = anagramSourceView.getResponse(i);
-                    char cj = anagramSourceView.getResponse(j);
-                    anagramSourceView.setResponse(i, cj);
-                    anagramSourceView.setResponse(j, ci);
+        anagramSourceView.setContextMenuListener(
+            new ScrollingImageView.ClickListener() {
+                @Override
+                public void onTap(Point point) {
+                    NotesActivity
+                        .this
+                        .keyboardManager
+                        .showKeyboard(anagramSourceView);
                 }
-                NotesActivity.this.render();
-            }
 
-            public void onTap(Point e) {
-                NotesActivity
-                    .this
-                    .keyboardManager
-                    .showKeyboard(anagramSourceView);
-                NotesActivity.this.render();
-            }
-        });
-
-        anagramSolView.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(Point e) {
-                if (isClueOnBoard()) {
-                    executeTransferResponseRequest(
-                        TransferResponseRequest.ANAGRAM_SOL_TO_BOARD, true
-                    );
+                @Override
+                public void onContextMenu(Point point) {
+                    // reshuffle squares
+                    int len = anagramSourceView.getLength();
+                    for (int i = 0; i < len; i++) {
+                        int j = rand.nextInt(len);
+                        char ci = anagramSourceView.getResponse(i);
+                        char cj = anagramSourceView.getResponse(j);
+                        anagramSourceView.setResponse(i, cj);
+                        anagramSourceView.setResponse(j, ci);
+                    }
                 }
             }
+        );
 
-            public void onTap(Point e) {
-                NotesActivity.this.keyboardManager.showKeyboard(anagramSolView);
-                NotesActivity.this.render();
+        anagramSolView.setContextMenuListener(
+            new ScrollingImageView.ClickListener() {
+                @Override
+                public void onTap(Point point) {
+                    NotesActivity.this.keyboardManager.showKeyboard(anagramSolView);
+                }
+
+                @Override
+                public void onContextMenu(Point point) {
+                    if (isClueOnBoard()) {
+                        executeTransferResponseRequest(
+                            TransferResponseRequest.ANAGRAM_SOL_TO_BOARD, true
+                        );
+                    }
+                }
             }
-        });
+        );
 
         flagClue = (CheckBox) findViewById(R.id.flagClue);
 
         ForkyzKeyboard keyboardView
             = (ForkyzKeyboard) findViewById(R.id.keyboard);
-        keyboardManager = new KeyboardManager(this, keyboardView, imageView);
-        keyboardManager.showKeyboard(imageView);
+        keyboardManager = new KeyboardManager(this, keyboardView, boardView);
+        keyboardManager.showKeyboard(boardView);
     }
 
     @Override
@@ -400,14 +397,6 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     @Override
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
-        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
-        render();
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
@@ -423,15 +412,6 @@ public class NotesActivity extends PuzzleActivity {
             // finish doesn't finish right away
             return;
         }
-
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-
-        this.renderer = new PlayboardRenderer(
-            getBoard(),
-            metrics.densityDpi, metrics.widthPixels,
-            !prefs.getBoolean("supressHints", false),
-            this
-        );
 
         Clue clue = getNotesClue();
 
@@ -450,32 +430,27 @@ public class NotesActivity extends PuzzleActivity {
         if (isPuzzleNotes()) {
             clueLine.setText(getString(R.string.player_notes));
             note = puz.getPlayerNote();
-            imageViewLabel.setVisibility(View.GONE);
-            imageView.setVisibility(View.GONE);
+            boardViewLabel.setVisibility(View.GONE);
+            boardView.setVisibility(View.GONE);
             flagClue.setVisibility(View.GONE);
         } else {
+            boardView.setBoard(board);
+
             clueLine.setText(smartHtml(getLongClueText(clue)));
             note = puz.getNote(clue);
             flagClue.setChecked(puz.isFlagged(clue));
             int clueVisibility = isClueOnBoard() ? View.VISIBLE : View.GONE;
-            imageViewLabel.setVisibility(clueVisibility);
-            imageView.setVisibility(clueVisibility);
+            boardViewLabel.setVisibility(clueVisibility);
+            boardView.setVisibility(clueVisibility);
             flagClue.setVisibility(View.VISIBLE);
         }
-
-        double scale = renderer.fitWidthTo(metrics.widthPixels, curWordLen);
-        if (scale > 1)
-            renderer.setScale((float) 1);
 
         // set up and erase any previous data
         notesBox.setText("");
 
         // set lengths after fully set up
-        scratchView.setRenderer(renderer);
         scratchView.clear();
-        anagramSourceView.setRenderer(renderer);
         anagramSourceView.clear();
-        anagramSolView.setRenderer(renderer);
         anagramSolView.clear();
 
         numAnagramLetters = 0;
@@ -559,19 +534,6 @@ public class NotesActivity extends PuzzleActivity {
         anagramSourceView.setLength(curWordLen);
 
         keyboardManager.onResume();
-
-        this.render();
-    }
-
-    protected void render() {
-        if (isClueOnBoard()) {
-            this.imageView.setBitmap(
-                renderer.drawWord(getSuppressNotesList())
-            );
-            this.imageView.setContentDescription(
-                renderer.getContentDescription(this.imageViewDescriptionBase)
-            );
-        }
     }
 
     private Set<String> getSuppressNotesList() {
@@ -604,8 +566,6 @@ public class NotesActivity extends PuzzleActivity {
             scratchView.clear();
             notesBox.setText(notesText);
         }
-
-        render();
     }
 
     private void copyBoxesToAnagramSol(Box[] boxes) {

@@ -1,0 +1,273 @@
+
+package app.crossword.yourealwaysbe.view;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.InputType;
+import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import androidx.preference.PreferenceManager;
+
+import app.crossword.yourealwaysbe.puz.Playboard.Word;
+import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Position;
+
+/**
+ * A live view of the playboard
+ *
+ * BoardEditText is an edit text that looks like the board.
+ *
+ * Renders the playboard on change and implements input connection with
+ * soft-input.
+ */
+public abstract class BoardEditView
+        extends ScrollingImageView
+        implements Playboard.PlayboardListener {
+    private static final int DOUBLE_CLICK_INTERVAL = 300; // ms
+
+    private SharedPreferences prefs;
+    private Playboard board;
+    private boolean wordView;
+    private PlayboardRenderer renderer;
+    private Set<BoardClickListener> clickListeners = new HashSet<>();
+    private long lastTap = 0;
+    private CharSequence contentDescriptionBase;
+
+    public interface BoardClickListener {
+        default void onClick(Position position, Word previousWord) { }
+        default void onLongClick(Position position) { }
+    }
+
+    public BoardEditView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        contentDescriptionBase = getContentDescription();
+        prefs = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    /**
+     * Set the base board for the edit view
+     */
+    public void setBoard(Playboard board) {
+        if (this.board != null)
+            this.board.removeListener(this);
+
+        this.board = board;
+
+        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+
+        renderer = new PlayboardRenderer(
+            board,
+            metrics.densityDpi,
+            metrics.widthPixels,
+            !prefs.getBoolean("supressHints", false),
+            getContext()
+        );
+
+        float scale = getCurrentScale();
+
+        // reset scale in case it violates new board dims
+        setCurrentScale(scale, true);
+
+        render(true);
+
+        // TODO: needed?
+        //setFocusable(true);
+
+        // don't worry about unlistening because Playboard keeps a
+        // weak set.
+        board.addListener(this);
+    }
+
+    /**
+     * Add listener for clicks on board positions
+     *
+     * Does not store in a weak set, so listener will survive as long as
+     * view does
+     */
+    public void addBoardClickListener(BoardClickListener listener) {
+        clickListeners.add(listener);
+    }
+
+    public void removeBoardClickListener(BoardClickListener listener) {
+        clickListeners.remove(listener);
+    }
+
+    @Override
+    public float setCurrentScale(float scale) {
+        return setCurrentScale(scale, false);
+    }
+
+    public float setCurrentScale(float scale, boolean noRender) {
+        float oldScale = getCurrentScale();
+
+        if (renderer != null) {
+            if (scale > renderer.getDeviceMaxScale()) {
+                scale = renderer.getDeviceMaxScale();
+            } else if (scale < renderer.getDeviceMinScale()) {
+                scale = renderer.getDeviceMinScale();
+            } else if (Float.isNaN(scale)) {
+                scale = 1F;
+            }
+        }
+
+        renderer.setScale(scale);
+        super.setCurrentScale(scale);
+        if (!noRender && Float.compare(scale, oldScale) != 0) {
+            render(true);
+        }
+
+        return scale;
+    }
+
+    public abstract Position findPosition(Point point);
+
+    /**
+     * Returns new scale
+     */
+    public abstract float fitToView();
+
+    /**
+     * Returns new scale
+     */
+    public float zoomIn() {
+        float newScale = renderer.zoomIn();
+        setCurrentScale(newScale);
+        return newScale;
+    }
+
+    /**
+     * Returns new scale
+     */
+    public float zoomInMax() {
+        float newScale = renderer.zoomInMax();
+        setCurrentScale(newScale);
+        return newScale;
+    }
+
+    /**
+     * Returns new scale
+     */
+    public float zoomOut() {
+        float newScale = renderer.zoomOut();
+        setCurrentScale(newScale);
+        return newScale;
+    }
+
+    /**
+     * Returns new scale
+     */
+    public float zoomReset() {
+        float newScale = renderer.zoomReset();
+        setCurrentScale(newScale);
+        return newScale;
+    }
+
+    @Override
+    abstract public void onPlayboardChange(
+        boolean wholeBoard, Word currentWord, Word previousWord
+    );
+
+    @Override
+    public boolean onCheckIsTextEditor() {
+        // todo will change i think
+        return false;
+    }
+
+    // Set input type to be raw keys if a keyboard is used
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        BaseInputConnection fic = new BaseInputConnection(this, false);
+        outAttrs.inputType = InputType.TYPE_NULL;
+        return fic;
+    }
+
+    // This method is a hack needed in PlayActivity when clue tabs are
+    // shown. The constrain of the board to 1:1 seems to have no effect
+    // until render(true) is called.
+    public void forceRedraw() {
+        render(true);
+    }
+
+    @Override
+    protected void onScale(float scale, Point center) {
+        lastTap = System.currentTimeMillis();
+
+        int w = getImageView().getWidth();
+        int h = getImageView().getHeight();
+        scale = renderer.fitTo(w, h);
+        super.onScale(scale, center);
+    }
+
+    @Override
+    protected void onContextMenu(Point point) {
+        super.onContextMenu(point);
+        Position position = findPosition(point);
+        if (position != null) {
+            for (BoardClickListener listener : clickListeners) {
+                listener.onLongClick(position);
+            }
+        }
+    }
+
+    @Override
+    protected void onTap(Point point) {
+        super.onTap(point);
+
+        requestFocus();
+
+        boolean doubleTapOn = prefs.getBoolean("doubleTap", false);
+        long clickInterval = System.currentTimeMillis() - lastTap;
+
+        if (doubleTapOn && clickInterval < DOUBLE_CLICK_INTERVAL) {
+            fitToView();
+            notifyScaleChange(getCurrentScale());
+        } else {
+            Position position = findPosition(point);
+            if (position != null && board.isInWord(position)) {
+                onClick(position);
+            }
+        }
+
+        lastTap = System.currentTimeMillis();
+    }
+
+    abstract protected void onClick(Position position);
+
+    protected void notifyClick(Position position, Word previousWord) {
+        for (BoardClickListener listener : clickListeners) {
+            listener.onClick(position, previousWord);
+        }
+    }
+
+    protected void render() {
+        render(null, false);
+    }
+
+    protected void render(boolean rescale) {
+        render(null, rescale);
+    }
+
+    protected void render(Word previous) {
+        render(previous, false);
+    }
+
+    abstract protected void render(Word previous, boolean rescale);
+
+    protected PlayboardRenderer getRenderer() { return renderer; }
+    protected Playboard getBoard() { return board; }
+    protected SharedPreferences getPrefs() { return prefs; }
+    protected CharSequence getContentDescriptionBase() {
+        return contentDescriptionBase;
+    }
+
+    /**
+     * What scratch to suppress when rendering
+     */
+    abstract protected Set<String> getSuppressNotesList();
+}

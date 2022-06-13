@@ -1,12 +1,9 @@
 package app.crossword.yourealwaysbe;
 
-import java.util.Collections;
 import java.util.Objects;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,12 +18,10 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
+import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
+import app.crossword.yourealwaysbe.view.BoardWordEditView;
 import app.crossword.yourealwaysbe.view.ClueTabs;
 import app.crossword.yourealwaysbe.view.ForkyzKeyboard;
-import app.crossword.yourealwaysbe.view.PlayboardRenderer;
-import app.crossword.yourealwaysbe.view.ScrollingImageView.ClickListener;
-import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
-import app.crossword.yourealwaysbe.view.ScrollingImageView;
 
 public class ClueListActivity extends PuzzleActivity
                               implements ClueTabs.ClueTabsListener {
@@ -35,9 +30,7 @@ public class ClueListActivity extends PuzzleActivity
     );
 
     private KeyboardManager keyboardManager;
-    private ScrollingImageView imageView;
-    private CharSequence imageViewDescriptionBase;
-    private PlayboardRenderer renderer;
+    private BoardWordEditView boardView;
     private ClueTabs clueTabs;
 
     @Override
@@ -80,39 +73,25 @@ public class ClueListActivity extends PuzzleActivity
 
         setContentView(R.layout.clue_list);
 
-        this.imageView = (ScrollingImageView) this.findViewById(R.id.miniboard);
-        this.imageViewDescriptionBase = this.imageView.getContentDescription();
-        this.imageView.setAllowOverScroll(false);
+        this.boardView = this.findViewById(R.id.miniboard);
+        this.boardView.setAllowOverScroll(false);
 
-        this.imageView.setContextMenuListener(new ClickListener() {
-            public void onContextMenu(Point e) {
-                onTap(e);
-                launchClueNotes(getBoard().getClueID());
+        this.boardView.addBoardClickListener(new BoardClickListener() {
+            @Override
+            public void onClick(Position position, Word previousWord) {
+                displayKeyboard();
             }
 
-            public void onTap(Point e) {
-                Playboard board = getBoard();
-
-                Word current = board.getCurrentWord();
-                Zone zone = (current == null) ? null : current.getZone();
-                if (zone == null)
-                    return;
-
-                int box = renderer.findBox(e).getCol();
-                Position newPos = zone.getPosition(box);
-
-                if (!Objects.equals(newPos, getBoard().getHighlightLetter())) {
-                    board.setHighlightLetter(newPos);
-                }
-
-                displayKeyboard();
+            @Override
+            public void onLongClick(Position position) {
+                launchClueNotes(getBoard().getClueID());
             }
         });
 
         this.clueTabs = this.findViewById(R.id.clueListClueTabs);
 
         ForkyzKeyboard keyboard = (ForkyzKeyboard) findViewById(R.id.keyboard);
-        keyboardManager = new KeyboardManager(this, keyboard, imageView);
+        keyboardManager = new KeyboardManager(this, keyboard, boardView);
     }
 
     @Override
@@ -131,25 +110,13 @@ public class ClueListActivity extends PuzzleActivity
             return;
         }
 
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-
-        this.renderer = new PlayboardRenderer(
-            board,
-            metrics.densityDpi, metrics.widthPixels,
-            !prefs.getBoolean("supressHints", false),
-            this
-        );
-
-        scaleRendererToCurWord();
-
+        boardView.setBoard(board);
         clueTabs.setBoard(board);
         clueTabs.addListener(this);
         clueTabs.listenBoard();
         clueTabs.refresh();
 
         keyboardManager.onResume();
-
-        this.render();
     }
 
     @Override
@@ -157,14 +124,6 @@ public class ClueListActivity extends PuzzleActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.clue_list_menu, menu);
         return true;
-    }
-
-    @Override
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
-        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
-        this.render();
     }
 
     @Override
@@ -352,7 +311,7 @@ public class ClueListActivity extends PuzzleActivity
     }
 
     private void displayKeyboard() {
-        keyboardManager.showKeyboard(imageView);
+        keyboardManager.showKeyboard(boardView);
     }
 
     private void displayKeyboard(Word previousWord) {
@@ -363,41 +322,11 @@ public class ClueListActivity extends PuzzleActivity
             Position newPos = board.getHighlightLetter();
             if ((previousWord != null) &&
                 previousWord.checkInWord(newPos.getRow(), newPos.getCol())) {
-                keyboardManager.showKeyboard(imageView);
+                keyboardManager.showKeyboard(boardView);
             } else {
                 keyboardManager.hideKeyboard();
             }
         }
-    }
-
-    private void render() {
-        scaleRendererToCurWord();
-        boolean displayScratch = prefs.getBoolean("displayScratch", false);
-        Set<String> suppressNotesLists
-            = displayScratch
-            ? Collections.emptySet()
-            : null;
-
-        this.imageView.setBitmap(renderer.drawWord(suppressNotesLists));
-        this.imageView.setContentDescription(
-            renderer.getContentDescription(this.imageViewDescriptionBase)
-        );
-    }
-
-    /**
-     * Scale the current renderer to fit the length of the currently
-     * selected word.
-     */
-    private void scaleRendererToCurWord() {
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-        int curWordLen = getBoard().getCurrentWord().getLength();
-        if (curWordLen <= 0)
-            return;
-        double scale = this.renderer.fitWidthTo(
-            metrics.widthPixels, curWordLen
-        );
-        if (scale > 1)
-            this.renderer.setScale((float) 1);
     }
 
     /**
