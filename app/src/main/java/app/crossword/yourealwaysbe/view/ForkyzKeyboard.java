@@ -173,8 +173,14 @@ public class ForkyzKeyboard
     /**
      * Attach the keyboard to send events to the view
      */
-    public synchronized void attachToView(View view) {
-        inputConnection = view.onCreateInputConnection(new EditorInfo());
+    public synchronized void setInputConnection(
+        InputConnection inputConnection
+    ) {
+        this.inputConnection = inputConnection;
+    }
+
+    public EditorInfo getEditorInfo() {
+        return new EditorInfo();
     }
 
     /**

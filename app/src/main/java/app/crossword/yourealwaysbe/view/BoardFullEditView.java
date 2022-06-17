@@ -53,6 +53,7 @@ public class BoardFullEditView extends BoardEditView {
             render();
         else
             render(previousWord);
+        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
     }
 
     @Override

@@ -210,4 +210,10 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
         // do nothing, not supported
         return null;
     }
+
+    @Override
+    public boolean isAcceptableCharacterResponse(char c) {
+        // ignore unicode surrogates manually
+        return !Character.isISOControl(c) && !('\uD800' <= c && c <= '\uDFFF');
+    }
 }

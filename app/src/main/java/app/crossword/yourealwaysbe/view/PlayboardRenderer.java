@@ -1,6 +1,5 @@
 package app.crossword.yourealwaysbe.view;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -41,9 +40,9 @@ public class PlayboardRenderer {
     private static final int DEFAULT_PUZZLE_WIDTH = 15;
     private static final float BASE_BOX_SIZE_INCHES = 0.25F;
     private static final Logger LOG = Logger.getLogger(PlayboardRenderer.class.getCanonicalName());
-    @SuppressLint("NewApi")
     private static final Typeface TYPEFACE_SEMI_BOLD_SANS =
         AndroidVersionUtils.Factory.getInstance().getSemiBoldTypeface();
+    private static final float DESCENT_FUDGE_FACTOR = 1.3F;
 
     private final Paint blackBox = new Paint();
     private final Paint blackCircle = new Paint();
@@ -594,7 +593,7 @@ public class PlayboardRenderer {
         int miniNoteTextSize = boxSize / 2;
         int noteTextSize = Math.round(boxSize * 0.6F);
         int letterTextSize = Math.round(boxSize * 0.7F);
-        int barSize = boxSize / 12;
+        int barSize = boxSize / 14;
         int numberOffset = barSize;
         int textOffset = boxSize / 30;
 
@@ -765,7 +764,7 @@ public class PlayboardRenderer {
         }
 
         if (box.hasMarks()) {
-            int markHeight = (int) (numberText.descent() - numberText.ascent());
+            int markHeight = getTotalHeight(numberText);
 
             // 3x3 by guarantee of Box
             String[][] marks = box.getMarks();
@@ -885,16 +884,16 @@ public class PlayboardRenderer {
             }
         }
 
-        float letterTextSize = thisLetter.getTextSize();
-        int length = letterString.length();
-        if (length > 1) {
-            thisLetter.setTextSize(letterTextSize / ((length + 1) / 2));
+        float letterTextSize = letterText.getTextSize();
+
+        if (letterString.length() > 1) {
+            letterText.setTextSize(getIdealTextSize(
+                letterString, letterText, boxSize
+            ));
         }
 
-        int yoffset = (int) (
-            boxSize - textOffset
-            + letterText.ascent() - letterText.descent()
-        );
+
+        int yoffset = boxSize - textOffset - getTotalHeight(letterText);
         drawText(
             canvas,
             letterString,
@@ -953,8 +952,7 @@ public class PlayboardRenderer {
             if (noteStringAcross.equals(noteStringDown)) {
                 // Same scratch letter in both directions
                 // Align letter with across and down answers
-                int noteTextHeight
-                    = (int) (noteText.descent() - noteText.ascent());
+                int noteTextHeight = getTotalHeight(noteText);
                 drawText(
                     canvas,
                     noteStringAcross,
@@ -966,8 +964,7 @@ public class PlayboardRenderer {
             } else {
                 // Conflicting scratch letters
                 // Display both letters side by side
-                int noteTextHeight
-                    = (int) (miniNoteText.descent() - miniNoteText.ascent());
+                int noteTextHeight = getTotalHeight(miniNoteText);
                 drawText(
                     canvas,
                     noteStringAcross,
@@ -991,8 +988,7 @@ public class PlayboardRenderer {
             }
         } else if (noteStringAcross != null) {
             // Across scratch letter only - display in bottom left
-            int noteTextHeight
-                = (int) (noteText.descent() - noteText.ascent());
+            int noteTextHeight = getTotalHeight(noteText);
             drawText(
                 canvas,
                 noteStringAcross,
@@ -1003,8 +999,7 @@ public class PlayboardRenderer {
             );
         } else if (noteStringDown != null) {
             // Down scratch letter only - display in bottom left
-            int noteTextHeight
-                = (int) (noteText.descent() - noteText.ascent());
+            int noteTextHeight = getTotalHeight(noteText);
             drawText(
                 canvas,
                 noteStringDown,
@@ -1113,6 +1108,25 @@ public class PlayboardRenderer {
         canvas.restore();
     }
 
+    /**
+     * Calculate text size to avoid overflow
+     *
+     * See how much space it would be, recommend a smaller version if
+     * needed.
+     */
+    private static int getIdealTextSize(
+        CharSequence text, TextPaint style, int width
+    ) {
+        float desiredWidth = StaticLayout.getDesiredWidth(text, style);
+        float styleSize = style.getTextSize();
+        if (desiredWidth > width) {
+
+            return (int) ((width / desiredWidth) * styleSize);
+        } else {
+            return (int) styleSize;
+        }
+    }
+
     private static void drawHtmlText(
         Canvas canvas, String text, int x, int y, int width, TextPaint style
     ) {
@@ -1132,6 +1146,13 @@ public class PlayboardRenderer {
     private float calculateScale(int numPixels, int numBoxes) {
         double density = (double) dpi * (double) BASE_BOX_SIZE_INCHES;
         return (float) ((double) numPixels / (double) numBoxes / density);
+    }
+
+    private int getTotalHeight(TextPaint style) {
+        return (int) Math.ceil(
+            - style.ascent()
+            + DESCENT_FUDGE_FACTOR * style.descent()
+        );
     }
 }
 

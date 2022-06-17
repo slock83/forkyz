@@ -111,4 +111,11 @@ public interface AndroidVersionUtils {
     ActivityResultLauncher<Uri> registerForSAFUriResult(
         Fragment fragment, Consumer<Uri> uriConsumer
     );
+
+    /**
+     * True if the character can go into a box
+     *
+     * I.e. not a control char of some kind
+     */
+    boolean isAcceptableCharacterResponse(char c);
 }

@@ -9,14 +9,18 @@ import android.content.SharedPreferences;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.View;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import androidx.preference.PreferenceManager;
 
+import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
+import app.crossword.yourealwaysbe.util.BoxInputConnection;
+import app.crossword.yourealwaysbe.util.KeyboardManager;
 
 /**
  * A live view of the playboard
@@ -28,7 +32,9 @@ import app.crossword.yourealwaysbe.puz.Position;
  */
 public abstract class BoardEditView
         extends ScrollingImageView
-        implements Playboard.PlayboardListener {
+        implements Playboard.PlayboardListener,
+                    BoxInputConnection.BoxInputListener,
+                    KeyboardManager.ManageableView {
     private static final int DOUBLE_CLICK_INTERVAL = 300; // ms
 
     private SharedPreferences prefs;
@@ -38,6 +44,8 @@ public abstract class BoardEditView
     private Set<BoardClickListener> clickListeners = new HashSet<>();
     private long lastTap = 0;
     private CharSequence contentDescriptionBase;
+    private BoxInputConnection currentInputConnection = null;
+    private boolean nativeInput = false;
 
     public interface BoardClickListener {
         default void onClick(Position position, Word previousWord) { }
@@ -169,22 +177,59 @@ public abstract class BoardEditView
     }
 
     @Override
-    abstract public void onPlayboardChange(
+    public void onPlayboardChange(
         boolean wholeBoard, Word currentWord, Word previousWord
-    );
+    ) {
+        if (currentInputConnection != null)
+            currentInputConnection.setResponse(getCurrentResponse());
+    }
+
+    @Override
+    public void setNativeInput(boolean nativeInput) {
+        this.nativeInput = nativeInput;
+    }
+
+    @Override
+    public View getView() {
+        return this;
+    }
 
     @Override
     public boolean onCheckIsTextEditor() {
-        // todo will change i think
-        return false;
+        return nativeInput;
     }
 
     // Set input type to be raw keys if a keyboard is used
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        currentInputConnection = new BoxInputConnection(
+            this,
+            getCurrentResponse(),
+            this
+        );
+        currentInputConnection.setOutAttrs(outAttrs);
+        return currentInputConnection;
+    }
+
+    @Override
+    public InputConnection onCreateForkyzInputConnection(EditorInfo outAttrs) {
         BaseInputConnection fic = new BaseInputConnection(this, false);
         outAttrs.inputType = InputType.TYPE_NULL;
         return fic;
+    }
+
+    @Override
+    public void onNewResponse(String response) {
+        Playboard board = getBoard();
+        if (board != null)
+            board.playLetter(response);
+    }
+
+    @Override
+    public void onDeleteResponse() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.deleteLetter();
     }
 
     // This method is a hack needed in PlayActivity when clue tabs are
@@ -270,4 +315,12 @@ public abstract class BoardEditView
      * What scratch to suppress when rendering
      */
     abstract protected Set<String> getSuppressNotesList();
+
+    private String getCurrentResponse() {
+        Playboard board = getBoard();
+        Box box = (board == null) ? null : board.getCurrentBox();
+        return (box == null)
+            ? Box.BLANK
+            : box.getResponse();
+    }
 }

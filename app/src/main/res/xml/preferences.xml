@@ -114,7 +114,7 @@
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory
-        android:title="@string/interaction_settings"
+        android:title="@string/keyboard_settings"
     >
 
         <androidx.preference.ListPreference
@@ -150,26 +150,17 @@
         />
 
         <androidx.preference.CheckBoxPreference
-            android:title="@string/space_change_dir"
-            android:defaultValue="false"
-            android:summary="@string/space_change_dir_desc"
-            android:key="spaceChangesDirection"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/enter_changes_direction"
-            android:defaultValue="false"
-            android:summary="@string/enter_changes_direction_desc"
-            android:key="enterChangesDirection"
-        />
-
-        <androidx.preference.CheckBoxPreference
             android:title="@string/keyboard_haptic"
             android:defaultValue="true"
             android:summary="@string/keyboard_haptic_desc"
             android:key="keyboardHaptic"
         />
 
+    </androidx.preference.PreferenceCategory>
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/interaction_settings"
+    >
         <androidx.preference.CheckBoxPreference
             android:title="@string/snap_current"
             android:defaultValue="false"
@@ -219,6 +210,20 @@
             android:defaultValue="false"
             android:summary="@string/preserve_correct_desc"
             android:key="preserveCorrectLettersInShowErrors"
+        />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/space_change_dir"
+            android:defaultValue="false"
+            android:summary="@string/space_change_dir_desc"
+            android:key="spaceChangesDirection"
+        />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/enter_changes_direction"
+            android:defaultValue="false"
+            android:summary="@string/enter_changes_direction_desc"
+            android:key="enterChangesDirection"
         />
 
     </androidx.preference.PreferenceCategory>

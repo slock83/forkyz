@@ -38,6 +38,7 @@ public class BoardWordEditView extends BoardEditView {
         } else {
             render();
         }
+        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
     }
 
     @Override

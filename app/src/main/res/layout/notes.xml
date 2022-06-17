@@ -44,9 +44,7 @@
                 android:nextFocusDown="@+id/scratchMiniboard"
                 android:nextFocusUp="@+id/anagramSolution"
                 android:contentDescription="@string/board_lab"
-            >
-                <requestFocus/>
-            </app.crossword.yourealwaysbe.view.BoardWordEditView>
+            />
             <TextView
                 android:id="@+id/scratchLab"
                 android:layout_width="fill_parent"

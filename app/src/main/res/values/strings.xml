@@ -115,6 +115,7 @@
     <string name="scraper_sources_desc">Online puzzle archives</string>
     <string name="browser_settings">Browser Settings</string>
     <string name="interaction_settings">Interaction Settings</string>
+    <string name="keyboard_settings">Keyboard Settings</string>
     <string name="display_settings">Display Settings</string>
     <string name="download_settings">Download Settings</string>
     <string name="fit_screen_start">Fit to screen when starting</string>
@@ -177,7 +178,7 @@
     <string name="keyboard_haptic">Keyboard Haptic Feedback</string>
     <string name="keyboard_haptic_desc">Vibrate on keyboard keypress.</string>
     <string name="keyboard_use_native">Use native keyboard</string>
-    <string name="keyboard_use_native_desc">Only works with keyboards that report key presses.</string>
+    <string name="keyboard_use_native_desc">Use system soft input method. Still a bit experimental.</string>
 
     <!-- preferences download -->
     <string name="background_download_time_config">Download Times</string>

@@ -7,12 +7,11 @@ import java.util.logging.Logger;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.BaseInputConnection;
 import android.view.inputmethod.EditorInfo;
@@ -23,12 +22,20 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
+import app.crossword.yourealwaysbe.util.BoxInputConnection;
+import app.crossword.yourealwaysbe.util.KeyboardManager;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
-public class BoardEditText extends ScrollingImageView {
+public class BoardEditText
+        extends ScrollingImageView
+        implements BoxInputConnection.BoxInputListener,
+            KeyboardManager.ManageableView {
+
     private static final Logger LOG
         = Logger.getLogger(BoardEditText.class.getCanonicalName());
 
-    private Handler handler = new Handler(Looper.getMainLooper());
+    private BoxInputConnection currentInputConnection = null;
+    private boolean nativeInput = false;
 
     public interface BoardEditFilter {
         /**
@@ -109,11 +116,32 @@ public class BoardEditText extends ScrollingImageView {
 
         int box = findPosition(point);
         if (box >= 0) {
-            selection.setCol(box);
+            setSelectedCol(box);
             BoardEditText.this.render();
+            updateInputConnection();
         }
 
         super.onTap(point);
+    }
+
+    @Override
+    public void onNewResponse(String response) {
+        if (response == null || response.isEmpty())
+            return;
+        onNewResponse(response.charAt(0));
+    }
+
+    @Override
+    public void onDeleteResponse() {
+        if (boxes != null) {
+            int col = getSelectedCol();
+            if (boxes[col].isBlank() && col > 0)
+                setSelectedCol(col - 1);
+            if (canDelete(selection))
+                boxes[getSelectedCol()].setBlank();
+            this.render();
+            updateInputConnection();
+        }
     }
 
     @Override
@@ -122,12 +150,13 @@ public class BoardEditText extends ScrollingImageView {
     ) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         if (!gainFocus) {
-            selection.setCol(-1);
+            setSelectedCol(-1);
             render();
         } else if (boxes != null) {
-            if (selection.getCol() < 0
-                    || selection.getCol() >= boxes.length) {
-                selection.setCol(0);
+            if (getSelectedCol() < 0
+                    || getSelectedCol() >= boxes.length) {
+                setSelectedCol(0);
+                updateInputConnection();
                 render();
             }
         }
@@ -188,6 +217,11 @@ public class BoardEditText extends ScrollingImageView {
     }
 
     public void setResponse(int pos, char c) {
+        setResponseNoInputConnectionUpdate(pos, c);
+        updateInputConnection();
+    }
+
+    public void setResponseNoInputConnectionUpdate(int pos, char c) {
         if (boxes != null && 0 <= pos && pos < boxes.length) {
             boxes[pos].setResponse(c);
             render();
@@ -210,6 +244,7 @@ public class BoardEditText extends ScrollingImageView {
             }
         }
         render();
+        updateInputConnection();
     }
 
     public void clear() {
@@ -235,19 +270,40 @@ public class BoardEditText extends ScrollingImageView {
     }
 
     @Override
+    public void setNativeInput(boolean nativeInput) {
+        this.nativeInput = nativeInput;
+    }
+
+    @Override
+    public View getView() {
+        return this;
+    }
+
+    @Override
     public boolean onCheckIsTextEditor() {
-        // todo will change i think
-        return false;
+        return nativeInput;
     }
 
     // Set input type to be raw keys if a keyboard is used
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        currentInputConnection = new BoxInputConnection(
+            this,
+            getSelectedResponse(),
+            this
+        );
+        currentInputConnection.setOutAttrs(outAttrs);
+        return currentInputConnection;
+    }
+
+    @Override
+    public InputConnection onCreateForkyzInputConnection(EditorInfo outAttrs) {
         BaseInputConnection fic = new BaseInputConnection(this, false);
         outAttrs.inputType = InputType.TYPE_NULL;
         return fic;
     }
 
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
         case KeyEvent.KEYCODE_DPAD_LEFT:
@@ -258,31 +314,32 @@ public class BoardEditText extends ScrollingImageView {
 
         default:
             char c = Character.toUpperCase(event.getDisplayLabel());
-            if (boxes != null && Character.isLetterOrDigit(c))
+            if (boxes != null && isAcceptableCharacterResponse(c))
                 return true;
         }
 
         return super.onKeyUp(keyCode, event);
     }
 
+    @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
         case KeyEvent.KEYCODE_MENU:
             return false;
 
         case KeyEvent.KEYCODE_DPAD_LEFT: {
-                int col = selection.getCol();
+                int col = getSelectedCol();
                 if (col > 0) {
-                    selection.setCol(col - 1);
+                    setSelectedCol(col - 1);
                     this.render();
                 }
                 return true;
             }
 
         case KeyEvent.KEYCODE_DPAD_RIGHT: {
-                int col = selection.getCol();
+                int col = getSelectedCol();
                 if (boxes != null && col < boxes.length - 1) {
-                    selection.setCol(col + 1);
+                    setSelectedCol(col + 1);
                     this.render();
                 }
 
@@ -290,63 +347,75 @@ public class BoardEditText extends ScrollingImageView {
             }
 
         case KeyEvent.KEYCODE_DEL:
-            if (boxes != null) {
-                int col = selection.getCol();
-                if (boxes[col].isBlank() && col > 0)
-                    selection.setCol(col - 1);
-                if (canDelete(selection))
-                    boxes[selection.getCol()].setBlank();
-                this.render();
-            }
+            onDeleteResponse();
             return true;
 
-        case KeyEvent.KEYCODE_SPACE:
-            if (boxes != null && canDelete(selection)) {
-                int col = selection.getCol();
-                boxes[col].setBlank();
-
-                if (col < boxes.length - 1) {
-                    selection.setCol(col + 1);
-                }
-
-                this.render();
-            }
-            return true;
+        // space handled as any char
         }
 
         char c = Character.toUpperCase(event.getDisplayLabel());
 
-        if (boxes != null && Character.isLetterOrDigit(c)) {
-            c = filterReplacement(c, selection);
-
-            if (c != '\0') {
-                int col = selection.getCol();
-
-                boxes[col].setResponse(c);
-
-                if (col < boxes.length - 1) {
-                    col += 1;
-                    int nextPos = col;
-
-                    while (getBoard().isSkipCompletedLetters() &&
-                           !boxes[col].isBlank() &&
-                           col < boxes.length - 1) {
-                        col += 1;
-                    }
-
-                    selection.setCol(col);
-
-                    if (!boxes[col].isBlank())
-                        selection.setCol(nextPos);
-                }
-
-                this.render();
-            }
-
+        if (boxes != null && isAcceptableCharacterResponse(c)) {
+            onNewResponse(c);
             return true;
         }
 
         return super.onKeyUp(keyCode, event);
+    }
+
+    public int getNumNonBlank() {
+        int count = 0;
+        int len = getLength();
+        for (int i = 0; i < len; i++) {
+            if (!isBlank(i))
+                count += 1;
+        }
+        return count;
+    }
+
+    /**
+     * If this character in the string is a blank box
+     */
+    public static boolean isBlank(char c) {
+        return Box.BLANK.equals(String.valueOf(c));
+    }
+
+    private void onNewResponse(char c) {
+        if (!isAcceptableCharacterResponse(c))
+            return;
+
+        c = filterReplacement(c, selection);
+
+        if (c != '\0') {
+            int col = getSelectedCol();
+
+            // we'll update later if the selection doesn't change
+            setResponseNoInputConnectionUpdate(col, c);
+
+            if (col < boxes.length - 1) {
+                col += 1;
+                int nextPos = col;
+
+                while (getBoard().isSkipCompletedLetters() &&
+                       !boxes[col].isBlank() &&
+                       col < boxes.length - 1) {
+                    col += 1;
+                }
+
+                if (boxes[col].isBlank())
+                    setSelectedCol(col);
+                else
+                    setSelectedCol(nextPos);
+            } else {
+                updateInputConnection();
+            }
+
+            this.render();
+        } else {
+            // Needs updating else thinks there's a character in the
+            // buffer, when it was refused
+            updateInputConnection();
+        }
     }
 
     private void render() {
@@ -362,7 +431,7 @@ public class BoardEditText extends ScrollingImageView {
         setBitmap(renderer.drawBoxes(boxes, selection, suppressNotesList));
         setContentDescription(
             renderer.getContentDescription(
-                contentDescriptionBase, boxes, selection.getCol(), true
+                contentDescriptionBase, boxes, getSelectedCol(), true
             )
         );
     }
@@ -421,5 +490,35 @@ public class BoardEditText extends ScrollingImageView {
             return box;
         else
             return -1;
+    }
+
+    private int getSelectedCol() {
+        return selection.getCol();
+    }
+
+    private void setSelectedCol(int col) {
+        selection.setCol(col);
+        updateInputConnection();
+    }
+
+    private String getSelectedResponse() {
+        int col = getSelectedCol();
+        if (0 <= col && col < boxes.length)
+            return boxes[col].getResponse();
+        else
+            return Box.BLANK;
+    }
+
+    private void updateInputConnection() {
+        if (currentInputConnection != null) {
+            String response = getSelectedResponse();
+            currentInputConnection.setResponse(response);
+        }
+    }
+
+    private boolean isAcceptableCharacterResponse(char c) {
+        return AndroidVersionUtils.Factory
+            .getInstance()
+            .isAcceptableCharacterResponse(c);
     }
 }

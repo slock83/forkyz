@@ -146,8 +146,6 @@ public class PlayActivity extends PuzzleActivity
 
         ForkyzKeyboard keyboardView
             = (ForkyzKeyboard) this.findViewById(R.id.keyboard);
-        keyboardManager
-            = new KeyboardManager(this, keyboardView, null);
         keyboardView.setSpecialKeyListener(
             new ForkyzKeyboard.SpecialKeyListener() {
                 @Override
@@ -174,6 +172,9 @@ public class PlayActivity extends PuzzleActivity
                 }
             }
         );
+
+        keyboardManager
+            = new KeyboardManager(this, keyboardView, boardView);
 
         board.setSkipCompletedLetters(
             this.prefs.getBoolean("skipFilled", false)
@@ -669,9 +670,6 @@ public class PlayActivity extends PuzzleActivity
         this.onConfigurationChanged(getBaseContext().getResources()
                                                     .getConfiguration());
 
-        if (keyboardManager != null)
-            keyboardManager.onResume();
-
         if (prefs.getBoolean(SHOW_CLUES_TAB, false)) {
             showClueTabs();
         } else {
@@ -679,6 +677,9 @@ public class PlayActivity extends PuzzleActivity
         }
 
         registerBoard();
+
+        if (keyboardManager != null)
+            keyboardManager.onResume();
     }
 
     private void registerBoard() {
@@ -727,7 +728,9 @@ public class PlayActivity extends PuzzleActivity
         }
 
         if (board != null) {
-            board.setSkipCompletedLetters(this.prefs.getBoolean("skipFilled", false));
+            board.setSkipCompletedLetters(
+                this.prefs.getBoolean("skipFilled", false)
+            );
             board.setMovementStrategy(this.getMovementStrategy());
             board.addListener(this);
 

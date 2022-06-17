@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +17,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -361,24 +359,12 @@ public class NotesActivity extends PuzzleActivity {
 
             return true;
 
-        case KeyEvent.KEYCODE_SPACE:
-            getBoard().playLetter(' ');
-
-            Position curr = getBoard().getHighlightLetter();
-            int row = curr.getRow();
-            int col = curr.getCol();
-
-            if (!getBoard().getCurrentWord().equals(w)
-                    || (getBoard().getBoxes()[row][col] == null)) {
-                getBoard().setHighlightLetter(last);
-            }
-
-            return true;
+        // space handled as any char
         }
 
-        char c = Character .toUpperCase(event.getDisplayLabel());
+        char c = Character.toUpperCase(event.getDisplayLabel());
 
-        if (Character.isLetterOrDigit(c)) {
+        if (utils.isAcceptableCharacterResponse(c)) {
             getBoard().playLetter(c);
 
             Position p = getBoard().getHighlightLetter();
@@ -457,15 +443,19 @@ public class NotesActivity extends PuzzleActivity {
 
         BoardEditFilter sourceFilter = new BoardEditFilter() {
             public boolean delete(char oldChar, int pos) {
-                if (Character.isLetter(oldChar)) {
-                    numAnagramLetters--;
+                if (!BoardEditText.isBlank(oldChar)) {
+                    numAnagramLetters -= 1;
                 }
                 return true;
             }
 
             public char filter(char oldChar, char newChar, int pos) {
-                if (Character.isLetter(newChar)) {
-                    if (Character.isLetter(oldChar)) {
+                if (BoardEditText.isBlank(newChar)) {
+                    if (!BoardEditText.isBlank(oldChar))
+                        numAnagramLetters -= 1;
+                    return newChar;
+                } else {
+                    if (!BoardEditText.isBlank(oldChar)) {
                         return newChar;
                     } else if (numAnagramLetters < curWordLen) {
                         numAnagramLetters++;
@@ -473,8 +463,6 @@ public class NotesActivity extends PuzzleActivity {
                     } else {
                         return '\0';
                     }
-                } else {
-                    return '\0';
                 }
             }
         };
@@ -483,7 +471,7 @@ public class NotesActivity extends PuzzleActivity {
 
         BoardEditFilter solFilter = new BoardEditFilter() {
             public boolean delete(char oldChar, int pos) {
-                if (Character.isLetter(oldChar)) {
+                if (!BoardEditText.isBlank(oldChar)) {
                     for (int i = 0; i < curWordLen; i++) {
                         if (anagramSourceView.isBlank(i)) {
                             anagramSourceView.setResponse(i, oldChar);
@@ -511,21 +499,13 @@ public class NotesActivity extends PuzzleActivity {
             String src = note.getAnagramSource();
             if (src != null) {
                 anagramSourceView.setFromString(src);
-                for (int i = 0; i < src.length(); i++) {
-                    if (Character.isLetter(src.charAt(i))) {
-                        numAnagramLetters++;
-                    }
-                }
+                numAnagramLetters += anagramSourceView.getNumNonBlank();
             }
 
             String sol = note.getAnagramSolution();
             if (sol != null) {
                 anagramSolView.setFromString(sol);
-                for (int i = 0; i < sol.length(); i++) {
-                    if (Character.isLetter(sol.charAt(i))) {
-                        numAnagramLetters++;
-                    }
-                }
+                numAnagramLetters +=  anagramSolView.getNumNonBlank();
             }
         }
 
@@ -622,22 +602,20 @@ public class NotesActivity extends PuzzleActivity {
      */
     private boolean preAnagramSolResponse(int pos, char newChar) {
         char oldChar = anagramSolView.getResponse(pos);
-        if (Character.isLetter(newChar)) {
-            int sourceLen = anagramSourceView.getLength();
-            for (int i = 0; i < sourceLen; i++) {
-                if (anagramSourceView.getResponse(i) == newChar) {
-                    anagramSourceView.setResponse(i, oldChar);
-                    return true;
-                }
+        int sourceLen = anagramSourceView.getLength();
+        for (int i = 0; i < sourceLen; i++) {
+            if (anagramSourceView.getResponse(i) == newChar) {
+                anagramSourceView.setResponse(i, oldChar);
+                return true;
             }
-            // if failed to find it in the source view, see if we can
-            // find one to swap it with one in the solution
-            int solLen = anagramSolView.getLength();
-            for (int i = 0; i < solLen; i++) {
-                if (anagramSolView.getResponse(i) == newChar) {
-                    anagramSolView.setResponse(i, oldChar);
-                    return true;
-                }
+        }
+        // if failed to find it in the source view, see if we can
+        // find one to swap it with one in the solution
+        int solLen = anagramSolView.getLength();
+        for (int i = 0; i < solLen; i++) {
+            if (anagramSolView.getResponse(i) == newChar) {
+                anagramSolView.setResponse(i, oldChar);
+                return true;
             }
         }
         return false;
@@ -759,16 +737,7 @@ public class NotesActivity extends PuzzleActivity {
      * focus lost
      */
     private void onNotesBoxFocusChanged(boolean gainFocus) {
-        if (gainFocus) {
-            keyboardManager.hideKeyboard(true);
-        } else {
-            InputMethodManager imm
-                = (InputMethodManager)
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.hideSoftInputFromWindow(notesBox.getWindowToken(), 0);
-            }
-        }
+        keyboardManager.onFocusNativeView(notesBox, gainFocus);
     }
 
     /**

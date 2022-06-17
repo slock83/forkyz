@@ -12,9 +12,7 @@
         android:focusable="true"
         android:focusableInTouchMode="true"
         android:contentDescription="@string/current_word"
-    >
-        <requestFocus />
-    </app.crossword.yourealwaysbe.view.BoardWordEditView>
+    />
     <app.crossword.yourealwaysbe.view.ClueTabs
         android:id="@+id/clueListClueTabs"
         android:layout_width="fill_parent"
