@@ -873,6 +873,9 @@ public class PlayboardRenderer {
             ? null
             : box.getResponse();
 
+        if (letterString == null)
+            return;
+
         if (highlightError(box, isHighlighted)) {
             boolean inCurrentWord =
                 (currentWord != null) && currentWord.checkInWord(row, col);
@@ -891,7 +894,6 @@ public class PlayboardRenderer {
                 letterString, letterText, boxSize
             ));
         }
-
 
         int yoffset = boxSize - textOffset - getTotalHeight(letterText);
         drawText(
