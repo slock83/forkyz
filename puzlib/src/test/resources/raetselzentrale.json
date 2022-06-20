@@ -1,0 +1,679 @@
+{
+  "id": 1,
+  "type": "sweden",
+  "name": "Test Puzzle",
+  "displayName": false,
+  "encrypted": false,
+  "hash": null,
+  "contest": "0",
+  "payload": {
+    "width": 16,
+    "height": 16,
+    "grid": [
+      [ "1", "6", "6", "6", "A", "5", "6", "B", "5", "C", "5", "6", ":", "D", ":", "E" ],
+      [ "F", "G", "H", "I", "J", "3", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T" ],
+      [ "3", "U", "V", "W", "X", "Y", "Z", "A", "6", "I", "3", "B", "C", "D", "E", "F" ],
+      [ "X", "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "X", "6", "X", "6" ],
+      [ "2", "X", "6", "X", "3", "X", "I", "X", "X", "X", "6", "X", "3", "X", "X", "X" ],
+      [ "3", "X", "X", "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "X", "X" ],
+      [ "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "X", "6", "X", "6", "X" ],
+      [ "2", "6", "X", "3", "X", "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X" ],
+      [ "3", "X", "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "X", "X", "X" ],
+      [ "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "X", "6", "X", "6", "X", "6" ],
+      [ "2", "X", "3", "X", "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "X" ],
+      [ "X", "X", "X", "X", "X", "6", "X", "3", "X", "X", "X", "X", "6", "X", "6", "X" ],
+      [ "2", "X", "6", "X", "3", "X", "X", "X", "X", "X", "3", "X", "X", "X", "X", "X" ],
+      [ "3", "X", "X", "X", "X", "X", "X", "3", "X", "X", "X", "X", "X", "X", "X", "X" ],
+      [ "3", "X", "X", "X", "3", "X", "X", "X", "X", "X", "3", "X", "X", "X", "X", "X" ],
+      [ "3", "X", "X", "X", "X", "X", "X", "+", "+", "+", "+", "+", "+", "+", "+", "+" ]
+    ],
+    "words": [
+      {
+        "position": {
+          "col": 1,
+          "row": 1
+        },
+        "question": "Te-+st +clue o-+ne",
+        "answer": "",
+        "arrowtype": "1",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 3
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 5
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "2",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 6
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 8
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "2",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 9
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 11
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "2",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 13
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "2",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 14
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 15
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 1,
+          "row": 16
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 2,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 2,
+          "row": 8
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 3,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 3,
+          "row": 5
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 3,
+          "row": 11
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 3,
+          "row": 13
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 4,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 4,
+          "row": 8
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 4,
+          "row": 10
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 5,
+          "row": 5
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 5,
+          "row": 7
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 5,
+          "row": 13
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 5,
+          "row": 15
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 6,
+          "row": 1
+        },
+        "question": "Test +cl-+ue +1d",
+        "answer": "",
+        "arrowtype": "5",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 6,
+          "row": 2
+        },
+        "question": "Test +clue +10",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 6,
+          "row": 4
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 6,
+          "row": 10
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 6,
+          "row": 12
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 7,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 7,
+          "row": 7
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 7,
+          "row": 9
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 8,
+          "row": 4
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 8,
+          "row": 6
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 8,
+          "row": 12
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 8,
+          "row": 14
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 9,
+          "row": 1
+        },
+        "question": "Test clue 2d",
+        "answer": "",
+        "arrowtype": "5",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 9,
+          "row": 3
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 9,
+          "row": 9
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 9,
+          "row": 11
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 10,
+          "row": 6
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 10,
+          "row": 8
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 11,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "5",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 11,
+          "row": 3
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 11,
+          "row": 5
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 11,
+          "row": 11
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 11,
+          "row": 13
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 11,
+          "row": 15
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 12,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 12,
+          "row": 8
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 12,
+          "row": 10
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 13,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "4",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 13,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 13,
+          "row": 5
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "3",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 13,
+          "row": 7
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 13,
+          "row": 12
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 14,
+          "row": 4
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 14,
+          "row": 10
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 15,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "4",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 15,
+          "row": 1
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 15,
+          "row": 7
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 15,
+          "row": 12
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 16,
+          "row": 4
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      },
+      {
+        "position": {
+          "col": 16,
+          "row": 10
+        },
+        "question": "",
+        "answer": "",
+        "arrowtype": "6",
+        "number": 0
+      }
+    ],
+    "solution": {
+      "winword": "XXBXXXXXX",
+      "matrix": [ [ 15, 14 ], [ 5, 2 ], [ 9, 5 ], [ 10, 10 ], [ 6, 14 ], [ 8, 11 ], [ 14, 2 ], [ 9, 15 ], [ 6, 6 ] ]
+    },
+    "hintfields": null,
+    "meta": null
+  }
+}

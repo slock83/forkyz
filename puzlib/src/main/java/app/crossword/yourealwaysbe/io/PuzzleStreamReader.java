@@ -19,7 +19,8 @@ public class PuzzleStreamReader {
         new BrainsOnlyIO(),
         new KingFeaturesPlaintextIO(),
         new GuardianJSONIO(),
-        new AmuseLabsJSONIO()
+        new AmuseLabsJSONIO(),
+        new RaetselZentraleSchwedenJSONIO()
     };
 
     /**

@@ -51,5 +51,13 @@ public class PuzzleStreamReaderTest extends TestCase {
             )
         );
     }
+
+    public void testRaetzelZentraleSchweden() throws Exception {
+        RaetselZentraleSchwedenJSONIOTest.assertIsTestPuzzle1(
+            PuzzleStreamReader.parseInput(
+                RaetselZentraleSchwedenJSONIOTest.getTestPuzzle1InputStream()
+            )
+        );
+    }
 }
 

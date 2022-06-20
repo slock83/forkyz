@@ -60,6 +60,15 @@ public class PuzzleBuilder {
         return puzzle.checkedGetBox(position);
     }
 
+    public PuzzleBuilder setBoxClueNumber(int row, int col, String number) {
+        Box box = puzzle.checkedGetBox(row, col);
+        if (box != null) {
+            box.setClueNumber(number);
+            invalidateNumberPosition();
+        }
+        return this;
+    }
+
     public PuzzleBuilder addClue(Clue clue) {
         puzzle.addClue(clue);
         return this;
@@ -278,6 +287,10 @@ public class PuzzleBuilder {
         } else {
             return !joinedTop(row, col) && joinedBottom(row, col);
         }
+    }
+
+    private void invalidateNumberPosition() {
+        numberPositions = null;
     }
 
     private Map<String, Position> getNumberPositions() {
