@@ -12,6 +12,12 @@
         android:key="downloadGuardianDailyCryptic"
     />
     <androidx.preference.CheckBoxPreference
+        android:title="@string/hamburger_abendblatt_daily"
+        android:summary="@string/hamburger_abendblatt_daily_desc"
+        android:defaultValue="true"
+        android:key="downloadHamAbend"
+    />
+    <androidx.preference.CheckBoxPreference
         android:title="@string/independent_daily"
         android:defaultValue="true"
         android:key="downloadIndependentDailyCryptic"

@@ -292,6 +292,15 @@ public class Downloaders {
             downloaders.add(new GuardianDailyCrypticDownloader());
         }
 
+        if (prefs.getBoolean("downloadHamAbend", true)) {
+            downloaders.add(new RaetselZentraleSchwedenDownloader(
+                "Hamburger Abendblatt",
+                "hhab",
+                Downloader.DATE_DAILY,
+                "https://www.abendblatt.de/plus"
+            ));
+        }
+
         if (prefs.getBoolean("downloadIndependentDailyCryptic", true)) {
             downloaders.add(new IndependentDailyCrypticDownloader());
         }
