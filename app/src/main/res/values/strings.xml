@@ -235,6 +235,8 @@
     <string name="updates_mon_sat">Updates Monday-Saturday</string>
     <string name="hamburger_abendblatt_daily">Hamburger Abendblatt</string>
     <string name="hamburger_abendblatt_daily_desc">Daily crossword in German</string>
+    <string name="le_parisien_daily">Le Parisien</string>
+    <string name="le_parisien_daily_desc">Daily crossword in French, Level 2</string>
     <string name="guardian_daily">Guardian Daily Cryptic</string>
     <string name="independent_daily">Independent Daily Cryptic</string>
     <string name="newsday">Newsday</string>

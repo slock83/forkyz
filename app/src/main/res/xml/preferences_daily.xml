@@ -29,6 +29,12 @@
         android:key="downloadJoseph"
     />
     <androidx.preference.CheckBoxPreference
+        android:title="@string/le_parisien_daily"
+        android:summary="@string/le_parisien_daily_desc"
+        android:defaultValue="true"
+        android:key="downloadLeParisien"
+    />
+    <androidx.preference.CheckBoxPreference
         android:title="@string/newsday"
         android:defaultValue="true"
         android:key="downloadNewsday"

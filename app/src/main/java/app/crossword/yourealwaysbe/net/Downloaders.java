@@ -318,6 +318,10 @@ public class Downloaders {
             ));
         }
 
+        if (prefs.getBoolean("downloadLeParisien", true)) {
+            downloaders.add(new LeParisienDownloader());
+        }
+
         if (prefs.getBoolean("downloadNewsday", true)) {
             downloaders.add(new BrainsOnlyDownloader(
                 "https://brainsonly.com/servlets-newsday-crossword/newsdaycrossword?date=",
