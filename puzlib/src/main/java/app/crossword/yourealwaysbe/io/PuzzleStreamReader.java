@@ -20,7 +20,8 @@ public class PuzzleStreamReader {
         new KingFeaturesPlaintextIO(),
         new GuardianJSONIO(),
         new AmuseLabsJSONIO(),
-        new RaetselZentraleSchwedenJSONIO()
+        new RaetselZentraleSchwedenJSONIO(),
+        new RCIJeuxMFJIO()
     };
 
     /**

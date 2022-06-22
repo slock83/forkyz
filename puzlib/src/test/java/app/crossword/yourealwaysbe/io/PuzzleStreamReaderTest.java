@@ -59,5 +59,14 @@ public class PuzzleStreamReaderTest extends TestCase {
             )
         );
     }
+
+    public void testRCIJeuxMFJ() throws Exception {
+        RCIJeuxMFJIOTest.assertIsTestPuzzle1(
+            PuzzleStreamReader.parseInput(
+                RCIJeuxMFJIOTest.getTestPuzzle1InputStream()
+            )
+        );
+    }
+
 }
 
