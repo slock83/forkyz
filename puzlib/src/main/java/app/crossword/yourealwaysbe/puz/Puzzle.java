@@ -36,6 +36,7 @@ public class Puzzle implements Serializable{
     private LocalDate pubdate = LocalDate.now();
     private String source;
     private String sourceUrl = "";
+    private String shareUrl;
     private String supportUrl;
     private Box[][] boxes;
     private boolean updatable;
@@ -413,6 +414,9 @@ public class Puzzle implements Serializable{
         return source;
     }
 
+    /**
+     * The actual URL of the puzzle
+     */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
     }
@@ -421,12 +425,31 @@ public class Puzzle implements Serializable{
         return sourceUrl;
     }
 
+    /**
+     * A URL where the puzzle creator can be supported in some way
+     *
+     * Either by visits or money
+     */
     public void setSupportUrl(String supportUrl) {
         this.supportUrl = supportUrl;
     }
 
     public String getSupportUrl() {
         return supportUrl;
+    }
+
+    /**
+     * The URL to use if you want to share the puzzle with someone
+     *
+     * E.g. the puzzle page of the site it came from (as opposed to the
+     * backend .puz link
+     */
+    public void setShareUrl(String shareUrl) {
+        this.shareUrl = shareUrl;
+    }
+
+    public String getShareUrl() {
+        return shareUrl;
     }
 
     public void setTime(long time) {

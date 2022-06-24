@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -24,14 +23,11 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * The above contains a puzzle ID, then we need
  * https://raetsel.raetselzentrale.de/api/r/<idnumber>
  */
-public class RaetselZentraleSchwedenDownloader extends AbstractDateDownloader {
+public class RaetselZentraleSchwedenDownloader
+        extends AbstractDateDownloader {
 
-    private static final String BASE_URL
-        = "https://raetsel.raetselzentrale.de/l";
-    private static final String URL_SUFFIX_FORMAT
-        = "/%s/schwedea/%s";
-    private static final DateTimeFormatter DATE_FORMATTER
-        = DateTimeFormatter.ofPattern("yyyyMMdd", Locale.US);
+    private static final String SOURCE_URL_PATTERN_FORMAT
+        = "'https://raetsel.raetselzentrale.de/l/%s/schwedea/'yyyyMMdd";
     private static final String JSON_URL_FORMAT
         = "https://raetsel.raetselzentrale.de/api/r/%s";
 
@@ -40,29 +36,31 @@ public class RaetselZentraleSchwedenDownloader extends AbstractDateDownloader {
     );
     private static final int PUZZLE_ID_GROUP = 1;
 
-    private String shortName;
-
     public RaetselZentraleSchwedenDownloader(
-        String name, String shortName, DayOfWeek[] days, String supportUrl
+        String name,
+        String shortName,
+        DayOfWeek[] days,
+        String supportUrl,
+        String shareUrlPattern
     ) {
         super(
-            BASE_URL,
             name,
             days,
             supportUrl,
-            new RaetselZentraleSchwedenJSONIO()
+            new RaetselZentraleSchwedenJSONIO(),
+            String.format(Locale.US, SOURCE_URL_PATTERN_FORMAT, shortName),
+            shareUrlPattern
         );
-        this.shortName = shortName;
     }
 
     @Override
     protected Puzzle download(
         LocalDate date,
-        String urlSuffix,
         Map<String, String> headers
     ) {
         try {
-            URL url = new URL(this.baseUrl + urlSuffix);
+            String sourceUrl = getSourceUrl(date);
+            URL url = new URL(sourceUrl);
             LOG.info("Getting Raetsel Zentrale puzzle ID from " + url);
             URL jsonUrl = getCrosswordJSONURL(url, headers);
             LOG.info("Getting Raetsel Zentrale puzzle JSON from " + jsonUrl);
@@ -78,6 +76,7 @@ public class RaetselZentraleSchwedenDownloader extends AbstractDateDownloader {
                 if (puz != null) {
                     puz.setCopyright(getName());
                     puz.setSource(getName());
+                    puz.setSourceUrl(sourceUrl);
                     puz.setSupportUrl(getSupportUrl());
                     puz.setDate(date);
                 }
@@ -88,15 +87,6 @@ public class RaetselZentraleSchwedenDownloader extends AbstractDateDownloader {
         }
 
         return null;
-    }
-
-    protected String createUrlSuffix(LocalDate date) {
-        return String.format(
-            Locale.US,
-            URL_SUFFIX_FORMAT,
-            shortName,
-            DATE_FORMATTER.format(date)
-        );
     }
 
     private URL getCrosswordJSONURL(

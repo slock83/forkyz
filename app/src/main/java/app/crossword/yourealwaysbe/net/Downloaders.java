@@ -12,6 +12,9 @@ import app.crossword.yourealwaysbe.BrowseActivity;
 import app.crossword.yourealwaysbe.PlayActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
+import app.crossword.yourealwaysbe.io.BrainsOnlyIO;
+import app.crossword.yourealwaysbe.io.IO;
+import app.crossword.yourealwaysbe.io.JPZIO;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
@@ -294,19 +297,39 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadHamAbend", true)) {
             downloaders.add(new RaetselZentraleSchwedenDownloader(
-                "Hamburger Abendblatt",
+                context.getString(R.string.hamburger_abendblatt_daily),
                 "hhab",
                 Downloader.DATE_DAILY,
-                "https://www.abendblatt.de/plus"
+                "https://www.abendblatt.de/plus",
+                "'https://www.abendblatt.de/ratgeber/wissen/"
+                    + "article106560367/Spielen-Sie-hier-taeglich"
+                    + "-das-kostenlose-Kreuzwortraetsel.html'"
             ));
         }
 
         if (prefs.getBoolean("downloadIndependentDailyCryptic", true)) {
-            downloaders.add(new IndependentDailyCrypticDownloader());
+            downloaders.add(new AbstractDateDownloader(
+                context.getString(R.string.independent_daily),
+                Downloader.DATE_DAILY,
+                "https://www.independent.co.uk/donations",
+                new JPZIO(),
+                "'https://ams.cdn.arkadiumhosted.com/assets/gamesfeed/"
+                    + "independent/daily-crossword/c_'yyMMdd'.xml'",
+                "'https://puzzles.independent.co.uk/games/"
+                    + "cryptic-crossword-independent'"
+            ));
         }
 
         if (prefs.getBoolean("downloadJonesin", true)) {
-            downloaders.add(new JonesinDownloader());
+            downloaders.add(new AbstractDateDownloader(
+                context.getString(R.string.jonesin_crosswords),
+                Downloader.DATE_THURSDAY,
+                "https://crosswordnexus.com/jonesin/",
+                new IO(),
+                "'https://herbach.dnsalias.com/Jonesin/jz'yyMMdd'.puz'",
+                "'https://crosswordnexus.com/solve/?"
+                    + "puzzle=/downloads/jonesin/jonesin'yyMMdd'.puz'"
+            ));
         }
 
         if (prefs.getBoolean("downloadJoseph", true)) {
@@ -314,7 +337,9 @@ public class Downloaders {
                 "Joseph",
                 context.getString(R.string.joseph_crossword),
                 Downloader.DATE_NO_SUNDAY,
-                "https://puzzles.kingdigital.com"
+                "https://puzzles.kingdigital.com",
+                "'https://www.arkadium.com/games/"
+                    + "joseph-crossword-kingsfeatures/'"
             ));
         }
 
@@ -323,12 +348,16 @@ public class Downloaders {
         }
 
         if (prefs.getBoolean("downloadNewsday", true)) {
-            downloaders.add(new BrainsOnlyDownloader(
-                "https://brainsonly.com/servlets-newsday-crossword/newsdaycrossword?date=",
+            downloaders.add(new AbstractDateDownloader(
                 context.getString(R.string.newsday),
+                Downloader.DATE_DAILY,
                 // i can't browse this site for a more specific URL
                 // (GDPR)
-                "https://www.newsday.com"
+                "https://www.newsday.com",
+                new BrainsOnlyIO(),
+                "'https://brainsonly.com/servlets-newsday-crossword/"
+                    + "newsdaycrossword?date='yyMMdd",
+                "'https://www.newsday.com'"
             ));
         }
 
@@ -337,7 +366,9 @@ public class Downloaders {
                 "Premier",
                 context.getString(R.string.premier_crossword),
                 Downloader.DATE_SUNDAY,
-                "https://puzzles.kingdigital.com"
+                "https://puzzles.kingdigital.com",
+                "'https://www.arkadium.com/games/"
+                    + "premier-crossword-kingsfeatures/'"
             ));
         }
 
@@ -346,7 +377,9 @@ public class Downloaders {
                 "Sheffer",
                 context.getString(R.string.sheffer_crossword),
                 Downloader.DATE_NO_SUNDAY,
-                "https://puzzles.kingdigital.com"
+                "https://puzzles.kingdigital.com",
+                "'https://www.arkadium.com/games/"
+                    + "sheffer-crossword-kingsfeatures/'"
             ));
         }
 
@@ -356,7 +389,8 @@ public class Downloaders {
                 context.getString(R.string.universal_crossword),
                 context.getString(R.string.uclick_copyright),
                 "http://www.uclick.com/client/spi/fcx/",
-                Downloader.DATE_DAILY
+                Downloader.DATE_DAILY,
+                "'http://syndication.andrewsmcmeel.com/puzzles/crosswords'"
             ));
         }
 
@@ -366,13 +400,29 @@ public class Downloaders {
                 context.getString(R.string.usa_today),
                 context.getString(R.string.usa_today),
                 "https://subscribe.usatoday.com",
-                Downloader.DATE_NO_SUNDAY
+                Downloader.DATE_NO_SUNDAY,
+                "'https://games.usatoday.com/en/games/uclick-crossword'"
             ));
         }
 
         if (prefs.getBoolean("downloadWsj", true)) {
-            downloaders.add(new WSJFridayDownloader());
-            downloaders.add(new WSJSaturdayDownloader());
+            downloaders.add(new AbstractDateDownloader(
+                context.getString(R.string.wall_street_journal),
+                Downloader.DATE_FRIDAY,
+                "https://subscribe.wsj.com",
+                new IO(),
+                "'https://herbach.dnsalias.com/wsj/wsj'yyMMdd'.puz'",
+                "'https://www.wsj.com/news/puzzle'"
+            ));
+            downloaders.add(new AbstractDateDownloader(
+                context.getString(R.string.wall_street_journal),
+                Downloader.DATE_SATURDAY,
+                "https://subscribe.wsj.com",
+                new IO(),
+                "'https://herbach.dnsalias.com/wsj/wsj'yyMMdd'.puz'",
+                "'https://www.wsj.com/news/puzzle'",
+                LocalDate.of(2015,8,19)
+            ));
         }
 
         addCustomDownloaders(downloaders);

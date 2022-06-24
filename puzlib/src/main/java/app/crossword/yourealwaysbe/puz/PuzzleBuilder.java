@@ -134,6 +134,11 @@ public class PuzzleBuilder {
         return this;
     }
 
+    public PuzzleBuilder setShareUrl(String shareUrl) {
+        puzzle.setShareUrl(shareUrl);
+        return this;
+    }
+
     public PuzzleBuilder setTime(long time) {
         puzzle.setTime(time);
         return this;

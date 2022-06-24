@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map.Entry;
 import java.util.Map;
@@ -23,28 +24,77 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * For downloads from sites that published puzzles on a given date. Each
  * date has one unique puzzle.
  */
-public abstract class AbstractDateDownloader implements Downloader {
+public class AbstractDateDownloader implements Downloader {
     protected static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
     protected static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
-    protected String baseUrl;
     private String downloaderName;
     protected PuzzleParser puzzleParser;
     protected LocalDate goodThrough = LocalDate.now();
     private DayOfWeek[] days;
     private String supportUrl;
+    private DateTimeFormatter sourceUrlFormat;
+    private DateTimeFormatter shareUrlFormat;
+    private LocalDate goodFrom = LocalDate.ofEpochDay(0L);
 
     protected AbstractDateDownloader(
-        String baseUrl,
         String downloaderName,
         DayOfWeek[] days,
         String supportUrl,
         PuzzleParser puzzleParser
     ) {
-        this.baseUrl = baseUrl;
+        this(
+            downloaderName,
+            days,
+            supportUrl,
+            puzzleParser,
+            null,
+            null,
+            null
+        );
+    }
+
+    protected AbstractDateDownloader(
+        String downloaderName,
+        DayOfWeek[] days,
+        String supportUrl,
+        PuzzleParser puzzleParser,
+        String sourceUrlFormatPattern,
+        String shareUrlFormatPattern
+    ) {
+        this(
+            downloaderName,
+            days,
+            supportUrl,
+            puzzleParser,
+            sourceUrlFormatPattern,
+            shareUrlFormatPattern,
+            null
+        );
+    }
+
+    protected AbstractDateDownloader(
+        String downloaderName,
+        DayOfWeek[] days,
+        String supportUrl,
+        PuzzleParser puzzleParser,
+        String sourceUrlFormatPattern,
+        String shareUrlFormatPattern,
+        LocalDate goodFrom
+    ) {
         this.downloaderName = downloaderName;
         this.days = days;
         this.supportUrl = supportUrl;
         this.puzzleParser = puzzleParser;
+        if (sourceUrlFormatPattern != null) {
+            this.sourceUrlFormat
+                = DateTimeFormatter.ofPattern(sourceUrlFormatPattern);
+        }
+        if (shareUrlFormatPattern != null) {
+            this.shareUrlFormat
+                = DateTimeFormatter.ofPattern(shareUrlFormatPattern);
+        }
+        if (goodFrom != null)
+            this.goodFrom = goodFrom;
     }
 
     /**
@@ -79,7 +129,24 @@ public abstract class AbstractDateDownloader implements Downloader {
         return supportUrl;
     }
 
-    protected abstract String createUrlSuffix(LocalDate date);
+    /**
+     * Where to do the actual download from
+     */
+    protected String getSourceUrl(LocalDate date) {
+        return (sourceUrlFormat == null)
+            ? null
+            : sourceUrlFormat.format(date);
+    }
+
+    /**
+     * A user-facing URL for the puzzle
+     *
+     * I.e. go here to find an online playable version, rather than the
+     * backend data file
+     */
+    protected String getShareUrl(LocalDate date) {
+        return (shareUrlFormat == null) ? null : shareUrlFormat.format(date);
+    }
 
     @Override
     public DownloadResult download(
@@ -89,7 +156,7 @@ public abstract class AbstractDateDownloader implements Downloader {
         if (existingFileNames.contains(fileName))
             return null;
 
-        Puzzle puz = download(date, this.createUrlSuffix(date));
+        Puzzle puz = download(date);
         if (puz != null)
             return new DownloadResult(puz, fileName);
         else
@@ -98,18 +165,18 @@ public abstract class AbstractDateDownloader implements Downloader {
 
     protected Puzzle download(
         LocalDate date,
-        String urlSuffix,
         Map<String, String> headers
     ){
         try {
-            URL url = new URL(this.baseUrl + urlSuffix);
+            String sourceUrl = getSourceUrl(date);
+            URL url = new URL(sourceUrl);
             try (InputStream is = getInputStream(url, headers)) {
                 Puzzle puz = puzzleParser.parseInput(is);
 
                 if (puz != null) {
                     puz.setDate(date);
                     puz.setSource(getName());
-                    puz.setSourceUrl(url.toString());
+                    puz.setSourceUrl(sourceUrl);
                     puz.setSupportUrl(getSupportUrl());
                     puz.setUpdatable(false);
 
@@ -125,10 +192,8 @@ public abstract class AbstractDateDownloader implements Downloader {
         return null;
     }
 
-    protected Puzzle download(
-        LocalDate date, String urlSuffix
-    ) {
-        return download(date, urlSuffix, EMPTY_MAP);
+    protected Puzzle download(LocalDate date) {
+        return download(date, EMPTY_MAP);
     }
 
     @Override

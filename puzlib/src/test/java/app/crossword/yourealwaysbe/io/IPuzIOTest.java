@@ -251,6 +251,7 @@ public class IPuzIOTest extends TestCase {
 
 
             puz.setSupportUrl("http://test.url");
+            puz.setShareUrl("http://testshare.url");
             puz.setTime(1234L);
             puz.setPosition(new Position(2, 1));
             puz.setCurrentClueID(cidA3);
@@ -292,6 +293,7 @@ public class IPuzIOTest extends TestCase {
             Box[][] boxes2 = puz2.getBoxes();
 
             assertEquals(puz2.getSupportUrl(), "http://test.url");
+            assertEquals(puz2.getShareUrl(), "http://testshare.url");
             assertEquals(puz2.getTime(), 1234L);
             assertEquals(puz.getPosition(), puz2.getPosition());
             assertEquals(puz.getCurrentClueID(), cidA3);

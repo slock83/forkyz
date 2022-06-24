@@ -153,6 +153,8 @@ public class IPuzIO implements PuzzleParser {
 
     private static final String FIELD_EXT_SUPPORT_URL
         = getQualifiedExtensionName("supporturl");
+    private static final String FIELD_EXT_SHARE_URL
+        = getQualifiedExtensionName("shareurl");
     private static final String FIELD_EXT_PLAY_DATA
         = getQualifiedExtensionName("playdata");
     private static final String FIELD_EXT_IO_VERSION
@@ -167,7 +169,7 @@ public class IPuzIO implements PuzzleParser {
     };
 
     private static final String[] NON_VOLATILE_EXTENSIONS = {
-        FIELD_EXT_SUPPORT_URL, FIELD_EXT_IO_VERSION
+        FIELD_EXT_SUPPORT_URL, FIELD_EXT_SHARE_URL, FIELD_EXT_IO_VERSION
     };
 
     private static final String FIELD_BOX_EXTRAS = "boxextras";
@@ -939,6 +941,10 @@ public class IPuzIO implements PuzzleParser {
         if (supportUrl != null)
             builder.setSupportUrl(supportUrl);
 
+        String shareUrl = optStringNull(puzJson, FIELD_EXT_SHARE_URL);
+        if (shareUrl != null)
+            builder.setShareUrl(shareUrl);
+
         JSONObject playData = puzJson.optJSONObject(FIELD_EXT_PLAY_DATA);
 
         if (playData != null && !JSONObject.NULL.equals(playData))
@@ -1665,6 +1671,7 @@ public class IPuzIO implements PuzzleParser {
         writeExtensionVolatility(writer);
 
         writer.keyValueNonNull(FIELD_EXT_SUPPORT_URL, puz.getSupportUrl());
+        writer.keyValueNonNull(FIELD_EXT_SHARE_URL, puz.getShareUrl());
         writer.keyValueNonNull(FIELD_EXT_IO_VERSION, IO_VERSION);
 
         if (!omitPlayState) {

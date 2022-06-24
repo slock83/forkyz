@@ -2,16 +2,16 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.Locale;
+
+import app.crossword.yourealwaysbe.io.JPZIO;
 
 /**
  * King Digital Downloader
  * https://puzzles.kingdigital.com/jpz/<crosswordSet>/YYYYMMDD.jpz
  */
-public class KingDigitalDownloader extends AbstractJPZDownloader {
-    private static final String BASE_URL_FMT
-        = "https://puzzles.kingdigital.com/jpz/%s/";
+public class KingDigitalDownloader extends AbstractDateDownloader {
+    private static final String SOURCE_URL_FMT_PATTERN
+        = "'https://puzzles.kingdigital.com/jpz/%s/'yyyyMMdd'.jpz'";
 
     /**
      * Downloads from King Digital site
@@ -22,23 +22,16 @@ public class KingDigitalDownloader extends AbstractJPZDownloader {
         String crosswordSet,
         String downloaderName,
         DayOfWeek[] days,
-        String supportUrl
+        String supportUrl,
+        String shareUrlPattern
     ) {
         super(
-            String.format(BASE_URL_FMT, crosswordSet),
             downloaderName,
             days,
-            supportUrl
-        );
-    }
-
-    protected String createUrlSuffix(LocalDate date) {
-        return String.format(
-            Locale.US,
-            "%04d%02d%02d.jpz",
-            date.getYear(),
-            date.getMonthValue(),
-            date.getDayOfMonth()
+            supportUrl,
+            new JPZIO(),
+            String.format(SOURCE_URL_FMT_PATTERN, crosswordSet),
+            shareUrlPattern
         );
     }
 }

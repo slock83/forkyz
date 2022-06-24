@@ -26,13 +26,13 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
     private static final String NAME =
         ForkyzApplication.getInstance().getString(R.string.guardian_daily);
     private static final String SUPPORT_URL = "https://support.theguardian.com";
-
+    private static final String BASE_SOURCE_URL
+        = "https://www.theguardian.com/crosswords/cryptic/";
     private static final int BASE_CW_NUMBER = 28112;
     private static final LocalDate BASE_CW_DATE = LocalDate.of(2020, 4, 20);
 
     public GuardianDailyCrypticDownloader() {
         super(
-            "https://www.theguardian.com/crosswords/cryptic/",
             NAME,
             DATE_WEEKDAY,
             SUPPORT_URL,
@@ -43,11 +43,11 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
     @Override
     protected Puzzle download(
         LocalDate date,
-        String urlSuffix,
         Map<String, String> headers
     ) {
         try {
-            URL url = new URL(this.baseUrl + urlSuffix);
+            String sourceUrl = getSourceUrl(date);
+            URL url = new URL(sourceUrl);
             String cwJson = getCrosswordJSON(url);
 
             if (cwJson == null)
@@ -59,6 +59,7 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
             if (puz != null) {
                 puz.setSource(getName());
                 puz.setSupportUrl(getSupportUrl());
+                puz.setSupportUrl(sourceUrl);
             }
 
             return puz;
@@ -67,6 +68,16 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
         }
 
         return null;
+    }
+
+    @Override
+    protected String getSourceUrl(LocalDate date) {
+        return BASE_SOURCE_URL + createUrlSuffix(date);
+    }
+
+    @Override
+    protected String getShareUrl(LocalDate date) {
+        return getSourceUrl(date);
     }
 
     protected String createUrlSuffix(LocalDate date) {
