@@ -19,15 +19,22 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
 /**
  * Downloader for RaetselZentrale Swedish Crosswords
  *
- * First URL is https://raetsel.raetselzentrale.de/l/<shortname>/schwedea/<YYYYMMDD>.
+ * This only really captures the Hamburg Abendsblatt pattern of
+ * interation, so will need work later.
+ *
+ * Assuming archives are not available (paywall for Hamburg Abendsblatt,
+ * just not available for any other i see with the same puzzle). Good
+ * form is current day only.
+ *
+ * First URL is https://raetsel.raetselzentrale.de/l/<shortname>/schwede/
  * The above contains a puzzle ID, then we need
  * https://raetsel.raetselzentrale.de/api/r/<idnumber>
  */
 public class RaetselZentraleSchwedenDownloader
         extends AbstractDateDownloader {
 
-    private static final String SOURCE_URL_PATTERN_FORMAT
-        = "'https://raetsel.raetselzentrale.de/l/%s/schwedea/'yyyyMMdd";
+    private static final String ID_URL_FORMAT
+        = "https://raetsel.raetselzentrale.de/l/%s/schwede/";
     private static final String JSON_URL_FORMAT
         = "https://raetsel.raetselzentrale.de/api/r/%s";
 
@@ -35,6 +42,8 @@ public class RaetselZentraleSchwedenDownloader
         "window.__riddleId = (\\d*);"
     );
     private static final int PUZZLE_ID_GROUP = 1;
+
+    private String idUrl;
 
     public RaetselZentraleSchwedenDownloader(
         String name,
@@ -48,9 +57,20 @@ public class RaetselZentraleSchwedenDownloader
             days,
             supportUrl,
             new RaetselZentraleSchwedenJSONIO(),
-            String.format(Locale.US, SOURCE_URL_PATTERN_FORMAT, shortName),
+            null,
             shareUrlPattern
         );
+        idUrl = String.format(Locale.US, ID_URL_FORMAT, shortName);
+    }
+
+    @Override
+    public LocalDate getGoodFrom() {
+        return LocalDate.now();
+    }
+
+    @Override
+    protected String getSourceUrl(LocalDate date) {
+        return getJSONUrl(null);
     }
 
     @Override
@@ -58,18 +78,19 @@ public class RaetselZentraleSchwedenDownloader
         LocalDate date,
         Map<String, String> headers
     ) {
+        if (!LocalDate.now().equals(date))
+            return null;
+
         try {
-            String sourceUrl = getSourceUrl(date);
-            URL url = new URL(sourceUrl);
-            LOG.info("Getting Raetsel Zentrale puzzle ID from " + url);
-            URL jsonUrl = getCrosswordJSONURL(url, headers);
-            LOG.info("Getting Raetsel Zentrale puzzle JSON from " + jsonUrl);
-            if (jsonUrl == null)
+            String sourceUrl = getJSONUrl(headers);
+            if (sourceUrl == null)
                 return null;
+
+            URL url = new URL(sourceUrl);
 
             try(
                 InputStream is = new BufferedInputStream(
-                    getInputStream(jsonUrl, headers)
+                    getInputStream(url, headers)
                 )
             ) {
                 Puzzle puz = RaetselZentraleSchwedenJSONIO.readPuzzle(is);
@@ -89,12 +110,10 @@ public class RaetselZentraleSchwedenDownloader
         return null;
     }
 
-    private URL getCrosswordJSONURL(
-        URL url, Map<String, String> headers
-    ) throws IOException {
+    private String getJSONUrl(Map<String, String> headers) {
         try(
             BufferedReader reader = new BufferedReader(
-                new InputStreamReader(getInputStream(url, headers))
+                new InputStreamReader(getInputStream(new URL(idUrl), headers))
             )
         ) {
             String line;
@@ -102,11 +121,12 @@ public class RaetselZentraleSchwedenDownloader
                 Matcher matcher = PUZZLE_ID_PAT.matcher(line);
                 if (matcher.find()) {
                     String id = matcher.group(PUZZLE_ID_GROUP);
-                    return new URL(
-                        String.format(Locale.US, JSON_URL_FORMAT, id)
-                    );
+                    return String.format(Locale.US, JSON_URL_FORMAT, id);
                 }
             }
+        } catch (IOException e) {
+            // fall through
+            e.printStackTrace();
         }
         return null;
     }

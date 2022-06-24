@@ -215,8 +215,10 @@ public class AbstractDateDownloader implements Downloader {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestProperty("Connection", "close");
 
-        for (Entry<String, String> e : headers.entrySet()){
-            conn.setRequestProperty(e.getKey(), e.getValue());
+        if (headers != null) {
+            for (Entry<String, String> e : headers.entrySet()){
+                conn.setRequestProperty(e.getKey(), e.getValue());
+            }
         }
 
         return new BufferedInputStream(conn.getInputStream());
