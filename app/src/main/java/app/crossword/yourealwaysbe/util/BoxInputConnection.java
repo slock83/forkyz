@@ -87,24 +87,6 @@ public class BoxInputConnection extends BaseInputConnection {
         return extracted;
     }
 
-    @Override
-    public boolean deleteSurroundingText(int before, int after) {
-        // bit of a hack for FlorisBoard -- it seems to miss the
-        // connection restart and think old characters are still in its
-        // buffer, or there's no selection, or something. It ends up
-        // trying to delete before the cursor. Treat this as a delete of
-        // the cell, because that's the only delete we support
-        boardEditable.clear();
-        return true;
-    }
-
-    @Override
-    public boolean deleteSurroundingTextInCodePoints(int before, int after) {
-        // See deleteSurroundingText
-        boardEditable.clear();
-        return true;
-    }
-
     public void setResponse(String response) {
         boardEditable.setResponse(response);
     }
