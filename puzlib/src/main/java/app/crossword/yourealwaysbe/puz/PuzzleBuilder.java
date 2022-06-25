@@ -7,10 +7,11 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.time.LocalDate;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import net.iharder.Base64;
 
 import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.util.PuzzleUtils;
@@ -317,8 +318,6 @@ public class PuzzleBuilder {
     }
 
     public static void resolveImages(Puzzle puz, String relativeUrl) {
-        Base64.Encoder encoder = Base64.getEncoder();
-
         for (PuzImage image : puz.getImages()) {
             String imgUrl = image.getURL();
             if (imgUrl == null)
@@ -336,7 +335,7 @@ public class PuzzleBuilder {
                     byte[] bytes = StreamUtils.getStreamBytes(is);
                     String type = connection.getContentType();
                     image.setURL(
-                        "data:" + type + "," + encoder.encodeToString(bytes)
+                        "data:" + type + "," + Base64.encodeBytes(bytes)
                     );
                 }
             } catch (IOException e) {
