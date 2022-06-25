@@ -433,7 +433,7 @@ public class Downloaders {
                 // certificate doesn't seem to work for me
                 // "https://theworld.com/~wij/puzzles/cru/index.html",
                 "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html",
-                "Cryptic Cru Workshop Archive",
+                context.getString(R.string.cru_puzzle_workshop),
                 "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html"
             ));
         }
@@ -441,7 +441,7 @@ public class Downloaders {
         if (prefs.getBoolean("scrapeKegler", false)) {
             downloaders.add(new PageScraper.Puz(
                 "https://kegler.gitlab.io/Block_style/index.html",
-                "Kegler's Kryptics",
+                context.getString(R.string.keglars_cryptics),
                 "https://kegler.gitlab.io/"
             ));
         }
@@ -449,7 +449,7 @@ public class Downloaders {
         if (prefs.getBoolean("scrapePrivateEye", false)) {
             downloaders.add(new PageScraper.Puz(
                 "https://www.private-eye.co.uk/pictures/crossword/download/",
-                "Private Eye",
+                context.getString(R.string.private_eye),
                 "https://shop.private-eye.co.uk",
                 true // download from end of page
             ));

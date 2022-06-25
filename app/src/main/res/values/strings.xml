@@ -257,7 +257,7 @@
     <string name="wall_street_journal">The Wall Street Journal</string>
 
     <!--  preferences scrapers -->
-    <string name="cru_puzzle_workshop">Cru Puzzle Workshop</string>
+    <string name="cru_puzzle_workshop">Cryptic Cru Workshop Archive</string>
     <string name="cru_puzzle_workshop_desc">NYT Cru Cryptic Fan Puzzles\nhttps://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html</string>
     <string name="keglars_cryptics">Kegler\'s Kryptics</string>
     <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html</string>
