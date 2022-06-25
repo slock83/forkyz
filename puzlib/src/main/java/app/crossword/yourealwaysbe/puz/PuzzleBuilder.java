@@ -1,11 +1,18 @@
 
 package app.crossword.yourealwaysbe.puz;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.time.LocalDate;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
 public class PuzzleBuilder {
@@ -296,6 +303,45 @@ public class PuzzleBuilder {
             return !joinedLeft(row, col) && joinedRight(row, col);
         } else {
             return !joinedTop(row, col) && joinedBottom(row, col);
+        }
+    }
+
+    /**
+     * Replace URLs of images with base64 data
+     *
+     * Downloads images, relative to relativeUrl (i.e. image in file at
+     * relativeUrl).
+     */
+    public void resolveImages(String relativeUrl) {
+        resolveImages(getPuzzle(), relativeUrl);
+    }
+
+    public static void resolveImages(Puzzle puz, String relativeUrl) {
+        Base64.Encoder encoder = Base64.getEncoder();
+
+        for (PuzImage image : puz.getImages()) {
+            String imgUrl = image.getURL();
+            if (imgUrl == null)
+                continue;
+            if (imgUrl.substring(0, 5).equalsIgnoreCase("data:"))
+                continue;
+
+            try {
+                URL imgFullUrl = new URL(new URL(relativeUrl), imgUrl);
+                URLConnection connection = imgFullUrl.openConnection();
+                try (
+                    InputStream is
+                        = new BufferedInputStream(connection.getInputStream())
+                ) {
+                    byte[] bytes = StreamUtils.getStreamBytes(is);
+                    String type = connection.getContentType();
+                    image.setURL(
+                        "data:" + type + "," + encoder.encodeToString(bytes)
+                    );
+                }
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 

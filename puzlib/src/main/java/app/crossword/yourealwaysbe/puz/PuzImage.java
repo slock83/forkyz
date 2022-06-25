@@ -16,6 +16,7 @@ public class PuzImage implements Serializable {
     private int col;
     private int width;
     private int height;
+    private Object tag;
 
     public PuzImage(String url, int row, int col, int width, int height) {
         this.url = url;
@@ -33,6 +34,20 @@ public class PuzImage implements Serializable {
 
     public void setURL(String url) {
         this.url = url;
+    }
+
+    /**
+     * Add an object to the image
+     *
+     * Designed to optimise renders that might want to keep a copy of
+     * their bitmap object somewhere convenient.
+     */
+    public void setTag(Object tag) {
+        this.tag = tag;
+    }
+
+    public Object getTag() {
+        return tag;
     }
 
     public boolean equals(Object o) {

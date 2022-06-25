@@ -87,4 +87,11 @@ public class StreamUtils {
 
         return totalBytes;
     }
+
+    public static byte[] getStreamBytes(InputStream source)
+            throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        copyStream(source, baos);
+        return baos.toByteArray();
+    }
 }

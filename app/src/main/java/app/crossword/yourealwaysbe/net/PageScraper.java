@@ -22,6 +22,7 @@ import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.PuzzleParser;
 import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 
 /**
@@ -162,6 +163,8 @@ public class PageScraper implements Downloader {
                             String title = puz.getTitle();
                             if (title == null || title.isEmpty())
                                 puz.setTitle(remoteFileName);
+
+                            PuzzleBuilder.resolveImages(puz, url);
 
                             return new DownloadResult(puz, filename);
                         }

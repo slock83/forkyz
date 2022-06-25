@@ -2,6 +2,7 @@ package app.crossword.yourealwaysbe.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
@@ -12,6 +13,7 @@ import android.graphics.Typeface;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
+import android.util.Base64;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
@@ -25,6 +27,7 @@ import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
+import app.crossword.yourealwaysbe.puz.PuzImage;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
@@ -250,6 +253,8 @@ public class PlayboardRenderer {
                     );
                 }
             }
+
+            drawImages(canvas, boxSize);
 
             return bitmap;
         } catch (OutOfMemoryError e) {
@@ -1155,6 +1160,49 @@ public class PlayboardRenderer {
             - style.ascent()
             + DESCENT_FUDGE_FACTOR * style.descent()
         );
+    }
+
+    private void drawImages(Canvas canvas, int boxSize) {
+        Puzzle puz = (board == null) ? null : board.getPuzzle();
+        if (puz == null)
+            return;
+
+        for (PuzImage image : puz.getImages()) {
+            Object tag = image.getTag();
+            if (tag == null || !(tag instanceof Bitmap))
+                tagImageWithBitmap(image);
+
+            tag = image.getTag();
+            if (tag instanceof Bitmap) {
+                Bitmap bmp = (Bitmap) tag;
+                int startx = image.getCol() * boxSize;
+                int starty = image.getRow() * boxSize;
+                int endx = startx + image.getWidth() * boxSize;
+                int endy = starty + image.getHeight() * boxSize;
+
+                canvas.drawBitmap(
+                    bmp,
+                    new Rect(0, 0, bmp.getWidth(), bmp.getHeight()),
+                    new Rect(startx, starty, endx, endy),
+                    null
+                );
+            }
+        }
+    }
+
+    private void tagImageWithBitmap(PuzImage image) {
+        String url = image.getURL();
+        if (url.substring(0, 5).equalsIgnoreCase("data:")) {
+            int start = url.indexOf(",") + 1;
+            if (start > 0) {
+                byte[] data = Base64.decode(
+                    url.substring(start), Base64.DEFAULT
+                );
+                Bitmap imgBmp
+                    = BitmapFactory.decodeByteArray(data, 0, data.length);
+                image.setTag(imgBmp);
+            }
+        }
     }
 }
 
