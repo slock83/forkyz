@@ -56,6 +56,7 @@ public class Puzzle implements Serializable{
     private LinkedList<ClueID> historyList = new LinkedList<>();
 
     private Set<ClueID> flaggedClues = new HashSet<>();
+    private List<PuzImage> images = new LinkedList<>();
 
     // Temporary fields used for unscrambling.
     public int[] unscrambleKey;
@@ -716,6 +717,9 @@ public class Puzzle implements Serializable{
         if (!Objects.equals(playerNote, other.playerNote))
             return false;
 
+        if (!Objects.equals(images, other.images))
+            return false;
+
         return true;
     }
 
@@ -735,6 +739,7 @@ public class Puzzle implements Serializable{
         result = (prime *result) + clueNotes.hashCode();
         result = (prime * result) + flaggedClues.hashCode();
         result = (prime * result) + Objects.hashCode(playerNote);
+        result = (prime * result) + Objects.hashCode(images);
 
         return result;
     }
@@ -799,6 +804,14 @@ public class Puzzle implements Serializable{
 
     public Collection<ClueID> getFlaggedClues() {
         return flaggedClues;
+    }
+
+    public void addImage(PuzImage image) {
+        images.add(image);
+    }
+
+    public List<PuzImage> getImages() {
+        return images;
     }
 
     /**

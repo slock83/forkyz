@@ -31,6 +31,7 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Position;
+import app.crossword.yourealwaysbe.puz.PuzImage;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 import app.crossword.yourealwaysbe.puz.Zone;
@@ -159,6 +160,18 @@ public class IPuzIO implements PuzzleParser {
         = getQualifiedExtensionName("playdata");
     private static final String FIELD_EXT_IO_VERSION
         = getQualifiedExtensionName("ioversion");
+    private static final String FIELD_EXT_IMAGES
+        = getQualifiedExtensionName("images");
+    private static final String FIELD_EXT_IMAGE_URL
+        = getQualifiedExtensionName("url");
+    private static final String FIELD_EXT_IMAGE_ROW
+        = getQualifiedExtensionName("row");
+    private static final String FIELD_EXT_IMAGE_COL
+        = getQualifiedExtensionName("col");
+    private static final String FIELD_EXT_IMAGE_WIDTH
+        = getQualifiedExtensionName("width");
+    private static final String FIELD_EXT_IMAGE_HEIGHT
+        = getQualifiedExtensionName("height");
 
     private static final String FIELD_VOLATILE = "volatile";
     private static final String FIELD_IS_VOLATILE = "*";
@@ -169,7 +182,10 @@ public class IPuzIO implements PuzzleParser {
     };
 
     private static final String[] NON_VOLATILE_EXTENSIONS = {
-        FIELD_EXT_SUPPORT_URL, FIELD_EXT_SHARE_URL, FIELD_EXT_IO_VERSION
+        FIELD_EXT_SUPPORT_URL,
+        FIELD_EXT_SHARE_URL,
+        FIELD_EXT_IO_VERSION,
+        FIELD_EXT_IMAGES
     };
 
     private static final String FIELD_BOX_EXTRAS = "boxextras";
@@ -945,10 +961,29 @@ public class IPuzIO implements PuzzleParser {
         if (shareUrl != null)
             builder.setShareUrl(shareUrl);
 
+        readImages(puzJson, builder);
+
         JSONObject playData = puzJson.optJSONObject(FIELD_EXT_PLAY_DATA);
 
         if (playData != null && !JSONObject.NULL.equals(playData))
             readPlayData(playData, builder);
+    }
+
+    private static void readImages(JSONObject puzJson, PuzzleBuilder builder) {
+        JSONArray images = puzJson.optJSONArray(FIELD_EXT_IMAGES);
+        if (images == null)
+            return;
+
+        for (int i = 0; i < images.length(); i++) {
+            JSONObject image = images.getJSONObject(i);
+            String url = image.getString(FIELD_EXT_IMAGE_URL);
+            int row = image.getInt(FIELD_EXT_IMAGE_ROW);
+            int col = image.getInt(FIELD_EXT_IMAGE_COL);
+            int width = image.getInt(FIELD_EXT_IMAGE_WIDTH);
+            int height = image.getInt(FIELD_EXT_IMAGE_HEIGHT);
+
+            builder.addImage(new PuzImage(url, row, col, width, height));
+        }
     }
 
     /**
@@ -1674,6 +1709,8 @@ public class IPuzIO implements PuzzleParser {
         writer.keyValueNonNull(FIELD_EXT_SHARE_URL, puz.getShareUrl());
         writer.keyValueNonNull(FIELD_EXT_IO_VERSION, IO_VERSION);
 
+        writeImages(puz, writer);
+
         if (!omitPlayState) {
             writer.key(FIELD_EXT_PLAY_DATA)
                 .object();
@@ -1692,6 +1729,33 @@ public class IPuzIO implements PuzzleParser {
                 .keyValueNonNull(1, FIELD_UPDATABLE, puz.isUpdatable());
 
             writer.endObject();
+            writer.newLine();
+        }
+    }
+
+    private static void writeImages(
+        Puzzle puz, FormatableJSONWriter writer
+    ) throws IOException {
+        List<PuzImage> images = puz.getImages();
+        if (images.size() > 0) {
+            writer.key(FIELD_EXT_IMAGES)
+                .array();
+            writer.newLine();
+
+            for (PuzImage image : images) {
+                writer.object();
+                writer.keyValueNonNull(1, FIELD_EXT_IMAGE_URL, image.getURL())
+                    .keyValueNonNull(1, FIELD_EXT_IMAGE_ROW, image.getRow())
+                    .keyValueNonNull(1, FIELD_EXT_IMAGE_COL, image.getCol())
+                    .keyValueNonNull(1, FIELD_EXT_IMAGE_WIDTH, image.getWidth())
+                    .keyValueNonNull(
+                        1, FIELD_EXT_IMAGE_HEIGHT, image.getHeight()
+                    )
+                    .endObject();
+                writer.newLine();
+            }
+
+            writer.endArray();
             writer.newLine();
         }
     }

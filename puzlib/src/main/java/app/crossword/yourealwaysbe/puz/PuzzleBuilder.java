@@ -169,6 +169,11 @@ public class PuzzleBuilder {
         return this;
     }
 
+    public PuzzleBuilder addImage(PuzImage image) {
+        puzzle.addImage(image);
+        return this;
+    }
+
     /**
      * Number puzzle boxes according to standard system
      *

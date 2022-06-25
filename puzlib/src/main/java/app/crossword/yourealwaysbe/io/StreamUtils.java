@@ -44,6 +44,18 @@ public class StreamUtils {
     }
 
     /**
+     * Create a byte version copy of is
+     *
+     * Allows resetting.
+     */
+    public static ByteArrayInputStream copyInputStream(InputStream source)
+            throws IOException {
+        ByteArrayOutputStream outCopy = new ByteArrayOutputStream();
+        copyStream(source, outCopy);
+        return new ByteArrayInputStream(outCopy.toByteArray());
+    }
+
+    /**
      * Copies the data from an InputStream object to an OutputStream object.
      *
      * @param sourceStream

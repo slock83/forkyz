@@ -1,0 +1,631 @@
+{
+  "id": "198",
+  "x": 19,
+  "y": 17,
+  "questions": [
+    {
+      "i": 1,
+      "n": "1",
+      "q": "Test clue 1",
+      "a": "Axxxxxxxx",
+      "d": "horizontal",
+      "x": "6",
+      "y": "1"
+    },
+    {
+      "i": 2,
+      "n": "6",
+      "q": "xxxxxxx xxxxxxxxx",
+      "a": "xxxxx",
+      "d": "horizontal",
+      "x": "8",
+      "y": "3"
+    },
+    {
+      "i": 3,
+      "n": "7",
+      "q": "xxxxxxx xxążąxx",
+      "a": "xxxxxx",
+      "d": "horizontal",
+      "x": "3",
+      "y": "4"
+    },
+    {
+      "i": 4,
+      "n": "8",
+      "q": "xxxxxx xxxxxx",
+      "a": "xółxxx",
+      "d": "horizontal",
+      "x": "12",
+      "y": "4"
+    },
+    {
+      "i": 5,
+      "n": "10",
+      "q": "Test clue 10 żó",
+      "a": "xxBxxxxxx",
+      "d": "horizontal",
+      "x": "6",
+      "y": "6"
+    },
+    {
+      "i": 6,
+      "n": "15",
+      "q": "1/3 xxx xxxxżóxxx",
+      "a": "xxxxxxx",
+      "d": "horizontal",
+      "x": "1",
+      "y": "7"
+    },
+    {
+      "i": 7,
+      "n": "17",
+      "q": "xxxxxxx xx xxxxxx xóx",
+      "a": "xxxxxóx",
+      "d": "horizontal",
+      "x": "13",
+      "y": "7"
+    },
+    {
+      "i": 8,
+      "n": "20",
+      "q": "xxxźxx xxxxxxxxxxx xxxxxxxx x xxxxxx",
+      "a": "xxxxxxxxxxx",
+      "d": "horizontal",
+      "x": "5",
+      "y": "9"
+    },
+    {
+      "i": 9,
+      "n": "23",
+      "q": "xxxxxxx xxx xxxxxxx",
+      "a": "xxłxxxx",
+      "d": "horizontal",
+      "x": "1",
+      "y": "11"
+    },
+    {
+      "i": 10,
+      "n": "25",
+      "q": "xxxxx xxxxłxxxx xxx-x",
+      "a": "xxxxxxx",
+      "d": "horizontal",
+      "x": "13",
+      "y": "11"
+    },
+    {
+      "i": 11,
+      "n": "27",
+      "q": "xxxxxxx xx xxx",
+      "a": "xxxxxxxxx",
+      "d": "horizontal",
+      "x": "6",
+      "y": "12"
+    },
+    {
+      "i": 12,
+      "n": "31",
+      "q": "xxż xxxxxxxxxx",
+      "a": "xxxxxx",
+      "d": "horizontal",
+      "x": "3",
+      "y": "14"
+    },
+    {
+      "i": 13,
+      "n": "32",
+      "q": "xxxxxxxxxx x xxxxxx",
+      "a": "xxxźxx",
+      "d": "horizontal",
+      "x": "12",
+      "y": "14"
+    },
+    {
+      "i": 14,
+      "n": "33",
+      "q": "xxxxxxx xxxxxxxxx, xxxxx xłóx: &#034;xxxxx xxxxxxxxxx xxx xxxxxxxxxxx&#034; (xxxxxxxx xxxxxxxx xxx xxxxxxxxx, x xxxę xxxxxxxx xłxxxx)",
+      "a": "xxxxx",
+      "d": "horizontal",
+      "x": "8",
+      "y": "15"
+    },
+    {
+      "i": 15,
+      "n": "34",
+      "q": "xxżxx xxxxł xxxxxx xxxęxóx",
+      "a": "xxxxxxxxx",
+      "d": "horizontal",
+      "x": "6",
+      "y": "17"
+    },
+    {
+      "i": 16,
+      "n": "1",
+      "q": "Test clue 1d",
+      "a": "Axxxxxx",
+      "d": "vertical",
+      "x": "6",
+      "y": "1"
+    },
+    {
+      "i": 17,
+      "n": "2",
+      "q": "Test clue 2d",
+      "a": "xxxxxB",
+      "d": "vertical",
+      "x": "8",
+      "y": "1"
+    },
+    {
+      "i": 18,
+      "n": "3",
+      "q": "śxxxxź xxxxóx",
+      "a": "xxxxxx",
+      "d": "vertical",
+      "x": "10",
+      "y": "1"
+    },
+    {
+      "i": 19,
+      "n": "4",
+      "q": "xxxxx xxxxx xx xxxxxxxx",
+      "a": "xxxxxx",
+      "d": "vertical",
+      "x": "12",
+      "y": "1"
+    },
+    {
+      "i": 20,
+      "n": "5",
+      "q": "łąxx xx xxxxxxxx",
+      "a": "xxxłąxx",
+      "d": "vertical",
+      "x": "14",
+      "y": "1"
+    },
+    {
+      "i": 21,
+      "n": "7",
+      "q": "xxxxxx xxxxxxxx",
+      "a": "xxxxx",
+      "d": "vertical",
+      "x": "3",
+      "y": "4"
+    },
+    {
+      "i": 22,
+      "n": "9",
+      "q": "xxxxx xxę, xxxxxx xxx x xxxxxxx",
+      "a": "xxxxń",
+      "d": "vertical",
+      "x": "17",
+      "y": "4"
+    },
+    {
+      "i": 23,
+      "n": "11",
+      "q": "xxx xx xxśxx xxxxxxxx x xxxxxxx xxxxxxxxxxxxxxx xxxxx",
+      "a": "xxxxxxx",
+      "d": "vertical",
+      "x": "7",
+      "y": "6"
+    },
+    {
+      "i": 24,
+      "n": "12",
+      "q": "xxśxxxłxłx xxxxxxxx xxxxxx",
+      "a": "xxxxxxx",
+      "d": "vertical",
+      "x": "9",
+      "y": "6"
+    },
+    {
+      "i": 25,
+      "n": "13",
+      "q": "xxxxx xxxxxxxxxxx",
+      "a": "xxxxxxx",
+      "d": "vertical",
+      "x": "11",
+      "y": "6"
+    },
+    {
+      "i": 26,
+      "n": "14",
+      "q": "xxxxxxxxx",
+      "a": "xxxxxxx",
+      "d": "vertical",
+      "x": "13",
+      "y": "6"
+    },
+    {
+      "i": 27,
+      "n": "15",
+      "q": "xóxxxxxx śxxxxx",
+      "a": "xxxxx",
+      "d": "vertical",
+      "x": "1",
+      "y": "7"
+    },
+    {
+      "i": 28,
+      "n": "16",
+      "q": "xxxxxx xxxxxxxxxx",
+      "a": "xxxxx",
+      "d": "vertical",
+      "x": "5",
+      "y": "7"
+    },
+    {
+      "i": 29,
+      "n": "18",
+      "q": "xxxxxx xxx xxx xxxxxx xxxxx",
+      "a": "xxxxx",
+      "d": "vertical",
+      "x": "15",
+      "y": "7"
+    },
+    {
+      "i": 30,
+      "n": "19",
+      "q": "xxxxxx &#034;xxxxx&#034;",
+      "a": "xxxłx",
+      "d": "vertical",
+      "x": "19",
+      "y": "7"
+    },
+    {
+      "i": 31,
+      "n": "21",
+      "q": "xxxxxxx łxx",
+      "a": "xłxxx",
+      "d": "vertical",
+      "x": "3",
+      "y": "10"
+    },
+    {
+      "i": 32,
+      "n": "22",
+      "q": "xxxxxx xxxxx xxxxxx",
+      "a": "xxxxx",
+      "d": "vertical",
+      "x": "17",
+      "y": "10"
+    },
+    {
+      "i": 33,
+      "n": "24",
+      "q": "xxxx x xxxxxxxxxxą xxxą xxxx xxxxxxxx",
+      "a": "xxxxxxx",
+      "d": "vertical",
+      "x": "6",
+      "y": "11"
+    },
+    {
+      "i": 34,
+      "n": "26",
+      "q": "xłxxxx xxxx xxłąxxxxx xxxxłxx x xxxxxxxxxxx",
+      "a": "xxxxxxx",
+      "d": "vertical",
+      "x": "14",
+      "y": "11"
+    },
+    {
+      "i": 35,
+      "n": "28",
+      "q": "xxx xxxxxxxxx",
+      "a": "xxxxxx",
+      "d": "vertical",
+      "x": "8",
+      "y": "12"
+    },
+    {
+      "i": 36,
+      "n": "29",
+      "q": "xxśxxxx xxxxxxxxxx",
+      "a": "xxąxxx",
+      "d": "vertical",
+      "x": "10",
+      "y": "12"
+    },
+    {
+      "i": 37,
+      "n": "30",
+      "q": "xxxłxxxxxx xx xxxxóx",
+      "a": "xxxxxx",
+      "d": "vertical",
+      "x": "12",
+      "y": "12"
+    }
+  ],
+  "blacksquare": [
+    {
+      "x": "2",
+      "y": "8"
+    },
+    {
+      "x": "2",
+      "y": "9"
+    },
+    {
+      "x": "2",
+      "y": "10"
+    },
+    {
+      "x": "3",
+      "y": "9"
+    },
+    {
+      "x": "4",
+      "y": "5"
+    },
+    {
+      "x": "4",
+      "y": "6"
+    },
+    {
+      "x": "4",
+      "y": "8"
+    },
+    {
+      "x": "4",
+      "y": "9"
+    },
+    {
+      "x": "4",
+      "y": "10"
+    },
+    {
+      "x": "4",
+      "y": "12"
+    },
+    {
+      "x": "4",
+      "y": "13"
+    },
+    {
+      "x": "5",
+      "y": "5"
+    },
+    {
+      "x": "5",
+      "y": "6"
+    },
+    {
+      "x": "5",
+      "y": "12"
+    },
+    {
+      "x": "5",
+      "y": "13"
+    },
+    {
+      "x": "6",
+      "y": "8"
+    },
+    {
+      "x": "6",
+      "y": "10"
+    },
+    {
+      "x": "7",
+      "y": "2"
+    },
+    {
+      "x": "7",
+      "y": "3"
+    },
+    {
+      "x": "7",
+      "y": "5"
+    },
+    {
+      "x": "7",
+      "y": "13"
+    },
+    {
+      "x": "7",
+      "y": "15"
+    },
+    {
+      "x": "7",
+      "y": "16"
+    },
+    {
+      "x": "8",
+      "y": "7"
+    },
+    {
+      "x": "8",
+      "y": "8"
+    },
+    {
+      "x": "8",
+      "y": "10"
+    },
+    {
+      "x": "8",
+      "y": "11"
+    },
+    {
+      "x": "9",
+      "y": "2"
+    },
+    {
+      "x": "9",
+      "y": "4"
+    },
+    {
+      "x": "9",
+      "y": "5"
+    },
+    {
+      "x": "9",
+      "y": "13"
+    },
+    {
+      "x": "9",
+      "y": "14"
+    },
+    {
+      "x": "9",
+      "y": "16"
+    },
+    {
+      "x": "10",
+      "y": "7"
+    },
+    {
+      "x": "10",
+      "y": "8"
+    },
+    {
+      "x": "10",
+      "y": "10"
+    },
+    {
+      "x": "10",
+      "y": "11"
+    },
+    {
+      "x": "11",
+      "y": "2"
+    },
+    {
+      "x": "11",
+      "y": "4"
+    },
+    {
+      "x": "11",
+      "y": "5"
+    },
+    {
+      "x": "11",
+      "y": "13"
+    },
+    {
+      "x": "11",
+      "y": "14"
+    },
+    {
+      "x": "11",
+      "y": "16"
+    },
+    {
+      "x": "12",
+      "y": "7"
+    },
+    {
+      "x": "12",
+      "y": "8"
+    },
+    {
+      "x": "12",
+      "y": "10"
+    },
+    {
+      "x": "12",
+      "y": "11"
+    },
+    {
+      "x": "13",
+      "y": "2"
+    },
+    {
+      "x": "13",
+      "y": "3"
+    },
+    {
+      "x": "13",
+      "y": "5"
+    },
+    {
+      "x": "13",
+      "y": "13"
+    },
+    {
+      "x": "13",
+      "y": "15"
+    },
+    {
+      "x": "13",
+      "y": "16"
+    },
+    {
+      "x": "14",
+      "y": "8"
+    },
+    {
+      "x": "14",
+      "y": "10"
+    },
+    {
+      "x": "15",
+      "y": "5"
+    },
+    {
+      "x": "15",
+      "y": "6"
+    },
+    {
+      "x": "15",
+      "y": "12"
+    },
+    {
+      "x": "15",
+      "y": "13"
+    },
+    {
+      "x": "16",
+      "y": "5"
+    },
+    {
+      "x": "16",
+      "y": "6"
+    },
+    {
+      "x": "16",
+      "y": "8"
+    },
+    {
+      "x": "16",
+      "y": "9"
+    },
+    {
+      "x": "16",
+      "y": "10"
+    },
+    {
+      "x": "16",
+      "y": "12"
+    },
+    {
+      "x": "16",
+      "y": "13"
+    },
+    {
+      "x": "17",
+      "y": "9"
+    },
+    {
+      "x": "18",
+      "y": "8"
+    },
+    {
+      "x": "18",
+      "y": "9"
+    },
+    {
+      "x": "18",
+      "y": "10"
+    }
+  ],
+  "images": [
+    {
+      "src": "myimage.jpg",
+      "w": "3",
+      "h": "3",
+      "x": "3",
+      "y": "1"
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Position;
+import app.crossword.yourealwaysbe.puz.PuzImage;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 
@@ -273,6 +274,8 @@ public class IPuzIOTest extends TestCase {
             puz.setPlayerNote(
                 new Note("scratch", "a note", "anagsrc", "anagsol")
             );
+
+            puz.addImage(new PuzImage("myimage.jpg", 2, 3, 4, 5));
 
             Box[][] boxes = puz.getBoxes();
 
