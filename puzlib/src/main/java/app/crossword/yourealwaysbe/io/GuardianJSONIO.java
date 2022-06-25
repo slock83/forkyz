@@ -1,6 +1,7 @@
 
 package app.crossword.yourealwaysbe.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -12,6 +13,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -38,13 +42,39 @@ public class GuardianJSONIO implements PuzzleParser {
     }
 
     public static Puzzle readPuzzle(InputStream is) throws IOException {
+        ByteArrayInputStream copy = StreamUtils.copyInputStream(is);
+        Puzzle puz = readFromJSON(copy);
+        if (puz == null)
+            puz = readFromHTML(copy);
+        return puz;
+    }
+
+    /**
+     * Returns null if failed
+     */
+    public static Puzzle readFromJSON(InputStream is) {
         try {
             JSONObject json = new JSONObject(new JSONTokener(is));
             return readPuzzleFromJSON(json);
         } catch (JSONException e) {
-            LOG.severe("Could not read Guardian JSON: " + e);
             return null;
         }
+    }
+
+    public static Puzzle readFromHTML(InputStream is) {
+        try {
+            Document doc = Jsoup.parse(is, null, "");
+            String cwJson = doc.select(".js-crossword")
+                               .attr("data-crossword-data");
+            if (!cwJson.isEmpty()) {
+                return readPuzzleFromJSON(
+                    new JSONObject(new JSONTokener(cwJson))
+                );
+            }
+        } catch (IOException e) {
+            // pass through
+        }
+        return null;
     }
 
     public static Puzzle readPuzzle(String jsonString) {

@@ -1,16 +1,13 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
-
-import org.jsoup.Jsoup;
-import org.jsoup.HttpStatusException;
-import org.jsoup.nodes.Document;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -45,23 +42,16 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
         LocalDate date,
         Map<String, String> headers
     ) {
-        try {
-            String sourceUrl = getSourceUrl(date);
-            URL url = new URL(sourceUrl);
-            String cwJson = getCrosswordJSON(url);
-
-            if (cwJson == null)
-                return null;
-
-            Puzzle puz = GuardianJSONIO.readPuzzle(cwJson);
-            puz.setCopyright("Guardian / " + puz.getAuthor());
-
+        String sourceUrl = getSourceUrl(date);
+        try (InputStream is = getInputStream(new URL(sourceUrl), headers)) {
+            Puzzle puz = GuardianJSONIO.readFromHTML(is);
             if (puz != null) {
+                puz.setCopyright("Guardian / " + puz.getAuthor());
                 puz.setSource(getName());
                 puz.setSupportUrl(getSupportUrl());
-                puz.setSupportUrl(sourceUrl);
+                puz.setSourceUrl(sourceUrl);
+                puz.setShareUrl(sourceUrl);
             }
-
             return puz;
         } catch (IOException e) {
             e.printStackTrace();
@@ -110,21 +100,6 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
         long cwNum = BASE_CW_NUMBER + direction * cwNumOffset;
 
         return Long.toString(cwNum);
-    }
-
-    private static String getCrosswordJSON(URL url) throws IOException {
-        try {
-            LOG.info("Downloading " + url);
-            Document doc = Jsoup.connect(url.toString()).get();
-            String cwJson = doc.select(".js-crossword")
-                               .attr("data-crossword-data");
-
-            if (!cwJson.isEmpty())
-                return cwJson;
-        } catch (HttpStatusException e) {
-            LOG.info("Could not download " + url);
-        }
-        return null;
     }
 
     /**
