@@ -35,7 +35,7 @@ public class Puzzle implements Serializable{
     private Map<String, MutableClueList> clueLists = new HashMap<>();
     private LocalDate pubdate = LocalDate.now();
     private String source;
-    private String sourceUrl = "";
+    private String sourceUrl;
     private String shareUrl;
     private String supportUrl;
     private Box[][] boxes;
@@ -720,6 +720,15 @@ public class Puzzle implements Serializable{
         if (!Objects.equals(images, other.images))
             return false;
 
+        if (!Objects.equals(sourceUrl, other.sourceUrl))
+            return false;
+
+        if (!Objects.equals(supportUrl, other.supportUrl))
+            return false;
+
+        if (!Objects.equals(shareUrl, other.shareUrl))
+            return false;
+
         return true;
     }
 
@@ -740,6 +749,8 @@ public class Puzzle implements Serializable{
         result = (prime * result) + flaggedClues.hashCode();
         result = (prime * result) + Objects.hashCode(playerNote);
         result = (prime * result) + Objects.hashCode(images);
+        result = (prime * result)
+            + Objects.hash(sourceUrl, supportUrl, shareUrl);
 
         return result;
     }
