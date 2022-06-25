@@ -7,7 +7,7 @@ import java.util.logging.Logger;
 
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-public class PuzzleStreamReader {
+public class PuzzleStreamReader implements PuzzleParser {
     private static final Logger LOGGER
         = Logger.getLogger(PuzzleStreamReader.class.getCanonicalName());
 
@@ -30,7 +30,12 @@ public class PuzzleStreamReader {
      * The method will try known file formats until it finds one that
      * parses to completion.
      */
-    public static Puzzle parseInput(InputStream is) {
+    @Override
+    public Puzzle parseInput(InputStream is) {
+        return parseInputStatic(is);
+    }
+
+    public static Puzzle parseInputStatic(InputStream is) {
         try {
             ByteArrayInputStream unzipped = StreamUtils.unzipOrPassThrough(is);
             for (PuzzleParser parser : PARSERS) {

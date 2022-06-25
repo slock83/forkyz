@@ -48,7 +48,7 @@ public class PuzzleImporter {
         Puzzle puz = null;
 
         try {
-            puz = PuzzleStreamReader.parseInput(
+            puz = PuzzleStreamReader.parseInputStatic(
                 new BufferedInputStream(resolver.openInputStream(uri))
             );
         } catch (FileNotFoundException e) {

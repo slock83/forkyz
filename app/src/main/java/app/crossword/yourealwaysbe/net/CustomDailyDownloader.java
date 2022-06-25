@@ -2,7 +2,7 @@ package app.crossword.yourealwaysbe.net;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
-import app.crossword.yourealwaysbe.io.IO;
+import app.crossword.yourealwaysbe.io.PuzzleStreamReader;
 
 /**
  * Custom daily downloader
@@ -24,7 +24,7 @@ public class CustomDailyDownloader extends AbstractDateDownloader {
             makeTitle(title),
             DATE_DAILY,
             null,
-            new IO(),
+            new PuzzleStreamReader(),
             urlDateFormatPattern,
             urlDateFormatPattern
         );

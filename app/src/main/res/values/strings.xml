@@ -266,14 +266,14 @@
     <string name="about_scrapes">About These Sources</string>
 
     <!-- preferences custom -->
-    <string name="custom_daily">Custom daily Across Lite (.puz) source</string>
+    <string name="custom_daily">Custom daily puzzle source</string>
     <string name="custom_daily_title">Custom daily</string>
     <string name="custom">Use custom source</string>
     <string name="custom_desc">Specify source URL below</string>
     <string name="custom_title">Puzzle name</string>
     <string name="custom_title_desc">Enter title for puzzle list</string>
     <string name="custom_url">Source URL</string>
-    <string name="custom_url_desc">Enter URL formatted according to Java\'s DateTimeFormatter</string>
+    <string name="custom_url_desc">Enter URL formatted according to Java\'s DateTimeFormatter. The puzzle can be in any supported format.</string>
 
     <!-- menus general -->
     <string name="help">Help</string>
