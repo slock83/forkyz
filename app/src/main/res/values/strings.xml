@@ -263,6 +263,8 @@
     <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html</string>
     <string name="private_eye">Private Eye</string>
     <string name="private_eye_desc">Archive of the Private Eye crossword. New puzzle roughly every fortnight.</string>
+    <string name="przekroj">Przekrój</string>
+    <string name="przekroj_desc">Puzzles from Przekrój magazine, in Polish.</string>
     <string name="about_scrapes">About These Sources</string>
 
     <!-- preferences custom -->

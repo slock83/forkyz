@@ -23,6 +23,12 @@
         android:summary="@string/private_eye_desc"
         android:key="scrapePrivateEye"
     />
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/przekroj"
+        android:defaultValue="false"
+        android:summary="@string/przekroj_desc"
+        android:key="scrapePrzekroj"
+    />
     <androidx.preference.Preference
         android:title="@string/about_scrapes"
         android:key="aboutScrapes"

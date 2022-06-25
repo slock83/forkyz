@@ -19,6 +19,7 @@ import java.util.regex.Pattern;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.io.IO;
+import app.crossword.yourealwaysbe.io.PuzzleParser;
 import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
@@ -30,10 +31,12 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * just download the first found puzzle not already on file.
  */
 public class PageScraper implements Downloader {
-    private static final String REGEX = "http://[^ ^']*\\.puz";
-    private static final String REL_REGEX = "href=\"(.*\\.puz)\"";
-    private static final Pattern PAT = Pattern.compile(REGEX);
-    private static final Pattern REL_PAT = Pattern.compile(REL_REGEX);
+    private static final String PUZ_URL_REGEX = "http://[^ ^']*\\.puz";
+    private static final String PUZ_REF_REGEX = "href=\"(.*\\.puz)\"";
+
+    private Pattern patURL;
+    private Pattern patRef;
+    private PuzzleParser parser;
 
     private String sourceName;
     private String url;
@@ -41,10 +44,22 @@ public class PageScraper implements Downloader {
     private boolean readReverse;
     protected boolean updateable = false;
 
-    public PageScraper(
-        String url, String sourceName, String supportUrl
-    ) {
-        this(url, sourceName, supportUrl, false);
+    public static class Puz extends PageScraper {
+        public Puz(String url, String sourceName, String supportUrl) {
+            this(url, sourceName, supportUrl, false);
+        }
+
+        public Puz(
+            String url,
+            String sourceName,
+            String supportUrl,
+            boolean readReverse
+        ) {
+            super(
+                PUZ_URL_REGEX, PUZ_REF_REGEX, new IO(),
+                url, sourceName, supportUrl, readReverse
+            );
+        }
     }
 
     /**
@@ -54,8 +69,12 @@ public class PageScraper implements Downloader {
      * page
      */
     public PageScraper(
+        String urlRegex, String refRegex, PuzzleParser parser,
         String url, String sourceName, String supportUrl, boolean readReverse
     ) {
+        this.patURL = Pattern.compile(urlRegex);
+        this.patRef = Pattern.compile(refRegex);
+        this.parser = parser;
         this.url = url;
         this.sourceName = sourceName;
         this.supportUrl = supportUrl;
@@ -140,6 +159,10 @@ public class PageScraper implements Downloader {
                             puz.setSupportUrl(getSupportUrl());
                             puz.setDate(LocalDate.now());
 
+                            String title = puz.getTitle();
+                            if (title == null || title.isEmpty())
+                                puz.setTitle(remoteFileName);
+
                             return new DownloadResult(puz, filename);
                         }
                     } catch (Exception e) {
@@ -166,12 +189,12 @@ public class PageScraper implements Downloader {
         return new String(baos.toByteArray());
     }
 
-    private static Puzzle downloadPuzzle(String url) throws IOException {
+    private Puzzle downloadPuzzle(String url) throws IOException {
         URL u = new URL(url);
 
         try (InputStream is = new BufferedInputStream(u.openStream())) {
-            return IO.loadNative(is);
-        } catch (IOException e) {
+            return parser.parseInput(is);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -201,11 +224,11 @@ public class PageScraper implements Downloader {
         return result;
     }
 
-    private static Deque<String> puzzleRelativeURLs(String baseUrl, String input)
+    private Deque<String> puzzleRelativeURLs(String baseUrl, String input)
             throws MalformedURLException {
         URL base = new URL(baseUrl);
         LinkedList<String> result = new LinkedList<String>();
-        Matcher matcher = REL_PAT.matcher(input);
+        Matcher matcher = patRef.matcher(input);
 
         while (matcher.find()) {
             result.add(new URL(base, matcher.group(1)).toString());
@@ -214,9 +237,9 @@ public class PageScraper implements Downloader {
         return result;
     }
 
-    private static Deque<String> puzzleURLs(String input) {
+    private Deque<String> puzzleURLs(String input) {
         LinkedList<String> result = new LinkedList<String>();
-        Matcher matcher = PAT.matcher(input);
+        Matcher matcher = patURL.matcher(input);
 
         while (matcher.find()) {
             result.add(matcher.group());

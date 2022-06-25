@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -50,21 +51,29 @@ public class PrzekrojIO implements PuzzleParser {
         try {
             ByteArrayInputStream copy = StreamUtils.copyInputStream(is);
 
-            Puzzle puz = readPuzzleFromJSON(
-                new JSONObject(new JSONTokener(copy))
-            );
+            Puzzle puz = null;
+            try {
+                puz = readPuzzleFromJSON(
+                    new JSONObject(new JSONTokener(copy))
+                );
+            } catch (JSONException e) {
+                // fall through
+            }
+
             if (puz == null) {
                 copy.reset();
-                Document doc = Jsoup.parse(copy, null, null);
-                String cwJson = doc.select(".crossword").attr("data-json");
+                Document doc = Jsoup.parse(copy, null, "");
+                String cwJson = doc.select(".crossword")
+                    .attr("data-json")
+                    .replace("&quot;", "\"");
                 puz = readPuzzleFromJSON(
                     new JSONObject(new JSONTokener(cwJson))
                 );
             }
 
             return puz;
-        } catch (IOException | PrzFormatException e) {
-            LOG.severe("Could not read Przekroj crossword: " + e);
+        } catch (IOException | JSONException | PrzFormatException e) {
+            LOG.info("Could not read Przekroj crossword: " + e);
             return null;
         }
     }

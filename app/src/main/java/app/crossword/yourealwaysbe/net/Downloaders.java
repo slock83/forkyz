@@ -15,6 +15,7 @@ import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.BrainsOnlyIO;
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.JPZIO;
+import app.crossword.yourealwaysbe.io.PrzekrojIO;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
@@ -428,7 +429,7 @@ public class Downloaders {
         addCustomDownloaders(downloaders);
 
         if (prefs.getBoolean("scrapeCru", false)) {
-            downloaders.add(new PageScraper(
+            downloaders.add(new PageScraper.Puz(
                 // certificate doesn't seem to work for me
                 // "https://theworld.com/~wij/puzzles/cru/index.html",
                 "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html",
@@ -438,7 +439,7 @@ public class Downloaders {
         }
 
         if (prefs.getBoolean("scrapeKegler", false)) {
-            downloaders.add(new PageScraper(
+            downloaders.add(new PageScraper.Puz(
                 "https://kegler.gitlab.io/Block_style/index.html",
                 "Kegler's Kryptics",
                 "https://kegler.gitlab.io/"
@@ -446,11 +447,23 @@ public class Downloaders {
         }
 
         if (prefs.getBoolean("scrapePrivateEye", false)) {
-            downloaders.add(new PageScraper(
+            downloaders.add(new PageScraper.Puz(
                 "https://www.private-eye.co.uk/pictures/crossword/download/",
                 "Private Eye",
                 "https://shop.private-eye.co.uk",
                 true // download from end of page
+            ));
+        }
+
+        if (prefs.getBoolean("scrapePrzekroj", false)) {
+            downloaders.add(new PageScraper(
+                "http://[^ ^']*krzyzowki/\\d+",
+                "href=\"(.*krzyzowki/\\d+)\"",
+                new PrzekrojIO(),
+                "https://przekroj.pl/rozrywka/krzyzowki/",
+                context.getString(R.string.przekroj),
+                "https://przekroj.pl/shop/kiosk",
+                false
             ));
         }
 
