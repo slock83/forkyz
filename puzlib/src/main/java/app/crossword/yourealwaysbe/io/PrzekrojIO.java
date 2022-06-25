@@ -66,9 +66,13 @@ public class PrzekrojIO implements PuzzleParser {
                 String cwJson = doc.select(".crossword")
                     .attr("data-json")
                     .replace("&quot;", "\"");
+                String title = doc.select("article").attr("data-title");
+
                 puz = readPuzzleFromJSON(
                     new JSONObject(new JSONTokener(cwJson))
                 );
+                if (title != null)
+                    puz.setTitle(title);
             }
 
             return puz;
