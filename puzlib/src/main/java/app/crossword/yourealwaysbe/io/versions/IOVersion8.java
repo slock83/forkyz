@@ -24,7 +24,7 @@ public class IOVersion8 extends IOVersion7 {
     @Override
     public PuzzleMeta readMeta(DataInputStream dis) throws IOException {
         PuzzleMeta meta = super.readMeta(dis);
-        meta.playerNote = IOVersion6.readNote(dis);
+        meta.playerNote = readNote(dis);
         return meta;
     }
 
@@ -32,6 +32,6 @@ public class IOVersion8 extends IOVersion7 {
     protected void writeMeta(Puzzle puz, DataOutputStream dos)
               throws IOException {
         super.writeMeta(puz, dos);
-        IOVersion6.writeNote(puz.getPlayerNote(), dos);
+        writeNote(puz.getPlayerNote(), dos);
     }
 }

@@ -21,7 +21,7 @@ public class IOVersion2 extends IOVersion1 {
     public PuzzleMeta readMeta(DataInputStream dis) throws IOException{
         PuzzleMeta meta = super.readMeta(dis);
         meta.updatable = dis.read() == 1;
-        meta.sourceUrl = IO.readNullTerminatedString(dis);
+        meta.sourceUrl = IO.readNullTerminatedString(dis, getCharset());
         return meta;
     }
 
@@ -30,6 +30,6 @@ public class IOVersion2 extends IOVersion1 {
               throws IOException {
         super.writeMeta(puz, dos);
         dos.write(puz.isUpdatable() ? 1 : -1);
-        IO.writeNullTerminatedString(dos, puz.getSourceUrl());
+        IO.writeNullTerminatedString(dos, puz.getSourceUrl(), getCharset());
     }
 }

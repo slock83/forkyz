@@ -8,11 +8,14 @@ import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.time.LocalDate;
+import java.nio.charset.Charset;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 
 public class IOVersion1 implements IOVersion {
+
+    private Charset CHARSET = Charset.forName("Cp1252");
 
     public void read(Puzzle puz, DataInputStream dis) throws IOException {
         PuzzleMeta meta = readMeta(dis);
@@ -24,7 +27,7 @@ public class IOVersion1 implements IOVersion {
                     continue;
                 }
                 b.setCheated(dis.readBoolean());
-                b.setResponder(IO.readNullTerminatedString(dis));
+                b.setResponder(IO.readNullTerminatedString(dis, getCharset()));
             }
         }
         try{
@@ -43,9 +46,9 @@ public class IOVersion1 implements IOVersion {
 
     public PuzzleMeta readMeta(DataInputStream dis) throws IOException {
         PuzzleMeta meta = new PuzzleMeta();
-        meta.author = IO.readNullTerminatedString(dis);
-        meta.source = IO.readNullTerminatedString(dis);
-        meta.title = IO.readNullTerminatedString(dis);
+        meta.author = IO.readNullTerminatedString(dis, getCharset());
+        meta.source = IO.readNullTerminatedString(dis, getCharset());
+        meta.title = IO.readNullTerminatedString(dis, getCharset());
         meta.date =
             Instant.ofEpochMilli(dis.readLong())
                 .atZone(ZoneId.systemDefault())
@@ -64,7 +67,9 @@ public class IOVersion1 implements IOVersion {
                     continue;
                 }
                 dos.writeBoolean(b.isCheated());
-                IO.writeNullTerminatedString(dos, b.getResponder());
+                IO.writeNullTerminatedString(
+                    dos, b.getResponder(), getCharset()
+                );
             }
         }
         dos.writeLong(puz.getTime());
@@ -72,9 +77,9 @@ public class IOVersion1 implements IOVersion {
 
     protected void writeMeta(Puzzle puz, DataOutputStream dos)
               throws IOException {
-        IO.writeNullTerminatedString(dos, puz.getAuthor());
-        IO.writeNullTerminatedString(dos, puz.getSource());
-        IO.writeNullTerminatedString(dos, puz.getTitle());
+        IO.writeNullTerminatedString(dos, puz.getAuthor(), getCharset());
+        IO.writeNullTerminatedString(dos, puz.getSource(), getCharset());
+        IO.writeNullTerminatedString(dos, puz.getTitle(), getCharset());
         LocalDate date = puz.getDate();
         if (date == null) {
             dos.writeLong(0);
@@ -87,5 +92,10 @@ public class IOVersion1 implements IOVersion {
             );
         }
         dos.writeInt(puz.getPercentComplete());
+    }
+
+    @Override
+    public Charset getCharset() {
+        return CHARSET;
     }
 }

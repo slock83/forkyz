@@ -48,7 +48,7 @@ public class IOVersion6 extends IOVersion5 {
      * Format of notes (all null-term strings):
      *     scratch, free-form, anagram src, anagram sol
      */
-    public static void loadNotes(
+    public void loadNotes(
         boolean isAcross, PuzzleMeta meta, DataInputStream input
     ) throws IOException {
 
@@ -66,11 +66,11 @@ public class IOVersion6 extends IOVersion5 {
             meta.downNotes = notes;
     }
 
-    static Note readNote(DataInputStream dis) throws IOException {
-        String scratch = IO.readNullTerminatedString(dis);
-        String text = IO.readNullTerminatedString(dis);
-        String anagramSrc = IO.readNullTerminatedString(dis);
-        String anagramSol = IO.readNullTerminatedString(dis);
+    protected Note readNote(DataInputStream dis) throws IOException {
+        String scratch = IO.readNullTerminatedString(dis, getCharset());
+        String text = IO.readNullTerminatedString(dis, getCharset());
+        String anagramSrc = IO.readNullTerminatedString(dis, getCharset());
+        String anagramSol = IO.readNullTerminatedString(dis, getCharset());
         if (scratch != null
                 || text != null
                 || anagramSrc != null
@@ -80,7 +80,7 @@ public class IOVersion6 extends IOVersion5 {
         return null;
     }
 
-    private static void saveNotes(
+    private void saveNotes(
         DataOutputStream dos, Puzzle puz, boolean isAcross
     ) throws IOException {
 
@@ -106,7 +106,7 @@ public class IOVersion6 extends IOVersion5 {
         }
     }
 
-    static void writeNote(Note note, DataOutputStream dos)
+    protected void writeNote(Note note, DataOutputStream dos)
             throws IOException {
         String scratch = null;
         String text = null;
@@ -120,10 +120,10 @@ public class IOVersion6 extends IOVersion5 {
             anagramSol = note.getCompressedAnagramSolution();
         }
 
-        IO.writeNullTerminatedString(dos, scratch);
-        IO.writeNullTerminatedString(dos, text);
-        IO.writeNullTerminatedString(dos, anagramSrc);
-        IO.writeNullTerminatedString(dos, anagramSol);
+        IO.writeNullTerminatedString(dos, scratch, getCharset());
+        IO.writeNullTerminatedString(dos, text, getCharset());
+        IO.writeNullTerminatedString(dos, anagramSrc, getCharset());
+        IO.writeNullTerminatedString(dos, anagramSol, getCharset());
     }
 
     private void applyNotes(Puzzle puz, Note[] notes, boolean isAcross) {

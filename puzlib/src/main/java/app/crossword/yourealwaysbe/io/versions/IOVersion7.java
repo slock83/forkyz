@@ -24,7 +24,7 @@ public class IOVersion7 extends IOVersion6 {
     @Override
     public PuzzleMeta readMeta(DataInputStream dis) throws IOException {
         PuzzleMeta meta = super.readMeta(dis);
-        meta.supportUrl = IO.readNullTerminatedString(dis);
+        meta.supportUrl = IO.readNullTerminatedString(dis, getCharset());
         return meta;
     }
 
@@ -32,6 +32,6 @@ public class IOVersion7 extends IOVersion6 {
     protected void writeMeta(Puzzle puz, DataOutputStream dos)
               throws IOException {
         super.writeMeta(puz, dos);
-        IO.writeNullTerminatedString(dos, puz.getSupportUrl());
+        IO.writeNullTerminatedString(dos, puz.getSupportUrl(), getCharset());
     }
 }

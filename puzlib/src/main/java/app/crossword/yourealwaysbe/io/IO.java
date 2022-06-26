@@ -8,6 +8,7 @@ import app.crossword.yourealwaysbe.io.versions.IOVersion5;
 import app.crossword.yourealwaysbe.io.versions.IOVersion6;
 import app.crossword.yourealwaysbe.io.versions.IOVersion7;
 import app.crossword.yourealwaysbe.io.versions.IOVersion8;
+import app.crossword.yourealwaysbe.io.versions.IOVersion9;
 import app.crossword.yourealwaysbe.io.versions.IOVersion;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueID;
@@ -36,8 +37,9 @@ import java.util.Objects;
 
 public class IO implements PuzzleParser {
     public static final String FILE_MAGIC = "ACROSS&DOWN";
-    public static final String VERSION_STRING = "1.2";
-    private static final Charset CHARSET = Charset.forName("Cp1252");
+    public static final String VERSION_STRING = "2.0";
+    private static final Charset CHARSET = Charset.forName("UTF-8");
+    private static final Charset CHARSET_OLD = Charset.forName("ISO-8859-1");
 
     // Extra Section IDs and markers
     private static final String GEXT_MARKER = "GEXT";
@@ -115,11 +117,17 @@ public class IO implements PuzzleParser {
         input.skip(1);
         input.skipBytes(0xA);
 
-        byte[] versionString = new byte[3];
+        byte[] versionBytes= new byte[3];
 
-        for (int i = 0; i < versionString.length; i++) {
-            versionString[i] = input.readByte();
+        for (int i = 0; i < versionBytes.length; i++) {
+            versionBytes[i] = input.readByte();
         }
+
+        String version = new String(versionBytes, CHARSET.name());
+
+        Charset charset = ("2.0".compareTo(version) > 0)
+            ? CHARSET_OLD
+            : CHARSET;
 
         input.skip(1);
 
@@ -144,7 +152,7 @@ public class IO implements PuzzleParser {
             for (int y = 0; y < boxes[x].length; y++) {
                 answerByte[0] = input.readByte();
 
-                char solution = new String(answerByte, CHARSET.name())
+                char solution = new String(answerByte, charset.name())
                         .charAt(0);
 
                 if (solution != '.') {
@@ -158,7 +166,7 @@ public class IO implements PuzzleParser {
             for (int y = 0; y < boxes[x].length; y++) {
                 answerByte[0] = input.readByte();
 
-                char answer = new String(answerByte, CHARSET.name()).charAt(0);
+                char answer = new String(answerByte, charset.name()).charAt(0);
 
                 if (answer == '.') {
                     continue;
@@ -178,9 +186,9 @@ public class IO implements PuzzleParser {
 
         builder.setSolutionChecksum(solutionChecksum);
         builder.setScrambled(scrambled);
-        builder.setTitle(readNullTerminatedString(input));
-        builder.setAuthor(readNullTerminatedString(input));
-        builder.setCopyright(readNullTerminatedString(input));
+        builder.setTitle(readNullTerminatedString(input, charset));
+        builder.setAuthor(readNullTerminatedString(input, charset));
+        builder.setCopyright(readNullTerminatedString(input, charset));
 
         for (int x = 0; x < builder.getHeight(); x++) {
             for (int y = 0; y < builder.getWidth(); y++) {
@@ -193,14 +201,14 @@ public class IO implements PuzzleParser {
                 String clueNumber = box.getClueNumber();
 
                 if (builder.isStartClue(x, y, true) && (clueNumber != null)) {
-                    String value = readNullTerminatedString(input);
+                    String value = readNullTerminatedString(input, charset);
                     builder.addAcrossClue(
                         ACROSS_LIST, clueNumber, value
                     );
                 }
 
                 if (builder.isStartClue(x, y, false) && (clueNumber != null)) {
-                    String value = readNullTerminatedString(input);
+                    String value = readNullTerminatedString(input, charset);
                     builder.addDownClue(
                         DOWN_LIST, clueNumber, value
                     );
@@ -208,7 +216,7 @@ public class IO implements PuzzleParser {
             }
         }
 
-        builder.setNotes(readNullTerminatedString(input));
+        builder.setNotes(readNullTerminatedString(input, charset));
 
         boolean eof = false;
 
@@ -222,11 +230,11 @@ public class IO implements PuzzleParser {
                     // For reading legacy files only
                     // info now stored in meta
                     case ANTS:
-                        loadNotesNative(true, builder, input);
+                        loadNotesNative(true, builder, input, charset);
                         break;
 
                     case DNTS:
-                        loadNotesNative(false, builder, input);
+                        loadNotesNative(false, builder, input, charset);
                         break;
 
                     default:
@@ -299,8 +307,9 @@ public class IO implements PuzzleParser {
         return m;
     }
 
-    public static String readNullTerminatedString(InputStream is)
-            throws IOException {
+    public static String readNullTerminatedString(
+        InputStream is, Charset charset
+    ) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream(128);
 
         for (byte nextByte = (byte) is.read(); nextByte != 0x0; nextByte = (byte) is
@@ -314,8 +323,9 @@ public class IO implements PuzzleParser {
             }
         }
 
-        return (baos.size() == 0) ? null : new String(baos.toByteArray(),
-                CHARSET.name());
+        return (baos.size() == 0)
+            ? null
+            : new String(baos.toByteArray(), charset.name());
     }
 
     public static void save(
@@ -430,15 +440,21 @@ public class IO implements PuzzleParser {
             }
         }
 
-        writeNullTerminatedString(tmpDos, unHtmlString(puz.getTitle()));
-        writeNullTerminatedString(tmpDos, unHtmlString(puz.getAuthor()));
-        writeNullTerminatedString(tmpDos, unHtmlString(puz.getCopyright()));
+        writeNullTerminatedString(
+            tmpDos, unHtmlString(puz.getTitle()), CHARSET
+        );
+        writeNullTerminatedString(
+            tmpDos, unHtmlString(puz.getAuthor()), CHARSET
+        );
+        writeNullTerminatedString(
+            tmpDos, unHtmlString(puz.getCopyright()), CHARSET
+        );
 
         for (String clue : getRawClues(puz)) {
-            writeNullTerminatedString(tmpDos, unHtmlString(clue));
+            writeNullTerminatedString(tmpDos, unHtmlString(clue), CHARSET);
         }
 
-        writeNullTerminatedString(tmpDos, unHtmlString(puz.getNotes()));
+        writeNullTerminatedString(tmpDos, unHtmlString(puz.getNotes()), CHARSET);
 
         if (hasGEXT) {
             tmpDos.writeBytes(GEXT_MARKER);
@@ -535,8 +551,8 @@ public class IO implements PuzzleParser {
 
     public static void writeCustom(Puzzle puz, DataOutputStream os)
             throws IOException {
-        os.write(8);
-        IOVersion v = new IOVersion8();
+        os.write(9);
+        IOVersion v = new IOVersion9();
         v.write(puz, os);
     }
 
@@ -549,12 +565,14 @@ public class IO implements PuzzleParser {
         return false;
     }
 
-    public static void writeNullTerminatedString(OutputStream os, String value)
-            throws IOException {
+    public static void writeNullTerminatedString(
+        OutputStream os, String value, Charset charset
+    ) throws IOException {
         value = (value == null) ? "" : value;
 
-        byte[] encoded = CHARSET.encode(value).array();
-        os.write(encoded);
+        ByteBuffer encoded = charset.encode(value);
+
+        os.write(encoded.array(), encoded.position(), encoded.limit());
         os.write(0);
     }
 
@@ -640,10 +658,12 @@ public class IO implements PuzzleParser {
      *         + byte identifying field
      *         + null terminated string which is field value
      */
-    private static void loadNotesNative(boolean isAcross,
-                                        PuzzleBuilder builder,
-                                        DataInputStream input)
-            throws IOException {
+    private static void loadNotesNative(
+        boolean isAcross,
+        PuzzleBuilder builder,
+        DataInputStream input,
+        Charset charset
+    ) throws IOException {
 
         for (ClueID cid : builder.getBoardClueIDs()) {
             String listName = cid.getListName();
@@ -660,7 +680,7 @@ public class IO implements PuzzleParser {
                 for (byte i = 0; i < numFields; i++) {
                     byte field = input.readByte();
 
-                    String val = readNullTerminatedString(input);
+                    String val = readNullTerminatedString(input, charset);
 
                     switch (field) {
                     case NOTE_SCRATCH:
@@ -709,6 +729,8 @@ public class IO implements PuzzleParser {
             return new IOVersion7();
         case 8:
             return new IOVersion8();
+        case 9:
+            return new IOVersion9();
         default:
             throw new IOException("UnknownVersion " + version);
         }
