@@ -1,10 +1,8 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -14,13 +12,15 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.PuzzleParser;
-import app.crossword.yourealwaysbe.io.StreamUtils;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
@@ -32,15 +32,13 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * just download the first found puzzle not already on file.
  */
 public class PageScraper implements Downloader {
-    private static final String PUZ_URL_REGEX = "http://[^ ^']*\\.puz";
-    private static final String PUZ_REF_REGEX = "href=\"(.*\\.puz)\"";
+    private static final String REGEX_PUZ = ".*\\.puz";
 
-    private Pattern patURL;
-    private Pattern patRef;
+    private Pattern patFile;
     private PuzzleParser parser;
 
     private String sourceName;
-    private String url;
+    private String scrapeUrl;
     private String supportUrl;
     private boolean readReverse;
     protected boolean updateable = false;
@@ -51,14 +49,15 @@ public class PageScraper implements Downloader {
         }
 
         public Puz(
-            String url,
+            String scrapeUrl,
             String sourceName,
             String supportUrl,
             boolean readReverse
         ) {
             super(
-                PUZ_URL_REGEX, PUZ_REF_REGEX, new IO(),
-                url, sourceName, supportUrl, readReverse
+                REGEX_PUZ, new IO(),
+                scrapeUrl, sourceName, supportUrl,
+                readReverse
             );
         }
     }
@@ -70,13 +69,13 @@ public class PageScraper implements Downloader {
      * page
      */
     public PageScraper(
-        String urlRegex, String refRegex, PuzzleParser parser,
-        String url, String sourceName, String supportUrl, boolean readReverse
+        String regexFile, PuzzleParser parser,
+        String scrapeUrl, String sourceName, String supportUrl,
+        boolean readReverse
     ) {
-        this.patURL = Pattern.compile(urlRegex);
-        this.patRef = Pattern.compile(refRegex);
+        this.patFile = Pattern.compile(regexFile);
         this.parser = parser;
-        this.url = url;
+        this.scrapeUrl = scrapeUrl;
         this.sourceName = sourceName;
         this.supportUrl = supportUrl;
         this.readReverse = readReverse;
@@ -125,15 +124,7 @@ public class PageScraper implements Downloader {
             = ForkyzApplication.getInstance().getFileHandler();
 
         try {
-            String content = this.getContent();
-            Deque<String> urls = puzzleURLs(content);
-
-            try {
-                urls.addAll(puzzleRelativeURLs(url, content));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
+            Deque<String> urls = getPuzzleURLs();
             Map<String, String> urlsToFilenames = mapURLsToFileNames(urls);
 
             Iterator<String> urlIterator
@@ -183,15 +174,6 @@ public class PageScraper implements Downloader {
         return null;
     }
 
-    private String getContent() throws IOException {
-        URL u = new URL(url);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (InputStream is = new BufferedInputStream(u.openStream())) {
-            StreamUtils.copyStream(is, baos);
-        }
-        return new String(baos.toByteArray());
-    }
-
     private Puzzle downloadPuzzle(String url) throws IOException {
         URL u = new URL(url);
 
@@ -227,25 +209,15 @@ public class PageScraper implements Downloader {
         return result;
     }
 
-    private Deque<String> puzzleRelativeURLs(String baseUrl, String input)
-            throws MalformedURLException {
-        URL base = new URL(baseUrl);
+    private Deque<String> getPuzzleURLs() throws IOException {
         LinkedList<String> result = new LinkedList<String>();
-        Matcher matcher = patRef.matcher(input);
 
-        while (matcher.find()) {
-            result.add(new URL(base, matcher.group(1)).toString());
-        }
-
-        return result;
-    }
-
-    private Deque<String> puzzleURLs(String input) {
-        LinkedList<String> result = new LinkedList<String>();
-        Matcher matcher = patURL.matcher(input);
-
-        while (matcher.find()) {
-            result.add(matcher.group());
+        Document content = Jsoup.connect(scrapeUrl).get();
+        for (Element a : content.select("a")) {
+            String url = a.attr("abs:href");
+            if (patFile.matcher(url).matches()) {
+                result.add(url);
+            }
         }
 
         return result;

@@ -457,8 +457,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("scrapePrzekroj", false)) {
             downloaders.add(new PageScraper(
-                "http://[^ ^']*krzyzowki/\\d+",
-                "href=\"(.*krzyzowki/\\d+)\"",
+                ".*krzyzowki/\\d+",
                 new PrzekrojIO(),
                 "https://przekroj.pl/rozrywka/krzyzowki/",
                 context.getString(R.string.przekroj),
