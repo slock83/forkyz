@@ -285,6 +285,7 @@
     <string name="share_clue_response">Clue with Board</string>
     <string name="share_puzzle_full">Current Puzzle</string>
     <string name="share_puzzle_orig">Blank Puzzle</string>
+    <string name="share_puzzle_open_share_url">Open Share URL</string>
 
     <!-- clue list menu -->
     <string name="menu_clue_notes">Clue Notes</string>
@@ -452,6 +453,8 @@
     <string name="share_clue_blank_box">?</string>
     <string name="share_clue_text">%1$s\n%2$s</string>
     <string name="share_clue_response_text">%1$s\nHint: %2$s\n%3$s.</string>
-    <string name="share_puzzle_details_author">%1$s, %2$s by %3$s</string>
-    <string name="share_puzzle_details_no_author">%1$s, %2$s</string>
+    <string name="share_puzzle_details_author_no_url">%1$s, %2$s by %3$s</string>
+    <string name="share_puzzle_details_no_author_no_url">%1$s, %2$s</string>
+    <string name="share_puzzle_details_author_url">%1$s, %2$s by %3$s\n%4$s</string>
+    <string name="share_puzzle_details_no_author_url">%1$s, %2$s\n%3$s</string>
 </resources>

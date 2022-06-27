@@ -2,9 +2,11 @@ package app.crossword.yourealwaysbe;
 
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.Menu;
 import android.view.MenuItem;
 import androidx.core.app.ShareCompat;
 
@@ -47,6 +49,22 @@ public abstract class PuzzleActivity
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         startTimer();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (!super.onPrepareOptionsMenu(menu))
+            return false;
+
+        Puzzle puz = getPuzzle();
+        String shareUrl = puz == null ? null : puz.getShareUrl();
+        if (shareUrl == null || shareUrl.isEmpty()) {
+            MenuItem open = menu.findItem(R.id.puzzle_menu_open_share_url);
+            open.setVisible(false);
+            open.setEnabled(false);
+        }
+
+        return true;
     }
 
     private void startTimer() {
@@ -116,6 +134,8 @@ public abstract class PuzzleActivity
             sharePuzzle(false);
         } else if (id == R.id.puzzle_menu_share_puzzle_orig) {
             sharePuzzle(true);
+        } else if (id == R.id.puzzle_menu_open_share_url) {
+            openShareUrl();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -401,14 +421,27 @@ public abstract class PuzzleActivity
                 author = null;
         }
 
-        return (author != null)
-            ? getString(
-                R.string.share_puzzle_details_author,
-                source, title, author
-            ) : getString(
-                R.string.share_puzzle_details_no_author,
-                source, title
-            );
+        String shareUrl = puz.getShareUrl();
+
+        if (shareUrl == null || shareUrl.isEmpty()) {
+            return (author != null)
+                ? getString(
+                    R.string.share_puzzle_details_author_no_url,
+                    source, title, author
+                ) : getString(
+                    R.string.share_puzzle_details_no_author_no_url,
+                    source, title
+                );
+        } else {
+            return (author != null)
+                ? getString(
+                    R.string.share_puzzle_details_author_url,
+                    source, title, author, shareUrl
+                ) : getString(
+                    R.string.share_puzzle_details_no_author_url,
+                    source, title, shareUrl
+                );
+        }
     }
 
     private void sharePuzzle(boolean writeOriginal) {
@@ -431,5 +464,17 @@ public abstract class PuzzleActivity
                 startActivity(shareIntent);
             }
         );
+    }
+
+    private void openShareUrl() {
+        Puzzle puz = getPuzzle();
+        if (puz != null) {
+            String shareUrl = puz.getShareUrl();
+            if (shareUrl != null && !shareUrl.isEmpty()) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(shareUrl));
+                startActivity(i);
+            }
+        }
     }
 }

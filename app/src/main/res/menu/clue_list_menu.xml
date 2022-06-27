@@ -37,6 +37,10 @@
                 android:id="@+id/puzzle_menu_share_puzzle_orig"
                 android:title="@string/share_puzzle_orig"
             />
+            <item
+                android:id="@+id/puzzle_menu_open_share_url"
+                android:title="@string/share_puzzle_open_share_url"
+            />
         </menu>
     </item>
 </menu>

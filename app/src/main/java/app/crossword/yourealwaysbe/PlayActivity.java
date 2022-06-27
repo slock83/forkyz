@@ -311,6 +311,8 @@ public class PlayActivity extends PuzzleActivity
     }
 
     public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
         Puzzle puz = getPuzzle();
 
         if (puz == null || puz.isUpdatable()) {
