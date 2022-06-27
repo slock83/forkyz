@@ -391,7 +391,7 @@ public class Downloaders {
                 context.getString(R.string.uclick_copyright),
                 "http://www.uclick.com/client/spi/fcx/",
                 Downloader.DATE_DAILY,
-                "'http://syndication.andrewsmcmeel.com/puzzles/crosswords'"
+                null
             ));
         }
 
@@ -462,7 +462,8 @@ public class Downloaders {
                 "https://przekroj.pl/rozrywka/krzyzowki/",
                 context.getString(R.string.przekroj),
                 "https://przekroj.pl/shop/kiosk",
-                false
+                true, // share file url
+                false // read top down
             ));
         }
 

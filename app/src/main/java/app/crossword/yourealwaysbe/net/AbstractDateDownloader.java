@@ -178,6 +178,7 @@ public class AbstractDateDownloader implements Downloader {
                     puz.setSource(getName());
                     puz.setSourceUrl(sourceUrl);
                     puz.setSupportUrl(getSupportUrl());
+                    puz.setShareUrl(getShareUrl(date));
                     puz.setUpdatable(false);
 
                     return puz;

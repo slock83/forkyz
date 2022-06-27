@@ -99,6 +99,7 @@ public class RaetselZentraleSchwedenDownloader
                     puz.setSource(getName());
                     puz.setSourceUrl(sourceUrl);
                     puz.setSupportUrl(getSupportUrl());
+                    puz.setShareUrl(getShareUrl(date));
                     puz.setDate(date);
                 }
                 return puz;

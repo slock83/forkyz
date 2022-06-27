@@ -40,6 +40,7 @@ public class PageScraper implements Downloader {
     private String sourceName;
     private String scrapeUrl;
     private String supportUrl;
+    private boolean shareFileUrl;
     private boolean readReverse;
     protected boolean updateable = false;
 
@@ -56,7 +57,7 @@ public class PageScraper implements Downloader {
         ) {
             super(
                 REGEX_PUZ, new IO(),
-                scrapeUrl, sourceName, supportUrl,
+                scrapeUrl, sourceName, supportUrl, false,
                 readReverse
             );
         }
@@ -67,10 +68,13 @@ public class PageScraper implements Downloader {
      *
      * @param readReverse whether to read from the top or bottom of the
      * page
+     * @param shareFileUrl set share URL to scrapeUrl or scraped file
+     * URL
      */
     public PageScraper(
         String regexFile, PuzzleParser parser,
-        String scrapeUrl, String sourceName, String supportUrl,
+        String scrapeUrl, String sourceName,
+        String supportUrl, boolean shareFileUrl,
         boolean readReverse
     ) {
         this.patFile = Pattern.compile(regexFile);
@@ -78,6 +82,7 @@ public class PageScraper implements Downloader {
         this.scrapeUrl = scrapeUrl;
         this.sourceName = sourceName;
         this.supportUrl = supportUrl;
+        this.shareFileUrl = shareFileUrl;
         this.readReverse = readReverse;
     }
 
@@ -149,6 +154,7 @@ public class PageScraper implements Downloader {
                             puz.setSource(getName());
                             puz.setSourceUrl(url);
                             puz.setSupportUrl(getSupportUrl());
+                            puz.setShareUrl(shareFileUrl ? url : scrapeUrl);
                             puz.setDate(LocalDate.now());
 
                             String title = puz.getTitle();
