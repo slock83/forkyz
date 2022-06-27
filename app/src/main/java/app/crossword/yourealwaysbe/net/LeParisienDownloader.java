@@ -3,11 +3,14 @@ package app.crossword.yourealwaysbe.net;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.Map;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.RCIJeuxMFJIO;
+import app.crossword.yourealwaysbe.puz.Puzzle;
 
 /**
  * Le Parisien Mots Fleche Downloader (Force 2)
@@ -20,6 +23,8 @@ public class LeParisienDownloader extends AbstractDateDownloader {
     private static final String SUPPORT_URL = "https://abonnement.leparisien.fr";
     private static final String SHARE_URL
         = "https://www.leparisien.fr/jeux/mots-fleches/force-2/";
+    private static final DateTimeFormatter titleDateFormat
+        = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     // ultimately this could be split out into a general rcijeux mots fleches
     // downloader, but no need yet.
@@ -48,17 +53,36 @@ public class LeParisienDownloader extends AbstractDateDownloader {
 
     @Override
     protected String getSourceUrl(LocalDate date) {
-        Duration diff = Duration.between(
-            BASE_CW_DATE.atStartOfDay(), date.atStartOfDay()
-        );
-
-        long cwNumber = BASE_CW_NUMBER + diff.toDays();
-
+        long cwNumber = getCrosswordNumber(date);
         return String.format(Locale.US, SOURCE_URL_FORMAT, cwNumber);
     }
 
     @Override
     protected String getShareUrl(LocalDate date) {
         return SHARE_URL;
+    }
+
+    @Override
+    protected Puzzle download(
+        LocalDate date,
+        Map<String, String> headers
+    ){
+        Puzzle puz = super.download(date, headers);
+        if (puz != null) {
+            puz.setTitle(getCrosswordTitle(date));
+        }
+        return puz;
+    }
+
+    private long getCrosswordNumber(LocalDate date) {
+        Duration diff = Duration.between(
+            BASE_CW_DATE.atStartOfDay(), date.atStartOfDay()
+        );
+
+        return BASE_CW_NUMBER + diff.toDays();
+    }
+
+    private String getCrosswordTitle(LocalDate date) {
+        return getCrosswordNumber(date) + ", " + titleDateFormat.format(date);
     }
 }
