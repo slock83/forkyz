@@ -1,0 +1,9 @@
+- New daily download: Hamburger Abendblatt (German).
+- New daily download: Le Parisien (French).
+- New scraper: Przekroj Magazine (Polish), with pictures!
+- Attempt to handle native keyboard properly (can now input diacritics and emojis).
+- Allow custom download source in any supported format, not just .puz.
+- New supported import formats: Raetselzentrale Schwedenratsel JSON, RCI Jeux Mots Fleches JSON, Guardian HTML, Przekroj HTML and JSON.
+- Refresh online puzzle sources list.
+- Correct charset for Across Lite (.puz) version 2.0 and up.
+- Add share URL. Visible when sharing clues, and can be opened from share menu.
