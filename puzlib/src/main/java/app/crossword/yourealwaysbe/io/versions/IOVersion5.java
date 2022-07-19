@@ -31,7 +31,8 @@ public class IOVersion5 extends IOVersion4 {
             String listName = ln.getListName();
             String number = String.valueOf(ln.getNumber());
             Clue clue = puz.getClues(listName).getClueByNumber(number);
-            cidHistory.add(clue.getClueID());
+            if (clue != null)
+                cidHistory.add(clue.getClueID());
         }
         puz.setHistory(cidHistory);
     }
