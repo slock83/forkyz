@@ -293,20 +293,21 @@ public class ForkyzKeyboard
         keyActors.put(keyId, new KeyActor() {
             @Override
             public synchronized void fireKeyUp() {
-                if (inputConnection != null) {
-                    inputConnection.sendKeyEvent(
-                        new KeyEvent(KeyEvent.ACTION_UP, keyCode)
-                    );
-                }
+                if (inputConnection != null)
+                    fireKey(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
             }
 
             @Override
             public synchronized void fireKeyDown() {
-                 if (inputConnection != null) {
-                    inputConnection.sendKeyEvent(
-                        new KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
-                    );
-                }
+                if (inputConnection != null)
+                     fireKey(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+            }
+
+            private void fireKey(KeyEvent event) {
+                int flags = KeyEvent.FLAG_KEEP_TOUCH_MODE
+                    | KeyEvent.FLAG_SOFT_KEYBOARD;
+                KeyEvent flagged = KeyEvent.changeFlags(event, flags);
+                inputConnection.sendKeyEvent(flagged);
             }
         });
     }
