@@ -824,11 +824,15 @@ public class Playboard implements Serializable {
         Position highlightLetter = getHighlightLetter();
         Box b = puzzle.checkedGetBox(highlightLetter);
 
-        if ((b != null) && (b.getSolution() != b.getResponse())) {
-            b.setCheated(true);
-            b.setResponse(b.getSolution());
-            notifyChange();
-            return highlightLetter;
+        if (b != null) {
+            boolean correctResponse
+                = Objects.equals(b.getSolution(), b.getResponse());
+            if (!correctResponse) {
+                b.setCheated(true);
+                b.setResponse(b.getSolution());
+                notifyChange();
+                return highlightLetter;
+            }
         }
 
         return null;
@@ -849,13 +853,14 @@ public class Playboard implements Serializable {
         for (int row = 0; row < puzzle.getHeight(); row++) {
             for (int col = 0; col < puzzle.getWidth(); col++) {
                 Box b = boxes[row][col];
-                if (b == null) { continue; }
-
-                if (b.isCheated() ||
-                        (!b.isBlank() && (b.getSolution() != b.getResponse()))) {
-                    b.setCheated(true);
-                    b.setResponse(b.getSolution());
-                    changes.add(new Position(row, col));
+                if (b != null) {
+                    boolean correctResponse
+                        = Objects.equals(b.getSolution(), b.getResponse());
+                    if (b.isCheated() || (!b.isBlank() && !correctResponse)) {
+                        b.setCheated(true);
+                        b.setResponse(b.getSolution());
+                        changes.add(new Position(row, col));
+                    }
                 }
             }
         }
@@ -872,11 +877,14 @@ public class Playboard implements Serializable {
         for (int row = 0; row < puzzle.getHeight(); row++) {
             for (int col = 0; col < puzzle.getWidth(); col++) {
                 Box b = boxes[row][col];
-
-                if ((b != null) && (b.getSolution() != b.getResponse())) {
-                    b.setCheated(true);
-                    b.setResponse(b.getSolution());
-                    changes.add(new Position(row, col));
+                if (b != null) {
+                    boolean correctResponse
+                        = Objects.equals(b.getSolution(), b.getResponse());
+                    if (!correctResponse) {
+                        b.setCheated(true);
+                        b.setResponse(b.getSolution());
+                        changes.add(new Position(row, col));
+                    }
                 }
             }
         }
