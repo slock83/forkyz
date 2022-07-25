@@ -60,7 +60,7 @@ public class ClueListActivity extends PuzzleActivity
         utils.finishOnHomeButton(this);
 
         Playboard board = getBoard();
-        Puzzle puz = getBoard().getPuzzle();
+        Puzzle puz = getPuzzle();
 
         if (board == null || puz == null) {
             LOG.info(
@@ -99,7 +99,7 @@ public class ClueListActivity extends PuzzleActivity
         super.onResume();
 
         Playboard board = getBoard();
-        Puzzle puz = getBoard().getPuzzle();
+        Puzzle puz = getPuzzle();
 
         if (board == null || puz == null) {
             LOG.info(
@@ -173,7 +173,7 @@ public class ClueListActivity extends PuzzleActivity
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         Playboard board = getBoard();
-        Puzzle puz = board.getPuzzle();
+        Puzzle puz = getPuzzle();
         Word w = board.getCurrentWord();
 
         Zone zone = (w == null) ? null : w.getZone();
@@ -361,7 +361,7 @@ public class ClueListActivity extends PuzzleActivity
      */
     private boolean selectFirstClue() {
         Playboard board = getBoard();
-        Puzzle puz = board.getPuzzle();
+        Puzzle puz = getPuzzle();
         switch (clueTabs.getCurrentPageType()) {
         case CLUES:
             String listName = clueTabs.getCurrentPageListName();

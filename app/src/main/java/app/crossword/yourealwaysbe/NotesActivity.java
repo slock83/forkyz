@@ -98,7 +98,7 @@ public class NotesActivity extends PuzzleActivity {
         utils.finishOnHomeButton(this);
 
         Playboard board = getBoard();
-        Puzzle puz = (board == null) ? null : board.getPuzzle();
+        Puzzle puz = getPuzzle();
 
         if (board == null || puz == null) {
             LOG.info("NotesActivity resumed but no Puzzle selected, finishing.");
@@ -387,7 +387,7 @@ public class NotesActivity extends PuzzleActivity {
         super.onResume();
 
         Playboard board = getBoard();
-        Puzzle puz = board.getPuzzle();
+        Puzzle puz = getPuzzle();
 
         if (board == null || puz == null) {
             LOG.info(
@@ -747,7 +747,7 @@ public class NotesActivity extends PuzzleActivity {
      */
     private Clue getNotesClue() {
         Playboard board = getBoard();
-        Puzzle puz = board == null ? null : board.getPuzzle();
+        Puzzle puz = getPuzzle();
         if (puz == null)
             return null;
 
