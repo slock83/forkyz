@@ -28,11 +28,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Downloaders {
-    private static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
+    private static final Logger LOG
+        = Logger.getLogger("app.crossword.yourealwaysbe");
+    private static final int NUM_DOWNLOAD_THREADS = 3;
+
     private Context context;
     private NotificationManager notificationManager;
     private boolean supressMessages;
@@ -144,31 +151,49 @@ public class Downloaders {
                         ))
                         .setWhen(System.currentTimeMillis());
 
-        boolean somethingDownloaded = false;
-
         int nextNotificationId = 1;
         Set<String> fileNames = fileHandler.getPuzzleNames();
+
+        ExecutorService downloadExecutor
+            = Executors.newFixedThreadPool(NUM_DOWNLOAD_THREADS);
+        final AtomicBoolean somethingDownloaded = new AtomicBoolean(false);
 
         for (
             Map.Entry<Downloader, LocalDate> puzzle
                 : puzzlesToDownload.entrySet()
         ) {
+            int notificationId = nextNotificationId++;
             Downloader downloader = puzzle.getKey();
+            LocalDate date = puzzle.getValue();
 
-            somethingDownloaded |= downloadPuzzle(
-                downloader,
-                puzzle.getValue(),
-                not,
-                nextNotificationId++,
-                fileNames
+            downloadExecutor.submit(() -> {
+                boolean downloaded = downloadPuzzle(
+                    downloader,
+                    date,
+                    not,
+                    notificationId,
+                    fileNames
+                );
+                if (downloaded)
+                    somethingDownloaded.set(true);
+            });
+        }
+
+        downloadExecutor.shutdown();
+
+        try {
+            downloadExecutor.awaitTermination(
+                Long.MAX_VALUE, TimeUnit.MILLISECONDS
             );
+        } catch (InterruptedException e) {
+            // Oh well
         }
 
         if (this.notificationManager != null) {
             this.notificationManager.cancel(0);
         }
 
-        if (somethingDownloaded) {
+        if (somethingDownloaded.get()) {
             this.postDownloadedGeneral();
         }
     }
