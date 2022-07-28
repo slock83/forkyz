@@ -48,8 +48,9 @@ public class JPZIOTest extends TestCase {
         assertEquals(boxes[0][0].getSolution(), "C");
         assertEquals(boxes[5][14].getSolution(), "Y");
         assertEquals(boxes[14][14].getSolution(), "S");
-        assertEquals(boxes[14][5], null);
         assertEquals(boxes[3][6].getSolution(), "N");
+        assertNull(boxes[14][5]);
+        assertNull(boxes[3][0]);
 
         assertTrue(boxes[2][2].isBarredTop());
         assertFalse(boxes[3][2].isBarredTop());

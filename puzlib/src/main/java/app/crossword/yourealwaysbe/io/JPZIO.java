@@ -233,12 +233,8 @@ public class JPZIO implements PuzzleParser {
                 int x = Integer.parseInt(attributes.getValue("x")) - 1;
                 int y = Integer.parseInt(attributes.getValue("y")) - 1;
 
-                String cellType = attributes.getValue("type");
-                boolean isCell
-                    = cellType == null || !"block".equalsIgnoreCase(cellType);
-
                 if (
-                    isCell
+                    isCell(attributes)
                     && 0 <= x && x < JPZXMLParser.this.getWidth()
                     && 0 <= y && y < JPZXMLParser.this.getHeight()
                 ) {
@@ -309,6 +305,15 @@ public class JPZIO implements PuzzleParser {
                 }
             }
         };
+
+        private boolean isCell(Attributes attributes) {
+            String cellType = attributes.getValue("type");
+            if ("block".equalsIgnoreCase(cellType))
+                return false;
+            if ("void".equalsIgnoreCase(cellType))
+                return false;
+            return true;
+        }
 
         private DefaultHandler inClues = new DefaultHandler() {
             private String inClueNum = null;
