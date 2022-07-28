@@ -21,6 +21,7 @@ The majority of the links on this page come from [Michael F. Gill
 * Big Dave's [Monthly Prize][big-dave-monthly], [Weekly Non-Prize][big-dave-weekly], and [Rookie Corner][big-dave-rookie].
 * [Brendan Emmet Quigley][beq] -- custom puzzle creator, releasing some puzzles online.
 * [CommuniCrossings][communicrossings] -- homepage of Steve Weyer.
+* [Crossweird Puzzles][crossweird] -- independent puzzles.
 * [Crosswords Schmosswords][crosswords-schmosswords] -- by Kate Schmate.
 * [Crossword Nexus][crosswordnexus] -- blog with crosswords downloadable in JPZ format.
 * [Cruzzles][cruzzles] -- crosswords by Ricky Cruz.
@@ -67,6 +68,7 @@ The majority of the links on this page come from [Michael F. Gill
 [big-dave-rookie]: http://crypticcrosswords.net/puzzles/rookie-corner/
 [big-dave-weekly]: http://crypticcrosswords.net/puzzles/not-the-saturday-prize-puzzles/
 [communicrossings]: https://communicrossings.com/crosswords-weyer
+[crossweird]: https://www.crossweirdpuzzles.com
 [crosswordnexus]: https://crosswordnexus.com/blog/
 [crosswords-schmosswords]: https://kateschmatecrosswords.weebly.com/
 [cruzzles]: https://cruzzles.blogspot.com/
