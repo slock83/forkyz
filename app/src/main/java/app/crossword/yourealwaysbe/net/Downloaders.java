@@ -193,7 +193,7 @@ public class Downloaders {
             this.notificationManager.cancel(0);
         }
 
-        if (somethingDownloaded.get()) {
+        if (!this.supressMessages && somethingDownloaded.get()) {
             this.postDownloadedGeneral();
         }
     }
