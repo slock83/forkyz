@@ -1,6 +1,5 @@
 package app.crossword.yourealwaysbe.net;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -14,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,7 +31,7 @@ import app.crossword.yourealwaysbe.util.files.FileHandler;
  * Will return dummy values (can always download) for any date funtions, and
  * just download the first found puzzle not already on file.
  */
-public class PageScraper implements Downloader {
+public class PageScraper extends AbstractDownloader {
     private static final String REGEX_PUZ = ".*\\.puz";
 
     private Pattern patFile;
@@ -183,7 +183,7 @@ public class PageScraper implements Downloader {
     private Puzzle downloadPuzzle(String url) throws IOException {
         URL u = new URL(url);
 
-        try (InputStream is = new BufferedInputStream(u.openStream())) {
+        try (InputStream is = getInputStream(u, null)) {
             return parser.parseInput(is);
         } catch (Exception e) {
             e.printStackTrace();
@@ -218,7 +218,10 @@ public class PageScraper implements Downloader {
     private Deque<String> getPuzzleURLs() throws IOException {
         LinkedList<String> result = new LinkedList<String>();
 
-        Document content = Jsoup.connect(scrapeUrl).get();
+        Connection conn = Jsoup.connect(scrapeUrl);
+        conn.timeout(1000 * DOWNLOAD_TIMEOUT_MILLIS);
+
+        Document content = conn.get();
         for (Element a : content.select("a")) {
             String url = a.attr("abs:href");
             if (patFile.matcher(url).matches()) {

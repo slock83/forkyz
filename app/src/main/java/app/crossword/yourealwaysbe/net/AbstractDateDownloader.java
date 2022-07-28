@@ -1,16 +1,12 @@
 package app.crossword.yourealwaysbe.net;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.Map.Entry;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -24,7 +20,7 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * For downloads from sites that published puzzles on a given date. Each
  * date has one unique puzzle.
  */
-public class AbstractDateDownloader implements Downloader {
+public class AbstractDateDownloader extends AbstractDownloader {
     protected static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
     protected static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
     private String downloaderName;
@@ -208,20 +204,5 @@ public class AbstractDateDownloader implements Downloader {
 
     public LocalDate getGoodFrom(){
         return LocalDate.ofEpochDay(0L);
-    }
-
-    protected BufferedInputStream getInputStream(
-        URL url, Map<String, String> headers
-    ) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestProperty("Connection", "close");
-
-        if (headers != null) {
-            for (Entry<String, String> e : headers.entrySet()){
-                conn.setRequestProperty(e.getKey(), e.getValue());
-            }
-        }
-
-        return new BufferedInputStream(conn.getInputStream());
     }
 }
