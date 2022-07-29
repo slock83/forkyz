@@ -65,6 +65,14 @@
             android:key="supressMessages"
         />
 
+        <androidx.preference.ListPreference
+            android:title="@string/download_timeout"
+            android:summary="@string/download_timeout_desc"
+            android:key="downloadTimeout"
+            android:defaultValue="30000"
+            android:entries="@array/downloadTimeoutLabels"
+            android:entryValues="@array/downloadTimeoutValues"
+        />
     </androidx.preference.PreferenceCategory>
 
     <androidx.preference.PreferenceCategory

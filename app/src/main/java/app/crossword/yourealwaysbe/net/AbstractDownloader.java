@@ -8,6 +8,11 @@ import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Map;
 
+import android.content.SharedPreferences;
+import androidx.preference.PreferenceManager;
+
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+
 /**
  * Base class for downloaders
  *
@@ -15,14 +20,26 @@ import java.util.Map;
  * getInputStream. If not, set a timeout of DOWNLOAD_TIMEOUT_MILLIS.
  */
 public abstract class AbstractDownloader implements Downloader {
-    protected static final int DOWNLOAD_TIMEOUT_MILLIS = 10000;
+    private static final String PREF_DOWNLOAD_TIMEOUT = "downloadTimeout";
+
+    private static final String DEFAULT_TIMEOUT_MILLIS = "30000";
+
+    protected int getTimeout() {
+        ForkyzApplication app = ForkyzApplication.getInstance();
+        SharedPreferences prefs =
+            PreferenceManager.getDefaultSharedPreferences(app);
+        return Integer.valueOf(
+            prefs.getString(PREF_DOWNLOAD_TIMEOUT, DEFAULT_TIMEOUT_MILLIS)
+        );
+    }
 
     protected BufferedInputStream getInputStream(
         URL url, Map<String, String> headers
     ) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setConnectTimeout(DOWNLOAD_TIMEOUT_MILLIS);
-        conn.setReadTimeout(DOWNLOAD_TIMEOUT_MILLIS);
+        int timeout = getTimeout();
+        conn.setConnectTimeout(timeout);
+        conn.setReadTimeout(timeout);
         conn.setRequestProperty("Connection", "close");
 
         if (headers != null) {

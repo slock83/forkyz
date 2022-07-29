@@ -219,7 +219,7 @@ public class PageScraper extends AbstractDownloader {
         LinkedList<String> result = new LinkedList<String>();
 
         Connection conn = Jsoup.connect(scrapeUrl);
-        conn.timeout(1000 * DOWNLOAD_TIMEOUT_MILLIS);
+        conn.timeout(getTimeout());
 
         Document content = conn.get();
         for (Element a : content.select("a")) {

@@ -142,5 +142,17 @@
         <item>@string/background_download_sat</item>
         <item>@string/background_download_sun</item>
      </string-array>
+     <string-array name="downloadTimeoutValues">
+        <item>15000</item>
+        <item>30000</item>
+        <item>45000</item>
+        <item>60000</item>
+     </string-array>
+     <string-array name="downloadTimeoutLabels">
+        <item>@string/fifteen_seconds</item>
+        <item>@string/thirty_seconds</item>
+        <item>@string/forty_five_seconds</item>
+        <item>@string/sixty_seconds</item>
+     </string-array>
      <string-array name="emptyArray"/>
 </resources>
