@@ -47,6 +47,10 @@ public class IOTest extends TestCase {
         return JPZIOTest.class.getResourceAsStream("/test.puz");
     }
 
+    public static InputStream getTestPuzzleRebusInputStream() {
+        return JPZIOTest.class.getResourceAsStream("/test_rebus.puz");
+    }
+
     public static void assertIsTestPuzzle1(Puzzle puz) {
         assertEquals("NY Times, Fri, Nov 13, 2009", puz.getTitle());
         assertEquals("Dana Motley / Will Shortz", puz.getAuthor());
@@ -94,6 +98,19 @@ public class IOTest extends TestCase {
             downClues.getClueByNumber("13").getHint(),
             "President who was born a King"
         );
+    }
+
+    public static void assertIsTestPuzzleRebus(Puzzle puz) {
+        Box[][] boxes = puz.getBoxes();
+        assertEquals("REBUS", boxes[1][7].getSolution());
+        assertEquals("ENTRY", boxes[1][7].getResponse());
+        assertEquals("X", boxes[1][8].getSolution());
+        assertEquals("REBUS", boxes[7][7].getSolution());
+        assertEquals("ENTRY", boxes[7][7].getResponse());
+        assertEquals("X", boxes[7][8].getSolution());
+        assertEquals("REBUS", boxes[13][7].getSolution());
+        assertEquals("ENTRY", boxes[13][7].getResponse());
+        assertEquals("X", boxes[13][8].getSolution());
     }
 
     /**
@@ -240,6 +257,45 @@ public class IOTest extends TestCase {
                 }
             } catch(Exception e){
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public void testRebus() throws Exception {
+        try (InputStream is = getTestPuzzleRebusInputStream()) {
+            Puzzle puz = IO.loadNative(is);
+            assertIsTestPuzzleRebus(puz);
+
+            puz.checkedGetBox(1, 7).setResponse("NEW RESPONSE 1");
+            puz.checkedGetBox(7, 7).setResponse("NEW RESPONSE 2");
+            puz.checkedGetBox(1, 8).setResponse("NEW REBUS");
+
+            File tmp = File.createTempFile("test", ".puz");
+            tmp.deleteOnExit();
+
+            File metaFile = new File(
+                tmp.getParentFile(),
+                tmp.getName().substring(
+                    0, tmp.getName().lastIndexOf(".")
+                ) + ".forkyz"
+            );
+            metaFile.deleteOnExit();
+
+            try (
+                OutputStream puzOS = new FileOutputStream(tmp);
+                OutputStream metaOS = new FileOutputStream(metaFile)
+            ) {
+                IO.save(puz, puzOS, metaOS);
+            }
+
+            try (
+                DataInputStream isp2
+                    = new DataInputStream(new FileInputStream(tmp));
+                DataInputStream ism =
+                    new DataInputStream(new FileInputStream(metaFile))
+            ) {
+                Puzzle pin = IO.load(isp2, ism);
+                assertEquals(puz, pin);
             }
         }
     }

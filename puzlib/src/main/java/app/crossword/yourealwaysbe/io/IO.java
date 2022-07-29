@@ -44,6 +44,12 @@ public class IO implements PuzzleParser {
     // Extra Section IDs and markers
     private static final String GEXT_MARKER = "GEXT";
     private static final int GEXT = 0;
+    private static final String REBUS_TABLE_MARKER = "RTBL";
+    private static final int RTBL = 3;
+    private static final String REBUS_BOARD_MARKER = "GRBS";
+    private static final int GRBS = 4;
+    private static final String REBUS_USER_MARKER = "RUSR";
+    private static final int RUSR = 5;
 
     // LEGACY: used only for reading IOVersion5 and below that dubiously
     // stored additional clue notes in the Across Lite file
@@ -220,6 +226,10 @@ public class IO implements PuzzleParser {
 
         boolean eof = false;
 
+        byte[][] rebusBoard = null;
+        String[] solRebusTable = null;
+        String[] usrRebusTable = null;
+
         while (!eof) {
             try {
                 switch (readExtraSectionType(input)) {
@@ -237,12 +247,28 @@ public class IO implements PuzzleParser {
                         loadNotesNative(false, builder, input, charset);
                         break;
 
+                    case GRBS:
+                        rebusBoard = readRebusBoard(input, builder);
+                        break;
+
+                    case RTBL:
+                        solRebusTable = readRebusTable(input, builder, charset);
+                        break;
+
+                    case RUSR:
+                        usrRebusTable = readRebusTable(input, builder, charset);
+                        break;
+
                     default:
                         skipExtraSection(input);
                 }
             } catch (EOFException e) {
                 eof = true;
             }
+        }
+
+        if (rebusBoard != null) {
+            applyRebus(rebusBoard, solRebusTable, usrRebusTable, builder);
         }
 
         return builder.getPuzzle();
@@ -271,6 +297,12 @@ public class IO implements PuzzleParser {
             return ANTS;
         } else if (DNTS_MARKER.equals(section)) {
             return DNTS;
+        } else if (REBUS_BOARD_MARKER.equals(section)) {
+            return GRBS;
+        } else if (REBUS_TABLE_MARKER.equals(section)) {
+            return RTBL;
+        } else if (REBUS_USER_MARKER.equals(section)) {
+            return RUSR;
         }
 
         return -1;
@@ -398,13 +430,6 @@ public class IO implements PuzzleParser {
         tmpDos.writeShort(Short.reverseBytes(scrambled));
 
         Box[][] boxes = puz.getBoxes();
-        byte[] gextSection = null;
-
-        boolean hasGEXT = puz.hasCircled();
-
-        if (hasGEXT) {
-            gextSection = new byte[numberOfBoxes];
-        }
 
         for (int x = 0; x < boxes.length; x++) {
             for (int y = 0; y < boxes[x].length; y++) {
@@ -415,11 +440,6 @@ public class IO implements PuzzleParser {
                     byte val = (sSol == null || sSol.isEmpty())
                         ? 0
                         : (byte) sSol.charAt(0);
-
-                    if (hasGEXT && boxes[x][y].isCircled()) {
-                        gextSection[(width * x) + y] = GEXT_SQUARE_CIRCLED;
-                    }
-
                     tmpDos.writeByte(val);
                 }
             }
@@ -456,17 +476,8 @@ public class IO implements PuzzleParser {
 
         writeNullTerminatedString(tmpDos, unHtmlString(puz.getNotes()), CHARSET);
 
-        if (hasGEXT) {
-            tmpDos.writeBytes(GEXT_MARKER);
-            tmpDos.writeShort(Short.reverseBytes((short) numberOfBoxes));
-
-            // Calculate checksum here so we don't need to find this place in
-            // the file later.
-            int c_gext = cksum_region(gextSection, 0, numberOfBoxes, 0);
-            tmpDos.writeShort(Short.reverseBytes((short) c_gext));
-            tmpDos.write(gextSection);
-            tmpDos.writeByte(0);
-        }
+        writeGEXT(tmpDos, puz);
+        writeRebus(tmpDos, puz, CHARSET);
 
         byte[] puzByteArray = tmp.toByteArray();
         ByteBuffer bb = ByteBuffer.wrap(puzByteArray);
@@ -794,5 +805,221 @@ public class IO implements PuzzleParser {
             count += downClues.size();
 
         return count;
+    }
+
+    /**
+     * Read rebus grid from extras
+     *
+     * Format is flattened grid (row by row) of bytes, with 0 if no
+     * rebus at that cell position, and an index into the rebus tables
+     * if there is a rebus. The index is +1 (e.g. index 0 is stored as
+     * 1).
+     *
+     * Thanks for puz.py for the rebus encoding reference.
+     * https://github.com/alexdej/puzpy
+     */
+    private static byte[][] readRebusBoard(
+        DataInputStream input, PuzzleBuilder builder
+    ) throws IOException {
+        int height = builder.getHeight();
+        int width = builder.getWidth();
+        byte[][] rebusBoard = new byte[height][width];
+
+        input.skipBytes(4);
+
+        for (int row = 0; row < height; row++)
+            for (int col = 0; col < width; col++)
+                rebusBoard[row][col] = input.readByte();
+
+        input.skipBytes(1);
+
+        return rebusBoard;
+    }
+
+    /**
+     * Read a rebus table from extras
+     *
+     * Format is a string index:entry;index:entry;... mapping indices to
+     * string entry values.
+     *
+     * Thanks for puz.py for the rebus encoding reference.
+     * https://github.com/alexdej/puzpy
+     */
+    private static String[] readRebusTable(
+        DataInputStream input, PuzzleBuilder builder, Charset charset
+    ) throws IOException {
+        int height = builder.getHeight();
+        int width = builder.getWidth();
+
+        String[] table = new String[width * height + 1];
+
+        // 2 bytes len, 2 bytes checksum
+        input.skipBytes(4);
+
+        String tableString = readNullTerminatedString(input, charset);
+
+        for (String entry : tableString.split(";")) {
+            String[] items = entry.split(":");
+            byte index = Byte.valueOf(items[0].trim());
+            table[index] = items[1];
+        }
+
+        return table;
+    }
+
+    private static void applyRebus(
+        byte[][] rebusBoard,
+        String[] solRebusTable,
+        String[] usrRebusTable,
+        PuzzleBuilder builder
+    ) {
+        if (rebusBoard == null)
+            return;
+
+        int height = builder.getHeight();
+        int width = builder.getWidth();
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                Box box = builder.getBox(row, col);
+                int index = rebusBoard[row][col];
+                if (index > 0 && box != null) {
+                    int truei = (byte) (index - 1);
+                    if (solRebusTable != null && solRebusTable[truei] != null)
+                        box.setSolution(solRebusTable[truei]);
+                    if (usrRebusTable != null && usrRebusTable[truei] != null)
+                        box.setResponse(usrRebusTable[truei]);
+                }
+            }
+        }
+    }
+
+    private static void writeGEXT(
+        DataOutputStream dos, Puzzle puz
+    ) throws IOException {
+        if (!puz.hasCircled())
+            return;
+
+        int width = puz.getWidth();
+        int height = puz.getHeight();
+        int numberOfBoxes = width * height;
+        Box[][] boxes = puz.getBoxes();
+
+        byte[] gextSection = new byte[numberOfBoxes];
+
+        for (int row = 0; row < boxes.length; row++) {
+            for (int col = 0; col < boxes[row].length; col++) {
+                if (boxes[row][col] != null && boxes[row][col].isCircled()) {
+                    gextSection[(width * row) + col] = GEXT_SQUARE_CIRCLED;
+                }
+            }
+        }
+
+        writeExtraSection(dos, GEXT_MARKER, gextSection);
+    }
+
+    private static void writeRebus(
+        DataOutputStream dos, Puzzle puz, Charset charset
+    ) throws IOException {
+        if (!hasRebus(puz))
+            return;
+
+        int width = puz.getWidth();
+        int height = puz.getHeight();
+        int numberOfBoxes = width * height;
+        Box[][] boxes = puz.getBoxes();
+
+        byte[] rebusBoard = new byte[numberOfBoxes];
+        String[] solRebusTable = new String[numberOfBoxes];
+        String[] usrRebusTable = new String[numberOfBoxes];
+
+        int rebusIndex = 0;
+
+        for (int row = 0; row < boxes.length; row++) {
+            for (int col = 0; col < boxes[row].length; col++) {
+                Box box = boxes[row][col];
+                if (isRebusBox(box)) {
+                    String solution = box.getSolution();
+                    String response = box.getResponse();
+
+                    int tableIndex = width * row + col;
+
+                    rebusBoard[tableIndex] = (byte) (rebusIndex + 1);
+                    solRebusTable[rebusIndex]
+                        = solution == null ? "" : solution;
+                    usrRebusTable[rebusIndex]
+                        = response == null ? "" : response;
+
+                    rebusIndex += 1;
+                }
+            }
+        }
+
+        writeExtraSection(dos, REBUS_BOARD_MARKER, rebusBoard);
+
+        byte[] encodedSolTable = encodeRebusTable(solRebusTable, charset);
+        writeExtraSection(dos, REBUS_TABLE_MARKER, encodedSolTable);
+
+        byte[] encodedUsrTable = encodeRebusTable(usrRebusTable, charset);
+        writeExtraSection(dos, REBUS_USER_MARKER, encodedUsrTable);
+    }
+
+    private static boolean hasRebus(Puzzle puz) {
+        Box[][] boxes = puz.getBoxes();
+
+        for (int row = 0; row < boxes.length; row++) {
+            for (int col = 0; col < boxes[row].length; col++) {
+                if (isRebusBox(boxes[row][col]))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static boolean isRebusBox(Box box) {
+        if (box == null)
+            return false;
+
+        String solution = box.getSolution();
+        String response = box.getResponse();
+
+        int solLen = solution == null ? 0 : solution.length();
+        int resLen = response == null ? 0 : response.length();
+
+        return solLen > 1 || resLen > 1;
+    }
+
+    private static void writeExtraSection(
+        DataOutputStream dos, String marker, byte[] data
+    ) throws IOException {
+        dos.writeBytes(marker);
+        dos.writeShort(Short.reverseBytes((short) data.length));
+        int chksum = cksum_region(data, 0, data.length, 0);
+        dos.writeShort(Short.reverseBytes((short) chksum));
+        dos.write(data);
+        dos.writeByte(0);
+    }
+
+    private static byte[] encodeRebusTable(String[] table, Charset charset) {
+        StringBuilder sb = new StringBuilder();
+        for (int index = 0; index < table.length; index++) {
+            String entry = table[index];
+            if (entry != null) {
+                // delete special characters
+                String cleanEntry = entry.replace(";", "").replace(":", "");
+                sb.append(String.valueOf(index));
+                sb.append(":");
+                sb.append(cleanEntry);
+                sb.append(";");
+            }
+        }
+
+        ByteBuffer encoded = charset.encode(sb.toString());
+
+        byte[] array = new byte[encoded.limit()];
+        encoded.get(array, encoded.position(), encoded.limit());
+
+        return array;
     }
 }
