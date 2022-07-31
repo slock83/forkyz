@@ -117,6 +117,7 @@ public class JPZIO implements PuzzleParser {
         private String creator = "";
         private String copyright = "";
         private String description = "";
+        private String completion;
         private int width;
         private int height;
         private Box[][] boxes;
@@ -133,6 +134,7 @@ public class JPZIO implements PuzzleParser {
         public String getCreator() { return creator; }
         public String getCopyright() { return copyright; }
         public String getDescription() { return description; }
+        public String getCompletion() { return completion; }
         public int getWidth() { return width; }
         public int getHeight() { return height; }
         public Box[][] getBoxes() { return boxes; }
@@ -168,7 +170,8 @@ public class JPZIO implements PuzzleParser {
                 if (name.equalsIgnoreCase("title")
                         || name.equalsIgnoreCase("creator")
                         || name.equalsIgnoreCase("copyright")
-                        || name.equalsIgnoreCase("description")) {
+                        || name.equalsIgnoreCase("description")
+                        || name.equalsIgnoreCase("completion")) {
                     charBuffer.delete(0, charBuffer.length());
                 } else {
                     charBuffer.append("<" + tagName + ">");
@@ -198,6 +201,8 @@ public class JPZIO implements PuzzleParser {
                     copyright = charData;
                 } else if (name.equalsIgnoreCase("description")) {
                     description = charData;
+                } else if (name.equalsIgnoreCase("completion")) {
+                    completion = charData;
                 } else {
                     charBuffer.append("</" + tagName + ">");
                 }
@@ -548,9 +553,10 @@ public class JPZIO implements PuzzleParser {
         // TODO: move away from this and use JPZ words to build puzzle
         // directly
         PuzzleBuilder builder = new PuzzleBuilder(handler.getBoxes());
-        builder.setTitle(handler.getTitle());
-        builder.setAuthor(handler.getCreator());
-        builder.setCopyright(handler.getCopyright());
+        builder.setTitle(handler.getTitle())
+            .setAuthor(handler.getCreator())
+            .setCopyright(handler.getCopyright())
+            .setCompletionMessage(handler.getCompletion());
 
         setClues(builder, handler);
         setNote(builder, handler);

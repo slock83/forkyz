@@ -67,10 +67,11 @@ public class AmuseLabsJSONIO implements PuzzleParser {
         try {
             PuzzleBuilder builder = new PuzzleBuilder(getBoxes(json));
 
-            builder.setTitle(optStringNull(json, "title"));
-            builder.setAuthor(optStringNull(json, "author"));
-            builder.setCopyright(optStringNull(json, "copyright"));
-            builder.setSource(optStringNull(json, "publisher"));
+            builder.setTitle(optStringNull(json, "title"))
+                .setAuthor(optStringNull(json, "author"))
+                .setCopyright(optStringNull(json, "copyright"))
+                .setSource(optStringNull(json, "publisher"))
+                .setCompletionMessage(optStringNull(json, "endMessage"));
 
             if (json.has("publishTime")) {
                 long epochMillis = json.getLong("publishTime");

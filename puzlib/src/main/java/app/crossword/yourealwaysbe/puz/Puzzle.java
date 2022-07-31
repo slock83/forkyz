@@ -32,6 +32,8 @@ public class Puzzle implements Serializable{
     private String copyright;
     private String notes;
     private String title;
+    private String introMessage;
+    private String completionMessage;
     private Map<String, MutableClueList> clueLists = new HashMap<>();
     private LocalDate pubdate = LocalDate.now();
     private String source;
@@ -361,8 +363,24 @@ public class Puzzle implements Serializable{
         this.notes = notes;
     }
 
+    public void setIntroMessage(String introMessage) {
+        this.introMessage = introMessage;
+    }
+
+    public void setCompletionMessage(String completionMessage) {
+        this.completionMessage = completionMessage;
+    }
+
     public String getNotes() {
         return notes;
+    }
+
+    public String getIntroMessage() {
+        return introMessage;
+    }
+
+    public String getCompletionMessage() {
+        return completionMessage;
     }
 
     public int getPercentComplete() {
@@ -687,6 +705,12 @@ public class Puzzle implements Serializable{
             return false;
         }
 
+        if (!Objects.equals(this.introMessage, other.introMessage))
+            return false;
+
+        if (!Objects.equals(this.completionMessage, other.completionMessage))
+            return false;
+
         if (title == null) {
             if (other.title != null) {
                 return false;
@@ -749,8 +773,9 @@ public class Puzzle implements Serializable{
         result = (prime * result) + flaggedClues.hashCode();
         result = (prime * result) + Objects.hashCode(playerNote);
         result = (prime * result) + Objects.hashCode(images);
-        result = (prime * result)
-            + Objects.hash(sourceUrl, supportUrl, shareUrl);
+        result = (prime * result) + Objects.hash(
+            sourceUrl, supportUrl, shareUrl, introMessage, completionMessage
+        );
 
         return result;
     }

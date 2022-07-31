@@ -45,6 +45,8 @@ public class IPuzIOTest extends TestCase {
         assertEquals(puz.getCopyright(), "Test copyright");
         assertEquals(puz.getSourceUrl(), "https://testurl.com");
         assertEquals(puz.getSource(), "Test publisher");
+        assertEquals(puz.getIntroMessage(), "Intro");
+        assertEquals(puz.getCompletionMessage(), "Explanation");
         assertEquals(puz.getDate(), LocalDate.of(2003,2,1));
 
         assertEquals(puz.getWidth(), 3);

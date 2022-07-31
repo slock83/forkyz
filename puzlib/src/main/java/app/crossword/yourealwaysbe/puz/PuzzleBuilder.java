@@ -112,6 +112,16 @@ public class PuzzleBuilder {
         return this;
     }
 
+    public PuzzleBuilder setIntroMessage(String introMessage) {
+        puzzle.setIntroMessage(introMessage);
+        return this;
+    }
+
+    public PuzzleBuilder setCompletionMessage(String completionMessage) {
+        puzzle.setCompletionMessage(completionMessage);
+        return this;
+    }
+
     public PuzzleBuilder setPlayerNote(Note playerNote) {
         puzzle.setPlayerNote(playerNote);
         return this;

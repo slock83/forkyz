@@ -77,6 +77,7 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_COPYRIGHT = "copyright";
     private static final String FIELD_DATE = "date";
     private static final String FIELD_INTRO = "intro";
+    private static final String FIELD_EXPLANATION = "explanation";
     private static final String FIELD_NOTES = "notes";
     private static final String FIELD_PUBLISHER = "publisher";
     private static final String FIELD_TITLE = "title";
@@ -308,29 +309,13 @@ public class IPuzIO implements PuzzleParser {
     ) {
         builder.setTitle(optStringNull(puzJson, FIELD_TITLE))
             .setAuthor(optStringNull(puzJson, FIELD_AUTHOR))
-            .setCopyright(optStringNull(puzJson, FIELD_COPYRIGHT));
-
-        String intro = optStringNull(puzJson, FIELD_INTRO);
-        String notes = optStringNull(puzJson, FIELD_NOTES);
-
-        StringBuilder fullNotes = new StringBuilder();
-
-        if (intro != null && intro.length() > 0)
-            fullNotes.append(intro);
-
-        if (notes != null && notes.length() > 0) {
-            if (fullNotes.length() > 0)
-                fullNotes.append("<br/><br/>");
-            fullNotes.append(notes);
-        }
-
-        builder.setNotes(fullNotes.toString())
+            .setCopyright(optStringNull(puzJson, FIELD_COPYRIGHT))
+            .setIntroMessage(optStringNull(puzJson, FIELD_INTRO))
+            .setNotes(optStringNull(puzJson, FIELD_NOTES))
+            .setCompletionMessage(optStringNull(puzJson, FIELD_EXPLANATION))
             .setSourceUrl(optStringNull(puzJson, FIELD_URL))
-            .setSource(optStringNull(puzJson, FIELD_PUBLISHER));
-
-        LocalDate date = parseDate(puzJson);
-        if (date != null)
-            builder.setDate(date);
+            .setSource(optStringNull(puzJson, FIELD_PUBLISHER))
+            .setDate(parseDate(puzJson));
     }
 
     /**
@@ -1351,7 +1336,9 @@ public class IPuzIO implements PuzzleParser {
             .keyValueNonNull(FIELD_TITLE, puz.getTitle())
             .keyValueNonNull(FIELD_AUTHOR, puz.getAuthor())
             .keyValueNonNull(FIELD_COPYRIGHT, puz.getCopyright())
+            .keyValueNonNull(FIELD_INTRO, puz.getIntroMessage())
             .keyValueNonNull(FIELD_NOTES, puz.getNotes())
+            .keyValueNonNull(FIELD_EXPLANATION, puz.getCompletionMessage())
             .keyValueNonNull(FIELD_URL, puz.getSourceUrl())
             .keyValueNonNull(FIELD_PUBLISHER, puz.getSource());
 

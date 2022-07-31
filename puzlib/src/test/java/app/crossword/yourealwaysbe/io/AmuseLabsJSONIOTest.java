@@ -24,6 +24,7 @@ public class AmuseLabsJSONIOTest extends TestCase {
         assertEquals(puz.getTitle(), "Test Amuse Labs");
         assertEquals(puz.getAuthor(), "Test Author");
         assertEquals(puz.getCopyright(), "Test Copyright");
+        assertEquals(puz.getCompletionMessage(), "End Message");
         assertEquals(puz.getDate(), LocalDate.of(2021,8,4));
 
         assertEquals(puz.getWidth(), 15);
