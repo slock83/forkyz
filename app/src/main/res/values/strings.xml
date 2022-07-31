@@ -368,9 +368,11 @@
     <string name="by_author">By Author</string>
     <string name="copyright_info">Copyright Info</string>
     <string name="elapsed_time_labelled_dummy">Elapsed Time: X:XX</string>
+    <string name="puzzle_intro">Puzzle introduction.</string>
     <string name="puzzle_notes">Puzzle notes.</string>
 
     <!-- completed -->
+    <string name="puzzle_completed">Puzzle notes.</string>
     <string name="completed_in">Completed In</string>
     <string name="elapsed_time_dummy">XX:XX:XX</string>
     <string name="total_clues">Total Clues</string>

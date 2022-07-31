@@ -922,12 +922,29 @@ public class PlayActivity extends PuzzleActivity
                     fileHandler.getUri(activity.getPuzHandle()).toString()
                 );
 
+                addIntro(view);
                 addNotes(view);
             }
 
             builder.setView(view);
 
             return builder.create();
+        }
+
+        private void addIntro(View dialogView) {
+            TextView view = dialogView.findViewById(R.id.puzzle_info_intro);
+
+            Puzzle puz = ((PlayActivity) getActivity()).getPuzzle();
+            if (puz == null)
+                return;
+
+            String intro = puz.getIntroMessage();
+            if (intro == null || intro.isEmpty()) {
+                view.setVisibility(View.GONE);
+            } else {
+                view.setText(smartHtml(intro));
+                view.setVisibility(View.VISIBLE);
+            }
         }
 
         private void addNotes(View dialogView) {

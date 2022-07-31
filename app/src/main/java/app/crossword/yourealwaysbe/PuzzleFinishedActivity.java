@@ -2,11 +2,12 @@ package app.crossword.yourealwaysbe;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.TextView;
+import androidx.core.text.HtmlCompat;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Puzzle;
@@ -35,6 +36,12 @@ public class PuzzleFinishedActivity extends ForkyzActivity {
         this.getWindow().setLayout(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         Puzzle puz = ForkyzApplication.getInstance().getBoard().getPuzzle();
+        if (puz == null) {
+            finish();
+            return;
+        }
+
+        addCompletedMsg(puz);
 
         long elapsed = puz.getTime();
         finishedTime = elapsed;
@@ -139,5 +146,17 @@ public class PuzzleFinishedActivity extends ForkyzActivity {
                 finish();
             }
         });
+    }
+
+    private void addCompletedMsg(Puzzle puz) {
+        TextView view = findViewById(R.id.puzzle_completed_msg);
+
+        String msg = puz.getCompletionMessage();
+        if (msg == null || msg.isEmpty()) {
+            view.setVisibility(View.GONE);
+        } else {
+            view.setText(HtmlCompat.fromHtml(msg, 0));
+            view.setVisibility(View.VISIBLE);
+        }
     }
 }
