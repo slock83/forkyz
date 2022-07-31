@@ -118,6 +118,7 @@ public class JPZIO implements PuzzleParser {
         private String copyright = "";
         private String description = "";
         private String completion;
+        private String instructions;
         private int width;
         private int height;
         private Box[][] boxes;
@@ -134,6 +135,7 @@ public class JPZIO implements PuzzleParser {
         public String getCreator() { return creator; }
         public String getCopyright() { return copyright; }
         public String getDescription() { return description; }
+        public String getInstructions() { return instructions; }
         public String getCompletion() { return completion; }
         public int getWidth() { return width; }
         public int getHeight() { return height; }
@@ -171,6 +173,7 @@ public class JPZIO implements PuzzleParser {
                         || name.equalsIgnoreCase("creator")
                         || name.equalsIgnoreCase("copyright")
                         || name.equalsIgnoreCase("description")
+                        || name.equalsIgnoreCase("instructions")
                         || name.equalsIgnoreCase("completion")) {
                     charBuffer.delete(0, charBuffer.length());
                 } else {
@@ -201,6 +204,8 @@ public class JPZIO implements PuzzleParser {
                     copyright = charData;
                 } else if (name.equalsIgnoreCase("description")) {
                     description = charData;
+                } else if (name.equalsIgnoreCase("instructions")) {
+                    instructions = charData;
                 } else if (name.equalsIgnoreCase("completion")) {
                     completion = charData;
                 } else {
@@ -556,6 +561,7 @@ public class JPZIO implements PuzzleParser {
         builder.setTitle(handler.getTitle())
             .setAuthor(handler.getCreator())
             .setCopyright(handler.getCopyright())
+            .setIntroMessage(handler.getInstructions())
             .setCompletionMessage(handler.getCompletion());
 
         setClues(builder, handler);

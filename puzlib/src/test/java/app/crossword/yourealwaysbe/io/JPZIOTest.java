@@ -28,6 +28,7 @@ public class JPZIOTest extends TestCase {
         assertEquals("LA Times, Mon, Nov 28, 2011", puz.getTitle());
         assertEquals("Jeff Chen / Ed. Rich Norris", puz.getAuthor());
         assertEquals("© 2011 Tribune Media Services, Inc.", puz.getCopyright());
+        assertEquals("Instructions", puz.getIntroMessage());
         assertEquals("Congratulations", puz.getCompletionMessage());
         assertEquals(
             "Test"
