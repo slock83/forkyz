@@ -1,7 +1,8 @@
 # Forkyz Crosswords
 
 Forkyz is an unofficial fork of [Shortyz](https://github.com/kebernet/shortyz/)
-implementing my own customisations.
+with wider-ranging support for a variety of puzzle types (e.g. grids that don't
+follow a standard across/down set-up) and other customisations.
 
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
