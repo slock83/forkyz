@@ -1,0 +1,4 @@
+- Add configurable timeout to puzzle download.
+- Parallelise downloads.
+- Support rebus cells in AcrossLite (.puz) files.
+- Support puzzle intro messages (in "info") and completion messages (on complete dialog).
