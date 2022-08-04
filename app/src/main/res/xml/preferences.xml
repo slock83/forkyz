@@ -59,9 +59,16 @@
         />
 
         <androidx.preference.CheckBoxPreference
-            android:title="@string/no_download_notifs"
+            android:title="@string/no_summary_download_notifs"
             android:defaultValue="false"
-            android:summary="@string/no_download_notifs_desc"
+            android:summary="@string/no_summary_download_notifs_desc"
+            android:key="supressSummaryMessages"
+        />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/no_puzzle_download_notifs"
+            android:defaultValue="false"
+            android:summary="@string/no_puzzle_download_notifs_desc"
             android:key="supressMessages"
         />
 

@@ -42,7 +42,8 @@ public class Downloaders {
 
     private Context context;
     private NotificationManager notificationManager;
-    private boolean supressMessages;
+    private boolean suppressSummaryMessages;
+    private boolean suppressIndividualMessages;
     private SharedPreferences prefs;
 
     public Downloaders(SharedPreferences prefs,
@@ -61,7 +62,10 @@ public class Downloaders {
         this.prefs = prefs;
         this.notificationManager = notificationManager;
         this.context = context;
-        this.supressMessages = prefs.getBoolean("supressMessages", false);
+        this.suppressSummaryMessages
+            = prefs.getBoolean("supressSummaryMessages", false);
+        this.suppressIndividualMessages
+            = prefs.getBoolean("supressMessages", false);
     }
 
     public List<Downloader> getDownloaders(LocalDate date) {
@@ -196,7 +200,7 @@ public class Downloaders {
             this.notificationManager.cancel(0);
         }
 
-        if (!this.supressMessages) {
+        if (!this.suppressSummaryMessages) {
             this.postDownloadedGeneral(
                 somethingDownloaded.get(), somethingFailed.get()
             );
@@ -237,7 +241,10 @@ public class Downloaders {
             not.setContentText(contentText)
                 .setContentIntent(contentIntent);
 
-            if (!this.supressMessages && this.notificationManager != null) {
+            boolean notify = !this.suppressIndividualMessages
+                && this.notificationManager != null;
+
+            if (notify) {
                 this.notificationManager.notify(0, not.build());
             }
 
@@ -256,7 +263,7 @@ public class Downloaders {
             LOG.log(Level.WARNING, "Failed to download "+d.getName(), e);
         }
 
-        if (!this.supressMessages) {
+        if (!this.suppressIndividualMessages) {
             this.postDownloadedNotification(
                 notificationId, d.getName(), saved
             );

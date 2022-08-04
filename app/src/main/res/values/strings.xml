@@ -127,8 +127,10 @@
     <string name="automatic_download_desc">Download today\'s puzzles when starting the application</string>
     <string name="background_download_opts">Background Download Options</string>
     <string name="background_download_opts_desc">Configure background downloads.</string>
-    <string name="no_download_notifs">No Download Notifications</string>
-    <string name="no_download_notifs_desc">Prevents a notification for each puzzle downloaded from appearing in the notifications list.</string>
+    <string name="no_summary_download_notifs">No Summary Download Notification</string>
+    <string name="no_summary_download_notifs_desc">Prevents summary download notification from appearing in the notifications list.</string>
+    <string name="no_puzzle_download_notifs">No Individual Download Notifications</string>
+    <string name="no_puzzle_download_notifs_desc">Prevents a notification for each puzzle download from appearing in the notifications list.</string>
     <string name="download_timeout">Download timeout</string>
     <string name="download_timeout_desc">How long to try downloading a puzzle before giving up.</string>
     <string name="fifteen_seconds">15 seconds</string>
