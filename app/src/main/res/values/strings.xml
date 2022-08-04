@@ -19,8 +19,11 @@
     <!-- downloading -->
     <string name="puzzles_downloading">Downloading Puzzles</string>
     <string name="puzzles_downloading_from">Downloading Puzzles from %s</string>
-    <string name="puzzles_downloaded">New Puzzles Downloaded</string>
+    <string name="puzzles_downloaded_all">New Puzzles Downloaded</string>
+    <string name="puzzles_downloaded_some">Some Puzzles Downloaded and Some Failed</string>
+    <string name="puzzles_downloaded_none">Puzzle Downloads Failed</string>
     <string name="puzzle_downloaded">Downloaded %1$s</string>
+    <string name="puzzle_download_failed">Download failed from %1$s</string>
 
     <!-- imports -->
     <string name="import_fallback_source">Import</string>

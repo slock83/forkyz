@@ -157,6 +157,7 @@ public class Downloaders {
         ExecutorService downloadExecutor
             = Executors.newFixedThreadPool(NUM_DOWNLOAD_THREADS);
         final AtomicBoolean somethingDownloaded = new AtomicBoolean(false);
+        final AtomicBoolean somethingFailed = new AtomicBoolean(false);
 
         for (
             Map.Entry<Downloader, LocalDate> puzzle
@@ -176,6 +177,8 @@ public class Downloaders {
                 );
                 if (downloaded)
                     somethingDownloaded.set(true);
+                else
+                    somethingFailed.set(true);
             });
         }
 
@@ -193,8 +196,10 @@ public class Downloaders {
             this.notificationManager.cancel(0);
         }
 
-        if (!this.supressMessages && somethingDownloaded.get()) {
-            this.postDownloadedGeneral();
+        if (!this.supressMessages) {
+            this.postDownloadedGeneral(
+                somethingDownloaded.get(), somethingFailed.get()
+            );
         }
     }
 
@@ -216,6 +221,7 @@ public class Downloaders {
             = ForkyzApplication.getInstance().getFileHandler();
 
         LOG.info("Downloading " + d.toString());
+        boolean saved = false;
 
         try {
             String contentText = context.getString(
@@ -238,36 +244,40 @@ public class Downloaders {
             Downloader.DownloadResult result
                 = d.download(date, existingFileNames);
 
-            if (result == null)
-                return false;
-
-            boolean saved = false;
-            String fileName = result.getFileName();
-            if (!existingFileNames.contains(fileName)) {
-                saved = fileHandler.saveNewPuzzle(
-                    result.getPuzzle(), fileName
-                ) != null;
-            }
-
-            if (saved) {
-                if (!this.supressMessages) {
-                    this.postDownloadedNotification(
-                        notificationId, d.getName()
-                    );
+            if (result != null) {
+                String fileName = result.getFileName();
+                if (!existingFileNames.contains(fileName)) {
+                    saved = fileHandler.saveNewPuzzle(
+                        result.getPuzzle(), fileName
+                    ) != null;
                 }
-                return true;
             }
         } catch (Exception e) {
             LOG.log(Level.WARNING, "Failed to download "+d.getName(), e);
         }
-        return false;
+
+        if (!this.supressMessages) {
+            this.postDownloadedNotification(
+                notificationId, d.getName(), saved
+            );
+        }
+
+        return saved;
     }
 
-    public void supressMessages(boolean b) {
-        this.supressMessages = b;
-    }
+    private void postDownloadedGeneral(
+        Boolean somethingDownloaded, Boolean somethingFailed
+    ) {
+        int messageId;
+        if (somethingDownloaded && somethingFailed)
+            messageId = R.string.puzzles_downloaded_some;
+        else if (somethingDownloaded)
+            messageId = R.string.puzzles_downloaded_all;
+        else if (somethingFailed)
+            messageId = R.string.puzzles_downloaded_none;
+        else // nothing downloaded or failed
+            return;
 
-    private void postDownloadedGeneral() {
         Intent notificationIntent = new Intent(Intent.ACTION_EDIT, null,
                 context, BrowseActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(
@@ -276,21 +286,29 @@ public class Downloaders {
                 .Factory.getInstance().immutablePendingIntentFlag()
         );
 
-        Notification not = new NotificationCompat.Builder(context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setContentTitle(context.getString(R.string.puzzles_downloaded))
-                .setContentIntent(contentIntent)
-                .setWhen(System.currentTimeMillis())
-                .build();
+        Notification not = new NotificationCompat.Builder(
+            context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID
+        ).setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setContentTitle(context.getString(messageId))
+            .setContentIntent(contentIntent)
+            .setWhen(System.currentTimeMillis())
+            .build();
 
         if (this.notificationManager != null) {
             this.notificationManager.notify(0, not);
         }
     }
 
-    private void postDownloadedNotification(int i, String name) {
-        Intent notificationIntent = new Intent(Intent.ACTION_EDIT, null,
-                context, BrowseActivity.class);
+    private void postDownloadedNotification(
+        int i, String name, boolean success
+    ) {
+        int messageId = success
+            ? R.string.puzzle_downloaded
+            : R.string.puzzle_download_failed;
+
+        Intent notificationIntent = new Intent(
+            Intent.ACTION_EDIT, null, context, BrowseActivity.class
+        );
         PendingIntent contentIntent = PendingIntent.getActivity(
             context, 0, notificationIntent,
             AndroidVersionUtils
@@ -300,12 +318,9 @@ public class Downloaders {
         Notification not
             = new NotificationCompat.Builder(
             context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID
-        )
-            .setSmallIcon(android.R.drawable.stat_sys_download_done)
+        ).setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setContentIntent(contentIntent)
-            .setContentTitle(context.getString(
-                R.string.puzzle_downloaded, name
-            ))
+            .setContentTitle(context.getString(messageId, name))
             .setWhen(System.currentTimeMillis())
             .build();
 
