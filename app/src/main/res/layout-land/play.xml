@@ -20,7 +20,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
     />
-    <app.crossword.yourealwaysbe.view.ScrollingImageView
+    <app.crossword.yourealwaysbe.view.BoardFullEditView
         android:id="@+id/board"
         android:layout_width="0dp"
         android:layout_height="0dp"
