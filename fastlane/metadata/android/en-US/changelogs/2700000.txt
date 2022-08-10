@@ -1,0 +1,2 @@
+- Slightly finer-grained control of notifications in settings.
+- Notify about failed downloads.
