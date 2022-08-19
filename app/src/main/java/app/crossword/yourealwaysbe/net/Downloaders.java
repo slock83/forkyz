@@ -453,23 +453,25 @@ public class Downloaders {
             ));
         }
 
+        if (prefs.getBoolean("downloadWaPoSunday", true)) {
+            downloaders.add(new AbstractDateDownloader(
+                context.getString(R.string.washington_post_sunday),
+                Downloader.DATE_SUNDAY,
+                "https://subscribe.wsj.com",
+                new IO(),
+                "'https://herbach.dnsalias.com/Wapo/wp'yyMMdd'.puz'",
+                "'https://subscribe.washingtonpost.com'"
+            ));
+        }
+
         if (prefs.getBoolean("downloadWsj", true)) {
             downloaders.add(new AbstractDateDownloader(
                 context.getString(R.string.wall_street_journal),
-                Downloader.DATE_FRIDAY,
+                Downloader.DATE_NO_SUNDAY,
                 "https://subscribe.wsj.com",
                 new IO(),
                 "'https://herbach.dnsalias.com/wsj/wsj'yyMMdd'.puz'",
                 "'https://www.wsj.com/news/puzzle'"
-            ));
-            downloaders.add(new AbstractDateDownloader(
-                context.getString(R.string.wall_street_journal),
-                Downloader.DATE_SATURDAY,
-                "https://subscribe.wsj.com",
-                new IO(),
-                "'https://herbach.dnsalias.com/wsj/wsj'yyMMdd'.puz'",
-                "'https://www.wsj.com/news/puzzle'",
-                LocalDate.of(2015,8,19)
             ));
         }
 

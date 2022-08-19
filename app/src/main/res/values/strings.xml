@@ -258,7 +258,6 @@
     <string name="uclick_copyright">uclick LLC</string>
 
     <!-- preferences weekly -->
-    <string name="updates_fridays_saturdays">Updates Fridays and Saturdays</string>
     <string name="updates_thursdays">Updates Thursdays</string>
     <string name="updates_sundays">Updates Sundays</string>
     <string name="regular_sized">Regular Sized</string>
@@ -266,6 +265,7 @@
     <string name="jonesin_crosswords">Jonesin\' Crosswords</string>
     <string name="premier_crossword">Premier Crossword</string>
     <string name="wall_street_journal">The Wall Street Journal</string>
+    <string name="washington_post_sunday">The Washington Post Sunday</string>
 
     <!--  preferences scrapers -->
     <string name="cru_puzzle_workshop">Cryptic Cru Workshop Archive</string>

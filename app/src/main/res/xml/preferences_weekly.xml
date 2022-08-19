@@ -25,10 +25,10 @@
             android:key="downloadPremier"
         />
         <androidx.preference.CheckBoxPreference
-            android:title="@string/wall_street_journal"
+            android:title="@string/washington_post_sunday"
             android:defaultValue="true"
-            android:summary="@string/updates_fridays_saturdays"
-            android:key="downloadWsj"
+            android:summary="@string/updates_sundays"
+            android:key="downloadWaPoSunday"
         />
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

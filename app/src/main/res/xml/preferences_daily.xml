@@ -57,6 +57,12 @@
         android:summary="@string/updates_mon_sat"
         android:key="downloadUSAToday"
     />
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/wall_street_journal"
+        android:defaultValue="true"
+        android:summary="@string/updates_mon_sat"
+        android:key="downloadWsj"
+    />
 
     <androidx.preference.PreferenceCategory
         android:title="@string/custom_daily"
