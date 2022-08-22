@@ -1,0 +1,2 @@
+- Daily downloads from WSJ
+- Washington Post Sunday download (from Martin Herbach)
