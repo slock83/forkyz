@@ -248,7 +248,10 @@ public abstract class BoardEditView
         int w = getImageView().getWidth();
         int h = getImageView().getHeight();
         scale = renderer.fitTo(w, h);
+
         super.onScale(scale, center);
+
+        render(true);
     }
 
     @Override
