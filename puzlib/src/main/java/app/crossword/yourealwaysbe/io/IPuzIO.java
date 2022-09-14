@@ -681,30 +681,34 @@ public class IPuzIO implements PuzzleParser {
         String dirName = splitName[0];
         String displayName = splitName.length > 1 ? splitName[1] : dirName;
 
-        for (int i = 0; i < jsonClues.length(); i++) {
-            Object clueObj = jsonClues.get(i);
-            // all clues not across until proven otherwise by list name
-            IPuzClue ipc = getClue(clueObj, showEnumerations);
-            // TODO: support zoning of more than just across/down
-            if (ipc != null) {
-                if (FIELD_CLUES_ACROSS.equals(dirName)) {
-                    builder.addAcrossClue(
-                        displayName, ipc.getClueNumber(), ipc.getHint()
-                    );
-                } else if (FIELD_CLUES_DOWN.equals(dirName)) {
-                    builder.addDownClue(
-                        displayName, ipc.getClueNumber(), ipc.getHint()
-                    );
-                } else {
-                    builder.addClue(new Clue(
-                        displayName,
-                        i,
-                        ipc.getClueNumber(),
-                        ipc.getHint(),
-                        ipc.getZone()
-                    ));
+        try {
+            for (int i = 0; i < jsonClues.length(); i++) {
+                Object clueObj = jsonClues.get(i);
+                // all clues not across until proven otherwise by list name
+                IPuzClue ipc = getClue(clueObj, showEnumerations);
+                // TODO: support zoning of more than just across/down
+                if (ipc != null) {
+                    if (FIELD_CLUES_ACROSS.equals(dirName)) {
+                        builder.addAcrossClue(
+                            displayName, ipc.getClueNumber(), ipc.getHint()
+                        );
+                    } else if (FIELD_CLUES_DOWN.equals(dirName)) {
+                        builder.addDownClue(
+                            displayName, ipc.getClueNumber(), ipc.getHint()
+                        );
+                    } else {
+                        builder.addClue(new Clue(
+                            displayName,
+                            i,
+                            ipc.getClueNumber(),
+                            ipc.getHint(),
+                            ipc.getZone()
+                        ));
+                    }
                 }
             }
+        } catch (IllegalArgumentException e) {
+            throw new IPuzFormatException(e.getMessage());
         }
     }
 
