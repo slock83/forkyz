@@ -220,7 +220,7 @@ public class IPuzIO implements PuzzleParser {
         = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
 
     private static final String FIELD_CLUES_CLUES = "Clues";
-    private static final String FIELD_CLUES_ZONES = "Clues";
+    private static final String FIELD_CLUES_ZONES = "Zones";
     private static final Set<String> FIELD_CLUES_DIRECTIONS
         = new HashSet<>(Arrays.asList(new String[] {
             "Across",
@@ -1587,7 +1587,7 @@ public class IPuzIO implements PuzzleParser {
             ClueList clues = puz.getClues(listName);
             String direction = null;
 
-            // check if a standard direction, else write as "zones" or
+            // check if a standard direction or "zones", else default to
             // "clues" list
 
             if (PuzzleUtils.isAcrossList(puz, clues)) {
