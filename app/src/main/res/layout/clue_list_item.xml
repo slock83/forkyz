@@ -1,34 +1,53 @@
-<FrameLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:clickable="true"
 >
-
-    <View
-        android:id="@+id/clue_flag_view"
-        android:layout_width="2sp"
-        android:layout_height="match_parent"
-        android:background="@color/flagColor"
-        android:visibility="invisible"
-        android:layout_marginTop="2sp"
-        android:layout_marginBottom="2sp"
-    />
-
-    <CheckedTextView
-        android:id="@+id/clue_text_view"
-        android:layout_width="fill_parent"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="?android:attr/listPreferredItemHeightSmall"
-        android:textAppearance="?android:attr/textAppearanceListItemSmall"
-        android:gravity="center_vertical"
-        android:checkMark="?android:attr/listChoiceIndicatorSingle"
+    >
+        <View
+            android:id="@+id/clue_flag_view"
+            android:layout_width="2sp"
+            android:layout_height="match_parent"
+            android:background="@color/flagColor"
+            android:visibility="invisible"
+            android:layout_marginTop="2sp"
+            android:layout_marginBottom="2sp"
+        />
+
+        <CheckedTextView
+            android:id="@+id/clue_text_view"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="?android:attr/listPreferredItemHeightSmall"
+            android:textAppearance="?android:attr/textAppearanceListItemSmall"
+            android:gravity="center_vertical"
+            android:checkMark="?android:attr/listChoiceIndicatorSingle"
+            android:paddingStart="?android:attr/listPreferredItemPaddingStart"
+            android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+            android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
+            android:paddingRight="?android:attr/listPreferredItemPaddingRight"
+            android:textColor="@color/textColorPrimary"
+            android:background="?android:attr/selectableItemBackground"
+        />
+    </FrameLayout>
+
+    <app.crossword.yourealwaysbe.view.BoardWordEditView
+        android:id="@+id/miniboard"
+        android:layout_width="fill_parent"
+        android:layout_height="44dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:contentDescription="@string/clue_word"
         android:paddingStart="?android:attr/listPreferredItemPaddingStart"
         android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
         android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
         android:paddingRight="?android:attr/listPreferredItemPaddingRight"
-        android:textColor="@color/textColorPrimary"
-        android:focusable="true"
-        android:clickable="true"
-        android:background="?android:attr/selectableItemBackground"
+        android:layout_marginTop="2sp"
     />
-</FrameLayout>
+</LinearLayout>

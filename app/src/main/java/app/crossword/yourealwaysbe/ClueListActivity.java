@@ -111,6 +111,15 @@ public class ClueListActivity extends PuzzleActivity
         }
 
         boardView.setBoard(board);
+
+        if (isShowWordsInClueList()) {
+            boardView.setIncognitoMode(true);
+            clueTabs.setShowWords(true);
+        } else {
+            boardView.setIncognitoMode(false);
+            clueTabs.setShowWords(false);
+        }
+
         clueTabs.setBoard(board);
         clueTabs.addListener(this);
         clueTabs.listenBoard();
@@ -134,7 +143,8 @@ public class ClueListActivity extends PuzzleActivity
 
         if (clue.hasZone()) {
             Word old = board.getCurrentWord();
-            board.jumpToClue(clue);
+            if (!Objects.equals(clue.getClueID(), board.getClueID()))
+                board.jumpToClue(clue);
             displayKeyboard(old);
         }
     }
@@ -144,7 +154,8 @@ public class ClueListActivity extends PuzzleActivity
         Playboard board = getBoard();
         if (board == null)
             return;
-        board.jumpToClue(clue);
+        if (!Objects.equals(clue.getClueID(), board.getClueID()))
+            board.jumpToClue(clue);
         launchClueNotes(clue);
     }
 
@@ -384,5 +395,9 @@ public class ClueListActivity extends PuzzleActivity
         default:
             return false;
         }
+    }
+
+    private boolean isShowWordsInClueList() {
+        return prefs.getBoolean("showWordsInClueList", false);
     }
 }

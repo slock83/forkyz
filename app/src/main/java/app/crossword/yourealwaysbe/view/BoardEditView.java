@@ -58,10 +58,18 @@ public abstract class BoardEditView
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    public void setBoard(Playboard board) {
+        setBoard(board, false);
+    }
+
     /**
      * Set the base board for the edit view
+     *
+     * Use noRender if you want to make more changes before rendering
+     *
+     * Resets min/max scale as this depends on the board for some reason.
      */
-    public void setBoard(Playboard board) {
+    public void setBoard(Playboard board, boolean noRender) {
         if (this.board != null)
             this.board.removeListener(this);
 
@@ -76,15 +84,16 @@ public abstract class BoardEditView
             !prefs.getBoolean("supressHints", false),
             getContext()
         );
-        setMaxScale(renderer.getDeviceMaxScale());
-        setMinScale(renderer.getDeviceMinScale());
+        setMaxScale(renderer.getMaxScale());
+        setMinScale(renderer.getMinScale());
 
         float scale = getCurrentScale();
 
         // reset scale in case it violates new board dims
         setCurrentScale(scale, true);
 
-        render(true);
+        if (!noRender)
+            render(true);
 
         // TODO: needed?
         //setFocusable(true);
@@ -92,6 +101,20 @@ public abstract class BoardEditView
         // don't worry about unlistening because Playboard keeps a
         // weak set.
         board.addListener(this);
+    }
+
+    @Override
+    public void setMaxScale(float maxScale) {
+        super.setMaxScale(maxScale);
+        if (renderer != null)
+            renderer.setMaxScale(maxScale);
+    }
+
+    @Override
+    public void setMinScale(float minScale) {
+        super.setMinScale(minScale);
+        if (renderer != null)
+            renderer.setMinScale(minScale);
     }
 
     /**

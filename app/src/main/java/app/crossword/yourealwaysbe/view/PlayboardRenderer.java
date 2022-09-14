@@ -33,10 +33,10 @@ import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
-
 
 public class PlayboardRenderer {
     // for calculating max scale with no puzzle
@@ -66,6 +66,8 @@ public class PlayboardRenderer {
     private Playboard board;
     private float dpi;
     private float scale = 1.0F;
+    private float maxScale;
+    private float minScale;
     private boolean hintHighlight;
     private int widthPixels;
 
@@ -80,6 +82,8 @@ public class PlayboardRenderer {
         this.widthPixels = widthPixels;
         this.board = board;
         this.hintHighlight = hintHighlight;
+        this.maxScale = getDeviceMaxScale();
+        this.minScale = getDeviceMinScale();
 
         int blankColor = ContextCompat.getColor(context, R.color.blankColor);
         int boxColor = ContextCompat.getColor(context, R.color.boxColor);
@@ -153,6 +157,22 @@ public class PlayboardRenderer {
         flag.setColor(flagColor);
     }
 
+    public float getMaxScale() {
+        return maxScale;
+    }
+
+    public float getMinScale() {
+        return minScale;
+    }
+
+    public void setMaxScale(float maxScale) {
+        this.maxScale = maxScale;
+    }
+
+    public void setMinScale(float minScale) {
+        this.minScale = minScale;
+    }
+
     public float getDeviceMaxScale(){
         float retValue;
         // inches * pixels per inch * units
@@ -173,15 +193,17 @@ public class PlayboardRenderer {
     public float getDeviceMinScale(){
         //inches * (pixels / pixels per inch);
         float retValue = 0.9F * ((dpi * BASE_BOX_SIZE_INCHES) / dpi);
-        LOG.warning("getDeviceMinScale "+retValue);
         return retValue;
     }
 
     public void setScale(float scale) {
-        if (scale > getDeviceMaxScale()) {
-            scale = getDeviceMaxScale();
-        } else if (scale < getDeviceMinScale()) {
-            scale = getDeviceMinScale();
+        float maxScale = getMaxScale();
+        float minScale = getMinScale();
+
+        if (scale > maxScale) {
+            scale = maxScale;
+        } else if (scale < minScale) {
+            scale = minScale;
         } else if (String.valueOf(scale).equals("NaN")) {
             scale = 1.0f;
         }
@@ -189,8 +211,7 @@ public class PlayboardRenderer {
         this.scale = scale;
     }
 
-    public float getScale()
-    {
+    public float getScale() {
         return this.scale;
     }
 
@@ -207,10 +228,10 @@ public class PlayboardRenderer {
             int height = puz.getHeight();
             boolean renderAll = reset == null;
 
-            if (scale > getDeviceMaxScale()) {
-                scale = getDeviceMaxScale();
-            } else if (scale < getDeviceMinScale()) {
-                scale = getDeviceMinScale();
+            if (scale > getMaxScale()) {
+                scale = getMaxScale();
+            } else if (scale < getMinScale()) {
+                scale = getMinScale();
             } else if (Float.isNaN(scale)) {
                 scale = 1.0F;
             }
@@ -268,19 +289,32 @@ public class PlayboardRenderer {
      * @param suppressNotesLists as in drawBox
      */
     public Bitmap drawWord(Set<String> suppressNotesLists) {
-        Zone zone = this.board.getCurrentWord().getZone();
-        int length = (zone == null) ? 0 : zone.size();
+        return drawWord(this.board.getCurrentWord(), suppressNotesLists);
+    }
 
-        Box[] boxes = this.board.getCurrentWordBoxes();
+    /**
+     * Draw word suppressing no notes
+     */
+    public Bitmap drawWord(Word word) {
+        // call draw word with empty list
+        return drawWord(word, Collections.<String>emptySet());
+    }
+
+    /**
+     * Draw given word
+     */
+    public Bitmap drawWord(Word word, Set<String> suppressNotesLists) {
+        Box[] boxes = this.board.getWordBoxes(word);
+        Zone zone = word.getZone();
         int boxSize = (int) (BASE_BOX_SIZE_INCHES * this.dpi * scale) ;
         Bitmap bitmap = Bitmap.createBitmap(
-            length * boxSize, boxSize, Bitmap.Config.RGB_565
+            boxes.length * boxSize, boxSize, Bitmap.Config.RGB_565
         );
         bitmap.eraseColor(Color.BLACK);
 
         Canvas canvas = new Canvas(bitmap);
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < boxes.length; i++) {
             int x = i * boxSize;
             int y = 0;
             Position pos = zone.getPosition(i);
@@ -426,8 +460,8 @@ public class PlayboardRenderer {
     public float zoomIn() {
         this.bitmap = null;
         this.scale = scale * 1.25F;
-        if(scale > this.getDeviceMaxScale()){
-            this.scale = this.getDeviceMaxScale();
+        if(scale > this.getMaxScale()){
+            this.scale = this.getMaxScale();
         }
         return scale;
     }
@@ -435,8 +469,8 @@ public class PlayboardRenderer {
     public float zoomOut() {
         this.bitmap = null;
         this.scale = scale / 1.25F;
-        if(scale < this.getDeviceMinScale()){
-            scale = this.getDeviceMinScale();
+        if(scale < this.getMinScale()){
+            scale = this.getMinScale();
         }
         return scale;
     }
@@ -449,7 +483,7 @@ public class PlayboardRenderer {
 
     public float zoomInMax() {
         this.bitmap = null;
-        this.scale = getDeviceMaxScale();
+        this.scale = getMaxScale();
 
         return scale;
     }
@@ -463,6 +497,31 @@ public class PlayboardRenderer {
     public String getContentDescription(CharSequence baseDescription) {
         Box curBox = board.getCurrentBox();
         return getContentDescription(baseDescription, curBox, true);
+    }
+
+    /**
+     * Dynamic content description describing first box in word
+     *
+     * @param baseDescription short description of what the board is
+     * displaying
+     * @return description or a null description if no first box
+     */
+    public String getContentDescription(
+        Word word, CharSequence baseDescription
+    ) {
+        if (word == null || word.getLength() <= 0) {
+            Context context = ForkyzApplication.getInstance();
+            return context.getString(
+                R.string.cur_box_none_selected, baseDescription
+            );
+        }
+
+        Position firstBoxPos = word.getZone().getPosition(0);
+        Position curPos = board.getHighlightLetter();
+        boolean selected = firstBoxPos.equals(curPos);
+        Box firstBox = board.getPuzzle().checkedGetBox(firstBoxPos);
+
+        return getContentDescription(baseDescription, firstBox, selected);
     }
 
     /**
@@ -488,6 +547,7 @@ public class PlayboardRenderer {
             return getContentDescription(baseDescription, curBox, hasCursor);
         }
     }
+
     /**
      * Dynamic content description for the given box
      *

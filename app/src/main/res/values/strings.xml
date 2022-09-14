@@ -64,6 +64,7 @@
 
     <!-- clues list -->
     <string name="current_word">Current word</string>
+    <string name="clue_word">The grid word for the clue</string>
 
     <!-- notes page -->
     <string name="anagram_source_lab">Anagram remaining letters</string>
@@ -190,6 +191,8 @@
     <string name="keyboard_haptic_desc">Vibrate on keyboard keypress.</string>
     <string name="keyboard_use_native">Use native keyboard</string>
     <string name="keyboard_use_native_desc">Use system soft input method. Still a bit experimental.</string>
+    <string name="show_all_words_clue_list">Show all words in clue list</string>
+    <string name="show_all_words_clue_list_desc">A PuzzleMe mobile-style clue list with all words shown instead of only the current word.</string>
 
     <!-- preferences download -->
     <string name="background_download_time_config">Download Times</string>

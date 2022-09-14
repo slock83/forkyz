@@ -98,7 +98,7 @@ public class BoardEditText
                 public boolean onPreDraw() {
                     getViewTreeObserver().removeOnPreDrawListener(this);
                     scrollTo(0, 0);
-                    int width = getWidth();
+                    int width = getContentWidth();
                     float scale = renderer.fitWidthTo(width, boxes.length);
                     if (scale > 1) {
                         renderer.setScale(1.0F);
@@ -520,5 +520,12 @@ public class BoardEditText
         return AndroidVersionUtils.Factory
             .getInstance()
             .isAcceptableCharacterResponse(c);
+    }
+
+    /**
+     * Width of the usable area inside the view (sans padding)
+     */
+    private int getContentWidth() {
+        return getWidth() - getPaddingLeft() - getPaddingRight();
     }
 }

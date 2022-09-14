@@ -6,8 +6,10 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.WeakSet;
+import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -57,6 +59,7 @@ public class ClueTabs extends LinearLayout
     private Set<ClueTabsListener> listeners = WeakSet.buildSet();
     private boolean forceSnap = false;
     private List<String> listNames = new ArrayList<>();
+    private boolean showWords = false;
 
     public static interface ClueTabsListener {
         /**
@@ -109,6 +112,13 @@ public class ClueTabs extends LinearLayout
     public ClueTabs(Context context, AttributeSet as) {
         super(context, as);
         LayoutInflater.from(context).inflate(R.layout.clue_tabs, this);
+    }
+
+    /**
+     * Show words beneath each clue in list
+     */
+    public void setShowWords(boolean showWords) {
+        this.showWords = showWords;
     }
 
     /**
@@ -611,8 +621,11 @@ public class ClueTabs extends LinearLayout
     }
 
     private class ClueViewHolder extends RecyclerView.ViewHolder {
+        private final float MAX_WORD_SCALE = 0.9F;
+
         private CheckedTextView clueView;
         private View flagView;
+        private BoardWordEditView boardView;
         private Clue clue;
         private boolean showDirection;
 
@@ -620,20 +633,41 @@ public class ClueTabs extends LinearLayout
             super(view);
             this.clueView = view.findViewById(R.id.clue_text_view);
             this.flagView = view.findViewById(R.id.clue_flag_view);
+            this.boardView = view.findViewById(R.id.miniboard);
             this.showDirection = showDirection;
 
-            this.clueView.setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     ClueTabs.this.notifyListenersClueClick(clue);
                 }
             });
 
-            this.clueView.setOnLongClickListener(new View.OnLongClickListener() {
+            view.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     ClueTabs.this.notifyListenersClueLongClick(clue);
                     return true;
+                }
+            });
+
+            // assume gone unless proven otherwise
+            this.boardView.setVisibility(View.GONE);
+            // suppress board render until we set the word later
+            this.boardView.setBoard(ClueTabs.this.board, true);
+            this.boardView.setMaxScale(MAX_WORD_SCALE);
+            // potential memory leak as click listener has a strong
+            // reference in the board view, but the board view lives as
+            // long as this holder afaik
+            this.boardView.addBoardClickListener(new BoardClickListener() {
+                @Override
+                public void onClick(Position position, Word previousWord) {
+                    ClueTabs.this.notifyListenersClueClick(clue);
+                }
+
+                @Override
+                public void onLongClick(Position position) {
+                    ClueTabs.this.notifyListenersClueLongClick(clue);
                 }
             });
         }
@@ -668,6 +702,14 @@ public class ClueTabs extends LinearLayout
                 } else {
                     flagView.setVisibility(View.INVISIBLE);
                 }
+            }
+
+            if (showWords && board != null) {
+                Word word = board.getClueWord(clue.getClueID());
+                boardView.setWord(word, Collections.<String>emptySet());
+                boardView.setVisibility(word == null ? View.GONE : View.VISIBLE);
+            } else {
+                boardView.setVisibility(View.GONE);
             }
         }
 

@@ -143,23 +143,37 @@ public class Playboard implements Serializable {
     }
 
     public Word getCurrentWord() {
-        Position pos = getHighlightLetter();
-        Clue clue = getClue();
-
-        if (clue == null || !clue.hasZone()) {
+        Word word = getClueWord(getClueID());
+        if (word == null) {
             Zone zone = new Zone();
-            zone.addPosition(pos);
-            return new Word(zone);
+            zone.addPosition(getHighlightLetter());
+            word = new Word(zone);
+        }
+        return word;
+    }
+
+    /**
+     * Return the word associated with the clue
+     *
+     * @return null if no clue or no zone for clue
+     */
+    public Word getClueWord(ClueID clueID) {
+        Clue clue = getPuzzle().getClue(clueID);
+        if (clue == null || !clue.hasZone()) {
+            return null;
         } else {
             return new Word(clue.getZone(), clue.getClueID());
         }
     }
 
     public Box[] getCurrentWordBoxes() {
-        Word word = getCurrentWord();
+        return getWordBoxes(getCurrentWord());
+    }
+
+    public Box[] getWordBoxes(Word word) {
         Zone zone = (word == null) ? null : word.getZone();
         if (zone == null)
-            return null;
+            return new Box[0];
 
         Box[] result = new Box[zone.size()];
         Box[][] boxes = getBoxes();
@@ -210,6 +224,45 @@ public class Playboard implements Serializable {
         popNotificationDisabled();
 
         notifyChange();
+
+        return w;
+    }
+
+    /**
+     * Change position and selects given clue
+     *
+     * Selects given clue and position only if the position is part of the
+     * clue. Notifies listeners only if there is a change.
+     *
+     * Acts list setHighlightLetter without cid if null given.
+     *
+     * @return the current word before the call
+     */
+    public Word setHighlightLetter(Position highlightLetter, ClueID cid) {
+        if (cid == null)
+            return setHighlightLetter(highlightLetter);
+
+        Word w = getCurrentWord();
+
+        Box box = puzzle.checkedGetBox(highlightLetter);
+        if (box == null)
+            return w;
+
+        Position curHighlightLetter = getHighlightLetter();
+        ClueID curCID = getClueID();
+
+        boolean sameSelection
+            = Objects.equals(curHighlightLetter, highlightLetter)
+                && Objects.equals(curCID, cid);
+
+        if (sameSelection)
+            return w;
+
+        if (box.getIsPartOfClues().contains(cid)) {
+            puzzle.setPosition(highlightLetter);
+            puzzle.setCurrentClueID(cid);
+            notifyChange();
+        }
 
         return w;
     }

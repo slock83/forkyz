@@ -420,7 +420,7 @@ public class NotesActivity extends PuzzleActivity {
             boardView.setVisibility(View.GONE);
             flagClue.setVisibility(View.GONE);
         } else {
-            boardView.setBoard(board);
+            boardView.setBoard(board, getSuppressNotesList());
 
             clueLine.setText(smartHtml(getLongClueText(clue)));
             note = puz.getNote(clue);
