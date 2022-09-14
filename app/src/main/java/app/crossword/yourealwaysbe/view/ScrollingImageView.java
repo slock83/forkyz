@@ -70,17 +70,9 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
             return;
         }
 
-        if (rescale){
-            FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
-                bitmap.getWidth(), bitmap.getHeight()
-            );
+        if (rescale) {
             imageView.setImageBitmap(bitmap);
-            if(!haveAdded){
-                this.addView(imageView, params);
-                haveAdded = true;
-            } else {
-                imageView.setLayoutParams(params);
-            }
+            setImageViewParams(bitmap.getWidth(), bitmap.getHeight());
         } else {
             imageView.setImageBitmap(bitmap);
         }
@@ -357,8 +349,8 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
         w *= scale;
         runningScale *= scale;
         currentScale *= scale;
-        this.removeView(imageView);
-        this.addView(imageView, new FrameLayout.LayoutParams(w,h));
+
+        setImageViewParams(w, h);
         this.scaleScrollLocation.fixScroll(w, h);
     }
 
@@ -458,6 +450,20 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     protected void onTap(Point p) {
         if (this.ctxListener != null) {
             this.ctxListener.onTap(p);
+        }
+    }
+
+    /**
+     * Change image size, add to view if needed
+     */
+    private void setImageViewParams(int width, int height) {
+        FrameLayout.LayoutParams params
+            = new FrameLayout.LayoutParams(width, height);
+        if(!haveAdded){
+            this.addView(imageView, params);
+            haveAdded = true;
+        } else {
+            imageView.setLayoutParams(params);
         }
     }
 

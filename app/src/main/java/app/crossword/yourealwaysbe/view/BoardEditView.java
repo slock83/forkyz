@@ -76,6 +76,8 @@ public abstract class BoardEditView
             !prefs.getBoolean("supressHints", false),
             getContext()
         );
+        setMaxScale(renderer.getDeviceMaxScale());
+        setMinScale(renderer.getDeviceMinScale());
 
         float scale = getCurrentScale();
 
