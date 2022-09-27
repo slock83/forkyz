@@ -40,6 +40,7 @@ public class HtmlUtil {
 
         return StringEscapeUtils.escapeHtml4(value)
             .replace("\r", "")
-            .replace("\n", "<br/>");
+            .replace("\n", "<br/>")
+            .replace("  ", " &nbsp;");
     }
 }

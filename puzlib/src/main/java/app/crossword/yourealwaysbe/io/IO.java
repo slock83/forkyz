@@ -19,6 +19,7 @@ import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
 import app.crossword.yourealwaysbe.puz.PuzzleMeta;
 import app.crossword.yourealwaysbe.util.PuzzleUtils;
 
+import static app.crossword.yourealwaysbe.util.HtmlUtil.htmlString;
 import static app.crossword.yourealwaysbe.util.HtmlUtil.unHtmlString;
 
 import java.io.ByteArrayOutputStream;
@@ -222,7 +223,7 @@ public class IO implements PuzzleParser {
             }
         }
 
-        builder.setNotes(readNullTerminatedString(input, charset));
+        builder.setNotes(htmlString(readNullTerminatedString(input, charset)));
 
         boolean eof = false;
 

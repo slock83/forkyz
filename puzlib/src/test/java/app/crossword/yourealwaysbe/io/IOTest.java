@@ -153,9 +153,11 @@ public class IOTest extends TestCase {
                 Puzzle p = IO.loadNative(isp);
                 p.setDate(LocalDate.now());
                 p.setSource("Unit Test");
+                // Check HTML stripped/restored
+                p.setNotes("X &nbsp; X<br/>");
 
                 // play
-                puz.setPlayerNote(
+                p.setPlayerNote(
                     new Note("scratch", "a note", "anagsrc", "anagsol")
                 );
 
