@@ -104,7 +104,7 @@ public class BoardEditText
                         renderer.setScale(1.0F);
                     }
                     render();
-                    return false;
+                    return true;
                 }
             }
         );
