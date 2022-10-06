@@ -27,7 +27,7 @@ public class DummyDownloader implements Downloader {
     public DownloadResult download(
         LocalDate date, Set<String> existingFileNames
     ) {
-        return null;
+        return DownloadResult.FAILED;
     }
 
     @Override

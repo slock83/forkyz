@@ -48,7 +48,7 @@ public class UclickDownloader extends AbstractDateDownloader {
         LocalDate date, Set<String> existingFileNames
     ) {
         DownloadResult res = super.download(date, existingFileNames);
-        if (res != null) {
+        if (res.isSuccess()) {
             res.getPuzzle().setCopyright(
                 "\u00a9 " + date.getYear() + " " + copyright
             );

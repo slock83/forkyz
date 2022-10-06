@@ -172,16 +172,16 @@ public class Downloaders {
             LocalDate date = puzzle.getValue();
 
             downloadExecutor.submit(() -> {
-                boolean downloaded = downloadPuzzle(
+                Downloader.DownloadResult result = downloadPuzzle(
                     downloader,
                     date,
                     not,
                     notificationId,
                     fileNames
                 );
-                if (downloaded)
+                if (result.isSuccess())
                     somethingDownloaded.set(true);
-                else
+                else if (result.isFailed())
                     somethingFailed.set(true);
             });
         }
@@ -211,10 +211,8 @@ public class Downloaders {
      * Download and save the puzzle from the downloader
      *
      * Only saves if we don't already have it.
-     *
-     * @return true if succeeded
      */
-    private boolean downloadPuzzle(
+    private Downloader.DownloadResult downloadPuzzle(
         Downloader d,
         LocalDate date,
         NotificationCompat.Builder not,
@@ -225,7 +223,9 @@ public class Downloaders {
             = ForkyzApplication.getInstance().getFileHandler();
 
         LOG.info("Downloading " + d.toString());
-        boolean saved = false;
+
+        // failed unless proven otherwise!
+        Downloader.DownloadResult result = Downloader.DownloadResult.FAILED;
 
         try {
             String contentText = context.getString(
@@ -248,15 +248,14 @@ public class Downloaders {
                 this.notificationManager.notify(0, not.build());
             }
 
-            Downloader.DownloadResult result
-                = d.download(date, existingFileNames);
+            result = d.download(date, existingFileNames);
 
-            if (result != null) {
+            if (result.isSuccess()) {
                 String fileName = result.getFileName();
                 if (!existingFileNames.contains(fileName)) {
-                    saved = fileHandler.saveNewPuzzle(
+                    fileHandler.saveNewPuzzle(
                         result.getPuzzle(), fileName
-                    ) != null;
+                    );
                 }
             }
         } catch (Exception e) {
@@ -265,11 +264,11 @@ public class Downloaders {
 
         if (!this.suppressIndividualMessages) {
             this.postDownloadedNotification(
-                notificationId, d.getName(), saved
+                notificationId, d.getName(), result
             );
         }
 
-        return saved;
+        return result;
     }
 
     private void postDownloadedGeneral(
@@ -307,9 +306,14 @@ public class Downloaders {
     }
 
     private void postDownloadedNotification(
-        int i, String name, boolean success
+        int i, String name, Downloader.DownloadResult result
     ) {
-        int messageId = success
+        // don't notify unless success or failure
+        // notifications about existing puzzles would be annoying
+        if (!(result.isSuccess() || result.isFailed()))
+            return;
+
+        int messageId = result.isSuccess()
             ? R.string.puzzle_downloaded
             : R.string.puzzle_download_failed;
 

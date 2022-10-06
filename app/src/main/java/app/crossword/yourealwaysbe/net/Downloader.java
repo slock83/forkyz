@@ -9,12 +9,34 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
 public interface Downloader {
 
     public static class DownloadResult {
+        public static final DownloadResult FAILED
+            = new DownloadResult(true);
+        public static final DownloadResult ALREADY_EXISTS
+            = new DownloadResult(false);
+
         Puzzle puzzle;
         String fileName;
+        boolean failed;
 
         public DownloadResult(Puzzle puzzle, String fileName) {
             this.puzzle = puzzle;
             this.fileName = fileName;
+        }
+
+        private DownloadResult(boolean failed) {
+            this.failed = failed;
+        }
+
+        public boolean isFailed() {
+            return puzzle == null && fileName == null && failed;
+        }
+
+        public boolean isAlreadyExists() {
+            return puzzle == null && fileName == null && !failed;
+        }
+
+        public boolean isSuccess() {
+            return puzzle != null && fileName != null;
         }
 
         public Puzzle getPuzzle() { return puzzle; }

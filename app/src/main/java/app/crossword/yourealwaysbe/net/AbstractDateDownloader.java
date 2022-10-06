@@ -150,13 +150,13 @@ public class AbstractDateDownloader extends AbstractDownloader {
     ) {
         String fileName = createFileName(date);
         if (existingFileNames.contains(fileName))
-            return null;
+            return DownloadResult.ALREADY_EXISTS;
 
         Puzzle puz = download(date);
         if (puz != null)
             return new DownloadResult(puz, fileName);
         else
-            return null;
+            return DownloadResult.FAILED;
     }
 
     protected Puzzle download(

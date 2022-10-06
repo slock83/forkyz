@@ -144,32 +144,33 @@ public class PageScraper extends AbstractDownloader {
                 boolean exists = existingFileNames.contains(filename)
                     || existingFileNames.contains(legacyFileName);
 
-                if (!exists) {
-                    try {
-                        Puzzle puz = downloadPuzzle(url);
-                        if (puz != null) {
-                            // I'm not sure what purpose this has
-                            // Doesn't seem to be changeable from UI
-                            puz.setUpdatable(false);
-                            puz.setSource(getName());
-                            puz.setSourceUrl(url);
-                            puz.setSupportUrl(getSupportUrl());
-                            puz.setShareUrl(shareFileUrl ? url : scrapeUrl);
-                            puz.setDate(LocalDate.now());
+                if (exists)
+                    return DownloadResult.ALREADY_EXISTS;
 
-                            String title = puz.getTitle();
-                            if (title == null || title.isEmpty())
-                                puz.setTitle(remoteFileName);
+                try {
+                    Puzzle puz = downloadPuzzle(url);
+                    if (puz != null) {
+                        // I'm not sure what purpose this has
+                        // Doesn't seem to be changeable from UI
+                        puz.setUpdatable(false);
+                        puz.setSource(getName());
+                        puz.setSourceUrl(url);
+                        puz.setSupportUrl(getSupportUrl());
+                        puz.setShareUrl(shareFileUrl ? url : scrapeUrl);
+                        puz.setDate(LocalDate.now());
 
-                            PuzzleBuilder.resolveImages(puz, url);
+                        String title = puz.getTitle();
+                        if (title == null || title.isEmpty())
+                            puz.setTitle(remoteFileName);
 
-                            return new DownloadResult(puz, filename);
-                        }
-                    } catch (Exception e) {
-                        System.err.println("Exception downloading " + url
-                                + " for " + this.sourceName);
-                        e.printStackTrace();
+                        PuzzleBuilder.resolveImages(puz, url);
+
+                        return new DownloadResult(puz, filename);
                     }
+                } catch (Exception e) {
+                    System.err.println("Exception downloading " + url
+                            + " for " + this.sourceName);
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
@@ -177,7 +178,7 @@ public class PageScraper extends AbstractDownloader {
         }
 
         // failed (else returned earlier)
-        return null;
+        return DownloadResult.FAILED;
     }
 
     private Puzzle downloadPuzzle(String url) throws IOException {
