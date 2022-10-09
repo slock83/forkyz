@@ -17,6 +17,7 @@
     <string name="play_activity_title">%1$s - %2$s -> %3$s</string>
 
     <!-- downloading -->
+    <string name="download">Download</string>
     <string name="puzzles_downloading">Downloading Puzzles</string>
     <string name="puzzles_downloading_from">Downloading Puzzles from %s</string>
     <string name="puzzles_downloaded_all">New Puzzles Downloaded</string>

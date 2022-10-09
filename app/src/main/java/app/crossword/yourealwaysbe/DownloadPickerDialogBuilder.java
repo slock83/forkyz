@@ -94,8 +94,8 @@ public class DownloadPickerDialogBuilder {
 
         AlertDialog.Builder builder
             = new AlertDialog.Builder(mActivity)
-                .setPositiveButton("Download", clickHandler)
-                .setNegativeButton("Cancel", null);
+                .setPositiveButton(R.string.download, clickHandler)
+                .setNegativeButton(R.string.cancel, null);
 
         builder.setView(layout);
         mDialog = builder.create();
