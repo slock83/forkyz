@@ -1,21 +1,21 @@
 package app.crossword.yourealwaysbe;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnShowListener;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
 import android.widget.DatePicker.OnDateChangedListener;
+import android.widget.DatePicker;
 import android.widget.Spinner;
 import android.widget.TextView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import app.crossword.yourealwaysbe.net.Downloader;
 import app.crossword.yourealwaysbe.net.Downloaders;
@@ -92,12 +92,13 @@ public class DownloadPickerDialogBuilder {
                 }
             };
 
-        AlertDialog.Builder builder
-            = new AlertDialog.Builder(mActivity)
-                .setPositiveButton(R.string.download, clickHandler)
-                .setNegativeButton(R.string.cancel, null);
+        MaterialAlertDialogBuilder builder
+            = new MaterialAlertDialogBuilder(mActivity);
 
-        builder.setView(layout);
+        builder.setPositiveButton(R.string.download, clickHandler)
+            .setNegativeButton(R.string.cancel, null)
+            .setView(layout);
+
         mDialog = builder.create();
         mDialog.setOnShowListener(new OnShowListener() {
                 public void onShow(DialogInterface arg0) {

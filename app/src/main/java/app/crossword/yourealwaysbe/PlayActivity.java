@@ -1,7 +1,6 @@
 package app.crossword.yourealwaysbe;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,8 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.KeyEvent;
@@ -24,13 +21,13 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.core.content.ContextCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.DialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -354,12 +351,6 @@ public class PlayActivity extends PuzzleActivity
             .setChecked(showErrorsCursor);
 
         return true;
-    }
-
-    private SpannableString createSpannableForMenu(String value){
-        SpannableString s = new SpannableString(value);
-        s.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.textColorPrimary)), 0, s.length(), 0);
-        return s;
     }
 
     @Override
@@ -874,8 +865,8 @@ public class PlayActivity extends PuzzleActivity
     public static class InfoDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder
-                = new AlertDialog.Builder(getActivity());
+            MaterialAlertDialogBuilder builder
+                = new MaterialAlertDialogBuilder(getActivity());
             LayoutInflater inflater = requireActivity().getLayoutInflater();
 
             View view = inflater.inflate(R.layout.puzzle_info_dialog, null);
@@ -910,8 +901,8 @@ public class PlayActivity extends PuzzleActivity
                     ));
                 }
 
-                ProgressBar progress = (ProgressBar) view
-                        .findViewById(R.id.puzzle_info_progress);
+                LinearProgressIndicator progress
+                    = view.findViewById(R.id.puzzle_info_progress);
                 progress.setProgress(puz.getPercentComplete());
 
                 TextView filename
@@ -1024,8 +1015,8 @@ public class PlayActivity extends PuzzleActivity
     public static class RevealPuzzleDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder
-                = new AlertDialog.Builder(getActivity());
+            MaterialAlertDialogBuilder builder
+                = new MaterialAlertDialogBuilder(getActivity());
 
             builder.setTitle(getString(R.string.reveal_puzzle))
                 .setMessage(getString(R.string.are_you_sure))

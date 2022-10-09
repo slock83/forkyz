@@ -3,7 +3,9 @@
     android:viewportWidth="512"
     android:viewportHeight="512"
     android:width="32dp"
-    android:height="32dp">
+    android:height="32dp"
+    android:tint="?attr/colorControlNormal"
+>
     <path
         android:pathData="M377.139 259.492c0 66.637 -54.02 120.658 -120.658 120.658 -66.637 0 -120.658 -54.021 -120.658 -120.658 0 -66.637 54.02 -120.658 120.658 -120.658 66.637 0 120.658 54.02 120.658 120.658z"
         android:fillColor="#ccc" />

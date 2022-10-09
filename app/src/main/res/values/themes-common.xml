@@ -1,0 +1,39 @@
+<resources>
+    <!-- Common to all variants night/day/v21/&c. -->
+    <!-- Theme.Forkyz.DayNightBase in themes.xml in variant folder -->
+    <style name="Theme.Forkyz" parent="Theme.Forkyz.DayNightBase">
+        <item name="colorOnErrorContainer">@color/onErrorContainer</item>
+        <item name="colorOnError">@color/onError</item>
+        <item name="colorErrorContainer">@color/errorContainer</item>
+        <item name="colorOnTertiaryContainer">@color/onTertiaryContainer</item>
+        <item name="colorOnTertiary">@color/onTertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiaryContainer</item>
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOnBackground">@color/onBackground</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnSurfaceInverse">@color/inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/inverseSurface</item>
+        <item name="colorOnSurfaceVariant">@color/onSurfaceVariant</item>
+        <item name="colorOnSurface">@color/onSurface</item>
+        <item name="colorSurfaceVariant">@color/surfaceVariant</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSecondaryContainer">@color/onSecondaryContainer</item>
+        <item name="colorOnSecondary">@color/onSecondary</item>
+        <item name="colorSecondaryContainer">@color/secondaryContainer</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnPrimaryContainer">@color/onPrimaryContainer</item>
+        <item name="colorOnPrimary">@color/onPrimary</item>
+        <item name="colorPrimaryContainer">@color/primaryContainer</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryInverse">@color/inversePrimary</item>
+
+        <!-- hacks for parts of ui not taking colors from Material -->
+        <item name="android:textColor">?attr/colorOnBackground</item>
+        <item name="android:textColorSecondary">@color/onBackgroundSecondary</item>
+        <item name="android:textColorHint">?attr/android:textColorSecondary</item>
+        <item name="actionBarPopupTheme">@style/submenuHeaderStyle</item>
+        <item name="checkboxStyle">@style/checkboxStyle</item>
+    </style>
+</resources>

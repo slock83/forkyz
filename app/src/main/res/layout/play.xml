@@ -13,12 +13,11 @@
         android:textSize="12sp"
         android:minLines="2"
         android:maxLines="4"
-        android:textColor="@color/titleTextColor"
-        android:background="@color/primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/board"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        android:theme="@style/clueLineStyle"
     />
     <app.crossword.yourealwaysbe.view.BoardFullEditView
         android:id="@+id/board"

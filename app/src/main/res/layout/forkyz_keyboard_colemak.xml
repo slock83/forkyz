@@ -10,7 +10,7 @@
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dip"
-        android:background="@color/keyboardDivider"
+        android:theme="@style/keyboardDividerStyle"
     />
 
     <LinearLayout
@@ -364,7 +364,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/keyboardHideBg"
+        android:theme="@style/keyboardHideBarStyle"
     >
         <ImageButton
             android:id="@+id/key_hide"
@@ -378,7 +378,6 @@
             android:layout_marginStart="20sp"
             app:srcCompat="@drawable/ic_keyboard_hide"
             android:contentDescription="@string/hide_keyboard"
-            app:tint="@color/keyboardHide"
         />
     </LinearLayout>
 

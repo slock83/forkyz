@@ -194,6 +194,8 @@
     <string name="keyboard_use_native_desc">Use system soft input method. Still a bit experimental.</string>
     <string name="show_all_words_clue_list">Show all words in clue list</string>
     <string name="show_all_words_clue_list_desc">A PuzzleMe mobile-style clue list with all words shown instead of only the current word.</string>
+    <string name="use_dynamic_colors">Use dynamic colors</string>
+    <string name="use_dynamic_colors_desc">Use Android Material You dynamic colors (requires restart).</string>
 
     <!-- preferences download -->
     <string name="background_download_time_config">Download Times</string>
@@ -381,6 +383,7 @@
     <string name="puzzle_notes">Puzzle notes.</string>
 
     <!-- completed -->
+    <string name="puzzle_finished_title">Puzzle Finished</string>
     <string name="puzzle_completed">Puzzle notes.</string>
     <string name="completed_in">Completed In</string>
     <string name="elapsed_time_dummy">XX:XX:XX</string>
@@ -409,7 +412,6 @@
     <string name="clues_list_label">Clues</string>
     <string name="notes_label">Notes</string>
     <string name="html_label">Forkyz</string>
-    <string name="puzzle_completed_label">Puzzle Completed!</string>
 
     <!-- keyboard -->
     <string name="key_a">a</string>

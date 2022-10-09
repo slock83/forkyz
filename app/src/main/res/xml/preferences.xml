@@ -247,6 +247,13 @@
         android:title="@string/display_settings"
     >
         <androidx.preference.CheckBoxPreference
+            android:title="@string/use_dynamic_colors"
+            android:defaultValue="false"
+            android:summary="@string/use_dynamic_colors_desc"
+            android:key="useDynamicColors"
+        />
+
+        <androidx.preference.CheckBoxPreference
             android:title="@string/show_all_words_clue_list"
             android:defaultValue="false"
             android:summary="@string/show_all_words_clue_list_desc"

@@ -6,7 +6,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +21,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import androidx.core.widget.TextViewCompat;
 import androidx.fragment.app.DialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Box;
@@ -706,8 +706,8 @@ public class NotesActivity extends PuzzleActivity {
                 = (TransferResponseRequest)
                     args.getSerializable(TRANSFER_RESPONSE_REQUEST_KEY);
 
-            AlertDialog.Builder builder
-                = new AlertDialog.Builder(activity);
+            MaterialAlertDialogBuilder builder
+                = new MaterialAlertDialogBuilder(activity);
 
             builder.setTitle(R.string.copy_conflict)
                 .setMessage(R.string.transfer_overwrite_warning)

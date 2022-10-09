@@ -1,0 +1,10 @@
+<resources>
+    <!-- base variant theme used in themes-common.xml in values -->
+    <style
+        name="Theme.Forkyz.DayNightBase"
+        parent="Theme.Material3.DynamicColors.Dark"
+    >
+        <item name="elevationOverlayColor">@color/surfaceTint</item>
+        <!-- status bar color set in themes-values-night-v21 -->
+    </style>
+</resources>

@@ -1,33 +1,49 @@
 <resources>
-    <color name="primary">#222</color>
-    <color name="primary_dark">#000</color>
-    <color name="accent">#ad5620</color>
-    <color name="textColorPrimary">#bbb</color>
-    <color name="textColorSecondary">#777</color>
-    <color name="textColorFilled">@color/textColorSecondary</color>
-    <color name="background_light">#333</color>
-    <color name="background_dark">#222</color>
-    <color name="header_color">@color/background_dark</color>
-    <color name="header_text">@color/textColorPrimary</color>
+    <color name="primary">#ad5620</color>
+    <color name="onPrimary">#bbb</color>
+    <color name="primaryContainer">#783200</color>
+    <color name="onPrimaryContainer">#ffdbca</color>
+    <color name="secondary">@color/primary</color>
+    <color name="onSecondary">@color/onPrimary</color>
+    <color name="secondaryContainer">@color/primaryContainer</color>
+    <color name="onSecondaryContainer">@color/onPrimaryContainer</color>
+    <color name="tertiary">@color/primary</color>
+    <color name="onTertiary">@color/onPrimary</color>
+    <color name="tertiaryContainer">@color/primaryContainer</color>
+    <color name="onTertiaryContainer">@color/onPrimaryContainer</color>
+    <color name="error">#FFB4AB</color>
+    <color name="errorContainer">#93000A</color>
+    <color name="onError">#690005</color>
+    <color name="onErrorContainer">#FFDAD6</color>
+    <color name="background">#222</color>
+    <color name="onBackground">#bbb</color>
+    <color name="onBackgroundSecondary">#888</color>
+    <color name="surface">@color/background</color>
+    <color name="onSurface">@color/onBackground</color>
+    <color name="surfaceVariant">#333</color>
+    <color name="surfaceVariantPressed">#222</color>
+    <color name="onSurfaceVariant">#bbb</color>
+    <color name="outline">#8C9199</color>
+    <color name="inverseOnSurface">#444</color>
+    <color name="inverseSurface">#ddd</color>
+    <color name="inversePrimary">#52a9df</color>
+    <color name="surfaceTint">#999</color>
+
     <color name="boxColor">#333</color>
     <color name="blankColor">#000</color>
     <color name="errorColor">#04526c</color>
     <color name="errorHighlightColor">#09b7ef</color>
     <color name="currentWordHighlightColor">#743513</color>
-    <color name="currentLetterHighlightColor">@color/accent</color>
+    <color name="currentLetterHighlightColor">#ad5620</color>
     <color name="cheatedColor">#553333</color>
     <color name="boardLetterColor">#aaa</color>
     <color name="boardNoteColor">#80aaaaaa</color>
-    <color name="titleTextColor">@color/textColorPrimary</color>
     <color name="flagColor">@color/errorColor</color>
+
+    <color name="screenFade">#77333333</color>
+
     <color name="progressNull">#b4b4b4</color>
     <color name="progressInProgress">#d5a518</color>
     <color name="progressDone">#31915a</color>
     <color name="progressError">#ff4a4d</color>
-    <color name="keyboardDivider">#333</color>
-    <color name="keyboardHideBg">#000</color>
-    <color name="keyboardHide">#fff</color>
-    <color name="speedDialTint">@color/accent</color>
-    <color name="speedDialIconTint">#fff</color>
-    <color name="screenFade">#77333333</color>
 </resources>

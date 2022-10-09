@@ -120,12 +120,6 @@
                 <data android:mimeType="application/zip" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="app.crossword.yourealwaysbe.PuzzleFinishedActivity"
-            android:label="@string/puzzle_completed_label"
-            android:theme="@style/Theme.AppCompat.Dialog"
-            android:exported="false"
-        />
         <provider
             android:name="app.crossword.yourealwaysbe.util.files.FileHandlerShared"
             android:authorities="app.crossword.yourealwaysbe.forkyzfiles"

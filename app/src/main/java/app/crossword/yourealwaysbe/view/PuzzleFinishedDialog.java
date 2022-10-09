@@ -1,50 +1,62 @@
 package app.crossword.yourealwaysbe;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View.OnClickListener;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.core.text.HtmlCompat;
+import androidx.fragment.app.DialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import app.crossword.yourealwaysbe.puz.Box;
-import app.crossword.yourealwaysbe.puz.Puzzle;
-import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.forkyz.R;
+import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Playboard;
+import app.crossword.yourealwaysbe.puz.Puzzle;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 
-public class PuzzleFinishedActivity extends ForkyzActivity {
+public class PuzzleFinishedDialog extends DialogFragment {
     private static final long SECONDS = 1000;
     private static final long MINUTES = SECONDS * 60;
     private static final long HOURS = MINUTES * 60;
 
-    /** Percentage varying from 0 to 100. */
-    private int cheatLevel = 0;
-    private long finishedTime = 0L;
-
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        utils.holographic(this);
-        setContentView(R.layout.completed);
-        this.getWindow().setLayout(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Activity activity = getActivity();
 
-        Puzzle puz = ForkyzApplication.getInstance().getBoard().getPuzzle();
-        if (puz == null) {
-            finish();
-            return;
-        }
+        MaterialAlertDialogBuilder builder
+            = new MaterialAlertDialogBuilder(activity);
 
-        addCompletedMsg(puz);
+        LayoutInflater inflater = (LayoutInflater) activity.getSystemService(
+            Context.LAYOUT_INFLATER_SERVICE
+        );
+        View layout = inflater.inflate(
+            R.layout.completed,
+            (ViewGroup) activity.findViewById(R.id.finished)
+        );
+
+        builder.setTitle(activity.getString(R.string.puzzle_finished_title));
+        builder.setView(layout);
+
+        Playboard board = ForkyzApplication.getInstance().getBoard();
+        Puzzle puz = board == null ? null : board.getPuzzle();
+        if (board == null)
+            return builder.create();
+
+        addCompletedMsg(puz, layout.findViewById(R.id.puzzle_completed_msg));
 
         long elapsed = puz.getTime();
-        finishedTime = elapsed;
+        long finishedTime = elapsed;
 
         long hours = elapsed / HOURS;
         elapsed = elapsed % HOURS;
@@ -56,12 +68,12 @@ public class PuzzleFinishedActivity extends ForkyzActivity {
 
         String elapsedString;
         if (hours > 0) {
-            elapsedString = getString(
+            elapsedString = activity.getString(
                 R.string.completed_time_format_with_hours,
                 hours, minutes, seconds
             );
         } else {
-            elapsedString = getString(
+            elapsedString = activity.getString(
                 R.string.completed_time_format_no_hours,
                 minutes, seconds
             );
@@ -80,11 +92,11 @@ public class PuzzleFinishedActivity extends ForkyzActivity {
             totalBoxes++;
         }
 
-        this.cheatLevel = cheatedBoxes * 100 / totalBoxes;
-        if(this.cheatLevel == 0 && cheatedBoxes > 0){
-            this.cheatLevel = 1;
+        int cheatLevel = cheatedBoxes * 100 / totalBoxes;
+        if(cheatLevel == 0 && cheatedBoxes > 0){
+            cheatLevel = 1;
         }
-        String cheatedString = getString(
+        String cheatedString = activity.getString(
             R.string.num_hinted_boxes, cheatedBoxes, cheatLevel
         );
 
@@ -99,58 +111,53 @@ public class PuzzleFinishedActivity extends ForkyzActivity {
             DateTimeFormatter dateFormat
                 = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT);
 
-            shareMessage = getResources().getQuantityString(
+            shareMessage = activity.getResources().getQuantityString(
                 R.plurals.share_message_with_date,
                 cheatedBoxes,
                 source, dateFormat.format(puz.getDate()), cheatedBoxes
             );
         } else {
-            shareMessage = getResources().getQuantityString(
+            shareMessage = activity.getResources().getQuantityString(
                 R.plurals.share_message_no_date,
                 cheatedBoxes,
                 source, cheatedBoxes
             );
         }
 
-        TextView elapsedTime = this.findViewById(R.id.elapsed);
+        TextView elapsedTime = layout.findViewById(R.id.elapsed);
         elapsedTime.setText(elapsedString);
 
-        TextView totalCluesView = this.findViewById(R.id.totalClues);
+        TextView totalCluesView = layout.findViewById(R.id.totalClues);
         totalCluesView.setText(String.format(
             Locale.getDefault(), "%d", totalClues)
         );
 
-        TextView totalBoxesView = this.findViewById(R.id.totalBoxes);
+        TextView totalBoxesView = layout.findViewById(R.id.totalBoxes);
         totalBoxesView.setText(String.format(
             Locale.getDefault(), "%d", totalBoxes
         ));
 
-        TextView cheatedBoxesView = this.findViewById(R.id.cheatedBoxes);
+        TextView cheatedBoxesView = layout.findViewById(R.id.cheatedBoxes);
         cheatedBoxesView.setText(cheatedString);
 
-        Button share = this.findViewById(R.id.share);
-        share.setOnClickListener(new OnClickListener(){
-            public void onClick(View v) {
+        // with apologies to the Material guidelines..
+        builder.setNegativeButton(R.string.share, new OnClickListener(){
+            public void onClick(DialogInterface dialog, int which) {
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
                 sendIntent.setType("text/plain");
-                startActivity(Intent.createChooser(
-                    sendIntent, getString(R.string.share_your_time)
+                activity.startActivity(Intent.createChooser(
+                    sendIntent, activity.getString(R.string.share_your_time)
                 ));
             }
         });
 
-        Button done = this.findViewById(R.id.done);
-        done.setOnClickListener(new OnClickListener(){
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        builder.setPositiveButton(R.string.done, null);
+
+        return builder.create();
     }
 
-    private void addCompletedMsg(Puzzle puz) {
-        TextView view = findViewById(R.id.puzzle_completed_msg);
-
+    private void addCompletedMsg(Puzzle puz, TextView view) {
         String msg = puz.getCompletionMessage();
         if (msg == null || msg.isEmpty()) {
             view.setVisibility(View.GONE);

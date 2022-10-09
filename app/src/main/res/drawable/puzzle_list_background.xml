@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_selected="true"
-          android:drawable="@color/accent" />
-    <item android:state_pressed="true"
-          android:drawable="@color/background_dark" />
-    <item android:state_focused="true"
-          android:drawable="@color/background_dark" />
-    <item android:drawable="@color/background_light" />
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="40dp" />
+            <solid android:color="@color/primaryContainer" />
+        </shape>
+    </item>
+    <item android:state_pressed="true">
+        <color android:color="@color/surfaceVariantPressed"/>
+    </item>
+    <item android:state_focused="true">
+        <color android:color="@color/surfaceVariantPressed"/>
+    </item>
+    <item>
+        <color android:color="@color/surfaceVariant"/>
+    </item>
 </selector>

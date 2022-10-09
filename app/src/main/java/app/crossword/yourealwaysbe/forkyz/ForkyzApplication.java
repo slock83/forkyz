@@ -9,6 +9,7 @@ import android.util.DisplayMetrics;
 import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 import androidx.preference.PreferenceManager;
+import com.google.android.material.color.DynamicColors;
 
 import app.crossword.yourealwaysbe.puz.MovementStrategy;
 import app.crossword.yourealwaysbe.puz.Playboard;
@@ -127,6 +128,9 @@ public class ForkyzApplication extends Application {
         super.onCreate();
 
         AndroidVersionUtils.Factory.getInstance().createNotificationChannel(this);
+
+        if (isDynamicColors())
+            DynamicColors.applyToActivitiesIfAvailable(this);
     }
 
     public static boolean isLandscape(DisplayMetrics metrics){
@@ -250,5 +254,9 @@ public class ForkyzApplication extends Application {
             );
             editor.apply();
         }
+    }
+
+    private boolean isDynamicColors() {
+        return settings.getBoolean("useDynamicColors", false);
     }
 }

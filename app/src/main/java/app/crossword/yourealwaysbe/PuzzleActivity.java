@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
 import androidx.core.app.ShareCompat;
+import androidx.fragment.app.DialogFragment;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -111,9 +112,12 @@ public abstract class PuzzleActivity
             timer.stop();
             puz.setTime(timer.getElapsed());
             setTimer(null);
-            Intent i = new Intent(PuzzleActivity.this,
-                                  PuzzleFinishedActivity.class);
-            this.startActivity(i);
+
+            DialogFragment dialog = new PuzzleFinishedDialog();
+            dialog.show(
+                getSupportFragmentManager(),
+                "PuzzleFinishedDialog"
+            );
         }
     }
 
@@ -304,8 +308,7 @@ public abstract class PuzzleActivity
     }
 
     private void specialEntry() {
-        SpecialEntryDialog dialog
-            = new SpecialEntryDialog(getBoard());
+        SpecialEntryDialog dialog = new SpecialEntryDialog();
         dialog.show(getSupportFragmentManager(), "SpecialEntryDialog");
     }
 

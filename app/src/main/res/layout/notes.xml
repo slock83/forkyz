@@ -13,8 +13,7 @@
         android:textSize="12sp"
         android:minLines="2"
         android:maxLines="4"
-        android:textColor="@color/textColorPrimary"
-        android:background="@color/background_dark"
+        android:theme="@style/clueLineStyle"
     />
     <ScrollView
         android:layout_width="fill_parent"
@@ -32,7 +31,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/board_lab"
-                android:textColor="@color/textColorPrimary"
             />
             <app.crossword.yourealwaysbe.view.BoardWordEditView
                 android:id="@+id/miniboard"
@@ -50,7 +48,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/scratch_lab"
-                android:textColor="@color/textColorPrimary"
             />
             <app.crossword.yourealwaysbe.view.BoardEditText
                 android:id="@+id/scratchMiniboard"
@@ -67,7 +64,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/notes_lab"
-                android:textColor="@color/textColorPrimary"
             />
             <EditText
                 android:id="@+id/notesBox"
@@ -82,7 +78,7 @@
                 android:nextFocusForward="@+id/anagramSource"
                 android:nextFocusDown="@+id/anagramSource"
             />
-            <CheckBox
+            <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/flagClue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -91,14 +87,12 @@
                 android:drawableRight="?android:attr/listChoiceIndicatorMultiple"
                 android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
                 android:text="@string/flagClue"
-                android:textColor="@color/textColorPrimary"
             />
             <TextView
                 android:id="@+id/anagramSourceLab"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/anagram_source_lab"
-                android:textColor="@color/textColorPrimary"
             />
             <app.crossword.yourealwaysbe.view.BoardEditText
                 android:id="@+id/anagramSource"
@@ -115,7 +109,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/anagram_solution_lab"
-                android:textColor="@color/textColorPrimary"
             />
             <app.crossword.yourealwaysbe.view.BoardEditText
                 android:id="@+id/anagramSolution"

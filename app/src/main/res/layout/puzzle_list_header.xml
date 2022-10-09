@@ -11,6 +11,4 @@
     android:paddingRight="16dip"
     android:paddingEnd="16dip"
     android:text="@string/preview"
-    android:textColor="@color/header_text"
-    android:background="@drawable/container_drop_shadow"
 />

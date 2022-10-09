@@ -1,7 +1,6 @@
 
 package app.crossword.yourealwaysbe.view;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import androidx.fragment.app.DialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Playboard;
@@ -23,12 +24,6 @@ import app.crossword.yourealwaysbe.puz.Playboard;
  * when entered.
  */
 public class SpecialEntryDialog extends DialogFragment {
-    private Playboard board;
-
-    public SpecialEntryDialog(Playboard board) {
-        this.board = board;
-    }
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = (LayoutInflater)
@@ -40,6 +35,16 @@ public class SpecialEntryDialog extends DialogFragment {
             R.layout.special_entry_dialog, root
         );
 
+        MaterialAlertDialogBuilder builder
+            = new MaterialAlertDialogBuilder(getActivity());
+
+        builder.setTitle(getString(R.string.special_entry))
+            .setView(layout);
+
+        Playboard board = ForkyzApplication.getInstance().getBoard();
+        if (board == null)
+            return builder.create();
+
         Box curBox = board.getCurrentBox();
         String curLetter = null;
         if (!curBox.isBlank()) {
@@ -47,12 +52,7 @@ public class SpecialEntryDialog extends DialogFragment {
             input.setText(curBox.getResponse());
         }
 
-        AlertDialog.Builder builder
-            = new AlertDialog.Builder(getActivity());
-
-        builder.setTitle(getString(R.string.special_entry))
-            .setView(layout)
-            .setPositiveButton(
+        builder.setPositiveButton(
                 R.string.ok,
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {

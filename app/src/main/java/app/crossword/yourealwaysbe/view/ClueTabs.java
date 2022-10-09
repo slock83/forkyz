@@ -11,9 +11,11 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.WeakSet;
 import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
 
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.util.AttributeSet;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -23,7 +25,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
-import androidx.core.content.ContextCompat;
 import androidx.core.text.HtmlCompat;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.preference.PreferenceManager;
@@ -680,16 +681,16 @@ public class ClueTabs extends LinearLayout
 
             clueView.setText(HtmlCompat.fromHtml(getClueText(clue), 0));
 
-            int color = R.color.textColorPrimary;
-
             if (board != null) {
-                if (board.isFilledClueID(clue.getClueID()))
-                    color = R.color.textColorFilled;
+                ColorStateList colors = clueView.getTextColors();
+                int alpha
+                    = ClueTabs.this.getContext().getResources().getInteger(
+                        board.isFilledClueID(clue.getClueID())
+                        ? R.integer.filled_clue_alpha
+                        : R.integer.unfilled_clue_alpha
+                    );
+                clueView.setTextColor(colors.withAlpha(alpha));
             }
-
-            clueView.setTextColor(ContextCompat.getColor(
-                itemView.getContext(), color
-            ));
 
             if (board != null) {
                 ClueID cid = board.getClueID();

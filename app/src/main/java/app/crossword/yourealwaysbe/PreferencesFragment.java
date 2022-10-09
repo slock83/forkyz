@@ -12,6 +12,7 @@ import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
+import com.google.android.material.color.DynamicColors;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -66,6 +67,9 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                     return true;
                 }
             });
+
+        findPreference("useDynamicColors")
+            .setVisible(DynamicColors.isDynamicColorAvailable());
     }
 
     @Override

@@ -8,7 +8,7 @@
     android:paddingLeft="8dp"
     android:paddingRight="8dp"
     android:paddingTop="8dp"
-    android:background="@drawable/puzzle_list_background"
+    style="@style/puzzleListItemStyle"
 >
     <TextView
         android:id="@+id/puzzle_date"
@@ -24,7 +24,6 @@
         android:paddingRight="10dp"
         android:paddingEnd="10dp"
         android:text="@string/puzzle_date"
-        android:textColor="@color/textColorSecondary"
         android:textSize="12sp"
     />
     <app.crossword.yourealwaysbe.view.CircleProgressBar
@@ -60,7 +59,6 @@
             android:paddingTop="2dp"
             android:singleLine="true"
             android:text="@string/puzzle_name"
-            android:textColor="@color/textColorPrimary"
             android:textSize="25sp"
         />
         <TextView
@@ -75,7 +73,6 @@
             android:paddingRight="10dp"
             android:paddingEnd="10dp"
             android:text="@string/caption_text"
-            android:textColor="@color/textColorSecondary"
             android:textSize="15sp"
         />
     </LinearLayout>

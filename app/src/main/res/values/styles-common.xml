@@ -1,0 +1,51 @@
+<!-- common to all variants day/night/v21 &c. -->
+<!-- extra styles in styles.xml in variant folders -->
+<resources>
+    <style name="checkboxStyle" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="android:textColor">?attr/colorOnBackground</item>
+    </style>
+    <style name="submenuHeaderStyle" parent="Widget.Material3.PopupMenu">
+    </style>
+    <style name="keyboardStyle" parent="Theme.Forkyz">
+        <item name="buttonStyle">@style/keyboardButtonStyle</item>
+        <item name="android:buttonStyle">@style/keyboardButtonStyle</item>
+        <item name="imageButtonStyle">@style/keyboardImageButtonStyle</item>
+        <item name="android:imageButtonStyle">@style/keyboardImageButtonStyle</item>
+    </style>
+    <style name="keyboardButtonStyle" parent="Theme.Forkyz">
+        <item name="android:textSize">@dimen/keyboardTextSize</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:tint">?attr/colorOnBackground</item>
+    </style>
+    <style name="keyboardImageButtonStyle" parent="Theme.Forkyz">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:gravity">center</item>
+        <item name="android:tint">?attr/colorOnBackground</item>
+    </style>
+    <style name="keyboardDividerStyle" parent="Theme.Forkyz">
+        <item name="android:background">?attr/colorOutline</item>
+    </style>
+    <!-- keyboardHideBarStyle in styles.xml in variant folders -->
+    <style name="speedDialStyle">
+        <item name="colorOnPrimaryContainer">?attr/colorOnPrimary</item>
+    </style>
+    <style name="speedDialOverlayStyle" parent="Theme.Forkyz">
+        <item name="android:background">@color/screenFade</item>
+    </style>
+    <style name="puzzleListItemStyle" parent="Theme.Forkyz">
+        <item name="android:background">@drawable/puzzle_list_background</item>
+    </style>
+    <style name="clueLineStyle" parent="Theme.Forkyz">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextColor">?attr/colorOnPrimary</item>
+        <item name="android:textColor">?attr/colorOnPrimary</item>
+    </style>
+    <style name="clueLineOnlyStyle" parent="Theme.Forkyz">
+        <item name="titleTextColor">?attr/colorOnSurface</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+    <style name="clueListItemStyle" parent="Widget.Material3.CheckedTextView">
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>

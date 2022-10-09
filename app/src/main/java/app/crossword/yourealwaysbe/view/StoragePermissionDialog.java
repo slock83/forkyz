@@ -2,12 +2,12 @@
 package app.crossword.yourealwaysbe.view;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 
@@ -16,8 +16,8 @@ public class StoragePermissionDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder
-            = new AlertDialog.Builder(getActivity());
+        MaterialAlertDialogBuilder builder
+            = new MaterialAlertDialogBuilder(getActivity());
 
         int resultCode = getArguments().getInt(RESULT_CODE_KEY);
 
