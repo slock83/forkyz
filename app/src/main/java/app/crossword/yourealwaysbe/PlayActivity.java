@@ -965,54 +965,59 @@ public class PlayActivity extends PuzzleActivity
             );
 
             final String text = split[0].trim();
+            final boolean hasMore = split.length > 1;
 
-            if (text.length() > 0) {
-                view.setText(smartHtml(
-                    getString(R.string.tap_to_show_full_notes_with_text, text)
-                ));
+            if (!hasMore) {
+                view.setText(smartHtml(text));
             } else {
-                view.setText(getString(
-                    R.string.tap_to_show_full_notes_no_text
-                ));
-            }
-
-            view.setOnClickListener(new OnClickListener() {
-                private boolean showAll = true;
-
-                public void onClick(View view) {
-                    TextView tv = (TextView) view;
-
-                    if (showAll) {
-                        if (notes == null || notes.length() == 0) {
-                            tv.setText(getString(
-                                R.string.tap_to_hide_full_notes_no_text
-                            ));
-                        } else {
-                            tv.setText(smartHtml(
-                                getString(
-                                    R.string.tap_to_hide_full_notes_with_text,
-                                    notes
-                                )
-                            ));
-                        }
-                    } else {
-                        if (text == null || text.length() == 0) {
-                            tv.setText(getString(
-                                R.string.tap_to_show_full_notes_no_text
-                            ));
-                        } else {
-                            tv.setText(smartHtml(
-                                getString(
-                                    R.string.tap_to_show_full_notes_with_text,
-                                    text
-                                )
-                            ));
-                        }
-                    }
-
-                    showAll = !showAll;
+                if (text.length() > 0) {
+                    view.setText(smartHtml(
+                        getString(R.string.tap_to_show_full_notes_with_text, text)
+                    ));
+                } else {
+                    view.setText(getString(
+                        R.string.tap_to_show_full_notes_no_text
+                    ));
                 }
-            });
+
+                view.setOnClickListener(new OnClickListener() {
+                    private boolean showAll = true;
+
+                    public void onClick(View view) {
+                        TextView tv = (TextView) view;
+
+                        if (showAll) {
+                            if (notes == null || notes.length() == 0) {
+                                tv.setText(getString(
+                                    R.string.tap_to_hide_full_notes_no_text
+                                ));
+                            } else {
+                                tv.setText(smartHtml(
+                                    getString(
+                                        R.string.tap_to_hide_full_notes_with_text,
+                                        notes
+                                    )
+                                ));
+                            }
+                        } else {
+                            if (text == null || text.length() == 0) {
+                                tv.setText(getString(
+                                    R.string.tap_to_show_full_notes_no_text
+                                ));
+                            } else {
+                                tv.setText(smartHtml(
+                                    getString(
+                                        R.string.tap_to_show_full_notes_with_text,
+                                        text
+                                    )
+                                ));
+                            }
+                        }
+
+                        showAll = !showAll;
+                    }
+                });
+            }
         }
     }
 
