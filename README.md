@@ -37,8 +37,13 @@ Support for block and bar puzzles. Puzzles don't have to be across/down. E.g. ro
     width=150
 />
 <img
+    alt="The clue list view with the words shown with the clue"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/08-ClueListGrid.png"
+    width=150
+/>
+<img
     alt="The clue/puzzle notes page with anagram helper"
-    src="fastlane/metadata/android/en-US/images/phoneScreenshots/08-NotesPage.png"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/09-NotesPage.png"
     width=150
 />
 <img
@@ -52,8 +57,13 @@ Support for block and bar puzzles. Puzzles don't have to be across/down. E.g. ro
     width=150
 />
 <img
-    alt="A spiral puzzle in the app"
-    src="fastlane/metadata/android/en-US/images/phoneScreenshots/05-Spiral.png"
+    alt="A twists and turns puzzle in the app"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/05-TwistsAndTurns.png"
+    width=150
+/>
+<img
+    alt="The puzzle themed with dynamic Material You colours"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/10-DynamicTheme.png"
     width=150
 />
 
