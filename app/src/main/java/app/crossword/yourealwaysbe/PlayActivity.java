@@ -952,7 +952,10 @@ public class PlayActivity extends PuzzleActivity
             final String notes = puzNotes;
 
             String[] split = notes.split(
-                "(?i:(?m:^\\s*Across:?\\s*$|^.*>Across<.*|^\\s*\\d))", 2
+                "(?i:(?m:"
+                    + "^\\s*Across:?\\s*$|^.*>Across<.*|"
+                    + "^\\s*Down:?\\s*$|^.*>Down<.*|"
+                    + "^\\s*\\d))", 2
             );
 
             final String text = split[0].trim();
