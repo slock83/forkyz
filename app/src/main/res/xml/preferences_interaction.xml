@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/interaction_settings"
+    android:key="keyboardOptions"
+>
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/snap_current"
+        android:defaultValue="false"
+        android:summary="@string/snap_current_desc"
+        android:key="ensureVisible"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/scroll_to_clue"
+        android:defaultValue="false"
+        android:summary="@string/scroll_to_clue_desc"
+        android:key="snapClue"
+    />
+
+    <androidx.preference.ListPreference
+        android:title="@string/movement_style"
+        android:summary="@string/movement_style_desc"
+        android:key="movementStrategy"
+        android:defaultValue="MOVE_NEXT_ON_AXIS"
+        android:entries="@array/movementStrategyLabels"
+        android:entryValues="@array/movementStrategyValues"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/skip_filled"
+        android:defaultValue="false"
+        android:summary="@string/skip_filled_desc"
+        android:key="skipFilled"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/double_tap_zoom"
+        android:defaultValue="false"
+        android:summary="@string/double_tap_zoom_desc"
+        android:key="doubleTap"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/dont_delete_crossing"
+        android:defaultValue="false"
+        android:summary="@string/dont_delete_crossing_desc"
+        android:key="dontDeleteCrossing"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/preserve_correct"
+        android:defaultValue="false"
+        android:summary="@string/preserve_correct_desc"
+        android:key="preserveCorrectLettersInShowErrors"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/space_change_dir"
+        android:defaultValue="false"
+        android:summary="@string/space_change_dir_desc"
+        android:key="spaceChangesDirection"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/enter_changes_direction"
+        android:defaultValue="false"
+        android:summary="@string/enter_changes_direction_desc"
+        android:key="enterChangesDirection"
+    />
+</androidx.preference.PreferenceScreen>

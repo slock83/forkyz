@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/keyboard_settings"
+    android:key="keyboardOptions"
+>
+    <androidx.preference.ListPreference
+        android:title="@string/keyboard_showhide"
+        android:summary="@string/keyboard_showhide_desc"
+        android:key="keyboardShowHide"
+        android:defaultValue="@string/keyboard_hide_manual"
+        android:entries="@array/keyboardShowHideLabels"
+        android:entryValues="@array/keyboardShowHideValues"
+    />
+
+    <androidx.preference.ListPreference
+        android:title="@string/keyboard_layout"
+        android:summary="@string/keyboard_layout_desc"
+        android:key="keyboardLayout"
+        android:defaultValue="0"
+        android:entries="@array/keyboardLayoutsLabels"
+        android:entryValues="@array/keyboardLayoutsValues"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/keyboard_hide_button"
+        android:defaultValue="false"
+        android:summary="@string/keyboard_hide_button_desc"
+        android:key="keyboardHideButton"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/keyboard_use_native"
+        android:defaultValue="false"
+        android:summary="@string/keyboard_use_native_desc"
+        android:key="useNativeKeyboard"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/keyboard_haptic"
+        android:defaultValue="true"
+        android:summary="@string/keyboard_haptic_desc"
+        android:key="keyboardHaptic"
+    />
+</androidx.preference.PreferenceScreen>

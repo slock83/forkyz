@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/browser_settings"
+    android:key="browserOptions"
+>
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/delete_on_cleanup"
+        android:defaultValue="false"
+        android:summary="@string/delete_on_cleanup_desc"
+        android:key="deleteOnCleanup"
+    />
+
+    <androidx.preference.ListPreference
+        android:title="@string/cleanup_unfinished"
+        android:summary="@string/cleanup_unfinished_desc"
+        android:key="cleanupAge"
+        android:defaultValue="-1"
+        android:entries="@array/cleanupAgeLabels"
+        android:entryValues="@array/cleanupAgeValues"
+    />
+
+    <androidx.preference.ListPreference
+        android:title="@string/cleanup_archives"
+        android:summary="@string/cleanup_archives_desc"
+        android:key="archiveCleanupAge"
+        android:defaultValue="-1"
+        android:entries="@array/cleanupAgeLabels"
+        android:entryValues="@array/cleanupAgeValues"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/disable_swipe"
+        android:defaultValue="false"
+        android:summary="@string/disable_swipe_desc"
+        android:key="disableSwipe"
+    />
+
+    <androidx.preference.ListPreference
+        android:title="@string/swipe_action"
+        android:summary="@string/swipe_action_desc"
+        android:key="swipeAction"
+        android:defaultValue="ARCHIVE"
+        android:entries="@array/swipeActionLabels"
+        android:entryValues="@array/swipeActionValues"
+    />
+</androidx.preference.PreferenceScreen>

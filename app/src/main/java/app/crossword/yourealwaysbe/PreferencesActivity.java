@@ -1,8 +1,9 @@
 package app.crossword.yourealwaysbe;
 
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
@@ -22,13 +23,33 @@ public class PreferencesActivity
         setContentView(R.layout.preferences_activity);
 
         NightModeHelper nightMode = NightModeHelper.bind(this);
-        AndroidVersionUtils utils = AndroidVersionUtils.Factory.getInstance();
         nightMode.restoreNightMode();
 
-        getSupportFragmentManager().beginTransaction()
-                                   .replace(R.id.preferencesActivity,
-                                            new PreferencesFragment())
-                                   .commit();
+        AndroidVersionUtils utils = AndroidVersionUtils.Factory.getInstance();
+        utils.holographic(this);
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                                       .replace(R.id.preferencesActivity,
+                                                new PreferencesFragment())
+                                       .commit();
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        if (fragmentManager.getBackStackEntryCount() == 0) {
+            finish();
+            return true;
+        }
+
+        if (fragmentManager.popBackStackImmediate()) {
+            return true;
+        }
+
+        return super.onSupportNavigateUp();
     }
 
     // from https://developer.android.com/guide/topics/ui/settings/organize-your-settings

@@ -2,323 +2,58 @@
 <androidx.preference.PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/settings_label"
 >
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.ListPreference
         android:title="@string/storage_location"
-    >
-        <androidx.preference.ListPreference
-            android:title="@string/storage_location"
-            android:summary="@string/storage_location_desc"
-            android:key="storageLocation"
-            android:defaultValue="@string/internal_storage"
-            android:entries="@array/storageLocations"
-            android:entryValues="@array/storageLocations"
-        />
-    </androidx.preference.PreferenceCategory>
+        android:summary="@string/storage_location_desc"
+        android:key="storageLocation"
+        android:defaultValue="@string/internal_storage"
+        android:entries="@array/storageLocations"
+        android:entryValues="@array/storageLocations"
+    />
 
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.Preference
         android:title="@string/select_sources"
-    >
-        <!-- Organized alphabetically and by category. -->
-        <androidx.preference.Preference
-            android:title="@string/daily_crosswords"
-            android:summary="@string/daily_crosswords_desc"
-            android:key="selectDaily"
-            app:fragment="app.crossword.yourealwaysbe.PreferencesDailyFragment"
-        />
-        <androidx.preference.Preference
-            android:title="@string/weekly_crosswords"
-            android:summary="@string/weekly_crosswords_desc"
-            android:key="selectWeekly"
-            app:fragment="app.crossword.yourealwaysbe.PreferencesWeeklyFragment"
-        />
-        <androidx.preference.Preference
-            android:title="@string/scraper_sources"
-            android:summary="@string/scraper_sources_desc"
-            android:key="selectExperimental"
-            app:fragment="app.crossword.yourealwaysbe.PreferencesScraperFragment"
-        />
-    </androidx.preference.PreferenceCategory>
+        android:summary="@string/select_sources_desc"
+        android:key="sourcesOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$SourcesFragment"
+    />
 
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.Preference
         android:title="@string/download_settings"
-    >
+        android:summary="@string/download_settings_desc"
+        android:key="downloadOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$DownloadFragment"
+    />
 
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/automatic_download"
-            android:defaultValue="false"
-            android:summary="@string/automatic_download_desc"
-            android:key="dlOnStartup"
-        />
-
-        <androidx.preference.Preference
-            android:title="@string/background_download_opts"
-            android:summary="@string/background_download_opts_desc"
-            android:key="backgroundDownloadOptions"
-            app:fragment="app.crossword.yourealwaysbe.PreferencesDownloadFragment"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/no_summary_download_notifs"
-            android:defaultValue="false"
-            android:summary="@string/no_summary_download_notifs_desc"
-            android:key="supressSummaryMessages"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/no_puzzle_download_notifs"
-            android:defaultValue="false"
-            android:summary="@string/no_puzzle_download_notifs_desc"
-            android:key="supressMessages"
-        />
-
-        <androidx.preference.ListPreference
-            android:title="@string/download_timeout"
-            android:summary="@string/download_timeout_desc"
-            android:key="downloadTimeout"
-            android:defaultValue="30000"
-            android:entries="@array/downloadTimeoutLabels"
-            android:entryValues="@array/downloadTimeoutValues"
-        />
-    </androidx.preference.PreferenceCategory>
-
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.Preference
         android:title="@string/browser_settings"
-    >
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/delete_on_cleanup"
-            android:defaultValue="false"
-            android:summary="@string/delete_on_cleanup_desc"
-            android:key="deleteOnCleanup"
-        />
+        android:summary="@string/browser_settings_desc"
+        android:key="browserOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$BrowserFragment"
+    />
 
-        <androidx.preference.ListPreference
-            android:title="@string/cleanup_unfinished"
-            android:summary="@string/cleanup_unfinished_desc"
-            android:key="cleanupAge"
-            android:defaultValue="-1"
-            android:entries="@array/cleanupAgeLabels"
-            android:entryValues="@array/cleanupAgeValues"
-        />
-
-        <androidx.preference.ListPreference
-            android:title="@string/cleanup_archives"
-            android:summary="@string/cleanup_archives_desc"
-            android:key="archiveCleanupAge"
-            android:defaultValue="-1"
-            android:entries="@array/cleanupAgeLabels"
-            android:entryValues="@array/cleanupAgeValues"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/disable_swipe"
-            android:defaultValue="false"
-            android:summary="@string/disable_swipe_desc"
-            android:key="disableSwipe"
-        />
-
-        <androidx.preference.ListPreference
-            android:title="@string/swipe_action"
-            android:summary="@string/swipe_action_desc"
-            android:key="swipeAction"
-            android:defaultValue="ARCHIVE"
-            android:entries="@array/swipeActionLabels"
-            android:entryValues="@array/swipeActionValues"
-        />
-
-    </androidx.preference.PreferenceCategory>
-
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.Preference
         android:title="@string/keyboard_settings"
-    >
+        android:summary="@string/keyboard_settings_desc"
+        android:key="keyboardOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$KeyboardFragment"
+    />
 
-        <androidx.preference.ListPreference
-            android:title="@string/keyboard_showhide"
-            android:summary="@string/keyboard_showhide_desc"
-            android:key="keyboardShowHide"
-            android:defaultValue="@string/keyboard_hide_manual"
-            android:entries="@array/keyboardShowHideLabels"
-            android:entryValues="@array/keyboardShowHideValues"
-        />
-
-        <androidx.preference.ListPreference
-            android:title="@string/keyboard_layout"
-            android:summary="@string/keyboard_layout_desc"
-            android:key="keyboardLayout"
-            android:defaultValue="0"
-            android:entries="@array/keyboardLayoutsLabels"
-            android:entryValues="@array/keyboardLayoutsValues"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/keyboard_hide_button"
-            android:defaultValue="false"
-            android:summary="@string/keyboard_hide_button_desc"
-            android:key="keyboardHideButton"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/keyboard_use_native"
-            android:defaultValue="false"
-            android:summary="@string/keyboard_use_native_desc"
-            android:key="useNativeKeyboard"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/keyboard_haptic"
-            android:defaultValue="true"
-            android:summary="@string/keyboard_haptic_desc"
-            android:key="keyboardHaptic"
-        />
-
-    </androidx.preference.PreferenceCategory>
-
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.Preference
         android:title="@string/interaction_settings"
-    >
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/snap_current"
-            android:defaultValue="false"
-            android:summary="@string/snap_current_desc"
-            android:key="ensureVisible"
-        />
+        android:summary="@string/interaction_settings_desc"
+        android:key="keyboardOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$InteractionFragment"
+    />
 
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/scroll_to_clue"
-            android:defaultValue="false"
-            android:summary="@string/scroll_to_clue_desc"
-            android:key="snapClue"
-        />
-
-        <androidx.preference.ListPreference
-            android:title="@string/movement_style"
-            android:summary="@string/movement_style_desc"
-            android:key="movementStrategy"
-            android:defaultValue="MOVE_NEXT_ON_AXIS"
-            android:entries="@array/movementStrategyLabels"
-            android:entryValues="@array/movementStrategyValues"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/skip_filled"
-            android:defaultValue="false"
-            android:summary="@string/skip_filled_desc"
-            android:key="skipFilled"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/double_tap_zoom"
-            android:defaultValue="false"
-            android:summary="@string/double_tap_zoom_desc"
-            android:key="doubleTap"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/dont_delete_crossing"
-            android:defaultValue="false"
-            android:summary="@string/dont_delete_crossing_desc"
-            android:key="dontDeleteCrossing"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/preserve_correct"
-            android:defaultValue="false"
-            android:summary="@string/preserve_correct_desc"
-            android:key="preserveCorrectLettersInShowErrors"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/space_change_dir"
-            android:defaultValue="false"
-            android:summary="@string/space_change_dir_desc"
-            android:key="spaceChangesDirection"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/enter_changes_direction"
-            android:defaultValue="false"
-            android:summary="@string/enter_changes_direction_desc"
-            android:key="enterChangesDirection"
-        />
-
-    </androidx.preference.PreferenceCategory>
-
-    <androidx.preference.PreferenceCategory
+    <androidx.preference.Preference
         android:title="@string/display_settings"
-    >
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/use_dynamic_colors"
-            android:defaultValue="false"
-            android:summary="@string/use_dynamic_colors_desc"
-            android:key="useDynamicColors"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/show_all_words_clue_list"
-            android:defaultValue="false"
-            android:summary="@string/show_all_words_clue_list_desc"
-            android:key="showWordsInClueList"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/fit_screen_start"
-            android:defaultValue="false"
-            android:summary="@string/fit_screen_start_desc"
-            android:key="fitToScreen"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/display_scratch"
-            android:defaultValue="false"
-            android:summary="@string/display_scratch_desc"
-            android:key="displayScratch"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/fit_screen_start"
-            android:defaultValue="false"
-            android:summary="@string/fit_screen_start_desc"
-            android:key="fitToScreen"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/no_hint_highlighting"
-            android:defaultValue="false"
-            android:summary="@string/no_hint_highlighting_desc"
-            android:key="supressHints"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/show_length"
-            android:defaultValue="false"
-            android:summary="@string/show_length_desc"
-            android:key="showCount"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/show_timer"
-            android:defaultValue="false"
-            android:summary="@string/show_timer_desc"
-            android:key="showTimer"
-        />
-
-        <androidx.preference.CheckBoxPreference
-            android:title="@string/full_screen"
-            android:defaultValue="false"
-            android:summary="@string/full_screen_desc"
-            android:key="fullScreen"
-        />
-
-        <androidx.preference.ListPreference
-            android:title="@string/orientation_lock"
-            android:summary="@string/orientation_lock_desc"
-            android:key="orientationLock"
-            android:defaultValue="UNLOCKED"
-            android:entries="@array/orientationLockLabels"
-            android:entryValues="@array/orientationLockValues"
-        />
-
-    </androidx.preference.PreferenceCategory>
+        android:summary="@string/display_settings_desc"
+        android:key="keyboardOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$DisplayFragment"
+    />
 
     <androidx.preference.PreferenceCategory
         android:title="@string/about_forkyz"

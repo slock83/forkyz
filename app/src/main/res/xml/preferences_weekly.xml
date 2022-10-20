@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:title="@string/weekly_crosswords"
-    android:summary="@string/weekly_crosswords_desc"
     android:key="selectWeekly"
 >
     <androidx.preference.PreferenceCategory

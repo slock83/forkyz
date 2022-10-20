@@ -10,16 +10,14 @@ import androidx.preference.ListPreference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
 import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
-import com.google.android.material.color.DynamicColors;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.util.files.FileHandlerSAF;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
-public class PreferencesFragment extends PreferenceFragmentCompat {
+public class PreferencesFragment extends PreferencesBaseFragment {
 
     ActivityResultLauncher<Uri> getSAFURI
         = AndroidVersionUtils.Factory.getInstance()
@@ -67,9 +65,6 @@ public class PreferencesFragment extends PreferenceFragmentCompat {
                     return true;
                 }
             });
-
-        findPreference("useDynamicColors")
-            .setVisible(DynamicColors.isDynamicColorAvailable());
     }
 
     @Override

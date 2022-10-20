@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/display_settings"
+    android:key="keyboardOptions"
+>
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/use_dynamic_colors"
+        android:defaultValue="false"
+        android:summary="@string/use_dynamic_colors_desc"
+        android:key="useDynamicColors"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/show_all_words_clue_list"
+        android:defaultValue="false"
+        android:summary="@string/show_all_words_clue_list_desc"
+        android:key="showWordsInClueList"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/fit_screen_start"
+        android:defaultValue="false"
+        android:summary="@string/fit_screen_start_desc"
+        android:key="fitToScreen"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/display_scratch"
+        android:defaultValue="false"
+        android:summary="@string/display_scratch_desc"
+        android:key="displayScratch"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/no_hint_highlighting"
+        android:defaultValue="false"
+        android:summary="@string/no_hint_highlighting_desc"
+        android:key="supressHints"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/show_length"
+        android:defaultValue="false"
+        android:summary="@string/show_length_desc"
+        android:key="showCount"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/show_timer"
+        android:defaultValue="false"
+        android:summary="@string/show_timer_desc"
+        android:key="showTimer"
+    />
+
+    <androidx.preference.CheckBoxPreference
+        android:title="@string/full_screen"
+        android:defaultValue="false"
+        android:summary="@string/full_screen_desc"
+        android:key="fullScreen"
+    />
+
+    <androidx.preference.ListPreference
+        android:title="@string/orientation_lock"
+        android:summary="@string/orientation_lock_desc"
+        android:key="orientationLock"
+        android:defaultValue="UNLOCKED"
+        android:entries="@array/orientationLockLabels"
+        android:entryValues="@array/orientationLockValues"
+    />
+</androidx.preference.PreferenceScreen>
