@@ -307,6 +307,7 @@ public class PlayActivity extends PuzzleActivity
         return true;
     }
 
+    @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
 

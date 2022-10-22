@@ -149,7 +149,7 @@ public class NotesActivity extends PuzzleActivity {
                 }
             }
         });
-        this.boardView.setOnKeyListener(new View.OnKeyListener() {
+        boardView.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent event) {
                 if (event.getAction() == KeyEvent.ACTION_UP)
@@ -158,6 +158,14 @@ public class NotesActivity extends PuzzleActivity {
                     return false;
             }
         });
+        boardView.setOnFocusChangeListener(
+            new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean gainFocus) {
+                    NotesActivity.this.onBoardViewFocusChanged(gainFocus);
+                }
+            }
+        );
 
         notesBox = (EditText) this.findViewById(R.id.notesBox);
 
@@ -516,6 +524,18 @@ public class NotesActivity extends PuzzleActivity {
         keyboardManager.onResume();
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem specialEntry = menu.findItem(R.id.puzzle_menu_special_entry);
+
+        boolean specialEntryEnabled = getCurrentFocus() == boardView;
+
+        specialEntry.setVisible(specialEntryEnabled);
+        specialEntry.setEnabled(specialEntryEnabled);
+
+        return true;
+    }
+
     private Set<String> getSuppressNotesList() {
         boolean displayScratch = prefs.getBoolean("displayScratch", false);
         if (!displayScratch)
@@ -730,6 +750,13 @@ public class NotesActivity extends PuzzleActivity {
 
             return builder.create();
         }
+    }
+
+    /**
+     * Invalidate options menu so special entry can be hidden
+     */
+    private void onBoardViewFocusChanged(boolean gainFocus) {
+        invalidateOptionsMenu();
     }
 
     /**
