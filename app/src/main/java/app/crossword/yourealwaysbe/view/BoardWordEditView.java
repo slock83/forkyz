@@ -83,7 +83,7 @@ public class BoardWordEditView extends BoardEditView {
     public void setWord(Word word, Set<String> suppressNotesList) {
         this.suppressNotesList = suppressNotesList;
         this.word = word;
-        this.wordPositions = null;
+        onRenderWordChanged();
         // need to rescale with new word
         renderToView();
     }
@@ -101,6 +101,7 @@ public class BoardWordEditView extends BoardEditView {
                 && !Objects.equals(currentWord, previousWord)
             ) {
                 renderToView();
+                onRenderWordChanged();
             } else if (redrawNeeded(wholeBoard, currentWord, previousWord)) {
                 render();
             }
@@ -295,6 +296,12 @@ public class BoardWordEditView extends BoardEditView {
             || wordOverlaps(positions, previousWord);
     }
 
+    /**
+     * Get (cached) positions of rendering word
+     *
+     * Call onRenderWordChanged when rendering word changes to clear
+     * cache.
+     */
     private Set<Position> getRenderWordPositions() {
         if (wordPositions == null) {
             Zone zone = getRenderWordZone();
@@ -309,6 +316,13 @@ public class BoardWordEditView extends BoardEditView {
             }
         }
         return wordPositions;
+    }
+
+    /**
+     * E.g. clears wordPositions cached
+     */
+    private void onRenderWordChanged() {
+        this.wordPositions = null;
     }
 
     private boolean wordOverlaps(Set<Position> positions, Word word) {
