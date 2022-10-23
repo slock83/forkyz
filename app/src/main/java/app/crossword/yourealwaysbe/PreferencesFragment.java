@@ -120,6 +120,8 @@ public class PreferencesFragment extends PreferencesBaseFragment {
     }
 
     private void onNewExternalStorageSAFURI(Uri uri) {
+        if (uri == null)
+            return;
 
         boolean setupSuccess = FileHandlerSAF.initialiseSAFPrefs(
             getActivity().getApplicationContext(), uri
