@@ -6,13 +6,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.StatFs;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -31,7 +29,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class IceCreamSandwichUtil implements AndroidVersionUtils {
     @Override
     public void setContext(Context ctx) { }

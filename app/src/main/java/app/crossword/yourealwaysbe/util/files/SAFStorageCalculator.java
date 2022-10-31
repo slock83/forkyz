@@ -1,7 +1,7 @@
 
 package app.crossword.yourealwaysbe.util.files;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 import android.content.Context;
@@ -30,18 +30,18 @@ public class SAFStorageCalculator {
                 rootUri,
                 DocumentsContract.getTreeDocumentId(rootUri)
         );
-        try {
+        try (
             ParcelFileDescriptor pfd
                 = context
                     .getContentResolver()
-                    .openFileDescriptor(folderUri, "r");
-
+                    .openFileDescriptor(folderUri, "r")
+        ) {
             if (pfd != null) {
                 StructStatVfs stats = Os.fstatvfs(pfd.getFileDescriptor());
                 long availableBytes = stats.f_bavail * stats.f_bsize;
                 return availableBytes < 1024L * 1024L;
             }
-        } catch (FileNotFoundException | ErrnoException e) {
+        } catch (IOException | ErrnoException e) {
             LOGGER.info("Could not calculate storage available");
             e.printStackTrace();
             // fall through

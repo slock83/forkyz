@@ -1,14 +1,11 @@
 package app.crossword.yourealwaysbe.view;
 
-import android.annotation.TargetApi;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 
 import app.crossword.yourealwaysbe.view.ScrollingImageView.AuxTouchHandler;
 
-
-@TargetApi(8)
 public class MultitouchHandler implements OnScaleGestureListener, AuxTouchHandler {
     private ScaleGestureDetector scaleDetector;
     private ScrollingImageView view;
