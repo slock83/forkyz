@@ -15,9 +15,11 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
+import app.crossword.yourealwaysbe.puz.Zone;
 
 /**
  * Format used by RaetselZentrale for Schwedenrätsel
@@ -31,6 +33,9 @@ public class RaetselZentraleSchwedenJSONIO implements PuzzleParser {
 
     private static final String ACROSS_LIST = "Hinüber";
     private static final String DOWN_LIST = "Hinunter";
+    private static final String WINWORD_LIST = "Lösungswort";
+
+    private static final String WINWORD_HINT = "Lösungswort";
 
     private static final String ARROW_DOWN_RIGHT = "1";
     private static final String ARROW_UP_RIGHT = "2";
@@ -97,14 +102,13 @@ public class RaetselZentraleSchwedenJSONIO implements PuzzleParser {
             .setTitle(json.getString("name"));
 
         addClues(payload, builder);
+        addWinWord(payload, builder);
 
         return builder.getPuzzle();
     }
 
     private static Box[][] getBoxes(JSONObject json) throws RZSFormatException {
-        // +2 on height to allow for final puzzle word on separate
-        // bottom row
-        int numRows = json.getInt("height") + 2;
+        int numRows = json.getInt("height");
         int numCols = json.getInt("width");
 
         Box[][] boxes = new Box[numRows][numCols];
@@ -113,7 +117,6 @@ public class RaetselZentraleSchwedenJSONIO implements PuzzleParser {
         JSONObject solution = json.getJSONObject("solution");
 
         addGridToBoxes(grid, boxes);
-        addFinalWordToBoxes(solution, boxes);
 
         return boxes;
     }
@@ -131,51 +134,6 @@ public class RaetselZentraleSchwedenJSONIO implements PuzzleParser {
 
                 // clue numbers added with clues
             }
-        }
-    }
-
-    private static void addFinalWordToBoxes(
-        JSONObject finalWord, Box[][] boxes
-    ) throws RZSFormatException {
-        int finalRow = boxes.length - 1;
-
-        if (finalRow < 0)
-            return;
-
-        String winWord = finalWord.optString("winword");
-        if (winWord == null)
-            return;
-
-        JSONArray positions = finalWord.getJSONArray("matrix");
-
-        if (winWord.length() != positions.length()) {
-            throw new RZSFormatException(
-                "Final win word is not the same length as the marked positions"
-            );
-        }
-
-        if (winWord.isEmpty())
-            return;
-
-        int finalWordOffset
-            = boxes[finalRow].length / 2
-            - winWord.length() / 2;
-
-        for (int i = 0; i < winWord.length(); i++) {
-            // create final word entry box
-            Box box = new Box();
-            box.setSolution(String.valueOf(winWord.charAt(i)));
-            String[][] marks = new String[3][3];
-            marks[2][2] = String.valueOf(i + 1);
-            box.setMarks(marks);
-            boxes[finalRow][finalWordOffset + i] = box;
-
-            // mark corresponding box on grid
-            JSONArray position = positions.getJSONArray(i);
-            int row = position.getInt(1) - 1;
-            int col = position.getInt(0) - 1;
-
-            boxes[row][col].setMarks(marks);
         }
     }
 
@@ -228,6 +186,33 @@ public class RaetselZentraleSchwedenJSONIO implements PuzzleParser {
                 }
             }
         }
+    }
+
+    /**
+     * Takes payload json, adds winword to builder
+     */
+    private static void addWinWord(JSONObject json, PuzzleBuilder builder)
+            throws RZSFormatException {
+        Box[][] boxes = builder.getPuzzle().getBoxes();
+
+        JSONObject solution = json.optJSONObject("solution");
+        if (solution == null)
+            return;
+
+        JSONArray positions = solution.getJSONArray("matrix");
+        Zone zone = new Zone();
+        for (int i = 0; i < positions.length(); i++) {
+            JSONArray position = positions.getJSONArray(i);
+            int row = position.getInt(1) - 1;
+            int col = position.getInt(0) - 1;
+            zone.addPosition(new Position(row, col));
+
+            String[][] marks = new String[3][3];
+            marks[2][2] = String.valueOf(i + 1);
+            boxes[row][col].setMarks(marks);
+        }
+
+        builder.addClue(new Clue(WINWORD_LIST, 0, null, WINWORD_HINT, zone));
     }
 
     private static Map<Position, List<ClueInfo>> getClueInfos(JSONObject json)

@@ -26,7 +26,7 @@ public class RaetselZentraleSchwedenJSONIOTest extends TestCase {
         assertEquals(puz.getTitle(), "Test Puzzle");
 
         assertEquals(puz.getWidth(), 16);
-        assertEquals(puz.getHeight(), 18);
+        assertEquals(puz.getHeight(), 16);
 
         Box[][] boxes = puz.getBoxes();
 
@@ -40,13 +40,6 @@ public class RaetselZentraleSchwedenJSONIOTest extends TestCase {
 
         assertEquals(boxes[1][4].getMarks()[2][2], "2");
         assertEquals(boxes[5][5].getMarks()[2][2], "9");
-
-        assertNull(boxes[17][3]);
-        assertFalse(boxes[17][4].hasClueNumber());
-        assertEquals(boxes[17][4].getMarks()[2][2], "1");
-        assertEquals(boxes[17][12].getMarks()[2][2], "9");
-        assertNull(boxes[17][13]);
-        assertEquals(boxes[17][6].getSolution(), "B");
 
         ClueList acrossClues = puz.getClues("Hinüber");
         ClueList downClues = puz.getClues("Hinunter");
@@ -67,6 +60,15 @@ public class RaetselZentraleSchwedenJSONIOTest extends TestCase {
         Clue anAcross = acrossClues.getClueByNumber("14");
         Zone anAcrossZone = anAcross.getZone();
         assertEquals(anAcrossZone.size(), 7);
+
+
+        ClueList winwordClues = puz.getClues("Lösungswort");
+        assertEquals(winwordClues.size(), 1);
+        Clue winword = winwordClues.getClueByIndex(0);
+        assertEquals(winword.getHint(), "Lösungswort");
+        Zone winwordZone = winword.getZone();
+        assertEquals(winwordZone.size(), 9);
+        assertEquals(winwordZone.getPosition(4), new Position(13, 5));
     }
 
     public void testPuzzle1() throws Exception {
