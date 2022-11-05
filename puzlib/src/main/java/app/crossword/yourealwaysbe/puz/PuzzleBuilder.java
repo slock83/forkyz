@@ -192,6 +192,11 @@ public class PuzzleBuilder {
         return this;
     }
 
+    public PuzzleBuilder setPinnedClueID(ClueID pinnedClueID) {
+        puzzle.setPinnedClueID(pinnedClueID);
+        return this;
+    }
+
     /**
      * Number puzzle boxes according to standard system
      *

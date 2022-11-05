@@ -60,6 +60,9 @@ public class Puzzle implements Serializable{
     private Set<ClueID> flaggedClues = new HashSet<>();
     private List<PuzImage> images = new LinkedList<>();
 
+    // a clue/word to display permanently somewhere
+    private ClueID pinnedClueID;
+
     // Temporary fields used for unscrambling.
     public int[] unscrambleKey;
     public byte[] unscrambleTmp;
@@ -645,6 +648,24 @@ public class Puzzle implements Serializable{
         return false;
     }
 
+    /**
+     * Set pinned clue
+     *
+     * This is a clue that should be displayed permanently somewhere.
+     * E.g. a solution word for a crossword.
+     */
+    public void setPinnedClueID(ClueID pinnedClueID) {
+        this.pinnedClueID = pinnedClueID;
+    }
+
+    public boolean hasPinnedClueID() {
+        return pinnedClueID != null;
+    }
+
+    public ClueID getPinnedClueID() {
+        return pinnedClueID;
+    }
+
     @Override
     public boolean equals(Object obj) {
 
@@ -753,6 +774,9 @@ public class Puzzle implements Serializable{
         if (!Objects.equals(shareUrl, other.shareUrl))
             return false;
 
+        if (!Objects.equals(pinnedClueID, other.pinnedClueID))
+            return false;
+
         return true;
     }
 
@@ -774,7 +798,8 @@ public class Puzzle implements Serializable{
         result = (prime * result) + Objects.hashCode(playerNote);
         result = (prime * result) + Objects.hashCode(images);
         result = (prime * result) + Objects.hash(
-            sourceUrl, supportUrl, shareUrl, introMessage, completionMessage
+            sourceUrl, supportUrl, shareUrl, introMessage, completionMessage,
+            pinnedClueID
         );
 
         return result;
