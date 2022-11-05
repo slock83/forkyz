@@ -212,7 +212,9 @@ public class RaetselZentraleSchwedenJSONIO implements PuzzleParser {
             boxes[row][col].setMarks(marks);
         }
 
-        builder.addClue(new Clue(WINWORD_LIST, 0, null, WINWORD_HINT, zone));
+        Clue winWordClue = new Clue(WINWORD_LIST, 0, null, WINWORD_HINT, zone);
+        builder.addClue(winWordClue);
+        builder.setPinnedClueID(winWordClue.getClueID());
     }
 
     private static Map<Position, List<ClueInfo>> getClueInfos(JSONObject json)
