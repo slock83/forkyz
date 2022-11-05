@@ -252,7 +252,6 @@ public class IPuzIOTest extends TestCase {
             ClueID cidV1 = vertical.getClueByNumber("1").getClueID();
             ClueID cidV2 = vertical.getClueByNumber("2").getClueID();
 
-
             puz.setSupportUrl("http://test.url");
             puz.setShareUrl("http://testshare.url");
             puz.setTime(1234L);
@@ -286,6 +285,8 @@ public class IPuzIOTest extends TestCase {
             boxes[0][1].setResponder("Test");
             boxes[1][0].setCheated(true);
 
+            puz.setPinnedClueID(cidA3);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             IPuzIO.writePuzzle(puz, baos);
             baos.close();
@@ -316,6 +317,7 @@ public class IPuzIOTest extends TestCase {
             assertTrue(puz.isFlagged(cidV1));
             assertTrue(puz.isFlagged(cidA3));
             assertFalse(puz.isFlagged(cidA1));
+            assertEquals(puz.getPinnedClueID(), cidA3);
 
             assertEquals(puz, puz2);
         }

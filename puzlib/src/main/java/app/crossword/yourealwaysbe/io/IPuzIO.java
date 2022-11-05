@@ -173,6 +173,8 @@ public class IPuzIO implements PuzzleParser {
         = getQualifiedExtensionName("width");
     private static final String FIELD_EXT_IMAGE_HEIGHT
         = getQualifiedExtensionName("height");
+    private static final String FIELD_EXT_PINNED_CLUE_ID
+        = getQualifiedExtensionName("pinnedClueID");
 
     private static final String FIELD_VOLATILE = "volatile";
     private static final String FIELD_IS_VOLATILE = "*";
@@ -952,8 +954,13 @@ public class IPuzIO implements PuzzleParser {
 
         readImages(puzJson, builder);
 
-        JSONObject playData = puzJson.optJSONObject(FIELD_EXT_PLAY_DATA);
+        ClueID pinnedClueID = decodeClueID(
+            puzJson.optJSONObject(FIELD_EXT_PINNED_CLUE_ID), builder
+        );
+        if (pinnedClueID != null)
+            builder.setPinnedClueID(pinnedClueID);
 
+        JSONObject playData = puzJson.optJSONObject(FIELD_EXT_PLAY_DATA);
         if (playData != null && !JSONObject.NULL.equals(playData))
             readPlayData(playData, builder);
     }
@@ -1698,6 +1705,13 @@ public class IPuzIO implements PuzzleParser {
 
         writer.keyValueNonNull(FIELD_EXT_SUPPORT_URL, puz.getSupportUrl());
         writer.keyValueNonNull(FIELD_EXT_SHARE_URL, puz.getShareUrl());
+
+        if (puz.hasPinnedClueID()) {
+            writer.key(FIELD_EXT_PINNED_CLUE_ID);
+            writeClueID(puz.getPinnedClueID(), writer);
+            writer.newLine();
+        }
+
         writer.keyValueNonNull(FIELD_EXT_IO_VERSION, IO_VERSION);
 
         writeImages(puz, writer);
