@@ -204,7 +204,7 @@ public class PlayboardRenderer {
             scale = maxScale;
         } else if (scale < minScale) {
             scale = minScale;
-        } else if (String.valueOf(scale).equals("NaN")) {
+        } else if (Float.isNaN(scale)) {
             scale = 1.0f;
         }
         this.bitmap = null;
@@ -216,7 +216,9 @@ public class PlayboardRenderer {
     }
 
     /**
-     * Draw a word on the board
+     * Draw the board or just refresh it
+     *
+     * Refreshes current word and reset word if not null
      *
      * @param suppressNotesLists as in drawBox
      */
@@ -226,56 +228,16 @@ public class PlayboardRenderer {
             Box[][] boxes = this.board.getBoxes();
             int width = puz.getWidth();
             int height = puz.getHeight();
-            boolean renderAll = reset == null;
 
-            if (scale > getMaxScale()) {
-                scale = getMaxScale();
-            } else if (scale < getMinScale()) {
-                scale = getMinScale();
-            } else if (Float.isNaN(scale)) {
-                scale = 1.0F;
-            }
-
-            int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
-
-            if (bitmap == null) {
-                LOG.warning("New bitmap box size "+boxSize);
-                bitmap = Bitmap.createBitmap(
-                    width * boxSize, height * boxSize, Bitmap.Config.RGB_565
-                );
-                bitmap.eraseColor(Color.BLACK);
-                renderAll = true;
-            }
+            boolean newBitmap = initialiseBitmap();
+            boolean renderAll = reset == null || newBitmap;
 
             Canvas canvas = new Canvas(bitmap);
 
-            // board data
-
-            Word currentWord = this.board.getCurrentWord();
-
-            for (int row = 0; row < height; row++) {
-                for (int col = 0; col < width; col++) {
-                    if (!renderAll) {
-                        if (!currentWord.checkInWord(row, col) && !reset.checkInWord(row, col)) {
-                            continue;
-                        }
-                    }
-
-                    int x = col * boxSize;
-                    int y = row * boxSize;
-                    this.drawBox(
-                        canvas,
-                        x, y, row, col,
-                        boxSize,
-                        boxes[row][col],
-                        currentWord, this.board.getHighlightLetter(),
-                        suppressNotesLists,
-                        true
-                    );
-                }
-            }
-
-            drawImages(canvas, boxSize);
+            drawBoardBoxes(canvas, reset, renderAll, suppressNotesLists);
+            drawPinnedClue(canvas, reset, renderAll, suppressNotesLists);
+            if (renderAll)
+                drawImages(canvas);
 
             return bitmap;
         } catch (OutOfMemoryError e) {
@@ -304,9 +266,11 @@ public class PlayboardRenderer {
      * Draw given word
      */
     public Bitmap drawWord(Word word, Set<String> suppressNotesLists) {
-        Box[] boxes = this.board.getWordBoxes(word);
+        Box[] boxes = board.getWordBoxes(word);
         Zone zone = word.getZone();
-        int boxSize = (int) (BASE_BOX_SIZE_INCHES * this.dpi * scale) ;
+        int boxSize = getBoxSize();
+        Position highlight = board.getHighlightLetter();
+
         Bitmap bitmap = Bitmap.createBitmap(
             boxes.length * boxSize, boxSize, Bitmap.Config.RGB_565
         );
@@ -324,11 +288,19 @@ public class PlayboardRenderer {
                 pos.getRow(), pos.getCol(),
                 boxSize,
                 boxes[i],
-                null,
-                this.board.getHighlightLetter(),
+                null, highlight,
                 suppressNotesLists,
                 false
             );
+        }
+
+        // draw highlight outline again as it will have been overpainted
+        if (highlight != null) {
+            int idx = zone.indexOf(highlight);
+            if (idx > -1) {
+                int x = idx * boxSize;
+                drawBoxOutline(canvas, x, 0, boxSize, currentLetterBox);
+            }
         }
 
         return bitmap;
@@ -348,7 +320,7 @@ public class PlayboardRenderer {
             return null;
         }
 
-        int boxSize = (int) (BASE_BOX_SIZE_INCHES * this.dpi * scale);
+        int boxSize = getBoxSize();
         Bitmap bitmap = Bitmap.createBitmap(boxes.length * boxSize,
                                             boxSize,
                                             Bitmap.Config.RGB_565);
@@ -370,16 +342,21 @@ public class PlayboardRenderer {
                          false);
         }
 
+        if (highlight != null) {
+            int col = highlight.getCol();
+            if (col >= 0 && col < boxes.length) {
+                drawBoxOutline(
+                    canvas, col * boxSize, 0, boxSize, currentLetterBox
+                );
+            }
+        }
+
         return bitmap;
     }
 
 
     public Position findPosition(Point p) {
-        int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
-
-        if (boxSize == 0) {
-            boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * 0.25F);
-        }
+        int boxSize = getBoxSize();
 
         int col = p.x / boxSize;
         int row = p.y / boxSize;
@@ -394,7 +371,7 @@ public class PlayboardRenderer {
     }
 
     public Point findPointBottomRight(Position p) {
-        int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
+        int boxSize = getBoxSize();
         int x = (p.getCol() * boxSize) + boxSize;
         int y = (p.getRow() * boxSize) + boxSize;
 
@@ -410,7 +387,7 @@ public class PlayboardRenderer {
         // for now assume that last box is bottom right
         Position p = zone.getPosition(zone.size() - 1);
 
-        int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
+        int boxSize = getBoxSize();
         int x = (p.getCol() * boxSize) + boxSize;
         int y = (p.getRow() * boxSize) + boxSize;
 
@@ -418,7 +395,7 @@ public class PlayboardRenderer {
     }
 
     public Point findPointTopLeft(Position p) {
-        int boxSize = (int) (BASE_BOX_SIZE_INCHES  * dpi * scale);
+        int boxSize = getBoxSize();
         int x = p.getCol() * boxSize;
         int y = p.getRow() * boxSize;
 
@@ -434,11 +411,7 @@ public class PlayboardRenderer {
     }
 
     public float fitTo(int width, int height) {
-        this.bitmap = null;
-        // (pixels / boxes) / (pixels per inch / inches)
-        Puzzle puz = this.board.getPuzzle();
-        int numBoxes = Math.min(puz.getWidth(), puz.getHeight());
-        return fitTo(width, height, puz.getWidth(), puz.getHeight());
+        return fitTo(width, height, getFullWidth(), getFullHeight());
     }
 
     public float fitTo(
@@ -675,7 +648,8 @@ public class PlayboardRenderer {
             = highlight.getCol() == col
                 && highlight.getRow() == row;
 
-        drawBoxOutline(canvas, x, y, row, col, boxSize, highlight, currentWord);
+        Paint outlineColor = isHighlighted ? currentLetterBox : blackLine;
+        drawBoxOutline(canvas, x, y, boxSize, outlineColor);
 
         Rect r = new Rect(x + 1, y + 1, (x + boxSize) - 1, (y + boxSize) - 1);
 
@@ -723,32 +697,13 @@ public class PlayboardRenderer {
     }
 
     private void drawBoxOutline(
-        Canvas canvas, int x, int y,
-        int row, int col,
-        int boxSize, Position highlight, Word currentWord
+        Canvas canvas, int x, int y, int boxSize, Paint color
     ) {
-        boolean isHighlighted
-            = highlight.getCol() == col
-                && highlight.getRow() == row
-                && currentWord != null;
-        Paint boxColor = isHighlighted ? this.currentLetterBox : this.blackLine;
-
-        // Draw left
-        if ((col != (highlight.getCol() + 1)) || (row != highlight.getRow())) {
-            canvas.drawLine(x, y, x, y + boxSize, boxColor);
-        }
-        // Draw top
-        if ((row != (highlight.getRow() + 1)) || (col != highlight.getCol())) {
-            canvas.drawLine(x, y, x + boxSize, y, boxColor);
-        }
-        // Draw right
-        if ((col != (highlight.getCol() - 1)) || (row != highlight.getRow())) {
-            canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, boxColor);
-        }
-        // Draw bottom
-        if ((row != (highlight.getRow() - 1)) || (col != highlight.getCol())) {
-            canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, boxColor);
-        }
+        // Draw left, top, right, bottom
+        canvas.drawLine(x, y, x, y + boxSize, color);
+        canvas.drawLine(x, y, x + boxSize, y, color);
+        canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, color);
+        canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, color);
     }
 
     private void drawBoxBackground(
@@ -1222,10 +1177,12 @@ public class PlayboardRenderer {
         );
     }
 
-    private void drawImages(Canvas canvas, int boxSize) {
+    private void drawImages(Canvas canvas) {
         Puzzle puz = (board == null) ? null : board.getPuzzle();
         if (puz == null)
             return;
+
+        int boxSize = getBoxSize();
 
         for (PuzImage image : puz.getImages()) {
             Object tag = image.getTag();
@@ -1263,6 +1220,216 @@ public class PlayboardRenderer {
                 image.setTag(imgBmp);
             }
         }
+    }
+
+    /**
+     * Refresh the pinned clue (or draw)
+     *
+     * Refresh parts in current or reset word, unless renderAll.
+     *
+     * @param canvas to draw on (assumed large enough)
+     * @param boxSize size of box in pixels
+     * @param reset a word (not current) to refresh
+     * @param renderAll whether to refresh no matter what
+     */
+    private void drawPinnedClue(
+        Canvas canvas, Word reset, boolean renderAll,
+        Set<String> suppressNotesLists
+    ) {
+        Puzzle puz = this.board.getPuzzle();
+        Box[][] boxes = this.board.getBoxes();
+        int boxSize = getBoxSize();
+        Position highlight = board.getHighlightLetter();
+
+        if (!puz.hasPinnedClueID())
+            return;
+
+        Zone pinnedZone = getPinnedZone();
+        if (pinnedZone == null)
+            return;
+
+        Word currentWord = this.board.getCurrentWord();
+
+        int pinnedRow = getPinnedRow();
+        int pinnedCol = getPinnedCol();
+
+        int y =  pinnedRow * boxSize;
+
+        for (int i = 0; i < pinnedZone.size(); i++) {
+            Position pos = pinnedZone.getPosition(i);
+            if (!renderAll) {
+                boolean inCur = currentWord.checkInWord(pos);
+                boolean inReset
+                    = reset != null && reset.checkInWord(pos);
+                if (!inCur && !inReset)
+                    continue;
+            }
+
+            int x = (pinnedCol + i) * boxSize;
+            int row = pos.getRow();
+            int col = pos.getCol();
+
+            System.out.println("FORKYZ: draw p " + row + " " + col);
+
+            this.drawBox(
+                canvas,
+                x, y, row, col,
+                boxSize,
+                boxes[row][col],
+                currentWord, highlight,
+                suppressNotesLists,
+                true
+            );
+        }
+
+        // draw highlight outline again as it will have been overpainted
+        if (highlight != null) {
+            int idx = pinnedZone.indexOf(highlight);
+            if (idx > -1) {
+                int x = (pinnedCol + idx) * boxSize;
+                drawBoxOutline(canvas, x, y, boxSize, currentLetterBox);
+            }
+        }
+    }
+
+    /**
+     * Row on which pinned word is rendered
+     *
+     * Or -1 if nothing pinned
+     */
+    private int getPinnedRow() {
+        Puzzle puz = this.board.getPuzzle();
+        return puz.hasPinnedClueID() ? puz.getHeight() + 1 : -1;
+    }
+
+    /**
+     * Col of first box of pinned word
+     *
+     * Or -1 if nothing pinned
+     */
+    private int getPinnedCol() {
+        Zone pinnedZone = getPinnedZone();
+        return pinnedZone == null
+            ? -1
+            : (getFullWidth() - pinnedZone.size()) / 2;
+    }
+
+    /**
+     * Make sure bitmap field has a bitmap
+     *
+     * @return true if a new (blank) bitmap created, else old one used
+     */
+    private boolean initialiseBitmap() {
+        if (bitmap != null)
+            return false;
+
+        int boxSize = getBoxSize();
+        int width = getFullWidth();
+        int height = getFullHeight();
+
+        bitmap = Bitmap.createBitmap(
+            width * boxSize, height * boxSize, Bitmap.Config.RGB_565
+        );
+        bitmap.eraseColor(Color.BLACK);
+
+        return true;
+    }
+
+    private int getFullWidth() {
+        Puzzle puz = this.board.getPuzzle();
+        int width = puz.getWidth();
+
+        if (puz.hasPinnedClueID()) {
+            Zone pinnedZone = getPinnedZone();
+            if (pinnedZone != null)
+                width = Math.max(width, pinnedZone.size());
+        }
+
+        return width;
+    }
+
+    private int getFullHeight() {
+        Puzzle puz = this.board.getPuzzle();
+        int height = puz.getHeight();
+
+        if (puz.hasPinnedClueID())
+            height += 2;
+
+        return height;
+    }
+
+    /**
+     * Refresh board (current word) on canvas or draw all
+     *
+     * @param canvas canvas to draw on
+     * @param boxSize the size of a box
+     * @param word (that isn't current) that also needs refreshing
+     * @param renderAll whether to just draw the whole board anyway
+     * @param suppressNotesLists the notes lists not to draw (null means
+     * draw none, empty means draw all)
+     */
+    private void drawBoardBoxes(
+        Canvas canvas,
+        Word reset, boolean renderAll, Set<String> suppressNotesLists
+    ) {
+        Puzzle puz = board.getPuzzle();
+        Box[][] boxes = board.getBoxes();
+        int boxSize = getBoxSize();
+        int width = puz.getWidth();
+        int height = puz.getHeight();
+        Position highlight = board.getHighlightLetter();
+        Word currentWord = this.board.getCurrentWord();
+
+        for (int row = 0; row < height; row++) {
+            for (int col = 0; col < width; col++) {
+                if (!renderAll) {
+                    boolean inCur = currentWord.checkInWord(row, col);
+                    boolean inReset
+                        = reset != null && reset.checkInWord(row, col);
+                    if (!inCur && !inReset) {
+                        continue;
+                    }
+                }
+
+                int x = col * boxSize;
+                int y = row * boxSize;
+                this.drawBox(
+                    canvas,
+                    x, y, row, col,
+                    boxSize,
+                    boxes[row][col],
+                    currentWord, highlight,
+                    suppressNotesLists,
+                    true
+                );
+            }
+        }
+
+        // draw highlight outline again as it will have been overpainted
+        if (highlight != null) {
+            int curX = highlight.getCol() * boxSize;
+            int curY = highlight.getRow() * boxSize;
+            drawBoxOutline(canvas, curX, curY, boxSize, currentLetterBox);
+        }
+    }
+
+    private Zone getPinnedZone() {
+        Puzzle puz = this.board.getPuzzle();
+        Clue pinnedClue = puz.getClue(puz.getPinnedClueID());
+        return pinnedClue == null
+            ? null
+            : pinnedClue.getZone();
+    }
+
+    /**
+     * The size of a box in pixels according to current scale
+     */
+    private int getBoxSize() {
+        int boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * scale);
+        if (boxSize == 0) {
+            boxSize = (int) (BASE_BOX_SIZE_INCHES * dpi * 0.25F);
+        }
+        return boxSize;
     }
 }
 
