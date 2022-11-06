@@ -302,14 +302,20 @@ public abstract class BoardEditView
             notifyScaleChange(getCurrentScale());
         } else {
             Position position = findPosition(point);
-            if (position != null && board.isInWord(position)) {
+            if (position != null)
                 onClick(position);
-            }
         }
 
         lastTap = System.currentTimeMillis();
     }
 
+    /**
+     * Click on a board position
+     *
+     * Note, position may not be in a word on the board, or indeed in
+     * the board itself. Will be checked (by concrete implementations)
+     * to see if it is an actual cell click.
+     */
     abstract protected void onClick(Position position);
 
     protected void notifyClick(Position position, Word previousWord) {

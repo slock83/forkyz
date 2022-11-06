@@ -354,7 +354,13 @@ public class PlayboardRenderer {
         return bitmap;
     }
 
-
+    /**
+     * Board position of the point
+     *
+     * Not checked if in bounds, if outsize main board, check with
+     * getUnpinnedPosition to see if it's a position in the pinned
+     * display
+     */
     public Position findPosition(Point p) {
         int boxSize = getBoxSize();
 
@@ -362,6 +368,31 @@ public class PlayboardRenderer {
         int row = p.y / boxSize;
 
         return new Position(row, col);
+    }
+
+    /**
+     * Convert a position to true position on board
+     *
+     * If position not on board but in the display of the pinned clue,
+     * return the cell on the main board corresponding to this cell on
+     * the pinned clue.
+     *
+     * Else return null;
+     */
+    public Position getUnpinnedPosition(Position pos) {
+        Zone pinnedZone = getPinnedZone();
+        if (pinnedZone == null)
+            return null;
+
+        if (pos.getRow() != getPinnedRow())
+            return null;
+
+        int col = pos.getCol() - getPinnedCol();
+
+        if (col >= 0 && col < pinnedZone.size())
+            return pinnedZone.getPosition(col);
+        else
+            return null;
     }
 
     public int findBoxNoScale(Point p) {

@@ -8,9 +8,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.AttributeSet;
 
+import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
+import app.crossword.yourealwaysbe.puz.Puzzle;
 
 /**
  * A live view of the full playboard
@@ -113,9 +115,26 @@ public class BoardFullEditView extends BoardEditView {
         if (board == null)
             return;
 
-        Word previousWord = board.setHighlightLetter(position);
+        if (board.isInWord(position)) {
+            Word previousWord = board.setHighlightLetter(position);
+            notifyClick(position, previousWord);
+        } else {
+            PlayboardRenderer renderer = getRenderer();
+            if (renderer == null)
+                return;
 
-        notifyClick(position, previousWord);
+            Position cellPos = renderer.getUnpinnedPosition(position);
+            if (cellPos != null) {
+                Puzzle puz = board.getPuzzle();
+                if (puz == null)
+                    return;
+
+                ClueID pinnedCID = puz.getPinnedClueID();
+                Word previousWord
+                    = board.setHighlightLetter(cellPos, pinnedCID);
+                notifyClick(position, previousWord);
+            }
+        }
     }
 
     @Override

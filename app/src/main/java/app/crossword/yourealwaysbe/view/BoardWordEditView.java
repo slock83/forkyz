@@ -181,6 +181,9 @@ public class BoardWordEditView extends BoardEditView {
         if (board == null)
             return;
 
+        if (!board.isInWord(newPosition))
+            return;
+
         Position curPosition = board.getHighlightLetter();
         ClueID curCID = board.getClueID();
 
