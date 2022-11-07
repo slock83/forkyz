@@ -3,6 +3,7 @@ package app.crossword.yourealwaysbe;
 import java.util.Objects;
 import java.util.logging.Logger;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -29,6 +30,8 @@ public class ClueListActivity extends PuzzleActivity
         ClueListActivity.class.getCanonicalName()
     );
 
+    private static final String PREF_SHOW_WORDS = "showWordsInClueList";
+
     private KeyboardManager keyboardManager;
     private BoardWordEditView boardView;
     private ClueTabs clueTabs;
@@ -41,6 +44,9 @@ public class ClueListActivity extends PuzzleActivity
             return true;
         } else if (id == R.id.clue_list_menu_puzzle_notes) {
             launchPuzzleNotes();
+            return true;
+        } else if (id == R.id.clue_list_menu_show_words) {
+            toggleShowWords();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -112,13 +118,7 @@ public class ClueListActivity extends PuzzleActivity
 
         boardView.setBoard(board);
 
-        if (isShowWordsInClueList()) {
-            boardView.setIncognitoMode(true);
-            clueTabs.setShowWords(true);
-        } else {
-            boardView.setIncognitoMode(false);
-            clueTabs.setShowWords(false);
-        }
+        setupShowWordsMode();
 
         clueTabs.setBoard(board);
         clueTabs.addListener(this);
@@ -133,6 +133,18 @@ public class ClueListActivity extends PuzzleActivity
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.clue_list_menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean result = super.onPrepareOptionsMenu(menu);
+
+        if (result) {
+            menu.findItem(R.id.clue_list_menu_show_words)
+                .setChecked(isShowWordsInClueList());
+        }
+
+        return result;
     }
 
     @Override
@@ -398,6 +410,27 @@ public class ClueListActivity extends PuzzleActivity
     }
 
     private boolean isShowWordsInClueList() {
-        return prefs.getBoolean("showWordsInClueList", false);
+        return prefs.getBoolean(PREF_SHOW_WORDS, false);
+    }
+
+    private void toggleShowWords() {
+        boolean showWords = !isShowWordsInClueList();
+
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(PREF_SHOW_WORDS, showWords);
+        editor.apply();
+
+        setupShowWordsMode();
+        invalidateOptionsMenu();
+    }
+
+    private void setupShowWordsMode() {
+        if (isShowWordsInClueList()) {
+            boardView.setIncognitoMode(true);
+            clueTabs.setShowWords(true);
+        } else {
+            boardView.setIncognitoMode(false);
+            clueTabs.setShowWords(false);
+        }
     }
 }

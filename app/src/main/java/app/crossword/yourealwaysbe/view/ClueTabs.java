@@ -119,7 +119,10 @@ public class ClueTabs extends LinearLayout
      * Show words beneath each clue in list
      */
     public void setShowWords(boolean showWords) {
+        boolean changed = this.showWords != showWords;
         this.showWords = showWords;
+        if (changed)
+            refresh();
     }
 
     /**

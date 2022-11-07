@@ -13,13 +13,6 @@
     />
 
     <androidx.preference.CheckBoxPreference
-        android:title="@string/show_all_words_clue_list"
-        android:defaultValue="false"
-        android:summary="@string/show_all_words_clue_list_desc"
-        android:key="showWordsInClueList"
-    />
-
-    <androidx.preference.CheckBoxPreference
         android:title="@string/fit_screen_start"
         android:defaultValue="false"
         android:summary="@string/fit_screen_start_desc"
