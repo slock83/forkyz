@@ -2,10 +2,10 @@ package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.NavigableMap;
+import java.util.NavigableSet;
 import java.util.Objects;
-import java.util.Set;
+import java.util.TreeMap;
 
 public class Box implements Serializable {
     public static final String BLANK = " ";
@@ -18,8 +18,8 @@ public class Box implements Serializable {
     private String solution = null;
     private String clueNumber;
     // for each clue this box is a part of, the index of the cell it is
-    // the clue word
-    private Map<ClueID, Integer> cluePositions = new HashMap<>();
+    // the clue word, sorted for consistency of cycling through clues
+    private NavigableMap<ClueID, Integer> cluePositions = new TreeMap<>();
 
     private boolean barTop = false;
     private boolean barBottom = false;
@@ -275,16 +275,18 @@ public class Box implements Serializable {
 
     /**
      * The clue ids that have this box in their zones
+     *
+     * Set will iterate in ClueID order.
      */
-    public Set<ClueID> getIsPartOfClues() {
-        return cluePositions.keySet();
+    public NavigableSet<ClueID> getIsPartOfClues() {
+        return cluePositions.navigableKeySet();
     }
 
     /**
      * Get a clue that this box is part of from the specified list
      *
-     * If there are more than one clues from the same list, either will
-     * be returned.
+     * If there are more than one clues from the same list, returns
+     * first in ClueID order
      *
      * Null returned if no clue
      */

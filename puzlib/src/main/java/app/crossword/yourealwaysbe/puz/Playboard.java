@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -988,40 +989,36 @@ public class Playboard implements Serializable {
     }
 
     public Word toggleSelection() {
-        // TODO: this feels a bit inefficient -- to create and sort a
-        // list every time, but also it's not expected to be a list of
-        // more than 2 in most situations.
         Word w = this.getCurrentWord();
 
         Box box = puzzle.checkedGetBox(getHighlightLetter());
         if (box == null)
             return w;
 
-        List<ClueID> boxClues = new ArrayList<>(box.getIsPartOfClues());
-
         boolean changed = false;
+
+        NavigableSet<ClueID> boxClues = box.getIsPartOfClues();
 
         if (boxClues.isEmpty()) {
             changed = w.getClueID() != null;
             puzzle.setCurrentClueID(null);
         } else {
-            Collections.sort(boxClues);
-
-            int curPos = boxClues.indexOf(getClueID());
+            ClueID curCid = getClueID();
 
             // if in current clue, toggle, else try to stay in same list
-            if (curPos >= 0) {
-                int nextPos = (curPos + 1) % boxClues.size();
-                puzzle.setCurrentClueID(boxClues.get(nextPos));
-                changed = (nextPos != curPos);
+            if (curCid != null && boxClues.contains(curCid)) {
+                ClueID newCid = boxClues.higher(curCid);
+                if (newCid == null)
+                    newCid = boxClues.first();
+                puzzle.setCurrentClueID(newCid);
+                changed = !Objects.equals(curCid, newCid);
             } else {
-                ClueID curClue = getClueID();
-                ClueID newClue = null;
-                if (curClue != null)
-                    newClue = box.getIsPartOfClue(curClue.getListName());
-                if (newClue == null)
-                    newClue = boxClues.get(0);
-                puzzle.setCurrentClueID(newClue);
+                ClueID newCid = null;
+                if (curCid != null)
+                    newCid = box.getIsPartOfClue(curCid.getListName());
+                if (newCid == null)
+                    newCid = boxClues.first();
+                puzzle.setCurrentClueID(newCid);
                 changed = true;
             }
         }
