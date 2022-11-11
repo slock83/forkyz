@@ -1,0 +1,2 @@
+- "Pinned" solution word in Hamburger Abendblatt puzzles.
+- Move "show all words" clue list option to clue list menu.
