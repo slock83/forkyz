@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="app.crossword.yourealwaysbe.forkyz"
     android:installLocation="auto"
     android:versionCode="3300000"
     android:versionName="33">

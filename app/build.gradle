@@ -31,6 +31,8 @@ android {
     }
 
     defaultConfig {
+        applicationId "app.crossword.yourealwaysbe.forkyz"
+        namespace "app.crossword.yourealwaysbe.forkyz"
         minSdkVersion 14
         targetSdkVersion 31
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
