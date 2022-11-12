@@ -67,10 +67,9 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
 
     public void setBitmap(Bitmap bitmap, boolean rescale) {
         if (bitmap == null) {
-            return;
-        }
-
-        if (rescale) {
+            imageView.setImageBitmap(null);
+            setImageViewParams(0, 0);
+        } else if (rescale) {
             imageView.setImageBitmap(bitmap);
             setImageViewParams(bitmap.getWidth(), bitmap.getHeight());
         } else {

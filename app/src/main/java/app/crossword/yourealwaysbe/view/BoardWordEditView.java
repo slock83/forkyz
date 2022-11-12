@@ -52,6 +52,7 @@ public class BoardWordEditView extends BoardEditView {
         if (this.incognitoMode != incognitoMode) {
             ViewGroup.LayoutParams params = getLayoutParams();
             if (incognitoMode) {
+                setBitmap(null);
                 originalHeight = params.height;
                 params.height = 1;
             } else {
