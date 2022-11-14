@@ -53,7 +53,7 @@
     <androidx.preference.CheckBoxPreference
         android:title="@string/usa_today"
         android:defaultValue="true"
-        android:summary="@string/updates_mon_sat"
+        android:summary="@string/updates_daily"
         android:key="downloadUSAToday"
     />
     <androidx.preference.CheckBoxPreference

@@ -452,7 +452,7 @@ public class Downloaders {
                 context.getString(R.string.usa_today),
                 context.getString(R.string.usa_today),
                 "https://subscribe.usatoday.com",
-                Downloader.DATE_NO_SUNDAY,
+                Downloader.DATE_DAILY,
                 "'https://games.usatoday.com/en/games/uclick-crossword'"
             ));
         }

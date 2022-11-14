@@ -254,6 +254,7 @@
     <!-- preferences daily -->
     <string name="updates_mon_fri">Updates Monday-Friday</string>
     <string name="updates_mon_sat">Updates Monday-Saturday</string>
+    <string name="updates_daily">Updates Daily</string>
     <string name="hamburger_abendblatt_daily">Hamburger Abendblatt</string>
     <string name="hamburger_abendblatt_daily_desc">Daily crossword in German</string>
     <string name="le_parisien_daily">Le Parisien</string>

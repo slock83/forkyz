@@ -11,7 +11,7 @@ import app.crossword.yourealwaysbe.io.UclickXMLIO;
  * Uclick XML Puzzles
  * URL: https://picayune.uclick.com/comics/[puzzle]/data/[puzzle]YYMMDD-data.xml
  * crnet (Newsday) = Daily
- * usaon (USA Today) = Monday-Saturday (not holidays)
+ * usaon (USA Today) = Daily
  * fcx (Universal) = Daily
  */
 public class UclickDownloader extends AbstractDateDownloader {
