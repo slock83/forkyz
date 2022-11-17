@@ -1,0 +1,1 @@
+- Support USA Today Sunday downloads (thx th0mcat).
