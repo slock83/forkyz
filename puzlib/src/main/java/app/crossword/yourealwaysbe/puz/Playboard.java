@@ -26,6 +26,9 @@ public class Playboard implements Serializable {
     private Set<PlayboardListener> listeners = WeakSet.buildSet();
     private int notificationDisabledDepth = 0;
     private Word previousWord = null;
+    // used by findZoneDelta to track last index to handle clues with
+    // repeated positions
+    private int lastFoundZoneIndex = -1;
 
     public Playboard(Puzzle puzzle,
                      MovementStrategy movementStrategy,
@@ -732,35 +735,50 @@ public class Playboard implements Serializable {
         if (zone == null)
             return null;
 
-        int index = zone.indexOf(original);
+        int index;
+
+        if (Objects.equals(original, zone.getPosition(lastFoundZoneIndex))) {
+            index = lastFoundZoneIndex;
+        } else {
+            index = zone.indexOf(original);
+        }
+
         if (index < 0)
             return null;
 
-        return findZoneDelta(index, skipCompleted, delta);
+        int newIndex = findZoneDelta(index, skipCompleted, delta);
+
+        if (newIndex < 0) {
+            lastFoundZoneIndex = -1;
+            return null;
+        } else {
+            lastFoundZoneIndex = newIndex;
+            return zone.getPosition(newIndex);
+        }
     }
 
     /**
      * As findZoneDelta but with index of position as first argument
      */
-    public Position findZoneDelta(
+    public int findZoneDelta(
         int original, boolean skipCompleted, int delta
     ) {
         Word word = getCurrentWord();
         Zone zone = word.getZone();
 
         if (zone == null)
-            return null;
+            return -1;
 
         int nextIdx = original + delta;
         if (nextIdx < 0 || nextIdx >= zone.size()) {
-            return null;
+            return -1;
         } else {
             Position next = zone.getPosition(nextIdx);
             Box box = puzzle.checkedGetBox(next);
             if ((box == null) || skipBox(box, skipCompleted)) {
-                next = findZoneDelta(nextIdx, skipCompleted, delta);
+                nextIdx = findZoneDelta(nextIdx, skipCompleted, delta);
             }
-            return next;
+            return nextIdx;
         }
     }
 
