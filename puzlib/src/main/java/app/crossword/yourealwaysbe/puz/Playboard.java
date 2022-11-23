@@ -732,14 +732,33 @@ public class Playboard implements Serializable {
         if (zone == null)
             return null;
 
-        int nextIdx = zone.indexOf(original) + delta;
+        int index = zone.indexOf(original);
+        if (index < 0)
+            return null;
+
+        return findZoneDelta(index, skipCompleted, delta);
+    }
+
+    /**
+     * As findZoneDelta but with index of position as first argument
+     */
+    public Position findZoneDelta(
+        int original, boolean skipCompleted, int delta
+    ) {
+        Word word = getCurrentWord();
+        Zone zone = word.getZone();
+
+        if (zone == null)
+            return null;
+
+        int nextIdx = original + delta;
         if (nextIdx < 0 || nextIdx >= zone.size()) {
             return null;
         } else {
             Position next = zone.getPosition(nextIdx);
             Box box = puzzle.checkedGetBox(next);
             if ((box == null) || skipBox(box, skipCompleted)) {
-                next = findZoneDelta(next, skipCompleted, delta);
+                next = findZoneDelta(nextIdx, skipCompleted, delta);
             }
             return next;
         }
