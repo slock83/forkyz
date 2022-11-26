@@ -25,6 +25,7 @@
     <string name="puzzles_downloaded_none">Puzzle Downloads Failed</string>
     <string name="puzzle_downloaded">Downloaded %1$s</string>
     <string name="puzzle_download_failed">Download failed from %1$s</string>
+    <string name="puzzle_download_no_connection">No puzzles downloaded due to no network connection.</string>
 
     <!-- imports -->
     <string name="import_fallback_source">Import</string>
@@ -62,6 +63,7 @@
     <string name="title_view_archives">Archives</string>
     <string name="title_view_crosswords">Crosswords</string>
     <string name="puzzle_caption_with_author">%1$s by %2$s</string>
+    <string name="download_but_no_active_network">Please enable a network connection before downloading.</string>
 
     <!-- clues list -->
     <string name="current_word">Current word</string>

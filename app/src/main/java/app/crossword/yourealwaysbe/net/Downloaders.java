@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import androidx.core.app.NotificationCompat;
 
 import app.crossword.yourealwaysbe.BrowseActivity;
-import app.crossword.yourealwaysbe.PlayActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.BrainsOnlyIO;
@@ -144,6 +143,17 @@ public class Downloaders {
     }
 
     private void download(Map<Downloader, LocalDate> puzzlesToDownload) {
+        boolean hasConnection =
+            AndroidVersionUtils.Factory.getInstance()
+                .hasNetworkConnection(context);
+
+        System.out.println("FORKYZ: has connection " + hasConnection);
+
+        if (!hasConnection) {
+            notifyNoConnection();
+            return;
+        }
+
         FileHandler fileHandler
             = ForkyzApplication.getInstance().getFileHandler();
 
@@ -231,15 +241,8 @@ public class Downloaders {
             String contentText = context.getString(
                 R.string.puzzles_downloading_from, d.getName()
             );
-            Intent notificationIntent = new Intent(context, PlayActivity.class);
-            PendingIntent contentIntent = PendingIntent.getActivity(
-                context, 0, notificationIntent,
-                AndroidVersionUtils
-                    .Factory.getInstance().immutablePendingIntentFlag()
-            );
-
             not.setContentText(contentText)
-                .setContentIntent(contentIntent);
+                .setContentIntent(getContentIntent());
 
             boolean notify = !this.suppressIndividualMessages
                 && this.notificationManager != null;
@@ -284,19 +287,11 @@ public class Downloaders {
         else // nothing downloaded or failed
             return;
 
-        Intent notificationIntent = new Intent(Intent.ACTION_EDIT, null,
-                context, BrowseActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(
-            context, 0, notificationIntent,
-            AndroidVersionUtils
-                .Factory.getInstance().immutablePendingIntentFlag()
-        );
-
         Notification not = new NotificationCompat.Builder(
             context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID
         ).setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setContentTitle(context.getString(messageId))
-            .setContentIntent(contentIntent)
+            .setContentIntent(getContentIntent())
             .setWhen(System.currentTimeMillis())
             .build();
 
@@ -317,20 +312,11 @@ public class Downloaders {
             ? R.string.puzzle_downloaded
             : R.string.puzzle_download_failed;
 
-        Intent notificationIntent = new Intent(
-            Intent.ACTION_EDIT, null, context, BrowseActivity.class
-        );
-        PendingIntent contentIntent = PendingIntent.getActivity(
-            context, 0, notificationIntent,
-            AndroidVersionUtils
-                .Factory.getInstance().immutablePendingIntentFlag()
-        );
-
         Notification not
             = new NotificationCompat.Builder(
             context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID
         ).setSmallIcon(android.R.drawable.stat_sys_download_done)
-            .setContentIntent(contentIntent)
+            .setContentIntent(getContentIntent())
             .setContentTitle(context.getString(messageId, name))
             .setWhen(System.currentTimeMillis())
             .build();
@@ -533,5 +519,36 @@ public class Downloaders {
                 new CustomDailyDownloader(title, urlDateFormatPattern)
             );
         }
+    }
+
+    private void notifyNoConnection() {
+        if (suppressSummaryMessages)
+            return;
+
+        Notification not = new NotificationCompat.Builder(
+            context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID
+        ).setSmallIcon(android.R.drawable.stat_sys_download_done)
+            .setContentTitle(
+                context.getString(R.string.puzzle_download_no_connection)
+            )
+            .setContentIntent(getContentIntent())
+            .setWhen(System.currentTimeMillis())
+            .build();
+
+        if (this.notificationManager != null) {
+            this.notificationManager.notify(0, not);
+        }
+    }
+
+    /**
+     * Make a content intent for a notification
+     */
+    private PendingIntent getContentIntent() {
+        Intent notificationIntent = new Intent(context, BrowseActivity.class);
+        return PendingIntent.getActivity(
+            context, 0, notificationIntent,
+            AndroidVersionUtils
+                .Factory.getInstance().immutablePendingIntentFlag()
+        );
     }
 }

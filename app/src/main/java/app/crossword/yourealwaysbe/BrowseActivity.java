@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -775,11 +776,7 @@ public class BrowseActivity extends ForkyzActivity {
                     int id = actionItem.getId();
                     if (id == R.id.speed_dial_download) {
                         buttonAdd.close();
-                        DialogFragment dialog = new DownloadDialog();
-                        dialog.show(
-                            getSupportFragmentManager(),
-                            "DownloadDialog"
-                        );
+                        showDownloadDialog();
                         return true;
                     } else if (id == R.id.speed_dial_import) {
                         getImportURI.launch(IMPORT_MIME_TYPE);
@@ -828,6 +825,23 @@ public class BrowseActivity extends ForkyzActivity {
 
     private void setPendingImport(Uri uri) {
         pendingImport = uri;
+    }
+
+    private void showDownloadDialog() {
+        DialogFragment dialog = new DownloadDialog();
+        checkAndWarnNetworkState();
+        dialog.show(getSupportFragmentManager(), "DownloadDialog");
+    }
+
+    private void checkAndWarnNetworkState() {
+        if (!utils.hasNetworkConnection(this)) {
+            Toast t = Toast.makeText(
+                this,
+                R.string.download_but_no_active_network,
+                Toast.LENGTH_LONG
+            );
+            t.show();
+        }
     }
 
     private class FileAdapter

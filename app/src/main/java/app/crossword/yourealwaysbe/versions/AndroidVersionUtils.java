@@ -118,4 +118,6 @@ public interface AndroidVersionUtils {
      * I.e. not a control char of some kind
      */
     boolean isAcceptableCharacterResponse(char c);
+
+    boolean hasNetworkConnection(Context context);
 }

@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.StatFs;
 import android.text.Layout;
@@ -27,6 +28,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 public class IceCreamSandwichUtil implements AndroidVersionUtils {
@@ -212,5 +214,15 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     public boolean isAcceptableCharacterResponse(char c) {
         // ignore unicode surrogates manually
         return !Character.isISOControl(c) && !('\uD800' <= c && c <= '\uDFFF');
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public boolean hasNetworkConnection(Context activity) {
+        ConnectivityManager cm = ContextCompat.getSystemService(
+            activity, ConnectivityManager.class
+        );
+        android.net.NetworkInfo info = cm.getActiveNetworkInfo();
+        return info != null && info.isConnected();
     }
 }
