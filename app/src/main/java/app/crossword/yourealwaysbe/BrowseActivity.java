@@ -45,11 +45,11 @@ import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.net.Downloader;
 import app.crossword.yourealwaysbe.net.Downloaders;
 import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
+import app.crossword.yourealwaysbe.util.MigrationHelper;
 import app.crossword.yourealwaysbe.util.files.Accessor;
 import app.crossword.yourealwaysbe.util.files.DirHandle;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.util.files.PuzMetaFile;
-import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.CircleProgressBar;
 import app.crossword.yourealwaysbe.view.StoragePermissionDialog;
 import app.crossword.yourealwaysbe.view.recycler.RemovableRecyclerViewAdapter;
@@ -332,8 +332,7 @@ public class BrowseActivity extends ForkyzActivity {
         );
 
         // Bring up to date
-        AndroidVersionUtils.Factory.getInstance()
-            .migrateLegacyBackgroundDownloads();
+        MigrationHelper.applyMigrations(this);
 
         // Now create!
 

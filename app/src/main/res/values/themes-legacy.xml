@@ -1,0 +1,5 @@
+<resources>
+    <style name="Theme.Forkyz.LegacyLike" parent="Theme.Forkyz.LegacyLike.Base">
+        <!-- pre v21, just use base values -->
+    </style>
+</resources>

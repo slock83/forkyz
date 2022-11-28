@@ -200,8 +200,8 @@
     <string name="keyboard_haptic_desc">Vibrate on keyboard keypress.</string>
     <string name="keyboard_use_native">Use native keyboard</string>
     <string name="keyboard_use_native_desc">Use system soft input method. Still a bit experimental.</string>
-    <string name="use_dynamic_colors">Use dynamic colors</string>
-    <string name="use_dynamic_colors_desc">Use Android Material You dynamic colors (requires restart).</string>
+    <string name="theme_preference">Theme</string>
+    <string name="theme_preference_desc">Select application theme (requires restart).</string>
 
     <!-- preferences download -->
     <string name="background_download_time_config">Download Times</string>
@@ -484,4 +484,12 @@
     <string name="share_puzzle_details_no_author_no_url">%1$s, %2$s</string>
     <string name="share_puzzle_details_author_url">%1$s, %2$s by %3$s\n%4$s</string>
     <string name="share_puzzle_details_no_author_url">%1$s, %2$s\n%3$s</string>
+
+    <!-- themes -->
+    <string name="standard_theme">Standard Theme</string>
+    <string name="dynamic_theme">Material You Dynamic Theme</string>
+    <string name="legacy_like_theme">Legacy-Like Theme</string>
+    <string name="standard_theme_value">S</string>
+    <string name="dynamic_theme_value">D</string>
+    <string name="legacy_like_theme_value">L</string>
 </resources>

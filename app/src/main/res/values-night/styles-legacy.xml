@@ -1,0 +1,7 @@
+<resources>
+    <!-- no legacy styles needed in night mode -->
+    <style name="legacyClueLineOnlyStyle" parent="clueLineOnlyStyle">
+    </style>
+    <style name="legacySpeedDialStyle" parent="speedDialStyle">
+    </style>
+</resources>

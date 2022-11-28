@@ -9,5 +9,5 @@
     android:maxLines="5"
     android:gravity="center_vertical"
     tools:ignore="UnusedAttribute"
-    android:theme="@style/clueLineOnlyStyle"
+    android:theme="?clueLineOnlyStyle"
 />

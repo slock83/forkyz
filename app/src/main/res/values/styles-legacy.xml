@@ -1,0 +1,39 @@
+<!-- most styles in styles-common.xml in values folder -->
+<resources>
+    <style
+        name="legacyActionBar"
+        parent="Widget.MaterialComponents.ActionBar.Primary"
+    >
+        <item name="titleTextStyle">@style/legacyActionBarText</item>
+    </style>
+    <style
+        name="legacyActionBarText"
+        parent="TextAppearance.Material3.ActionBar.Title"
+    >
+        <item name="android:textColor">@color/onPrimary</item>
+    </style>
+    <style name="legacyClueLineOnlyStyle" parent="Theme.Forkyz">
+        <item name="titleTextColor">@color/onPrimary</item>
+        <item name="android:textColor">@color/onPrimary</item>
+    </style>
+    <style
+        name="actionOverflowButtonStyle"
+        parent="Widget.AppCompat.Light.ActionButton.Overflow"
+    >
+        <item name="android:tint">@color/onPrimary</item>
+    </style>
+    <style
+        name="actionNavigationButtonStyle"
+        parent="Widget.AppCompat.Toolbar.Button.Navigation"
+    >
+        <item name="android:tint">@color/onPrimary</item>
+        <item name="android:textColor">@color/onPrimary</item>
+    </style>
+    <style name="legacySpeedDialStyle" parent="Theme.Forkyz">
+        <item name="colorPrimary">@color/speedDialTint</item>
+        <item name="colorAccent">@color/speedDialTint</item>
+        <item name="colorOnSecondary">@color/speedDialIconTint</item>
+        <item name="colorOnPrimaryContainer">@color/speedDialIconTint</item>
+    </style>
+</resources>
+

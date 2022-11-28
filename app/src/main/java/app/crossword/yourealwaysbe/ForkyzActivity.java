@@ -19,6 +19,7 @@ import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.util.NightModeHelper;
+import app.crossword.yourealwaysbe.util.ThemeHelper;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.util.files.FileHandlerSAF;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
@@ -61,6 +62,7 @@ public class ForkyzActivity extends AppCompatActivity {
         final FileHandler fileHandler = getFileHandler();
 
         doOrientation();
+        ThemeHelper.themeActivity(this);
     }
 
     @Override

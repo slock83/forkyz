@@ -29,6 +29,10 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryInverse">@color/inversePrimary</item>
 
+        <!-- to allow legacy-like theme -->
+        <item name="clueLineOnlyStyle">@style/clueLineOnlyStyle</item>
+        <item name="speedDialStyle">@style/speedDialStyle</item>
+
         <!-- hacks for parts of ui not taking colors from Material -->
         <item name="android:textColor">?attr/colorOnBackground</item>
         <item name="android:textColorSecondary">@color/onBackgroundSecondary</item>

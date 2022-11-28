@@ -1,0 +1,6 @@
+<resources>
+    <!-- base variant theme used in themes-common.xml in values -->
+    <style name="Theme.Forkyz.LegacyLike" parent="Theme.Forkyz">
+        <!-- night version is pretty legacy anyway -->
+    </style>
+</resources>

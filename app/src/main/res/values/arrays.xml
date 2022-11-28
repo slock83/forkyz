@@ -154,5 +154,24 @@
         <item>@string/forty_five_seconds</item>
         <item>@string/sixty_seconds</item>
      </string-array>
+     <string-array name="themeTypeLabels">
+         <item>@string/standard_theme</item>
+         <item>@string/dynamic_theme</item>
+         <item>@string/legacy_like_theme</item>
+     </string-array>
+     <string-array name="themeTypeValues">
+         <item>@string/standard_theme_value</item>
+         <item>@string/dynamic_theme_value</item>
+         <item>@string/legacy_like_theme_value</item>
+     </string-array>
+     <string-array name="themeTypeLabelsNoDynamic">
+         <item>@string/standard_theme</item>
+         <item>@string/legacy_like_theme</item>
+     </string-array>
+     <string-array name="themeTypeValuesNoDynamic">
+         <item>@string/standard_theme_value</item>
+         <item>@string/legacy_like_theme_value</item>
+     </string-array>
+
      <string-array name="emptyArray"/>
 </resources>

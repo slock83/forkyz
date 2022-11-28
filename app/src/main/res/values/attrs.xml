@@ -4,4 +4,12 @@
         <attr name="keyCode" format="integer"/>
         <attr name="specialKeyCode" format="integer"/>
     </declare-styleable>
+    <declare-styleable name="ClueLineOnly">
+        <attr name="clueLineOnlyTextColor" format="reference"/>
+    </declare-styleable>
+
+    <!-- used to allow legacy-like theme in theme/styles-common -->
+    <!-- thanks https://stackoverflow.com/a/30490191 -->
+    <attr name="clueLineOnlyStyle"/>
+    <attr name="speedDialStyle"/>
 </resources>

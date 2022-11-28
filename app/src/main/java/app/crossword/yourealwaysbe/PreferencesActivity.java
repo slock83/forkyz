@@ -8,6 +8,7 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
 import app.crossword.yourealwaysbe.forkyz.R;
+import app.crossword.yourealwaysbe.util.ThemeHelper;
 import app.crossword.yourealwaysbe.util.NightModeHelper;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
@@ -21,6 +22,8 @@ public class PreferencesActivity
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.preferences_activity);
+
+        ThemeHelper.themeActivity(this);
 
         NightModeHelper nightMode = NightModeHelper.bind(this);
         nightMode.restoreNightMode();

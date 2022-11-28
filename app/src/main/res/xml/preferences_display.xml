@@ -5,11 +5,13 @@
     android:title="@string/display_settings"
     android:key="keyboardOptions"
 >
-    <androidx.preference.CheckBoxPreference
-        android:title="@string/use_dynamic_colors"
-        android:defaultValue="false"
-        android:summary="@string/use_dynamic_colors_desc"
-        android:key="useDynamicColors"
+    <androidx.preference.ListPreference
+        android:title="@string/theme_preference"
+        android:summary="@string/theme_preference_desc"
+        android:key="applicationTheme"
+        android:defaultValue="@string/standard_theme_value"
+        android:entries="@array/themeTypeLabels"
+        android:entryValues="@array/themeTypeValues"
     />
 
     <androidx.preference.CheckBoxPreference

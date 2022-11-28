@@ -2,8 +2,10 @@ package app.crossword.yourealwaysbe;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import androidx.preference.ListPreference;
 import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
@@ -11,6 +13,8 @@ import com.google.android.material.color.DynamicColors;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
+import app.crossword.yourealwaysbe.util.ThemeHelper;
+
 
 public class PreferencesSubPages {
     public static class SourcesFragment extends PreferencesBaseFragment {
@@ -120,8 +124,19 @@ public class PreferencesSubPages {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences_display, rootKey);
-            findPreference("useDynamicColors")
-                .setVisible(DynamicColors.isDynamicColorAvailable());
+            if (!DynamicColors.isDynamicColorAvailable()) {
+
+                ListPreference themePref
+                    = findPreference(ThemeHelper.PREF_THEME);
+
+                Resources res = getResources();
+                themePref.setEntries(
+                    res.getStringArray(R.array.themeTypeLabelsNoDynamic)
+                );
+                themePref.setEntryValues(
+                    res.getStringArray(R.array.themeTypeValuesNoDynamic)
+                );
+            }
         }
     }
 }

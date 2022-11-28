@@ -1,0 +1,17 @@
+<resources>
+    <!-- base variant to be extended for v21+ and below -->
+    <style name="Theme.Forkyz.LegacyLike.Base" parent="Theme.Forkyz">
+        <item name="elevationOverlayColor">#fff</item>
+        <item name="actionBarStyle">@style/legacyActionBar</item>
+        <item name="actionModeStyle">@style/legacyActionBar</item>
+        <item name="actionOverflowButtonStyle">@style/actionOverflowButtonStyle</item>
+        <item name="toolbarNavigationButtonStyle">@style/actionNavigationButtonStyle</item>
+        <item name="iconTint">@color/onPrimary</item>
+        <item name="actionModeCloseButtonStyle">
+            @style/actionNavigationButtonStyle
+        </item>
+
+        <item name="clueLineOnlyStyle">@style/legacyClueLineOnlyStyle</item>
+        <item name="speedDialStyle">@style/legacySpeedDialStyle</item>
+    </style>
+</resources>
