@@ -141,6 +141,8 @@ public class PageScraper extends AbstractDownloader {
         FileHandler fileHandler
             = ForkyzApplication.getInstance().getFileHandler();
 
+        boolean downloadFailed = false;
+
         try {
             Deque<String> urls = getPuzzleURLs();
             Map<String, String> urlsToFilenames = mapURLsToFileNames(urls);
@@ -157,41 +159,44 @@ public class PageScraper extends AbstractDownloader {
                 boolean exists = existingFileNames.contains(filename)
                     || existingFileNames.contains(legacyFileName);
 
-                if (exists)
-                    return DownloadResult.ALREADY_EXISTS;
+                if (!exists) {
+                    try {
+                        Puzzle puz = downloadPuzzle(url);
+                        if (puz != null) {
+                            // I'm not sure what purpose this has
+                            // Doesn't seem to be changeable from UI
+                            puz.setUpdatable(false);
+                            puz.setSource(getName());
+                            puz.setSourceUrl(url);
+                            puz.setSupportUrl(getSupportUrl());
+                            puz.setShareUrl(shareFileUrl ? url : scrapeUrl);
+                            puz.setDate(LocalDate.now());
 
-                try {
-                    Puzzle puz = downloadPuzzle(url);
-                    if (puz != null) {
-                        // I'm not sure what purpose this has
-                        // Doesn't seem to be changeable from UI
-                        puz.setUpdatable(false);
-                        puz.setSource(getName());
-                        puz.setSourceUrl(url);
-                        puz.setSupportUrl(getSupportUrl());
-                        puz.setShareUrl(shareFileUrl ? url : scrapeUrl);
-                        puz.setDate(LocalDate.now());
+                            String title = puz.getTitle();
+                            if (title == null || title.isEmpty())
+                                puz.setTitle(remoteFileName);
 
-                        String title = puz.getTitle();
-                        if (title == null || title.isEmpty())
-                            puz.setTitle(remoteFileName);
+                            PuzzleBuilder.resolveImages(puz, url);
 
-                        PuzzleBuilder.resolveImages(puz, url);
-
-                        return new DownloadResult(puz, filename);
+                            return new DownloadResult(puz, filename);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Exception downloading " + url
+                                + " for " + this.sourceName);
+                        e.printStackTrace();
+                        downloadFailed = true;
                     }
-                } catch (Exception e) {
-                    System.err.println("Exception downloading " + url
-                            + " for " + this.sourceName);
-                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+            downloadFailed = true;
         }
 
-        // failed (else returned earlier)
-        return DownloadResult.FAILED;
+        if (downloadFailed)
+            return DownloadResult.FAILED;
+        else
+            return DownloadResult.ALREADY_EXISTS;
     }
 
     private Puzzle downloadPuzzle(String url) throws IOException {
