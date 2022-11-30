@@ -37,6 +37,7 @@ public class PageScraper extends AbstractDownloader {
     private Pattern patFile;
     private PuzzleParser parser;
 
+    private String internalName;
     private String sourceName;
     private String scrapeUrl;
     private String supportUrl;
@@ -45,19 +46,25 @@ public class PageScraper extends AbstractDownloader {
     protected boolean updateable = false;
 
     public static class Puz extends PageScraper {
-        public Puz(String url, String sourceName, String supportUrl) {
-            this(url, sourceName, supportUrl, false);
+        public Puz(
+            String url,
+            String internalName,
+            String sourceName,
+            String supportUrl
+        ) {
+            this(url, internalName, sourceName, supportUrl, false);
         }
 
         public Puz(
             String scrapeUrl,
+            String internalName,
             String sourceName,
             String supportUrl,
             boolean readReverse
         ) {
             super(
                 REGEX_PUZ, new IO(),
-                scrapeUrl, sourceName, supportUrl, false,
+                scrapeUrl, internalName, sourceName, supportUrl, false,
                 readReverse
             );
         }
@@ -73,13 +80,14 @@ public class PageScraper extends AbstractDownloader {
      */
     public PageScraper(
         String regexFile, PuzzleParser parser,
-        String scrapeUrl, String sourceName,
+        String scrapeUrl, String internalName, String sourceName,
         String supportUrl, boolean shareFileUrl,
         boolean readReverse
     ) {
         this.patFile = Pattern.compile(regexFile);
         this.parser = parser;
         this.scrapeUrl = scrapeUrl;
+        this.internalName = internalName;
         this.sourceName = sourceName;
         this.supportUrl = supportUrl;
         this.shareFileUrl = shareFileUrl;
@@ -89,6 +97,11 @@ public class PageScraper extends AbstractDownloader {
     @Override
     public DayOfWeek[] getDownloadDates() {
         return DATE_DAILY;
+    }
+
+    @Override
+    public String getInternalName() {
+        return internalName;
     }
 
     @Override

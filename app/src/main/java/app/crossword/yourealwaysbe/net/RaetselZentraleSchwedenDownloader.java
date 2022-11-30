@@ -46,6 +46,7 @@ public class RaetselZentraleSchwedenDownloader
     private String idUrl;
 
     public RaetselZentraleSchwedenDownloader(
+        String internalName,
         String name,
         String shortName,
         DayOfWeek[] days,
@@ -53,6 +54,7 @@ public class RaetselZentraleSchwedenDownloader
         String shareUrlPattern
     ) {
         super(
+            internalName,
             name,
             days,
             supportUrl,

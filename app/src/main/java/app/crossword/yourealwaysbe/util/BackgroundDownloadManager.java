@@ -74,6 +74,11 @@ public class BackgroundDownloadManager {
         return CONFIG_PREFERENCES.contains(pref);
     }
 
+    public static boolean isBackgroundDownloadEnabled() {
+        return getPrefs().getBoolean(PREF_DOWNLOAD_HOURLY, false)
+            || getNextDailyDownloadDelay() >= 0;
+    }
+
     public static void updateBackgroundDownloads() {
         cancelBackgroundDownloads();
 
@@ -263,7 +268,9 @@ public class BackgroundDownloadManager {
             SharedPreferences prefs = BackgroundDownloadManager.getPrefs();
 
             final Downloaders dls = new Downloaders(prefs, nm, app, false);
-            dls.downloadLatestIfNewerThanDate(LocalDate.now(), null);
+            dls.downloadLatestIfNewerThanDate(
+                LocalDate.now(), dls.getAutoDownloaders()
+            );
 
             // This is used to tell BrowseActivity that puzzles may have
             // been updated while paused.

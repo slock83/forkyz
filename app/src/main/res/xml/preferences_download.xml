@@ -19,6 +19,13 @@
         app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$DownloadBackgroundFragment"
     />
 
+    <androidx.preference.MultiSelectListPreference
+        android:title="@string/auto_downloaders"
+        android:summary="@string/auto_downloaders_desc"
+        android:key="autoDownloaders"
+        android:defaultValue="@array/emptyArray"
+    />
+
     <androidx.preference.CheckBoxPreference
         android:title="@string/no_summary_download_notifs"
         android:defaultValue="false"

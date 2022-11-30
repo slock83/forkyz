@@ -20,6 +20,7 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * Date = Daily
  */
 public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
+    private static final String INTERNAL_NAME = "guardian";
     private static final String NAME =
         ForkyzApplication.getInstance().getString(R.string.guardian_daily);
     private static final String SUPPORT_URL = "https://support.theguardian.com";
@@ -30,6 +31,7 @@ public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
 
     public GuardianDailyCrypticDownloader() {
         super(
+            INTERNAL_NAME,
             NAME,
             DATE_WEEKDAY,
             SUPPORT_URL,

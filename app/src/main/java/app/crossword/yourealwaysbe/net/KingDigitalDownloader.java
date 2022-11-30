@@ -20,12 +20,14 @@ public class KingDigitalDownloader extends AbstractDateDownloader {
      */
     public KingDigitalDownloader(
         String crosswordSet,
+        String internalName,
         String downloaderName,
         DayOfWeek[] days,
         String supportUrl,
         String shareUrlPattern
     ) {
         super(
+            internalName,
             downloaderName,
             days,
             supportUrl,

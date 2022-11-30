@@ -14,6 +14,11 @@ public class DummyDownloader implements Downloader {
     }
 
     @Override
+    public String getInternalName() {
+        return null;
+    }
+
+    @Override
     public String getName() {
         return null;
     }

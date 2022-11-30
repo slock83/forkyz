@@ -23,6 +23,7 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
 public class AbstractDateDownloader extends AbstractDownloader {
     protected static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
     protected static final Map<String, String> EMPTY_MAP = Collections.emptyMap();
+    private String internalName;
     private String downloaderName;
     protected PuzzleParser puzzleParser;
     protected LocalDate goodThrough = LocalDate.now();
@@ -33,12 +34,14 @@ public class AbstractDateDownloader extends AbstractDownloader {
     private LocalDate goodFrom = LocalDate.ofEpochDay(0L);
 
     protected AbstractDateDownloader(
+        String internalName,
         String downloaderName,
         DayOfWeek[] days,
         String supportUrl,
         PuzzleParser puzzleParser
     ) {
         this(
+            internalName,
             downloaderName,
             days,
             supportUrl,
@@ -50,6 +53,7 @@ public class AbstractDateDownloader extends AbstractDownloader {
     }
 
     protected AbstractDateDownloader(
+        String internalName,
         String downloaderName,
         DayOfWeek[] days,
         String supportUrl,
@@ -58,6 +62,7 @@ public class AbstractDateDownloader extends AbstractDownloader {
         String shareUrlFormatPattern
     ) {
         this(
+            internalName,
             downloaderName,
             days,
             supportUrl,
@@ -69,6 +74,7 @@ public class AbstractDateDownloader extends AbstractDownloader {
     }
 
     protected AbstractDateDownloader(
+        String internalName,
         String downloaderName,
         DayOfWeek[] days,
         String supportUrl,
@@ -77,6 +83,7 @@ public class AbstractDateDownloader extends AbstractDownloader {
         String shareUrlFormatPattern,
         LocalDate goodFrom
     ) {
+        this.internalName = internalName;
         this.downloaderName = downloaderName;
         this.days = days;
         this.supportUrl = supportUrl;
@@ -103,6 +110,11 @@ public class AbstractDateDownloader extends AbstractDownloader {
             date.getDayOfMonth() + "-" +
             this.downloaderName.replaceAll(" ", "")
         );
+    }
+
+    @Override
+    public String getInternalName() {
+        return internalName;
     }
 
     @Override

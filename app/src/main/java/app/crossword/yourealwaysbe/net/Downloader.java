@@ -78,6 +78,14 @@ public interface Downloader {
 
     DayOfWeek[] getDownloadDates();
 
+    /**
+     * Constant internal name (for e.g. storing in prefs)
+     */
+    String getInternalName();
+
+    /**
+     * Human readable / local configurable name
+     */
     String getName();
 
     /**

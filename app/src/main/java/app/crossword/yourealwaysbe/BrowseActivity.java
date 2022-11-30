@@ -610,9 +610,12 @@ public class BrowseActivity extends ForkyzActivity {
 
         long lastDL = prefs.getLong("dlLast", 0);
 
-        if (prefs.getBoolean("dlOnStartup", false) &&
+        if (Downloaders.isDLOnStartup(this) &&
                 ((System.currentTimeMillis() - (long) (12 * 60 * 60 * 1000)) > lastDL)) {
-            model.download(LocalDate.now(), null);
+            model.download(
+                LocalDate.now(),
+                Downloaders.getAutoDownloaders(this)
+            );
             prefs.edit()
                     .putLong("dlLast", System.currentTimeMillis())
                     .apply();

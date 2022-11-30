@@ -2,6 +2,8 @@ package app.crossword.yourealwaysbe.util;
 
 import android.content.Context;
 
+import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
+import app.crossword.yourealwaysbe.net.Downloaders;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 public class MigrationHelper {
@@ -10,5 +12,7 @@ public class MigrationHelper {
             .migrateLegacyBackgroundDownloads();
 
         ThemeHelper.migrateThemePreferences(context);
+
+        Downloaders.migrateAutoDownloaders(ForkyzApplication.getInstance());
     }
 }

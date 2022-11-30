@@ -18,6 +18,7 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * Date = Daily
  */
 public class LeParisienDownloader extends AbstractDateDownloader {
+    private static final String INTERNAL_NAME = "leparisien";
     private static final String NAME =
         ForkyzApplication.getInstance().getString(R.string.le_parisien_daily);
     private static final String SUPPORT_URL = "https://abonnement.leparisien.fr";
@@ -39,6 +40,7 @@ public class LeParisienDownloader extends AbstractDateDownloader {
 
     public LeParisienDownloader() {
         super(
+            INTERNAL_NAME,
             NAME,
             DATE_DAILY,
             SUPPORT_URL,

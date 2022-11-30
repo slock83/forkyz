@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.core.app.NotificationCompat;
+import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.BrowseActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -20,9 +21,10 @@ import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class Downloaders {
         = Logger.getLogger("app.crossword.yourealwaysbe");
     private static final int NUM_DOWNLOAD_THREADS = 3;
 
+    public static final String PREF_AUTO_DOWNLOADERS = "autoDownloaders";
+
     private Context context;
     private NotificationManager notificationManager;
     private boolean suppressSummaryMessages;
@@ -50,7 +54,6 @@ public class Downloaders {
                        Context context) {
         this(prefs, notificationManager, context, true);
     }
-
 
     // Set isInteractive to true if this class can ask for user interaction when needed (e.g. to
     // refresh NYT credentials), false if otherwise.
@@ -100,14 +103,11 @@ public class Downloaders {
     // If downloaders is null, then the full list of downloaders will be used.
     public void downloadLatestIfNewerThanDate(LocalDate oldestDate, List<Downloader> downloaders) {
         if (downloaders == null) {
-            downloaders = new ArrayList<Downloader>();
+            downloaders = getDownloadersFromPrefs();
         }
 
-        if (downloaders.size() == 0) {
-            downloaders.addAll(getDownloadersFromPrefs());
-        }
-
-        HashMap<Downloader, LocalDate> puzzlesToDownload = new HashMap<Downloader, LocalDate>();
+        HashMap<Downloader, LocalDate> puzzlesToDownload
+            = new HashMap<Downloader, LocalDate>();
         for (Downloader d : downloaders) {
             LocalDate goodThrough = d.getGoodThrough();
             DayOfWeek goodThroughDayOfWeek = goodThrough.getDayOfWeek();
@@ -140,6 +140,70 @@ public class Downloaders {
         }
 
         download(puzzlesToDownload);
+    }
+
+    public static boolean isDLOnStartup(Context context) {
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(
+                context
+            );
+        return prefs.getBoolean("dlOnStartup", false);
+    }
+
+    public List<Downloader> getAutoDownloaders() {
+        return getAutoDownloaders(context);
+    }
+
+    public static List<Downloader> getAutoDownloaders(Context context) {
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(context);
+
+        List<Downloader> available = getDownloadersFromPrefs(prefs, context);
+
+        Set<String> autoDownloaders = prefs.getStringSet(
+            PREF_AUTO_DOWNLOADERS, Collections.emptySet()
+        );
+
+        List<Downloader> downloaders = new LinkedList<>();
+        for (Downloader downloader : available) {
+            if (autoDownloaders.contains(downloader.getInternalName()))
+                downloaders.add(downloader);
+        }
+
+        return downloaders;
+    }
+
+    public static List<Downloader> getDownloaders(Context context) {
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(context);
+        return getDownloadersFromPrefs(prefs, context);
+    }
+
+    /**
+     * Handle introduction of second selection of auto downloaders
+     */
+    public static void migrateAutoDownloaders(Context context) {
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(context);
+
+        Set<String> autoDownloaders
+            = prefs.getStringSet(PREF_AUTO_DOWNLOADERS, null);
+
+        if (autoDownloaders == null) {
+            autoDownloaders = new HashSet<>();
+
+            List<Downloader> downloaders = getDownloadersFromPrefs(
+                prefs, context
+            );
+
+            for (Downloader downloader : downloaders) {
+                autoDownloaders.add(downloader.getInternalName());
+            }
+
+            prefs.edit()
+                .putStringSet(PREF_AUTO_DOWNLOADERS, autoDownloaders)
+                .apply();
+        }
     }
 
     private void download(Map<Downloader, LocalDate> puzzlesToDownload) {
@@ -326,7 +390,14 @@ public class Downloaders {
         }
     }
 
+
     private List<Downloader> getDownloadersFromPrefs() {
+        return getDownloadersFromPrefs(prefs, context);
+    }
+
+    private static List<Downloader> getDownloadersFromPrefs(
+        SharedPreferences prefs, Context context
+    ) {
         List<Downloader> downloaders = new LinkedList<>();
 
         if (prefs.getBoolean("downloadGuardianDailyCryptic", true)) {
@@ -335,6 +406,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadHamAbend", true)) {
             downloaders.add(new RaetselZentraleSchwedenDownloader(
+                "hamabend",
                 context.getString(R.string.hamburger_abendblatt_daily),
                 "hhab",
                 Downloader.DATE_DAILY,
@@ -347,6 +419,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadIndependentDailyCryptic", true)) {
             downloaders.add(new AbstractDateDownloader(
+                "independent",
                 context.getString(R.string.independent_daily),
                 Downloader.DATE_DAILY,
                 "https://www.independent.co.uk/donations",
@@ -360,6 +433,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadJonesin", true)) {
             downloaders.add(new AbstractDateDownloader(
+                "jonesin",
                 context.getString(R.string.jonesin_crosswords),
                 Downloader.DATE_THURSDAY,
                 "https://crosswordnexus.com/jonesin/",
@@ -372,6 +446,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadJoseph", true)) {
             downloaders.add(new KingDigitalDownloader(
+                "joseph",
                 "Joseph",
                 context.getString(R.string.joseph_crossword),
                 Downloader.DATE_NO_SUNDAY,
@@ -387,6 +462,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadNewsday", true)) {
             downloaders.add(new AbstractDateDownloader(
+                "newsday",
                 context.getString(R.string.newsday),
                 Downloader.DATE_DAILY,
                 // i can't browse this site for a more specific URL
@@ -401,6 +477,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadPremier", true)) {
             downloaders.add(new KingDigitalDownloader(
+                "premier",
                 "Premier",
                 context.getString(R.string.premier_crossword),
                 Downloader.DATE_SUNDAY,
@@ -412,6 +489,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadSheffer", true)) {
             downloaders.add(new KingDigitalDownloader(
+                "sheffer",
                 "Sheffer",
                 context.getString(R.string.sheffer_crossword),
                 Downloader.DATE_NO_SUNDAY,
@@ -423,6 +501,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadUniversal", true)) {
             downloaders.add(new UclickDownloader(
+                "universal",
                 "fcx",
                 context.getString(R.string.universal_crossword),
                 context.getString(R.string.uclick_copyright),
@@ -434,6 +513,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadUSAToday", true)) {
             downloaders.add(new UclickDownloader(
+                "usatoday",
                 "usaon",
                 context.getString(R.string.usa_today),
                 context.getString(R.string.usa_today),
@@ -445,6 +525,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadWaPoSunday", true)) {
             downloaders.add(new AbstractDateDownloader(
+                "waposunday",
                 context.getString(R.string.washington_post_sunday),
                 Downloader.DATE_SUNDAY,
                 "https://subscribe.wsj.com",
@@ -456,6 +537,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadWsj", true)) {
             downloaders.add(new AbstractDateDownloader(
+                "wsj",
                 context.getString(R.string.wall_street_journal),
                 Downloader.DATE_NO_SUNDAY,
                 "https://subscribe.wsj.com",
@@ -465,13 +547,14 @@ public class Downloaders {
             ));
         }
 
-        addCustomDownloaders(downloaders);
+        addCustomDownloaders(prefs, downloaders);
 
         if (prefs.getBoolean("scrapeCru", false)) {
             downloaders.add(new PageScraper.Puz(
                 // certificate doesn't seem to work for me
                 // "https://theworld.com/~wij/puzzles/cru/index.html",
                 "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html",
+                "crypticcru",
                 context.getString(R.string.cru_puzzle_workshop),
                 "https://archive.nytimes.com/www.nytimes.com/premium/xword/cryptic-archive.html"
             ));
@@ -480,6 +563,7 @@ public class Downloaders {
         if (prefs.getBoolean("scrapeKegler", false)) {
             downloaders.add(new PageScraper.Puz(
                 "https://kegler.gitlab.io/Block_style/index.html",
+                "keglar",
                 context.getString(R.string.keglars_cryptics),
                 "https://kegler.gitlab.io/"
             ));
@@ -488,6 +572,7 @@ public class Downloaders {
         if (prefs.getBoolean("scrapePrivateEye", false)) {
             downloaders.add(new PageScraper.Puz(
                 "https://www.private-eye.co.uk/pictures/crossword/download/",
+                "privateeye",
                 context.getString(R.string.private_eye),
                 "https://shop.private-eye.co.uk",
                 true // download from end of page
@@ -499,6 +584,7 @@ public class Downloaders {
                 ".*krzyzowki/\\d+",
                 new PrzekrojIO(),
                 "https://przekroj.pl/rozrywka/krzyzowki/",
+                "przekroj",
                 context.getString(R.string.przekroj),
                 "https://przekroj.pl/shop/kiosk",
                 true, // share file url
@@ -509,14 +595,16 @@ public class Downloaders {
         return downloaders;
     }
 
-    private void addCustomDownloaders(List<Downloader> downloaders) {
+    private static void addCustomDownloaders(
+        SharedPreferences prefs, List<Downloader> downloaders
+    ) {
         if (prefs.getBoolean("downloadCustomDaily", true)) {
             String title = prefs.getString("customDailyTitle", "");
             String urlDateFormatPattern
                 = prefs.getString("customDailyUrl", "");
 
             downloaders.add(
-                new CustomDailyDownloader(title, urlDateFormatPattern)
+                new CustomDailyDownloader("custom", title, urlDateFormatPattern)
             );
         }
     }

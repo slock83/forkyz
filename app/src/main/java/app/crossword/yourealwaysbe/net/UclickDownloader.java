@@ -21,6 +21,7 @@ public class UclickDownloader extends AbstractDateDownloader {
     private String copyright;
 
     public UclickDownloader(
+        String internalName,
         String shortName,
         String fullName,
         String copyright,
@@ -29,6 +30,7 @@ public class UclickDownloader extends AbstractDateDownloader {
         String shareUrlPattern
     ) {
         super(
+            internalName,
             fullName,
             days,
             supportUrl,

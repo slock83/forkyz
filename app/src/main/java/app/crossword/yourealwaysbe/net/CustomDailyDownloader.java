@@ -19,8 +19,11 @@ public class CustomDailyDownloader extends AbstractDateDownloader {
      * @param title the title of the puzzles
      * @param urlDateFormatPattern java date format string for creating URL
      */
-    public CustomDailyDownloader(String title, String urlDateFormatPattern) {
+    public CustomDailyDownloader(
+        String internalName, String title, String urlDateFormatPattern
+    ) {
         super(
+            internalName,
             makeTitle(title),
             DATE_DAILY,
             null,

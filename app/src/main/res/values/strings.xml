@@ -204,6 +204,8 @@
     <string name="theme_preference_desc">Select application theme (requires restart).</string>
 
     <!-- preferences download -->
+    <string name="auto_downloaders">Automatic Download Sources</string>
+    <string name="auto_downloaders_desc">Which of the enabled sources are used for automatic and background download.</string>
     <string name="background_download_time_config">Download Times</string>
     <string name="background_download_constraints_config">Download Constraints</string>
     <string name="background_download_hourly">Download puzzles hourly</string>

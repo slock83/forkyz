@@ -1,20 +1,24 @@
 package app.crossword.yourealwaysbe;
 
+import java.util.List;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference.OnPreferenceClickListener;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import com.google.android.material.color.DynamicColors;
 
 import app.crossword.yourealwaysbe.forkyz.R;
+import app.crossword.yourealwaysbe.net.Downloader;
+import app.crossword.yourealwaysbe.net.Downloaders;
 import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
 import app.crossword.yourealwaysbe.util.ThemeHelper;
-
 
 public class PreferencesSubPages {
     public static class SourcesFragment extends PreferencesBaseFragment {
@@ -61,6 +65,31 @@ public class PreferencesSubPages {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.preferences_download, rootKey);
+            setAvailableDownloaders();
+        }
+
+        private void setAvailableDownloaders() {
+            List<Downloader> downloaders
+                = Downloaders.getDownloaders(getActivity());
+
+            int len = downloaders.size();
+            CharSequence[] values = new CharSequence[len];
+            CharSequence[] labels = new CharSequence[len];
+
+            // done this way because i know the downloaders list is a linked
+            // list
+            int index = 0;
+            for (Downloader downloader : downloaders) {
+                values[index] = downloader.getInternalName();
+                labels[index] = downloader.getName();
+                index += 1;
+            }
+
+            MultiSelectListPreference available = findPreference(
+                Downloaders.PREF_AUTO_DOWNLOADERS
+            );
+            available.setEntries(labels);
+            available.setEntryValues(values);
         }
     }
 
