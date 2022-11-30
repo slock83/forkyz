@@ -211,8 +211,6 @@ public class Downloaders {
             AndroidVersionUtils.Factory.getInstance()
                 .hasNetworkConnection(context);
 
-        System.out.println("FORKYZ: has connection " + hasConnection);
-
         if (!hasConnection) {
             notifyNoConnection();
             return;

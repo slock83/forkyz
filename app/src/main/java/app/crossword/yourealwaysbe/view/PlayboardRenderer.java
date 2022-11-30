@@ -1300,8 +1300,6 @@ public class PlayboardRenderer {
             int row = pos.getRow();
             int col = pos.getCol();
 
-            System.out.println("FORKYZ: draw p " + row + " " + col);
-
             this.drawBox(
                 canvas,
                 x, y, row, col,
