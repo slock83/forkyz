@@ -1,0 +1,3 @@
+- Warn if no connection when downloading.
+- Add legacy-like theme option.
+- Allow auto/background downloaders to be a sub-selection of enabled downloaders.
