@@ -95,42 +95,26 @@ public class UclickXMLIO implements PuzzleParser {
                 if (clueNumInt > maxClueNum) {
                     maxClueNum = clueNumInt;
                 }
-                try {
-                    acrossClues.add(new BasicClue(
-                        clueNum,
-                        URLDecoder.decode(
-                            attributes.getValue("c"), CHARSET_NAME
-                        )
-                    ));
-                } catch (UnsupportedEncodingException e) {
-                    acrossClues.add(new BasicClue(
-                        clueNum, attributes.getValue("c")
-                    ));
-                }
+                acrossClues.add(new BasicClue(
+                    clueNum,
+                    decodeValue(attributes.getValue("c"))
+                ));
             } else if (inDown) {
                 String clueNum = attributes.getValue("cn");
                 int clueNumInt = Integer.parseInt(clueNum);
                 if (clueNumInt > maxClueNum) {
                     maxClueNum = clueNumInt;
                 }
-                try {
-                    downClues.add(new BasicClue(
-                        clueNum,
-                        URLDecoder.decode(
-                            attributes.getValue("c"), CHARSET_NAME
-                        )
-                    ));
-                } catch (UnsupportedEncodingException e) {
-                    downClues.add(new BasicClue(
-                        clueNum, attributes.getValue("c")
-                    ));
-                }
+                downClues.add(new BasicClue(
+                    clueNum,
+                    decodeValue(attributes.getValue("c"))
+                ));
             } else if (name.equalsIgnoreCase("title")) {
-                title = attributes.getValue("v");
+                title = decodeValue(attributes.getValue("v"));
             } else if (name.equalsIgnoreCase("author")) {
-                author = attributes.getValue("v");
+                author = decodeValue(attributes.getValue("v"));
             } else if (name.equalsIgnoreCase("copyright")) {
-                copyright = attributes.getValue("v");
+                copyright = decodeValue(attributes.getValue("v"));
             } else if (name.equalsIgnoreCase("width")) {
                 width = Integer.parseInt(attributes.getValue("v"));
             } else if (name.equalsIgnoreCase("height")) {
@@ -165,6 +149,14 @@ public class UclickXMLIO implements PuzzleParser {
                 inAcross = false;
             } else if (name.equalsIgnoreCase("down")) {
                 inDown = false;
+            }
+        }
+
+        private String decodeValue(String value) {
+            try {
+                return URLDecoder.decode(value, CHARSET_NAME);
+            } catch (UnsupportedEncodingException e) {
+                return value;
             }
         }
     }
