@@ -444,7 +444,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadJoseph", true)) {
             downloaders.add(new KingDigitalDownloader(
-                "joseph",
+                "Joseph",
                 "Joseph",
                 context.getString(R.string.joseph_crossword),
                 Downloader.DATE_NO_SUNDAY,
@@ -475,7 +475,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadPremier", true)) {
             downloaders.add(new KingDigitalDownloader(
-                "premier",
+                "Premier",
                 "Premier",
                 context.getString(R.string.premier_crossword),
                 Downloader.DATE_SUNDAY,
@@ -487,7 +487,7 @@ public class Downloaders {
 
         if (prefs.getBoolean("downloadSheffer", true)) {
             downloaders.add(new KingDigitalDownloader(
-                "sheffer",
+                "Sheffer",
                 "Sheffer",
                 context.getString(R.string.sheffer_crossword),
                 Downloader.DATE_NO_SUNDAY,
