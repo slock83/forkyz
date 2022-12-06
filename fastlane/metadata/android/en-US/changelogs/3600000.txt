@@ -1,0 +1,1 @@
+- Fix King Digital downloaders.
