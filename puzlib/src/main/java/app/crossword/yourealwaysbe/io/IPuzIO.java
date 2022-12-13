@@ -148,7 +148,9 @@ public class IPuzIO implements PuzzleParser {
     };
     private static final String[] SUPPORTED_KINDS = {
         WRITE_KIND,
-        "http://ipuz.org/crossword/crypticcrossword#1"
+        "http://ipuz.org/crossword/crypticcrossword#1",
+        "http://ipuz.org/crossword",
+        "http://ipuz.org/crossword/crypticcrossword"
     };
 
     private static final String EXT_NAMESPACE = "app.crossword.yourealwaysbe";
