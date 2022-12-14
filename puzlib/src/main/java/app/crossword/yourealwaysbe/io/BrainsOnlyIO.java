@@ -150,6 +150,9 @@ public class BrainsOnlyIO implements PuzzleParser {
         String read = null;
         for(int i=0; i <= offset; i++){
             read = reader.readLine();
+            if(read == null){
+                throw new EOFException("Offset past end of file");
+            }
             if(read.endsWith("\r")){
                 i++;
             }

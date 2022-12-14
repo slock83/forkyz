@@ -60,7 +60,6 @@ public class RCIJeuxMFJIO implements PuzzleParser {
             return readPuzzleFromHJSON(
                 JsonValue.readHjson(hjson).asObject()
             );
-
         } catch (MFJFormatException e) {
             LOG.severe("Could not read RCIJeux MFJ: " + e);
             return null;
@@ -110,7 +109,9 @@ public class RCIJeuxMFJIO implements PuzzleParser {
     private static Puzzle readPuzzleFromHJSON(
         JsonObject hjson
     ) throws MFJFormatException {
-        String title = hjson.get("titre").asString();
+        String title = hjson.getString("titre", null);
+        if (title == null)
+            throw new MFJFormatException("No titre field in HJSON.");
 
         PuzzleBuilder builder = new PuzzleBuilder(getBoxes(hjson))
             .setTitle(title);
@@ -120,16 +121,23 @@ public class RCIJeuxMFJIO implements PuzzleParser {
         return builder.getPuzzle();
     }
 
-    private static Box[][] getBoxes(JsonObject hjson) {
-        int numRows = hjson.get("nbcaseshauteur").asInt();
-        int numCols = hjson.get("nbcaseslargeur").asInt();
+    private static Box[][] getBoxes(
+        JsonObject hjson
+    ) throws MFJFormatException {
+        int numRows = hjson.getInt("nbcaseshauteur", -1);
+        int numCols = hjson.getInt("nbcaseslargeur", -1);
+
+        if (numRows < 0 || numCols < 0) {
+            throw new MFJFormatException(
+                "Impossible grid size " + numRows + "x" + numCols + "."
+            );
+        }
 
         Box[][] boxes = new Box[numRows][numCols];
-
-        JsonArray rows = hjson.get("grille").asArray();
+        JsonArray rows = asArray(hjson.get("grille"));
 
         for (int row = 0; row < numRows; row++) {
-            String cols = rows.get(row).asString();
+            String cols = asString(rows.get(row));
             for (int col = 0; col < numCols; col++) {
                 char cell = cols.charAt(col);
                 if (Character.isUpperCase(cell)) {
@@ -196,13 +204,13 @@ public class RCIJeuxMFJIO implements PuzzleParser {
             throws MFJFormatException {
         Map<Position, List<ClueInfo>> clueInfos = new HashMap<>();
 
-        JsonArray rows = hjson.get("grille").asArray();
-        JsonArray clues = hjson.get("definitions").asArray();
+        JsonArray rows = asArray(hjson.get("grille"));
+        JsonArray clues = asArray(hjson.get("definitions"));
 
         int clueIdx = 0;
 
         for (int row = 0; row < rows.size(); row++) {
-            String cols = rows.get(row).asString();
+            String cols = asString(rows.get(row));
             for (int col = 0; col < cols.length(); col++) {
                 char cell = cols.charAt(col);
                 if (Character.isLowerCase(cell)) {
@@ -210,14 +218,14 @@ public class RCIJeuxMFJIO implements PuzzleParser {
 
                     Position position1 = arrow.getPosition1(row, col);
                     boolean isAcross1 = arrow.getIsAcross1();
-                    String hint1 = getHint(clues.get(clueIdx).asArray());
+                    String hint1 = getHint(asArray(clues.get(clueIdx)));
                     clueIdx += 1;
                     addClueInfo(clueInfos, position1, isAcross1, hint1);
 
                     if (arrow.getHasTwoClues()) {
                         Position position2 = arrow.getPosition2(row, col);
                         boolean isAcross2 = arrow.getIsAcross2();
-                        String hint2 = getHint(clues.get(clueIdx).asArray());
+                        String hint2 = getHint(asArray(clues.get(clueIdx)));
                         clueIdx += 1;
                         addClueInfo(clueInfos, position2, isAcross2, hint2);
                     }
@@ -249,11 +257,13 @@ public class RCIJeuxMFJIO implements PuzzleParser {
         );
     }
 
-    private static String getHint(JsonArray clueParts) {
+    private static String getHint(
+        JsonArray clueParts
+    ) throws MFJFormatException {
         StringBuilder hint = new StringBuilder();
 
         for (int i = 0; i < clueParts.size(); i++) {
-            hint.append(clueParts.get(i).asString());
+            hint.append(asString(clueParts.get(i)));
             int length = hint.length();
             if (hint.charAt(length - 1) == JOIN_DASH)
                 hint.setLength(length - 1);
@@ -262,6 +272,24 @@ public class RCIJeuxMFJIO implements PuzzleParser {
         }
 
         return hint.toString();
+    }
+
+    private static JsonArray asArray(JsonValue val) throws MFJFormatException {
+        if (val == null || !val.isArray()) {
+            throw new MFJFormatException(
+                "Expected " + val + " to be an array."
+            );
+        }
+        return val.asArray();
+    }
+
+    private static String asString(JsonValue val) throws MFJFormatException {
+        if (val == null || !val.isString()) {
+            throw new MFJFormatException(
+                "Expect " + val + " to be a string."
+            );
+        }
+        return val.asString();
     }
 
     private static enum Arrow {
