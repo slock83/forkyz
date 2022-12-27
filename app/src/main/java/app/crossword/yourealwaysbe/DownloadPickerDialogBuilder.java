@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnShowListener;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,8 +23,10 @@ import app.crossword.yourealwaysbe.net.Downloaders;
 import app.crossword.yourealwaysbe.net.DummyDownloader;
 import app.crossword.yourealwaysbe.forkyz.R;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.TextStyle;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -87,8 +90,10 @@ public class DownloadPickerDialogBuilder {
         OnClickListener clickHandler = new OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     dateChangedListener.onDateChanged(datePicker, datePicker.getYear(), datePicker.getMonth(), datePicker.getDayOfMonth());
-                    downloadButtonListener.onDownloadSelected(getCurrentDate(), mAvailableDownloaders,
-                           selectedItemPosition);
+                    downloadButtonListener.onDownloadSelected(
+                        getCurrentDate(),
+                        getSelectedDownloaders()
+                    );
                 }
             };
 
@@ -124,18 +129,115 @@ public class DownloadPickerDialogBuilder {
         return downloadDate;
     }
 
+    private List<Downloader> getSelectedDownloaders() {
+        if (selectedItemPosition == 0) {
+            return downloaders.getDownloaders(getCurrentDate());
+        } else {
+            return Collections.singletonList(
+                mAvailableDownloaders.get(selectedItemPosition)
+            );
+        }
+    }
 
     private void updatePuzzleSelect() {
-        mAvailableDownloaders = downloaders.getDownloaders(getCurrentDate());
+        mAvailableDownloaders = downloaders.getDownloaders();
         mAvailableDownloaders.add(0, new DummyDownloader());
 
-        ArrayAdapter<Downloader> adapter = new ArrayAdapter<Downloader>(mActivity,
-                android.R.layout.simple_spinner_item, mAvailableDownloaders);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<Downloader> adapter = new DownloadersAdapter(
+            mActivity,
+            android.R.layout.simple_spinner_item,
+            mAvailableDownloaders
+        );
+        adapter.setDropDownViewResource(
+            android.R.layout.simple_spinner_dropdown_item
+        );
         mPuzzleSelect.setAdapter(adapter);
     }
 
     public interface OnDownloadSelectedListener {
-        void onDownloadSelected(LocalDate date, List<Downloader> availableDownloaders, int selected);
+        void onDownloadSelected(LocalDate date, List<Downloader> downloaders);
+    }
+
+    private class DownloadersAdapter extends ArrayAdapter<Downloader> {
+        public DownloadersAdapter(
+            Context context, int resource, List<Downloader> downloaders
+        ) {
+            super(context, resource, downloaders);
+        }
+
+        @Override
+        public boolean isEnabled(int position) {
+            Downloader downloader = getItem(position);
+            // prolly "all available"
+            if (downloader == null)
+                return true;
+
+            return downloader.isAvailable(getCurrentDate());
+        }
+
+        @Override
+        public View getDropDownView(
+            int position, View convertView, ViewGroup parent
+        ) {
+            View rawView = super.getDropDownView(
+                position, convertView, parent
+            );
+
+            if (!(rawView instanceof TextView))
+                return rawView;
+
+            TextView view = (TextView) rawView;
+
+            ColorStateList colors = view.getTextColors();
+            int alpha = mActivity.getResources().getInteger(
+                isEnabled(position)
+                ? R.integer.enabled_downloader_alpha
+                : R.integer.disabled_downloader_alpha
+            );
+            view.setTextColor(colors.withAlpha(alpha));
+
+            if (!isEnabled(position) && position > 0) {
+                Downloader downloader = getItem(position);
+                Duration remaining
+                    = downloader.getUntilAvailable(getCurrentDate());
+                long hours = remaining == null ? 0 : remaining.toHours();
+                String downloaderString = downloader.toString();
+
+                if (remaining == null) {
+                    view.setText(
+                        view.getContext().getString(
+                            R.string.downloader_not_available,
+                            downloaderString
+                        )
+                    );
+                } else if (hours == 0) {
+                    view.setText(
+                        view.getContext().getString(
+                            R.string.downloader_available_soon,
+                            downloaderString
+                        )
+                    );
+                } else if (hours < 24) {
+                    view.setText(
+                        view.getContext()
+                            .getResources()
+                            .getQuantityString(
+                                R.plurals.downloader_available_hours,
+                                (int) hours, downloaderString, hours
+                            )
+                    );
+                } else {
+                    view.setText(
+                        view.getContext().getString(
+                            R.string.downloader_available_future,
+                            downloaderString
+                        )
+                    );
+                }
+            }
+
+            return view;
+        }
     }
 }
+

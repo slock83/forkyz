@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Set;
@@ -27,12 +28,14 @@ public class UclickDownloader extends AbstractDateDownloader {
         String copyright,
         String supportUrl,
         DayOfWeek[] days,
+        Duration utcAvailabilityOffset,
         String shareUrlPattern
     ) {
         super(
             internalName,
             fullName,
             days,
+            utcAvailabilityOffset,
             supportUrl,
             new UclickXMLIO(),
             String.format(

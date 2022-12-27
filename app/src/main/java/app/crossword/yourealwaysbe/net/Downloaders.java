@@ -19,9 +19,8 @@ import app.crossword.yourealwaysbe.io.PrzekrojIO;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
-import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +41,8 @@ public class Downloaders {
     private static final int NUM_DOWNLOAD_THREADS = 3;
 
     public static final String PREF_AUTO_DOWNLOADERS = "autoDownloaders";
+    public static final String PREF_DOWNLOAD_TIMEOUT = "downloadTimeout";
+    private static final String DEFAULT_TIMEOUT_MILLIS = "30000";
 
     private Context context;
     private NotificationManager notificationManager;
@@ -70,26 +71,16 @@ public class Downloaders {
             = prefs.getBoolean("supressMessages", false);
     }
 
+    public List<Downloader> getDownloaders() {
+        return getDownloaders(prefs, context);
+    }
+
     public List<Downloader> getDownloaders(LocalDate date) {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
         List<Downloader> retVal = new LinkedList<Downloader>();
-
-        for (Downloader d : getDownloadersFromPrefs()) {
-            // TODO: Downloader.getGoodThrough() should account for the day of week.
-            if (Arrays.binarySearch(d.getDownloadDates(), dayOfWeek) >= 0) {
-                LocalDate dGoodFrom = d.getGoodFrom();
-                boolean isGoodFrom
-                    = date.isEqual(dGoodFrom) || date.isAfter(dGoodFrom);
-                LocalDate dGoodThrough = d.getGoodThrough();
-                boolean isGoodThrough
-                    = date.isBefore(dGoodThrough) || date.isEqual(dGoodThrough);
-
-                if(isGoodFrom && isGoodThrough) {
-                    retVal.add(d);
-                }
-            }
+        for (Downloader d : getDownloaders()) {
+            if (d.isAvailable(date))
+                retVal.add(d);
         }
-
         return retVal;
     }
 
@@ -101,26 +92,22 @@ public class Downloaders {
     // downloaders.
     //
     // If downloaders is null, then the full list of downloaders will be used.
-    public void downloadLatestIfNewerThanDate(LocalDate oldestDate, List<Downloader> downloaders) {
+    public void downloadLatestInRange(
+        LocalDate from, LocalDate to, List<Downloader> downloaders
+    ) {
         if (downloaders == null) {
-            downloaders = getDownloadersFromPrefs();
+            downloaders = getDownloaders();
         }
 
         HashMap<Downloader, LocalDate> puzzlesToDownload
             = new HashMap<Downloader, LocalDate>();
         for (Downloader d : downloaders) {
-            LocalDate goodThrough = d.getGoodThrough();
-            DayOfWeek goodThroughDayOfWeek = goodThrough.getDayOfWeek();
-            boolean isDay
-                = Arrays.binarySearch(
-                    d.getDownloadDates(), goodThroughDayOfWeek
-                ) >= 0;
-            boolean isGoodThrough
-                = goodThrough.isEqual(oldestDate)
-                    || goodThrough.isAfter(oldestDate);
-            if (isDay && isGoodThrough) {
-                LOG.info("Will try to download puzzle " + d + " @ " + goodThrough);
-                puzzlesToDownload.put(d, goodThrough);
+            LocalDate latestDate = d.getLatestDate(to);
+            if (latestDate != null && !latestDate.isBefore(from)) {
+                LOG.info(
+                    "Will try to download puzzle " + d + " @ " + latestDate
+                );
+                puzzlesToDownload.put(d, latestDate);
             }
         }
 
@@ -158,7 +145,7 @@ public class Downloaders {
         SharedPreferences prefs
             = PreferenceManager.getDefaultSharedPreferences(context);
 
-        List<Downloader> available = getDownloadersFromPrefs(prefs, context);
+        List<Downloader> available = getDownloaders(prefs, context);
 
         Set<String> autoDownloaders = prefs.getStringSet(
             PREF_AUTO_DOWNLOADERS, Collections.emptySet()
@@ -176,7 +163,7 @@ public class Downloaders {
     public static List<Downloader> getDownloaders(Context context) {
         SharedPreferences prefs
             = PreferenceManager.getDefaultSharedPreferences(context);
-        return getDownloadersFromPrefs(prefs, context);
+        return getDownloaders(prefs, context);
     }
 
     /**
@@ -192,9 +179,7 @@ public class Downloaders {
         if (autoDownloaders == null) {
             autoDownloaders = new HashSet<>();
 
-            List<Downloader> downloaders = getDownloadersFromPrefs(
-                prefs, context
-            );
+            List<Downloader> downloaders = getDownloaders(prefs, context);
 
             for (Downloader downloader : downloaders) {
                 autoDownloaders.add(downloader.getInternalName());
@@ -388,18 +373,16 @@ public class Downloaders {
         }
     }
 
-
-    private List<Downloader> getDownloadersFromPrefs() {
-        return getDownloadersFromPrefs(prefs, context);
-    }
-
-    private static List<Downloader> getDownloadersFromPrefs(
+    // package access for testing
+    static List<Downloader> getDownloaders(
         SharedPreferences prefs, Context context
     ) {
         List<Downloader> downloaders = new LinkedList<>();
 
         if (prefs.getBoolean("downloadGuardianDailyCryptic", true)) {
-            downloaders.add(new GuardianDailyCrypticDownloader());
+            downloaders.add(new GuardianDailyCrypticDownloader(
+                "guardian", context.getString(R.string.guardian_daily)
+            ));
         }
 
         if (prefs.getBoolean("downloadHamAbend", true)) {
@@ -408,6 +391,7 @@ public class Downloaders {
                 context.getString(R.string.hamburger_abendblatt_daily),
                 "hhab",
                 Downloader.DATE_DAILY,
+                Duration.ofHours(1), // midnight Germany (verified)
                 "https://www.abendblatt.de/plus",
                 "'https://www.abendblatt.de/ratgeber/wissen/"
                     + "article106560367/Spielen-Sie-hier-taeglich"
@@ -420,6 +404,7 @@ public class Downloaders {
                 "independent",
                 context.getString(R.string.independent_daily),
                 Downloader.DATE_DAILY,
+                Duration.ZERO, // midnight UK (actually further in advance)
                 "https://www.independent.co.uk/donations",
                 new JPZIO(),
                 "'https://ams.cdn.arkadiumhosted.com/assets/gamesfeed/"
@@ -434,6 +419,7 @@ public class Downloaders {
                 "jonesin",
                 context.getString(R.string.jonesin_crosswords),
                 Downloader.DATE_THURSDAY,
+                Duration.ofDays(-2), // by experiment
                 "https://crosswordnexus.com/jonesin/",
                 new IO(),
                 "'https://herbach.dnsalias.com/Jonesin/jz'yyMMdd'.puz'",
@@ -448,6 +434,7 @@ public class Downloaders {
                 "Joseph",
                 context.getString(R.string.joseph_crossword),
                 Downloader.DATE_NO_SUNDAY,
+                Duration.ofDays(-7), // more than a week by experiment
                 "https://puzzles.kingdigital.com",
                 "'https://www.arkadium.com/games/"
                     + "joseph-crossword-kingsfeatures/'"
@@ -455,7 +442,9 @@ public class Downloaders {
         }
 
         if (prefs.getBoolean("downloadLeParisien", true)) {
-            downloaders.add(new LeParisienDownloader());
+            downloaders.add(new LeParisienDownloader(
+                "leparisien", context.getString(R.string.le_parisien_daily)
+            ));
         }
 
         if (prefs.getBoolean("downloadNewsday", true)) {
@@ -463,6 +452,7 @@ public class Downloaders {
                 "newsday",
                 context.getString(R.string.newsday),
                 Downloader.DATE_DAILY,
+                Duration.ofHours(5), // midnight US? (by experiment)
                 // i can't browse this site for a more specific URL
                 // (GDPR)
                 "https://www.newsday.com",
@@ -479,6 +469,7 @@ public class Downloaders {
                 "Premier",
                 context.getString(R.string.premier_crossword),
                 Downloader.DATE_SUNDAY,
+                Duration.ofDays(-7), // more than a week by experiment
                 "https://puzzles.kingdigital.com",
                 "'https://www.arkadium.com/games/"
                     + "premier-crossword-kingsfeatures/'"
@@ -491,6 +482,7 @@ public class Downloaders {
                 "Sheffer",
                 context.getString(R.string.sheffer_crossword),
                 Downloader.DATE_NO_SUNDAY,
+                Duration.ofDays(-7), // more than a week by experiment
                 "https://puzzles.kingdigital.com",
                 "'https://www.arkadium.com/games/"
                     + "sheffer-crossword-kingsfeatures/'"
@@ -505,6 +497,7 @@ public class Downloaders {
                 context.getString(R.string.uclick_copyright),
                 "http://www.uclick.com/client/spi/fcx/",
                 Downloader.DATE_DAILY,
+                Duration.ofMinutes(6 * 60 + 30), // 06:30 by experiment
                 null
             ));
         }
@@ -517,6 +510,7 @@ public class Downloaders {
                 context.getString(R.string.usa_today),
                 "https://subscribe.usatoday.com",
                 Downloader.DATE_DAILY,
+                Duration.ofMinutes(6 * 60 + 30), // 06:30 by experiment
                 "'https://games.usatoday.com/en/games/uclick-crossword'"
             ));
         }
@@ -526,6 +520,7 @@ public class Downloaders {
                 "waposunday",
                 context.getString(R.string.washington_post_sunday),
                 Downloader.DATE_SUNDAY,
+                Duration.ofHours(-1), // by experiment
                 "https://subscribe.wsj.com",
                 new IO(),
                 "'https://herbach.dnsalias.com/Wapo/wp'yyMMdd'.puz'",
@@ -538,6 +533,7 @@ public class Downloaders {
                 "wsj",
                 context.getString(R.string.wall_street_journal),
                 Downloader.DATE_NO_SUNDAY,
+                Duration.ofHours(-3), // by experiment
                 "https://subscribe.wsj.com",
                 new IO(),
                 "'https://herbach.dnsalias.com/wsj/wsj'yyMMdd'.puz'",
@@ -545,7 +541,7 @@ public class Downloaders {
             ));
         }
 
-        addCustomDownloaders(prefs, downloaders);
+        addCustomDownloaders(prefs, context, downloaders);
 
         if (prefs.getBoolean("scrapeCru", false)) {
             downloaders.add(new PageScraper.Puz(
@@ -590,14 +586,24 @@ public class Downloaders {
             ));
         }
 
+        // Set timeout before returning
+        int timeout = Integer.valueOf(
+            prefs.getString(PREF_DOWNLOAD_TIMEOUT, DEFAULT_TIMEOUT_MILLIS)
+        );
+        for (Downloader downloader : downloaders)
+            downloader.setTimeout(timeout);
+
         return downloaders;
     }
 
     private static void addCustomDownloaders(
-        SharedPreferences prefs, List<Downloader> downloaders
+        SharedPreferences prefs, Context context, List<Downloader> downloaders
     ) {
         if (prefs.getBoolean("downloadCustomDaily", true)) {
             String title = prefs.getString("customDailyTitle", "");
+            if (title == null || title.trim().isEmpty())
+                title = context.getString(R.string.custom_daily_title);
+
             String urlDateFormatPattern
                 = prefs.getString("customDailyUrl", "");
 

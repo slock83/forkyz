@@ -8,29 +8,21 @@ import java.net.URL;
 import java.util.Map.Entry;
 import java.util.Map;
 
-import android.content.SharedPreferences;
-import androidx.preference.PreferenceManager;
-
-import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
-
 /**
  * Base class for downloaders
  *
  * Provides some useful methods. Recommended to always use
- * getInputStream. If not, set a timeout of DOWNLOAD_TIMEOUT_MILLIS.
+ * getInputStream. If not, set a timeout of getTimeout().
  */
 public abstract class AbstractDownloader implements Downloader {
-    private static final String PREF_DOWNLOAD_TIMEOUT = "downloadTimeout";
+    private int timeoutMillis = 30000;
 
-    private static final String DEFAULT_TIMEOUT_MILLIS = "30000";
+    public void setTimeout(int timeoutMillis) {
+        this.timeoutMillis = timeoutMillis;
+    }
 
-    protected int getTimeout() {
-        ForkyzApplication app = ForkyzApplication.getInstance();
-        SharedPreferences prefs =
-            PreferenceManager.getDefaultSharedPreferences(app);
-        return Integer.valueOf(
-            prefs.getString(PREF_DOWNLOAD_TIMEOUT, DEFAULT_TIMEOUT_MILLIS)
-        );
+    public int getTimeout() {
+        return timeoutMillis;
     }
 
     protected BufferedInputStream getInputStream(

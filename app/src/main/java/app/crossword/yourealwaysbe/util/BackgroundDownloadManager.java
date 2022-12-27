@@ -267,10 +267,9 @@ public class BackgroundDownloadManager {
 
             SharedPreferences prefs = BackgroundDownloadManager.getPrefs();
 
-            final Downloaders dls = new Downloaders(prefs, nm, app, false);
-            dls.downloadLatestIfNewerThanDate(
-                LocalDate.now(), dls.getAutoDownloaders()
-            );
+            final Downloaders dls = new Downloaders(app, prefs, nm, false);
+            LocalDate now = LocalDate.now();
+            dls.downloadLatestInRange(now, now, dls.getAutoDownloaders());
 
             // This is used to tell BrowseActivity that puzzles may have
             // been updated while paused.

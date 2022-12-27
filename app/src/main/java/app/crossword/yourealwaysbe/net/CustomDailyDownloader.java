@@ -1,8 +1,8 @@
 package app.crossword.yourealwaysbe.net;
 
-import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
-import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.PuzzleStreamReader;
+
+import java.time.Duration;
 
 /**
  * Custom daily downloader
@@ -10,9 +10,6 @@ import app.crossword.yourealwaysbe.io.PuzzleStreamReader;
  * Date = Daily
  */
 public class CustomDailyDownloader extends AbstractDateDownloader {
-    private static final String NAME
-        = ForkyzApplication.getInstance().getString(R.string.custom_daily_title);
-
     /**
      * Create a new custom downloader
      *
@@ -24,18 +21,14 @@ public class CustomDailyDownloader extends AbstractDateDownloader {
     ) {
         super(
             internalName,
-            makeTitle(title),
+            title,
             DATE_DAILY,
+            // Currently no option to configure availability time
+            Duration.ZERO,
             null,
             new PuzzleStreamReader(),
             urlDateFormatPattern,
             urlDateFormatPattern
         );
-    }
-
-    private static String makeTitle(String title) {
-        if (title == null || title.trim().isEmpty())
-            return NAME;
-        return title;
     }
 }

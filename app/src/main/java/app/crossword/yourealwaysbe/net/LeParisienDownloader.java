@@ -7,8 +7,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.Map;
 
-import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
-import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.RCIJeuxMFJIO;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -18,9 +16,6 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  * Date = Daily
  */
 public class LeParisienDownloader extends AbstractDateDownloader {
-    private static final String INTERNAL_NAME = "leparisien";
-    private static final String NAME =
-        ForkyzApplication.getInstance().getString(R.string.le_parisien_daily);
     private static final String SUPPORT_URL = "https://abonnement.leparisien.fr";
     private static final String SHARE_URL
         = "https://www.leparisien.fr/jeux/mots-fleches/force-2/";
@@ -38,18 +33,19 @@ public class LeParisienDownloader extends AbstractDateDownloader {
 
     private static final int ARCHIVE_LENGTH_DAYS = 364;
 
-    public LeParisienDownloader() {
+    public LeParisienDownloader(String internalName, String name) {
         super(
-            INTERNAL_NAME,
-            NAME,
+            internalName,
+            name,
             DATE_DAILY,
+            Duration.ofHours(1), // take available at midnight in France
             SUPPORT_URL,
             new RCIJeuxMFJIO()
         );
     }
 
     @Override
-    public LocalDate getGoodFrom() {
+    protected LocalDate getGoodFrom() {
         return LocalDate.now().minusDays(ARCHIVE_LENGTH_DAYS);
     }
 

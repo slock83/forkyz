@@ -64,6 +64,13 @@
     <string name="title_view_crosswords">Crosswords</string>
     <string name="puzzle_caption_with_author">%1$s by %2$s</string>
     <string name="download_but_no_active_network">Please enable a network connection before downloading.</string>
+    <string name="downloader_available_soon">%1$s (in &lt;1hr)</string>
+    <plurals name="downloader_available_hours">
+        <item quantity="one">%1$s (in ~%2$dhr)</item>
+        <item quantity="other">%1$s (in ~%2$dhrs)</item>
+    </plurals>
+    <string name="downloader_available_future">%1$s (not yet available)</string>
+    <string name="downloader_not_available">%1$s (not available)</string>
 
     <!-- clues list -->
     <string name="current_word">Current word</string>

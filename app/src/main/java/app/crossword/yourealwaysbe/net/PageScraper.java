@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Deque;
 import java.util.HashMap;
@@ -18,12 +19,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.PuzzleParser;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.PuzzleBuilder;
-import app.crossword.yourealwaysbe.util.files.FileHandler;
 
 /**
  * A downloader that scrapes from a dateless archive
@@ -125,22 +124,30 @@ public class PageScraper extends AbstractDownloader {
     }
 
     @Override
-    public LocalDate getGoodThrough() {
-        return LocalDate.MAX;
+    public boolean isAvailable(LocalDate date) {
+        return true;
     }
 
     @Override
-    public LocalDate getGoodFrom() {
-        return LocalDate.ofEpochDay(0L);
+    public Duration getUntilAvailable(LocalDate date) {
+        return null;
+    }
+
+    @Override
+    public LocalDate getLatestDate() {
+        return LocalDate.now();
+    }
+
+    @Override
+    public LocalDate getLatestDate(LocalDate until) {
+        LocalDate now = LocalDate.now();
+        return until == null || now.isBefore(until) ? now : until;
     }
 
     @Override
     public DownloadResult download(
         LocalDate date, Set<String> existingFileNames
     ) {
-        FileHandler fileHandler
-            = ForkyzApplication.getInstance().getFileHandler();
-
         boolean downloadFailed = false;
 
         try {

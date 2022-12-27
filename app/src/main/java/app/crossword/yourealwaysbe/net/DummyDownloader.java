@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -46,12 +47,30 @@ public class DummyDownloader implements Downloader {
     }
 
     @Override
-    public LocalDate getGoodThrough() {
-        return LocalDate.now();
+    public boolean isAvailable(LocalDate date) {
+        return true;
     }
 
     @Override
-    public LocalDate getGoodFrom() {
-        return LocalDate.ofEpochDay(0L);
+    public Duration getUntilAvailable(LocalDate date) {
+        return null;
+    }
+
+    @Override
+    public LocalDate getLatestDate() {
+        return null;
+    }
+
+    @Override
+    public LocalDate getLatestDate(LocalDate until) {
+        return null;
+    }
+
+    @Override
+    public void setTimeout(int timeoutMillis) { }
+
+    @Override
+    public int getTimeout() {
+        return -1;
     }
 }

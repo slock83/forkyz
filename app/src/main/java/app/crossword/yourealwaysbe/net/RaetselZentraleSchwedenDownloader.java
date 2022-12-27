@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class RaetselZentraleSchwedenDownloader
         String name,
         String shortName,
         DayOfWeek[] days,
+        Duration utcAvailabilityOffset,
         String supportUrl,
         String shareUrlPattern
     ) {
@@ -57,6 +59,7 @@ public class RaetselZentraleSchwedenDownloader
             internalName,
             name,
             days,
+            utcAvailabilityOffset,
             supportUrl,
             new RaetselZentraleSchwedenJSONIO(),
             null,
@@ -66,7 +69,7 @@ public class RaetselZentraleSchwedenDownloader
     }
 
     @Override
-    public LocalDate getGoodFrom() {
+    protected LocalDate getGoodFrom() {
         return LocalDate.now();
     }
 

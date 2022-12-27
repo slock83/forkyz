@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.Map;
 
-import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
-import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.io.GuardianJSONIO;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
@@ -21,19 +19,18 @@ import app.crossword.yourealwaysbe.puz.Puzzle;
  */
 public class GuardianDailyCrypticDownloader extends AbstractDateDownloader {
     private static final String INTERNAL_NAME = "guardian";
-    private static final String NAME =
-        ForkyzApplication.getInstance().getString(R.string.guardian_daily);
     private static final String SUPPORT_URL = "https://support.theguardian.com";
     private static final String BASE_SOURCE_URL
         = "https://www.theguardian.com/crosswords/cryptic/";
     private static final int BASE_CW_NUMBER = 28112;
     private static final LocalDate BASE_CW_DATE = LocalDate.of(2020, 4, 20);
 
-    public GuardianDailyCrypticDownloader() {
+    public GuardianDailyCrypticDownloader(String internalName, String name) {
         super(
-            INTERNAL_NAME,
-            NAME,
+            internalName,
+            name,
             DATE_WEEKDAY,
+            Duration.ZERO, // TODO: availability time
             SUPPORT_URL,
             null
         );

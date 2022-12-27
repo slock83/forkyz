@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -106,7 +107,33 @@ public interface Downloader {
 
     boolean alwaysRun();
 
-    LocalDate getGoodThrough();
+    /**
+     * If a puzzle is currently available for the date
+     */
+    boolean isAvailable(LocalDate date);
 
-    LocalDate getGoodFrom();
+    /**
+     * How long since/until available
+     *
+     * Returns null if not known or was never available. Negative means how
+     * long since.
+     */
+    Duration getUntilAvailable(LocalDate date);
+
+    /**
+     * Most recent puzzle date
+     *
+     * May return null if there is no most recent
+     */
+    LocalDate getLatestDate();
+
+    /**
+     * Most recent puzzle date up to until (inclusive)
+     *
+     * May return null if there is no most recent
+     */
+    LocalDate getLatestDate(LocalDate until);
+
+    void setTimeout(int timeoutMillis);
+    int getTimeout();
 }

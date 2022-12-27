@@ -2,6 +2,7 @@
 package app.crossword.yourealwaysbe.net;
 
 import java.time.DayOfWeek;
+import java.time.Duration;
 
 import app.crossword.yourealwaysbe.io.JPZIO;
 
@@ -23,6 +24,7 @@ public class KingDigitalDownloader extends AbstractDateDownloader {
         String internalName,
         String downloaderName,
         DayOfWeek[] days,
+        Duration utcAvailabilityOffset,
         String supportUrl,
         String shareUrlPattern
     ) {
@@ -30,6 +32,7 @@ public class KingDigitalDownloader extends AbstractDateDownloader {
             internalName,
             downloaderName,
             days,
+            utcAvailabilityOffset,
             supportUrl,
             new JPZIO(),
             String.format(SOURCE_URL_FMT_PATTERN, crosswordSet),

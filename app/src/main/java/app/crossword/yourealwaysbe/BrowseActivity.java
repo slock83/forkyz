@@ -1011,29 +1011,19 @@ public class BrowseActivity extends ForkyzActivity {
     public static class DownloadDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            DownloadPickerDialogBuilder.OnDownloadSelectedListener downloadButtonListener = new DownloadPickerDialogBuilder.OnDownloadSelectedListener() {
+            DownloadPickerDialogBuilder.OnDownloadSelectedListener
+                downloadButtonListener
+                    = new DownloadPickerDialogBuilder
+                        .OnDownloadSelectedListener() {
                 public void onDownloadSelected(
                     LocalDate d,
-                    List<Downloader> downloaders,
-                    int selected
+                    List<Downloader> downloaders
                 ) {
-                    List<Downloader> toDownload
-                        = new LinkedList<Downloader>();
-
-                    if (selected == 0) {
-                        // Download all available.
-                        toDownload.addAll(downloaders);
-                        toDownload.remove(0);
-                    } else {
-                        // Only download selected.
-                        toDownload.add(downloaders.get(selected));
-                    }
-
                     BrowseActivityViewModel model
                         = new ViewModelProvider(getActivity())
                             .get(BrowseActivityViewModel.class);
 
-                    model.download(d, toDownload);
+                    model.download(d, downloaders);
                 }
             };
 
