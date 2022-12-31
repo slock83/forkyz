@@ -3,7 +3,7 @@ package app.crossword.yourealwaysbe.io;
 
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -12,11 +12,10 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 
-public class RCIJeuxMFJIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-    public RCIJeuxMFJIOTest(String testName) {
-        super(testName);
-    }
+public class RCIJeuxMFJIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/rcijeux-motsfleches.mfj");
@@ -62,6 +61,7 @@ public class RCIJeuxMFJIOTest extends TestCase {
         assertEquals(zone1.getPosition(8), new Position(8, 1));
     }
 
+    @Test
     public void testPuzzle1() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = RCIJeuxMFJIO.readPuzzle(is);

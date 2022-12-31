@@ -1,37 +1,18 @@
 package app.crossword.yourealwaysbe.io;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-/**
- * Tests for KingFeaturesPlaintextIO.
- */
-public class KingFeaturesPlaintextIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private static final String TITLE = "Premier Crossword";
-    private static final String AUTHOR = "Donna J. Stone";
-    private static final String COPYRIGHT = "\u00a9 2010 King Features Syndicate, Inc.";
-    private static final LocalDate DATE = LocalDate.of(2010, 7, 4);
-
-    private InputStream is;
-    private DataOutputStream os;
-    private File tmp;
-
-    public KingFeaturesPlaintextIOTest(String testName) {
-        super(testName);
-    }
+public class KingFeaturesPlaintextIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return KingFeaturesPlaintextIOTest.class.getResourceAsStream(
@@ -84,39 +65,11 @@ public class KingFeaturesPlaintextIOTest extends TestCase {
         );
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        is = KingFeaturesPlaintextIOTest.class.getResourceAsStream("/premiere-20100704.txt");
-        tmp = File.createTempFile("kfp-test", ".puz");
-        os = new DataOutputStream(new FileOutputStream(tmp));
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        is.close();
-        os.close();
-        tmp.delete();
-    }
-
-    public void testConvert() {
-        assertTrue(KingFeaturesPlaintextIO.convertKFPuzzle(is, os, TITLE, AUTHOR, COPYRIGHT, DATE));
-        Puzzle puz = null;
-        try (
-            InputStream is = new FileInputStream(tmp)
-        ) {
-            puz = IO.loadNative(is);
-        } catch (IOException e) {
-            e.printStackTrace();
-            fail("IO Error in IO.load - " + e.getMessage());
+    @Test
+    public void testRead() throws IOException {
+        try (InputStream is = getTestPuzzle1InputStream()) {
+            Puzzle puz = KingFeaturesPlaintextIO.parsePuzzle(is);
+            assertIsTestPuzzle1(puz);
         }
-
-        assertIsTestPuzzle1(puz);
-
-        assertEquals(TITLE, puz.getTitle());
-        assertEquals(AUTHOR, puz.getAuthor());
-        assertEquals(COPYRIGHT, puz.getCopyright());
     }
-
 }

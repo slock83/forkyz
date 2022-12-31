@@ -4,7 +4,7 @@ package app.crossword.yourealwaysbe.io;
 import java.io.InputStream;
 import java.time.LocalDate;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -13,11 +13,10 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 
-public class GuardianJSONIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    public GuardianJSONIOTest(String testName) {
-        super(testName);
-    }
+public class GuardianJSONIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/guardian.json");
@@ -61,6 +60,7 @@ public class GuardianJSONIOTest extends TestCase {
         assertTrue(tenAcrossZone == null || tenAcrossZone.isEmpty());
     }
 
+    @Test
     public void testPuzzle1() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = GuardianJSONIO.readPuzzle(is);

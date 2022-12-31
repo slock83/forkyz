@@ -3,7 +3,7 @@ package app.crossword.yourealwaysbe.io;
 
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -12,11 +12,11 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 
-public class RaetselZentraleSchwedenJSONIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    public RaetselZentraleSchwedenJSONIOTest(String testName) {
-        super(testName);
-    }
+public class RaetselZentraleSchwedenJSONIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/raetselzentrale.json");
@@ -74,6 +74,7 @@ public class RaetselZentraleSchwedenJSONIOTest extends TestCase {
         assertEquals(puz.getPinnedClueID(), winword.getClueID());
     }
 
+    @Test
     public void testPuzzle1() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = RaetselZentraleSchwedenJSONIO.readPuzzle(is);

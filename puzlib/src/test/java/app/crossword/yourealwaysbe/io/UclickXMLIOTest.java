@@ -1,37 +1,20 @@
 package app.crossword.yourealwaysbe.io;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.LocalDate;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-/**
- * Tests for UclickXMLIO.
- */
-public class UclickXMLIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class UclickXMLIOTest {
     private static final String TITLE = "12/15/09 LET'S BE HONEST";
     private static final String AUTHOR = "by Billie Truitt, edited by Stanley Newman";
-    private static final LocalDate DATE = LocalDate.of(2009, 12, 15);
-    private static final String COPYRIGHT = "Stanley Newman, distributed by Creators Syndicate, Inc.";
-
-    private InputStream is;
-    private DataOutputStream os;
-    private File tmp;
-
-    public UclickXMLIOTest(String testName) {
-        super(testName);
-    }
 
     public static InputStream getTestPuzzle1InputStream() {
         return UclickXMLIOTest.class.getResourceAsStream(
@@ -88,36 +71,11 @@ public class UclickXMLIOTest extends TestCase {
         );
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        is = getTestPuzzle1InputStream();
-        tmp = File.createTempFile("uclick-test", ".puz");
-        os = new DataOutputStream(new FileOutputStream(tmp));
-    }
-
-    @Override
-    public void tearDown() throws Exception {
-        super.tearDown();
-        is.close();
-        os.close();
-        tmp.delete();
-    }
-
-    public void testConvert() throws IOException {
-        assertTrue(UclickXMLIO.convertUclickPuzzle(is, os, COPYRIGHT, DATE));
-        Puzzle puz = null;
-
-        try (
-            DataInputStream dis = new DataInputStream(
-                new FileInputStream(tmp)
-            )
-        ) {
-            puz = IO.loadNative(dis);
+    @Test
+    public void testRead() throws IOException {
+        try (InputStream is = getTestPuzzle1InputStream()) {
+            Puzzle puz = UclickXMLIO.parsePuzzle(is);
+            assertIsTestPuzzle1(puz);
         }
-
-        assertIsTestPuzzle1(puz);
-        assertEquals(COPYRIGHT, puz.getCopyright());
     }
-
 }

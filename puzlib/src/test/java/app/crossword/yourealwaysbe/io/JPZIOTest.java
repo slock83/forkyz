@@ -4,18 +4,19 @@ import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-public class JPZIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    public JPZIOTest(String testName) {
-        super(testName);
-    }
+public class JPZIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/lat_puzzle_111128.xml");
@@ -104,6 +105,7 @@ public class JPZIOTest extends TestCase {
         assertEquals(marks[2][2], "BR");
     }
 
+    @Test
     public void testJPZ() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         StreamUtils.copyStream(getTestPuzzle1InputStream(), baos);

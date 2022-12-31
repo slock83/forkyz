@@ -1,38 +1,20 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package app.crossword.yourealwaysbe.puz;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.IOTest;
 
-/**
- *
- * @author kebernet
- */
-public class PlayboardTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    public PlayboardTest(String testName) {
-        super(testName);
-    }
+public class PlayboardTest {
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
+    @Test
     public void testMoveUp() throws Exception {
          Puzzle puz = loadTestPuz();
 
@@ -76,6 +58,7 @@ public class PlayboardTest extends TestCase {
          board.moveUp(false);
     }
 
+    @Test
     public void testDeleteLetter() throws Exception {
          Puzzle puz = loadTestPuz();
 
@@ -116,6 +99,7 @@ public class PlayboardTest extends TestCase {
          assertBoxLetter(puz, 2, 3, "A");
     }
 
+    @Test
     public void testDeleteLetterCrossing() throws Exception {
          Puzzle puz = loadTestPuz();
 
@@ -154,6 +138,7 @@ public class PlayboardTest extends TestCase {
          assertBoxBlank(puz, 1, 4);
     }
 
+    @Test
     public void testMoveNextOnAxis() throws Exception {
         Puzzle puz = loadTestPuz();
         Playboard board = new Playboard(puz);
@@ -200,6 +185,7 @@ public class PlayboardTest extends TestCase {
         assertPosition(board, 0, 0);
     }
 
+    @Test
     public void testMoveStopEnd() throws Exception {
         Puzzle puz = loadTestPuz();
         Playboard board = new Playboard(puz);
@@ -235,6 +221,7 @@ public class PlayboardTest extends TestCase {
         assertPosition(board, 0, 6);
     }
 
+    @Test
     public void testMoveNextClue() throws Exception {
         Puzzle puz = loadTestPuz();
         Playboard board = new Playboard(puz);
@@ -293,6 +280,7 @@ public class PlayboardTest extends TestCase {
         assertPosition(board, 0, 0);
     }
 
+    @Test
     public void testMoveParallel() throws Exception {
         Puzzle puz = loadTestPuz();
         Playboard board = new Playboard(puz);
@@ -340,18 +328,22 @@ public class PlayboardTest extends TestCase {
         assertPosition(board, 0, 0);
     }
 
+    @Test
     public void testPlayFullMoveAxis() throws Exception {
         checkNoMoveFullGrid(MovementStrategy.MOVE_NEXT_ON_AXIS);
     }
 
+    @Test
     public void testPlayFullMoveStopEnd() throws Exception {
         checkNoMoveFullGrid(MovementStrategy.STOP_ON_END);
     }
 
+    @Test
     public void testPlayFullMoveNextClue() throws Exception {
         checkNoMoveFullGrid(MovementStrategy.MOVE_NEXT_CLUE);
     }
 
+    @Test
     public void testPlayFullMoveParallelWord() throws Exception {
         checkNoMoveFullGrid(MovementStrategy.MOVE_PARALLEL_WORD);
     }

@@ -1,6 +1,6 @@
 package app.crossword.yourealwaysbe.io;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,14 +10,10 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-/**
- * Created with IntelliJ IDEA.
- * User: keber_000
- * Date: 2/9/14
- * Time: 6:04 PM
- * To change this template use File | Settings | File Templates.
- */
-public class BrainsOnlyIOTest  extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
+
+public class BrainsOnlyIOTest  {
 
     public static InputStream getTestPuzzle1InputStream() {
         return BrainsOnlyIOTest.class.getResourceAsStream("/brainsonly.txt");
@@ -62,11 +58,13 @@ public class BrainsOnlyIOTest  extends TestCase {
         );
     }
 
+    @Test
     public void testParse() throws Exception {
         Puzzle puz = BrainsOnlyIO.parse(getTestPuzzle1InputStream());
         assertIsTestPuzzle1(puz);
     }
 
+    @Test
     public void testParse2() throws Exception {
 
         Puzzle puz = BrainsOnlyIO.parse(BrainsOnlyIOTest.class.getResourceAsStream("/brainsonly2.txt"));
@@ -84,6 +82,7 @@ public class BrainsOnlyIOTest  extends TestCase {
         );
     }
 
+    @Test
     public void testParse3() throws Exception {
         try {
             // This was from http://brainsonly.com/servlets-newsday-crossword/newsdaycrossword?date=150903

@@ -1,12 +1,15 @@
 package app.crossword.yourealwaysbe.puz;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class MutableClueListTest extends TestCase {
-    public MutableClueListTest(String testName) {
-        super(testName);
-    }
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+public class MutableClueListTest {
+
+    @Test
     public void testEmptyList() {
         ClueList cl = new MutableClueList();
         assertNull(cl.getClueByIndex(1));
@@ -19,6 +22,7 @@ public class MutableClueListTest extends TestCase {
         assertEquals(-1, cl.getPreviousZonedIndex(1, true));
     }
 
+    @Test
     public void testSingletonList() {
         MutableClueList cl = new MutableClueList();
 
@@ -40,6 +44,7 @@ public class MutableClueListTest extends TestCase {
         assertEquals(-1, cl.getPreviousZonedIndex(0, false));
     }
 
+    @Test
     public void testSingletonZonedList() {
         MutableClueList cl = new MutableClueList();
 
@@ -59,6 +64,7 @@ public class MutableClueListTest extends TestCase {
     }
 
 
+    @Test
     public void testMultiList() {
         MutableClueList cl = new MutableClueList();
 
@@ -88,6 +94,7 @@ public class MutableClueListTest extends TestCase {
         assertEquals(-1, cl.getPreviousZonedIndex(3, false));
     }
 
+    @Test
     public void testHasZone() {
         MutableClueList cl = new MutableClueList();
 
@@ -116,6 +123,7 @@ public class MutableClueListTest extends TestCase {
         assertEquals(1, cl.getPreviousZonedIndex(1, true));
     }
 
+    @Test
     public void testTwoZones() {
         MutableClueList cl = new MutableClueList();
 
@@ -143,6 +151,7 @@ public class MutableClueListTest extends TestCase {
         assertEquals(2, cl.getPreviousZonedIndex(1, true));
     }
 
+    @Test
     public void testBadIndex() {
         boolean addedClue1 = false;
         boolean addedClue2 = false;

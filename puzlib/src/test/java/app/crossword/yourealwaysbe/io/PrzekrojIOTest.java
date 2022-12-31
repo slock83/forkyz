@@ -4,7 +4,7 @@ package app.crossword.yourealwaysbe.io;
 import java.io.InputStream;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -14,11 +14,10 @@ import app.crossword.yourealwaysbe.puz.PuzImage;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 
-public class PrzekrojIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-    public PrzekrojIOTest(String testName) {
-        super(testName);
-    }
+public class PrzekrojIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/przekroj.json");
@@ -61,6 +60,7 @@ public class PrzekrojIOTest extends TestCase {
         );
     }
 
+    @Test
     public void testPuzzle1() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = PrzekrojIO.readPuzzle(is);

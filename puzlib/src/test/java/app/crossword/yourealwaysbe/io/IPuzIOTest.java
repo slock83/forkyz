@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueID;
@@ -17,11 +17,12 @@ import app.crossword.yourealwaysbe.puz.PuzImage;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 
-public class IPuzIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    public IPuzIOTest(String testName) {
-        super(testName);
-    }
+public class IPuzIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return IPuzIOTest.class.getResourceAsStream("/test.ipuz");
@@ -216,6 +217,7 @@ public class IPuzIOTest extends TestCase {
         );
     }
 
+    @Test
     public void testIPuz() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -223,6 +225,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzWriteRead() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -240,6 +243,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzReadPlayWriteRead() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -323,6 +327,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzHTML() throws Exception {
         try (InputStream is = getTestPuzzleHTMLInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -330,6 +335,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzWriteReadHTML() throws Exception {
         try (InputStream is = getTestPuzzleHTMLInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -347,6 +353,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzBarred() throws Exception {
         try (InputStream is = getTestPuzzle2InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -354,6 +361,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzReadPlayWriteReadBarred() throws Exception {
         try (InputStream is = getTestPuzzle2InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -417,6 +425,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzExtras() throws Exception {
         try (InputStream is = getTestPuzzleExtrasInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -424,6 +433,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzWriteReadExtras() throws Exception {
         try (InputStream is = getTestPuzzleExtrasInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -441,6 +451,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzZones() throws Exception {
         try (InputStream is = getTestPuzzleZonesInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
@@ -448,6 +459,7 @@ public class IPuzIOTest extends TestCase {
         }
     }
 
+    @Test
     public void testIPuzWriteReadZones() throws Exception {
         try (InputStream is = getTestPuzzleZonesInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);

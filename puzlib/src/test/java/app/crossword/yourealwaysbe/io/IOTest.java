@@ -15,7 +15,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.time.LocalDate;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueID;
@@ -23,25 +23,14 @@ import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  *
  * @author kebernet
  */
-public class IOTest extends TestCase {
-
-    public IOTest(String testName) {
-        super(testName);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
+public class IOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/test.puz");
@@ -113,9 +102,7 @@ public class IOTest extends TestCase {
         assertEquals("X", boxes[13][8].getSolution());
     }
 
-    /**
-     * Test of load method, of class IO.
-     */
+    @Test
     public void testLoad() throws Exception {
         try (
             InputStream is = getTestPuzzle1InputStream();
@@ -125,6 +112,7 @@ public class IOTest extends TestCase {
         }
     }
 
+    @Test
     public void testSave() throws Exception {
         try (
             InputStream is = IOTest.class.getResourceAsStream("/test.puz")
@@ -189,9 +177,8 @@ public class IOTest extends TestCase {
         }
     }
 
+    @Test
     public void testGext() throws Exception{
-        System.out.println("GEXT Test --------------------------");
-
         try (
             InputStream is = IOTest.class.getResourceAsStream(
                 "/2010-7-4-LosAngelesTimes.puz"
@@ -215,6 +202,7 @@ public class IOTest extends TestCase {
         }
     }
 
+    @Test
     public void testCrack() throws Exception {
         System.out.println("testCrack");
         try (
@@ -229,6 +217,7 @@ public class IOTest extends TestCase {
     /**
      * Note: This is a sanity check, but any changes to unlock functionality should be tested more extensively.
      */
+    @Test
     public void testUnlockCode() throws Exception {
         try (
             InputStream is =
@@ -263,6 +252,7 @@ public class IOTest extends TestCase {
         }
     }
 
+    @Test
     public void testRebus() throws Exception {
         try (InputStream is = getTestPuzzleRebusInputStream()) {
             Puzzle puz = IO.loadNative(is);

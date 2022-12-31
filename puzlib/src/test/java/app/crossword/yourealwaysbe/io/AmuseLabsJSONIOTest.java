@@ -4,17 +4,17 @@ package app.crossword.yourealwaysbe.io;
 import java.io.InputStream;
 import java.time.LocalDate;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
-public class AmuseLabsJSONIOTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-    public AmuseLabsJSONIOTest(String testName) {
-        super(testName);
-    }
+public class AmuseLabsJSONIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/amuselabs.json");
@@ -55,6 +55,7 @@ public class AmuseLabsJSONIOTest extends TestCase {
         assertEquals(downClues.getClueByNumber("2").getHint(), "Clue 2d");
     }
 
+    @Test
     public void testPuzzle1() throws Exception {
         try (InputStream is = getTestPuzzle1InputStream()) {
             Puzzle puz = AmuseLabsJSONIO.readPuzzle(is);
