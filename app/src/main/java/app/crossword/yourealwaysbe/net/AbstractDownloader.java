@@ -33,6 +33,7 @@ public abstract class AbstractDownloader implements Downloader {
         conn.setConnectTimeout(timeout);
         conn.setReadTimeout(timeout);
         conn.setRequestProperty("Connection", "close");
+        conn.setRequestProperty("Accept","*/*");
 
         if (headers != null) {
             for (Entry<String, String> e : headers.entrySet()){
