@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -222,6 +223,9 @@ public class IPuzIO implements PuzzleParser {
         = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.US);
     private static final DateTimeFormatter DATE_FORMATTER
         = DateTimeFormatter.ofPattern("MM/dd/yyyy", Locale.US);
+    // for puzzles that forget to double digits
+    private static final DateTimeFormatter DATE_FORMATTER_SINGLES
+        = DateTimeFormatter.ofPattern("M/d/yyyy");
 
     private static final String FIELD_CLUES_CLUES = "Clues";
     private static final String FIELD_CLUES_ZONES = "Zones";
@@ -310,7 +314,7 @@ public class IPuzIO implements PuzzleParser {
      */
     private static void readMetaData(
         JSONObject puzJson, PuzzleBuilder builder
-    ) {
+    ) throws IPuzFormatException {
         builder.setTitle(optStringNull(puzJson, FIELD_TITLE))
             .setAuthor(optStringNull(puzJson, FIELD_AUTHOR))
             .setCopyright(optStringNull(puzJson, FIELD_COPYRIGHT))
@@ -329,15 +333,24 @@ public class IPuzIO implements PuzzleParser {
      *
      * @return null if no date
      */
-    private static LocalDate parseDate(JSONObject puzJson) {
+    private static LocalDate parseDate(JSONObject puzJson)
+            throws IPuzFormatException {
         String date = optStringNull(puzJson, FIELD_DATE);
         if (date == null)
             return null;
 
-        if (getIOVersion(puzJson) == 1)
-            return LocalDate.parse(date, DATE_FORMATTER_V1);
-        else
-            return LocalDate.parse(date, DATE_FORMATTER);
+        try {
+            if (getIOVersion(puzJson) == 1)
+                return LocalDate.parse(date, DATE_FORMATTER_V1);
+            else
+                return LocalDate.parse(date, DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
+            try {
+                return LocalDate.parse(date, DATE_FORMATTER_SINGLES);
+            } catch (DateTimeParseException e2) {
+                throw new IPuzFormatException("Unrecognised date " + date);
+            }
+        }
     }
 
     /**
