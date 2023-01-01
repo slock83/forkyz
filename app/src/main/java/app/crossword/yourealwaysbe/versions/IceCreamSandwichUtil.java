@@ -2,6 +2,7 @@ package app.crossword.yourealwaysbe.versions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,6 +13,7 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.StatFs;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -224,5 +226,12 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
         );
         android.net.NetworkInfo info = cm.getActiveNetworkInfo();
         return info != null && info.isConnected();
+    }
+
+    @SuppressWarnings({"deprecation","unchecked"})
+    @Override
+    public <T extends Serializable>
+    T getSerializable(Bundle bundle, String key, Class<T> klass) {
+        return (T) bundle.getSerializable(key);
     }
 }

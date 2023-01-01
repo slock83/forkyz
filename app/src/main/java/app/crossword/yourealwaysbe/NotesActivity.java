@@ -34,6 +34,7 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
+import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.BoardEditText.BoardEditFilter;
 import app.crossword.yourealwaysbe.view.BoardEditText;
 import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
@@ -722,9 +723,12 @@ public class NotesActivity extends PuzzleActivity {
             final NotesActivity activity = (NotesActivity) getActivity();
 
             Bundle args = getArguments();
-            TransferResponseRequest request
-                = (TransferResponseRequest)
-                    args.getSerializable(TRANSFER_RESPONSE_REQUEST_KEY);
+            TransferResponseRequest request =
+                AndroidVersionUtils.Factory.getInstance().getSerializable(
+                    args,
+                    TRANSFER_RESPONSE_REQUEST_KEY,
+                    TransferResponseRequest.class
+                );
 
             MaterialAlertDialogBuilder builder
                 = new MaterialAlertDialogBuilder(activity);

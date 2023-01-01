@@ -24,7 +24,7 @@ android {
     if (new File(propsPath).exists())
         props.load(new FileInputStream(propsPath))
 
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     lintOptions {
         abortOnError false
@@ -34,7 +34,7 @@ android {
         applicationId "app.crossword.yourealwaysbe.forkyz"
         namespace "app.crossword.yourealwaysbe.forkyz"
         minSdkVersion 14
-        targetSdkVersion 31
+        targetSdkVersion 33
         testInstrumentationRunner "android.test.InstrumentationTestRunner"
         multiDexEnabled true
         vectorDrawables {

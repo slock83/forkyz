@@ -2,6 +2,7 @@ package app.crossword.yourealwaysbe.versions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.text.Layout;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -41,6 +43,8 @@ public interface AndroidVersionUtils {
             if (INSTANCE != null)
                 return INSTANCE;
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                return INSTANCE = new TiramisuUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                 return INSTANCE = new RUtil();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
@@ -120,4 +124,12 @@ public interface AndroidVersionUtils {
     boolean isAcceptableCharacterResponse(char c);
 
     boolean hasNetworkConnection(Context context);
+
+    /**
+     * Convenience method for type-safe Bundle.getSerializalbe
+     *
+     * Should end up in a BundleCompat one day, i hope.
+     */
+    <T extends Serializable> T
+    getSerializable(Bundle bundle, String key, Class<T> klass);
 }
