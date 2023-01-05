@@ -5,9 +5,9 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -26,12 +26,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -57,7 +55,6 @@ import app.crossword.yourealwaysbe.util.files.DirHandle;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.util.files.PuzMetaFile;
 import app.crossword.yourealwaysbe.view.CircleProgressBar;
-import app.crossword.yourealwaysbe.view.StoragePermissionDialog;
 import app.crossword.yourealwaysbe.view.recycler.RemovableRecyclerViewAdapter;
 import app.crossword.yourealwaysbe.view.recycler.SeparatedRecyclerViewAdapter;
 
@@ -134,6 +131,14 @@ public class BrowseActivity extends ForkyzActivity {
                     getSupportFragmentManager(), "NotificationPermissionDialog"
                 );
             }
+        });
+
+    /**
+     * When WRITE_EXTERNAL_STORAGE permission needed
+     */
+    private ActivityResultLauncher<String> writeStorageLauncher
+        = registerForActivityResult(new RequestPermission(), isGranted -> {
+            hasWritePermissions = isGranted;
         });
 
     private BrowseActivityViewModel model;
@@ -430,19 +435,18 @@ public class BrowseActivity extends ForkyzActivity {
         setupSpeedDial();
 
         if (ForkyzApplication.getInstance().isMissingWritePermission()) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                DialogFragment dialog = new StoragePermissionDialog();
-                Bundle args = new Bundle();
-                args.putInt(
-                    StoragePermissionDialog.RESULT_CODE_KEY,
-                    REQUEST_WRITE_STORAGE
+            boolean showRationale
+                = ActivityCompat.shouldShowRequestPermissionRationale(
+                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
                 );
-                dialog.setArguments(args);
+
+            if (showRationale) {
+                DialogFragment dialog = new StoragePermissionDialog();
                 dialog.show(
                     getSupportFragmentManager(), "StoragePermissionDialog"
                 );
             } else {
-                ActivityCompat.requestPermissions(this, new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, REQUEST_WRITE_STORAGE);
+                requestWritePermission();
             }
 
             return;
@@ -508,19 +512,6 @@ public class BrowseActivity extends ForkyzActivity {
             ? BrowseActivity.this.getString(R.string.title_view_archives)
             : BrowseActivity.this.getString(R.string.title_view_crosswords)
         );
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(
-            requestCode, permissions, grantResults
-        );
-        switch (requestCode) {
-            case REQUEST_WRITE_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    hasWritePermissions = true;
-                }
-        }
     }
 
     @Override
@@ -907,6 +898,12 @@ public class BrowseActivity extends ForkyzActivity {
         utils.requestPostNotifications(notificationPermissionLauncher);
     }
 
+    private void requestWritePermission() {
+        writeStorageLauncher.launch(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        );
+    }
+
     private class FileAdapter
             extends RemovableRecyclerViewAdapter<FileViewHolder> {
         final DateTimeFormatter df
@@ -1151,4 +1148,29 @@ public class BrowseActivity extends ForkyzActivity {
         }
     }
 
+    public class StoragePermissionDialog extends DialogFragment {
+        public static final String RESULT_CODE_KEY = "resultCode";
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            MaterialAlertDialogBuilder builder
+                = new MaterialAlertDialogBuilder(getActivity());
+
+            builder.setTitle(R.string.allow_permissions)
+                .setMessage(R.string.please_allow_storage)
+                .setPositiveButton(
+                    android.R.string.ok,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(
+                            DialogInterface dialogInterface, int i
+                        ) {
+                            requestWritePermission();
+                        }
+                    }
+                );
+
+            return builder.create();
+        }
+    }
 }

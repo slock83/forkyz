@@ -47,6 +47,7 @@
     />
     <uses-permission
         android:name="android.permission.POST_NOTIFICATIONS"
+        android:minSdkVersion="33"
         android:description="@string/notification_permission_desc"
     />
 
