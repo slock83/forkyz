@@ -45,6 +45,10 @@
         android:name="android.permission.WAKE_LOCK"
         android:description="@string/wake_lock_desc"
     />
+    <uses-permission
+        android:name="android.permission.POST_NOTIFICATIONS"
+        android:description="@string/notification_permission_desc"
+    />
 
     <uses-feature
         android:name="android.hardware.touchscreen"

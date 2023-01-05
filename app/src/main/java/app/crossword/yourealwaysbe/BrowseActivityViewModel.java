@@ -12,14 +12,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
-import android.app.NotificationManager;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.preference.PreferenceManager;
@@ -226,11 +225,8 @@ public class BrowseActivityViewModel extends ViewModel {
 
     public void download(LocalDate date, List<Downloader> downloaders) {
         downloadExecutorService.execute(() -> {
-            NotificationManager nm
-                = (NotificationManager)
-                    ForkyzApplication
-                        .getInstance()
-                        .getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManagerCompat nm
+                = NotificationManagerCompat.from(ForkyzApplication.getInstance());
 
             Downloaders dls = new Downloaders(
                  ForkyzApplication.getInstance(), prefs, nm

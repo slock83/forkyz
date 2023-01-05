@@ -11,9 +11,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.preference.PreferenceManager;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -254,9 +254,7 @@ public class BackgroundDownloadManager {
         protected void doDownload() {
             ForkyzApplication app = ForkyzApplication.getInstance();
 
-            NotificationManager nm =
-                (NotificationManager)
-                    app.getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManagerCompat nm = NotificationManagerCompat.from(app);
 
             if (app.isMissingWritePermission()) {
                 LOGGER.info("Skipping download, no write permission");

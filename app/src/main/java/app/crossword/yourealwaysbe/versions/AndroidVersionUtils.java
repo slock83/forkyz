@@ -133,4 +133,16 @@ public interface AndroidVersionUtils {
      */
     <T extends Serializable> T
     getSerializable(Bundle bundle, String key, Class<T> klass);
+
+    /**
+     * Request POST_NOTIFICATIONS on devices that have it
+     *
+     * Else, ignore
+     */
+    void requestPostNotifications(ActivityResultLauncher<String> launcher);
+
+    /**
+     * If rationale is needed when requesting notification permission
+     */
+    boolean shouldShowRequestNotificationPermissionRationale(Activity activity);
 }

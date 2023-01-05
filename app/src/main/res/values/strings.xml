@@ -40,6 +40,7 @@
     <string name="perm_boot_desc">Required to (optionally) allow periodic background download of puzzles.</string>
     <string name="vibrate_desc">Required for haptic feedback on built-in keyboard.</string>
     <string name="wake_lock_desc">Used only for automatic download on older Android version.</string>
+    <string name="notification_permission_desc">Used for puzzle download notifications (when not disabled in settings).</string>
 
     <!-- Browse -->
     <string name="delete">Delete</string>
@@ -71,6 +72,11 @@
     </plurals>
     <string name="downloader_available_future">%1$s (not yet available)</string>
     <string name="downloader_not_available">%1$s (not available)</string>
+    <string name="notifications_request_rationale">Download notifications enabled. Allow or disable in download settings.</string>
+    <string name="disable_notifications">Disable Notifications?</string>
+    <string name="notifications_denied_msg">Download notifications are denied in Android settings. Would you like to disable download notifications in the Forkyz download settings? If you would like to keep notifications, please enable notifications for Forkyz in the Android settings.</string>
+    <string name="disable_notifications_button">Disable</string>
+    <string name="android_app_settings_button">Settings</string>
 
     <!-- clues list -->
     <string name="current_word">Current word</string>

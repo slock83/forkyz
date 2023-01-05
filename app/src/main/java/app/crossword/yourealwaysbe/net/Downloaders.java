@@ -1,12 +1,12 @@
 package app.crossword.yourealwaysbe.net;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import app.crossword.yourealwaysbe.BrowseActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -43,8 +43,13 @@ public class Downloaders {
     public static final String PREF_DOWNLOAD_TIMEOUT = "downloadTimeout";
     private static final String DEFAULT_TIMEOUT_MILLIS = "30000";
 
+    private static final String PREF_SUPPRESS_SUMMARY_NOTIFICATIONS
+        = "supressSummaryMessages";
+    private static final String PREF_SUPPRESS_INDIVIDUAL_NOTIFICATIONS
+        = "supressMessages";
+
     private Context context;
-    private NotificationManager notificationManager;
+    private NotificationManagerCompat notificationManager;
     private boolean suppressSummaryMessages;
     private boolean suppressIndividualMessages;
     private SharedPreferences prefs;
@@ -59,20 +64,21 @@ public class Downloaders {
     /**
      * Create a downloader instance
      *
-     * Pass a null notification manager if notifications not wanted
+     * Pass a null notification manager if notifications not needed.
+     * Notifications only used if not disabled in prefs.
      */
     public Downloaders(
         Context context,
         SharedPreferences prefs,
-        NotificationManager notificationManager
+        NotificationManagerCompat notificationManager
     ) {
         this.prefs = prefs;
         this.notificationManager = notificationManager;
         this.context = context;
         this.suppressSummaryMessages
-            = prefs.getBoolean("supressSummaryMessages", false);
+            = prefs.getBoolean(PREF_SUPPRESS_SUMMARY_NOTIFICATIONS, false);
         this.suppressIndividualMessages
-            = prefs.getBoolean("supressMessages", false);
+            = prefs.getBoolean(PREF_SUPPRESS_INDIVIDUAL_NOTIFICATIONS, false);
     }
 
     public List<Downloader> getDownloaders(LocalDate date) {
@@ -171,6 +177,18 @@ public class Downloaders {
         }
     }
 
+    public boolean isNotificationPermissionNeeded() {
+        return notificationManager != null
+            && !(suppressSummaryMessages && suppressIndividualMessages);
+    }
+
+    public void disableNotificationsInPrefs() {
+        prefs.edit()
+            .putBoolean(PREF_SUPPRESS_SUMMARY_NOTIFICATIONS, true)
+            .putBoolean(PREF_SUPPRESS_INDIVIDUAL_NOTIFICATIONS, true)
+            .apply();
+    }
+
     private void download(Map<Downloader, LocalDate> puzzlesToDownload) {
         boolean hasConnection =
             AndroidVersionUtils.Factory.getInstance()
@@ -237,7 +255,7 @@ public class Downloaders {
             this.notificationManager.cancel(0);
         }
 
-        if (!this.suppressSummaryMessages) {
+        if (isNotifyingSummary()) {
             this.postDownloadedGeneral(
                 somethingDownloaded.get(), somethingFailed.get()
             );
@@ -271,10 +289,7 @@ public class Downloaders {
             not.setContentText(contentText)
                 .setContentIntent(getContentIntent());
 
-            boolean notify = !this.suppressIndividualMessages
-                && this.notificationManager != null;
-
-            if (notify) {
+            if (isNotifyingIndividual()) {
                 this.notificationManager.notify(0, not.build());
             }
 
@@ -292,7 +307,7 @@ public class Downloaders {
             LOG.log(Level.WARNING, "Failed to download "+d.getName(), e);
         }
 
-        if (!this.suppressIndividualMessages) {
+        if (isNotifyingIndividual()) {
             this.postDownloadedNotification(
                 notificationId, d.getName(), result
             );
@@ -313,7 +328,6 @@ public class Downloaders {
             messageId = R.string.puzzles_downloaded_none;
         else // nothing downloaded or failed
             return;
-
         Notification not = new NotificationCompat.Builder(
             context, ForkyzApplication.PUZZLE_DOWNLOAD_CHANNEL_ID
         ).setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -588,8 +602,20 @@ public class Downloaders {
         }
     }
 
+    private boolean isNotifyingSummary() {
+        return notificationManager != null
+            && notificationManager.areNotificationsEnabled()
+            && !suppressSummaryMessages;
+    }
+
+    private boolean isNotifyingIndividual() {
+        return notificationManager != null
+            && notificationManager.areNotificationsEnabled()
+            && !suppressIndividualMessages;
+    }
+
     private void notifyNoConnection() {
-        if (suppressSummaryMessages)
+        if (!isNotifyingSummary())
             return;
 
         Notification not = new NotificationCompat.Builder(

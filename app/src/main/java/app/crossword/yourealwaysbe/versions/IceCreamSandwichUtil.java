@@ -28,6 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -234,5 +235,19 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     public <T extends Serializable>
     T getSerializable(Bundle bundle, String key, Class<T> klass) {
         return (T) bundle.getSerializable(key);
+    }
+
+    @Override
+    public void requestPostNotifications(
+        ActivityResultLauncher<String> launcher
+    ) {
+        // do nothing
+    }
+
+    @Override
+    public boolean shouldShowRequestNotificationPermissionRationale(
+        Activity activity
+    ) {
+        return false;
     }
 }

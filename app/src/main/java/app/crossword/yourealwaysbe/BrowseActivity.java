@@ -3,17 +3,18 @@ package app.crossword.yourealwaysbe;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,18 +25,23 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import com.leinardi.android.speeddial.SpeedDialActionItem;
 import com.leinardi.android.speeddial.SpeedDialView;
@@ -117,6 +123,19 @@ public class BrowseActivity extends ForkyzActivity {
         }
     };
 
+    /**
+     * When POST_NOTIFICATIONS permission needed
+     */
+    private ActivityResultLauncher<String> notificationPermissionLauncher
+        = registerForActivityResult(new RequestPermission(), isGranted -> {
+            if (!isGranted) {
+                DialogFragment dialog = new NotificationPermissionDialog();
+                dialog.show(
+                    getSupportFragmentManager(), "NotificationPermissionDialog"
+                );
+            }
+        });
+
     private BrowseActivityViewModel model;
 
     private DirHandle archiveFolder
@@ -129,7 +148,7 @@ public class BrowseActivity extends ForkyzActivity {
         currentAdapter = null;
     private Handler handler = new Handler(Looper.getMainLooper());
     private RecyclerView puzzleList;
-    private NotificationManager nm;
+    private NotificationManagerCompat nm;
     private boolean hasWritePermissions;
     private SpeedDialView buttonAdd;
     private Set<PuzMetaFile> selected = new HashSet<>();
@@ -394,8 +413,7 @@ public class BrowseActivity extends ForkyzActivity {
             });
         helper.attachToRecyclerView(this.puzzleList);
         upgradePreferences();
-        this.nm = (NotificationManager)
-            this.getSystemService(Context.NOTIFICATION_SERVICE);
+        this.nm = NotificationManagerCompat.from(this);
 
         switch (prefs.getInt("sort", 0)) {
         case 2:
@@ -539,7 +557,14 @@ public class BrowseActivity extends ForkyzActivity {
         // previous game ended for now
         ForkyzApplication.getInstance().clearBoard();
 
-        checkDownload();
+        autoDownloadIfEnabled();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // ask in onstart to avoid multiple calls via onResume
+        checkAutoDownloadNotificationPermissions();
     }
 
     private void refreshLastAccessedPuzzle() {
@@ -604,11 +629,20 @@ public class BrowseActivity extends ForkyzActivity {
         return adapter;
     }
 
-    private void checkDownload() {
+    private void checkAutoDownloadNotificationPermissions() {
+        Downloaders dls = new Downloaders(this, prefs, nm);
+        boolean downloading = dls.isDLOnStartup()
+            || BackgroundDownloadManager.isBackgroundDownloadEnabled();
+
+        if (dls.isNotificationPermissionNeeded() && downloading)
+            checkRequestNotificationPermissions();
+    }
+
+    private void autoDownloadIfEnabled() {
         if (!hasWritePermissions) return;
 
         long lastDL = prefs.getLong("dlLast", 0);
-        Downloaders dls = new Downloaders(this, prefs);
+        Downloaders dls = new Downloaders(this, prefs, nm);
 
         if (dls.isDLOnStartup() &&
                 ((System.currentTimeMillis() - (long) (12 * 60 * 60 * 1000)) > lastDL)) {
@@ -829,6 +863,7 @@ public class BrowseActivity extends ForkyzActivity {
     private void showDownloadDialog() {
         DialogFragment dialog = new DownloadDialog();
         checkAndWarnNetworkState();
+        checkRequestNotificationPermissions();
         dialog.show(getSupportFragmentManager(), "DownloadDialog");
     }
 
@@ -841,6 +876,35 @@ public class BrowseActivity extends ForkyzActivity {
             );
             t.show();
         }
+    }
+
+    /**
+     * Request notification permissions if needed
+     *
+     * E.g. not if settings block them. Doesn't ask twice in an
+     * activities life
+     */
+    private void checkRequestNotificationPermissions() {
+        Downloaders dls = new Downloaders(this, prefs, nm);
+        if (!dls.isNotificationPermissionNeeded())
+            return;
+
+        if (nm.areNotificationsEnabled())
+            return;
+
+        boolean showRationale
+            = utils.shouldShowRequestNotificationPermissionRationale(this);
+
+        if (showRationale) {
+            Toast t = Toast.makeText(
+                this,
+                R.string.notifications_request_rationale,
+                Toast.LENGTH_LONG
+            );
+            t.show();
+        }
+
+        utils.requestPostNotifications(notificationPermissionLauncher);
     }
 
     private class FileAdapter
@@ -1040,4 +1104,51 @@ public class BrowseActivity extends ForkyzActivity {
             return dpd.getInstance();
         }
     }
+
+    public static class NotificationPermissionDialog extends DialogFragment {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            MaterialAlertDialogBuilder builder
+                = new MaterialAlertDialogBuilder(getActivity());
+
+            builder.setTitle(getString(R.string.disable_notifications))
+                .setMessage(getString(R.string.notifications_denied_msg))
+                .setPositiveButton(
+                    R.string.disable_notifications_button,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(
+                            DialogInterface dialogInterface, int i
+                        ) {
+                            Context context = getActivity();
+                            SharedPreferences prefs
+                                = PreferenceManager
+                                    .getDefaultSharedPreferences(context);
+                            Downloaders dls = new Downloaders(context, prefs);
+                            dls.disableNotificationsInPrefs();
+                        }
+                    }
+                ).setNegativeButton(
+                    R.string.android_app_settings_button,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(
+                            DialogInterface dialogInterface, int i
+                        ) {
+                            String appPackage = getActivity().getPackageName();
+                            Intent intent = new Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + appPackage)
+                            );
+                            intent.addCategory(Intent.CATEGORY_DEFAULT);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    }
+                );
+
+            return builder.create();
+        }
+    }
+
 }
