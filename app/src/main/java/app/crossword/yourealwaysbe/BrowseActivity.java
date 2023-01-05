@@ -430,29 +430,8 @@ public class BrowseActivity extends ForkyzActivity {
         default:
             this.accessor = Accessor.DATE_DESC;
         }
-
         buttonAdd = findViewById(R.id.speed_dial_add);
         setupSpeedDial();
-
-        if (ForkyzApplication.getInstance().isMissingWritePermission()) {
-            boolean showRationale
-                = ActivityCompat.shouldShowRequestPermissionRationale(
-                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
-                );
-
-            if (showRationale) {
-                DialogFragment dialog = new StoragePermissionDialog();
-                dialog.show(
-                    getSupportFragmentManager(), "StoragePermissionDialog"
-                );
-            } else {
-                requestWritePermission();
-            }
-
-            return;
-        } else {
-            hasWritePermissions = true;
-        }
 
         SwipeRefreshLayout swipePuzzleReloadView
             = findViewById(R.id.swipeContainer);
@@ -554,7 +533,30 @@ public class BrowseActivity extends ForkyzActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // ask in onstart to avoid multiple calls via onResume
+
+        // permissions checks in onStart to avoid multiple calls via
+        // onResume
+
+        if (ForkyzApplication.getInstance().isMissingWritePermission()) {
+            boolean showRationale
+                = ActivityCompat.shouldShowRequestPermissionRationale(
+                    this, Manifest.permission.WRITE_EXTERNAL_STORAGE
+                );
+
+            if (showRationale) {
+                DialogFragment dialog = new StoragePermissionDialog();
+                dialog.show(
+                    getSupportFragmentManager(), "StoragePermissionDialog"
+                );
+            } else {
+                requestWritePermission();
+            }
+
+            return;
+        } else {
+            hasWritePermissions = true;
+        }
+
         checkAutoDownloadNotificationPermissions();
     }
 
