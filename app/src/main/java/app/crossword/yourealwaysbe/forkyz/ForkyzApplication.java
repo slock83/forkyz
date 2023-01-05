@@ -129,7 +129,7 @@ public class ForkyzApplication extends Application {
 
         AndroidVersionUtils.Factory.getInstance().createNotificationChannel(this);
 
-        ThemeHelper.themeApplication(this);
+        (new ThemeHelper(this, settings)).themeApplication(this);
     }
 
     public static boolean isLandscape(DisplayMetrics metrics){

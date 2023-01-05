@@ -32,7 +32,7 @@ public class DownloadersTest {
         initialiseMocks();
 
         List<Downloader> downloaders
-            = Downloaders.getDownloaders(prefs, context);
+            = (new Downloaders(context, prefs)).getDownloaders();
 
         for (Downloader downloader : downloaders) {
             System.out.println(

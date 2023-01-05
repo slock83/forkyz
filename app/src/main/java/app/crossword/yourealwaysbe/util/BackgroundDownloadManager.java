@@ -267,7 +267,7 @@ public class BackgroundDownloadManager {
 
             SharedPreferences prefs = BackgroundDownloadManager.getPrefs();
 
-            final Downloaders dls = new Downloaders(app, prefs, nm, false);
+            final Downloaders dls = new Downloaders(app, prefs, nm);
             LocalDate now = LocalDate.now();
             dls.downloadLatestInRange(now, now, dls.getAutoDownloaders());
 

@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
@@ -88,7 +89,7 @@ public interface AndroidVersionUtils {
         );
     }
 
-    void migrateLegacyBackgroundDownloads();
+    void migrateLegacyBackgroundDownloads(SharedPreferences prefs);
 
     boolean isMiniTabletish(DisplayMetrics metrics);
 

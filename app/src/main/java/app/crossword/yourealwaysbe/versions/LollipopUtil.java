@@ -6,7 +6,6 @@ import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
-import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.util.BackgroundDownloadManager;
@@ -18,12 +17,7 @@ public class LollipopUtil extends KitKatUtil {
         = "backgroundDownload";
 
     @Override
-    public void migrateLegacyBackgroundDownloads() {
-        ForkyzApplication app = ForkyzApplication.getInstance();
-
-        SharedPreferences prefs =
-            PreferenceManager.getDefaultSharedPreferences(app);
-
+    public void migrateLegacyBackgroundDownloads(SharedPreferences prefs) {
         boolean legacyEnabled
             = prefs.getBoolean(PREF_LEGACY_BACKGROUND_DOWNLOAD, false);
 
@@ -33,9 +27,9 @@ public class LollipopUtil extends KitKatUtil {
                 .remove(PREF_LEGACY_BACKGROUND_DOWNLOAD)
                 .apply();
 
-            JobScheduler scheduler =
-                (JobScheduler)
-                    app.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            ForkyzApplication app = ForkyzApplication.getInstance();
+            JobScheduler scheduler = (JobScheduler)
+                app.getSystemService(Context.JOB_SCHEDULER_SERVICE);
             scheduler.cancelAll();
 
             // start new

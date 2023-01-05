@@ -233,7 +233,7 @@ public class BrowseActivityViewModel extends ViewModel {
                         .getSystemService(Context.NOTIFICATION_SERVICE);
 
             Downloaders dls = new Downloaders(
-                prefs, nm, ForkyzApplication.getInstance()
+                 ForkyzApplication.getInstance(), prefs, nm
             );
 
             dls.download(date, downloaders);

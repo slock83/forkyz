@@ -331,7 +331,7 @@ public class BrowseActivity extends ForkyzActivity {
         );
 
         // Bring up to date
-        MigrationHelper.applyMigrations(this);
+        MigrationHelper.applyMigrations(this, prefs);
 
         // Now create!
 
@@ -608,13 +608,11 @@ public class BrowseActivity extends ForkyzActivity {
         if (!hasWritePermissions) return;
 
         long lastDL = prefs.getLong("dlLast", 0);
+        Downloaders dls = new Downloaders(this, prefs);
 
-        if (Downloaders.isDLOnStartup(this) &&
+        if (dls.isDLOnStartup() &&
                 ((System.currentTimeMillis() - (long) (12 * 60 * 60 * 1000)) > lastDL)) {
-            model.download(
-                LocalDate.now(),
-                Downloaders.getAutoDownloaders(this)
-            );
+            model.download(LocalDate.now(), dls.getAutoDownloaders());
             prefs.edit()
                     .putLong("dlLast", System.currentTimeMillis())
                     .apply();
@@ -1036,7 +1034,7 @@ public class BrowseActivity extends ForkyzActivity {
                     d.getYear(),
                     d.getMonthValue(),
                     d.getDayOfMonth(),
-                    new Downloaders(activity.prefs, activity.nm, activity)
+                    new Downloaders(activity, activity.prefs, activity.nm)
             );
 
             return dpd.getInstance();

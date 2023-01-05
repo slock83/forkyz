@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import androidx.preference.PreferenceManager;
 import com.google.android.material.color.DynamicColors;
 
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -20,18 +19,25 @@ public class ThemeHelper {
         STANDARD, DYNAMIC, LEGACY_LIKE;
     }
 
-    public static void themeApplication(Application app) {
-        if (isDynamicColors(app))
+    private Context context;
+    private SharedPreferences prefs;
+
+    public ThemeHelper(Context context, SharedPreferences prefs) {
+        this.context = context;
+        this.prefs = prefs;
+    }
+
+    public void themeApplication(Application app) {
+        if (isDynamicColors())
             DynamicColors.applyToActivitiesIfAvailable(app);
     }
 
-    public static void themeActivity(Activity activity) {
-        if (isLegacyLikeTheme(activity))
+    public void themeActivity(Activity activity) {
+        if (isLegacyLikeTheme())
             activity.setTheme(R.style.Theme_Forkyz_LegacyLike);
     }
 
-    public static void migrateThemePreferences(Context context) {
-        SharedPreferences prefs = getPrefs(context);
+    public void migrateThemePreferences() {
         boolean legacyDynamic = prefs.getBoolean(PREF_LEGACY_USE_DYNAMIC, false);
         if (legacyDynamic) {
            prefs.edit()
@@ -43,21 +49,20 @@ public class ThemeHelper {
         }
     }
 
-    private static boolean isDynamicColors(Context context) {
-        return getThemeType(context) == Theme.DYNAMIC;
+    private boolean isDynamicColors() {
+        return getThemeType() == Theme.DYNAMIC;
     }
 
-    private static boolean isLegacyLikeTheme(Context context) {
-        return getThemeType(context) == Theme.LEGACY_LIKE;
+    private boolean isLegacyLikeTheme() {
+        return getThemeType() == Theme.LEGACY_LIKE;
     }
 
-    private static Theme getThemeType(Context context) {
+    private Theme getThemeType() {
         String standardTheme = context.getString(R.string.standard_theme_value);
         String dynamicTheme = context.getString(R.string.dynamic_theme_value);
         String legacyLikeTheme
             = context.getString(R.string.legacy_like_theme_value);
 
-        SharedPreferences prefs = getPrefs(context);
         String theme = prefs.getString(PREF_THEME, standardTheme);
 
         if (Objects.equals(theme, dynamicTheme))
@@ -66,9 +71,5 @@ public class ThemeHelper {
             return Theme.LEGACY_LIKE;
         else
             return Theme.STANDARD;
-    }
-
-    private static SharedPreferences getPrefs(Context context) {
-        return PreferenceManager.getDefaultSharedPreferences(context);
     }
 }

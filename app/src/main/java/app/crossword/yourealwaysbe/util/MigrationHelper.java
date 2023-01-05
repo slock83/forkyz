@@ -1,18 +1,20 @@
 package app.crossword.yourealwaysbe.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 
-import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.net.Downloaders;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
 public class MigrationHelper {
-    public static void applyMigrations(Context context) {
+    public static void applyMigrations(
+        Context context, SharedPreferences prefs
+    ) {
         AndroidVersionUtils.Factory.getInstance()
-            .migrateLegacyBackgroundDownloads();
+            .migrateLegacyBackgroundDownloads(prefs);
 
-        ThemeHelper.migrateThemePreferences(context);
+        (new ThemeHelper(context, prefs)).migrateThemePreferences();
 
-        Downloaders.migrateAutoDownloaders(ForkyzApplication.getInstance());
+        (new Downloaders(context, prefs)).migrateAutoDownloaders();
     }
 }

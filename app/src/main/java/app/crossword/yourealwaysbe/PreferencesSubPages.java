@@ -69,8 +69,11 @@ public class PreferencesSubPages {
         }
 
         private void setAvailableDownloaders() {
+            SharedPreferences prefs
+                = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
             List<Downloader> downloaders
-                = Downloaders.getDownloaders(getActivity());
+                = (new Downloaders(getActivity(), prefs)).getDownloaders();
 
             int len = downloaders.size();
             CharSequence[] values = new CharSequence[len];

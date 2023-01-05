@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
@@ -139,7 +140,7 @@ public class IceCreamSandwichUtil implements AndroidVersionUtils {
     }
 
     @Override
-    public void migrateLegacyBackgroundDownloads() {
+    public void migrateLegacyBackgroundDownloads(SharedPreferences prefs) {
         // do nothing: legacy background download needed lollipop
     }
 

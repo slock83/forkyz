@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.core.app.NotificationCompat;
-import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.BrowseActivity;
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
@@ -50,18 +49,23 @@ public class Downloaders {
     private boolean suppressIndividualMessages;
     private SharedPreferences prefs;
 
-    public Downloaders(SharedPreferences prefs,
-                       NotificationManager notificationManager,
-                       Context context) {
-        this(prefs, notificationManager, context, true);
+    /**
+     * Create a downloader instance that does not notify
+     */
+    public Downloaders(Context context, SharedPreferences prefs) {
+        this(context, prefs, null);
     }
 
-    // Set isInteractive to true if this class can ask for user interaction when needed (e.g. to
-    // refresh NYT credentials), false if otherwise.
-    public Downloaders(SharedPreferences prefs,
-                       NotificationManager notificationManager,
-                       Context context,
-                       boolean challengeForCredentials) {
+    /**
+     * Create a downloader instance
+     *
+     * Pass a null notification manager if notifications not wanted
+     */
+    public Downloaders(
+        Context context,
+        SharedPreferences prefs,
+        NotificationManager notificationManager
+    ) {
         this.prefs = prefs;
         this.notificationManager = notificationManager;
         this.context = context;
@@ -69,10 +73,6 @@ public class Downloaders {
             = prefs.getBoolean("supressSummaryMessages", false);
         this.suppressIndividualMessages
             = prefs.getBoolean("supressMessages", false);
-    }
-
-    public List<Downloader> getDownloaders() {
-        return getDownloaders(prefs, context);
     }
 
     public List<Downloader> getDownloaders(LocalDate date) {
@@ -129,23 +129,12 @@ public class Downloaders {
         download(puzzlesToDownload);
     }
 
-    public static boolean isDLOnStartup(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(
-                context
-            );
+    public boolean isDLOnStartup() {
         return prefs.getBoolean("dlOnStartup", false);
     }
 
     public List<Downloader> getAutoDownloaders() {
-        return getAutoDownloaders(context);
-    }
-
-    public static List<Downloader> getAutoDownloaders(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
-
-        List<Downloader> available = getDownloaders(prefs, context);
+        List<Downloader> available = getDownloaders();
 
         Set<String> autoDownloaders = prefs.getStringSet(
             PREF_AUTO_DOWNLOADERS, Collections.emptySet()
@@ -160,26 +149,17 @@ public class Downloaders {
         return downloaders;
     }
 
-    public static List<Downloader> getDownloaders(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
-        return getDownloaders(prefs, context);
-    }
-
     /**
      * Handle introduction of second selection of auto downloaders
      */
-    public static void migrateAutoDownloaders(Context context) {
-        SharedPreferences prefs
-            = PreferenceManager.getDefaultSharedPreferences(context);
-
+    public void migrateAutoDownloaders() {
         Set<String> autoDownloaders
             = prefs.getStringSet(PREF_AUTO_DOWNLOADERS, null);
 
         if (autoDownloaders == null) {
             autoDownloaders = new HashSet<>();
 
-            List<Downloader> downloaders = getDownloaders(prefs, context);
+            List<Downloader> downloaders = getDownloaders();
 
             for (Downloader downloader : downloaders) {
                 autoDownloaders.add(downloader.getInternalName());
@@ -373,10 +353,7 @@ public class Downloaders {
         }
     }
 
-    // package access for testing
-    static List<Downloader> getDownloaders(
-        SharedPreferences prefs, Context context
-    ) {
+    public List<Downloader> getDownloaders() {
         List<Downloader> downloaders = new LinkedList<>();
 
         if (prefs.getBoolean("downloadGuardianDailyCryptic", true)) {
@@ -541,7 +518,7 @@ public class Downloaders {
             ));
         }
 
-        addCustomDownloaders(prefs, context, downloaders);
+        addCustomDownloaders(downloaders);
 
         if (prefs.getBoolean("scrapeCru", false)) {
             downloaders.add(new PageScraper.Puz(
@@ -596,9 +573,7 @@ public class Downloaders {
         return downloaders;
     }
 
-    private static void addCustomDownloaders(
-        SharedPreferences prefs, Context context, List<Downloader> downloaders
-    ) {
+    private void addCustomDownloaders(List<Downloader> downloaders) {
         if (prefs.getBoolean("downloadCustomDaily", true)) {
             String title = prefs.getString("customDailyTitle", "");
             if (title == null || title.trim().isEmpty())

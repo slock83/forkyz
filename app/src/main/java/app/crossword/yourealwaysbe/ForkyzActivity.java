@@ -62,7 +62,7 @@ public class ForkyzActivity extends AppCompatActivity {
         final FileHandler fileHandler = getFileHandler();
 
         doOrientation();
-        ThemeHelper.themeActivity(this);
+        (new ThemeHelper(this, this.prefs)).themeActivity(this);
     }
 
     @Override

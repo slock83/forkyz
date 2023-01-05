@@ -1,11 +1,13 @@
 package app.crossword.yourealwaysbe;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.util.ThemeHelper;
@@ -23,7 +25,10 @@ public class PreferencesActivity
 
         setContentView(R.layout.preferences_activity);
 
-        ThemeHelper.themeActivity(this);
+        SharedPreferences prefs
+            = PreferenceManager.getDefaultSharedPreferences(this);
+
+        (new ThemeHelper(this, prefs)).themeActivity(this);
 
         NightModeHelper nightMode = NightModeHelper.bind(this);
         nightMode.restoreNightMode();
