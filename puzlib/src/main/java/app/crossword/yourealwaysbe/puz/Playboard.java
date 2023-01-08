@@ -533,6 +533,29 @@ public class Playboard implements Serializable {
     }
 
     /**
+     * Try to jump to given number
+     *
+     * Search current list, then all lists, do nothing if not found
+     */
+    public void jumpToClue(String number) {
+        ClueList clues = getCurrentClueList();
+        Clue clue = clues.getClueByNumber(number);
+        if (clue != null) {
+            jumpToClue(clue);
+        } else {
+            Puzzle puz = getPuzzle();
+            for (String clueListName : sortedClueListNames) {
+                clues = puz.getClues(clueListName);
+                clue = clues.getClueByNumber(number);
+                if (clue != null) {
+                    jumpToClue(clue);
+                    return;
+                }
+            }
+        }
+    }
+
+    /**
      * Ignored if clue not on board
      */
     public void jumpToClueEnd(ClueID clueID) {
@@ -823,6 +846,81 @@ public class Playboard implements Serializable {
         MovementStrategy.MOVE_NEXT_CLUE.move(this, skipCompletedLetters);
 
         return previous;
+    }
+
+    /**
+     * Insert the answer into the current word
+     *
+     * Ignores length mismatch and goes ahead anyway, stopping when it runs out
+     * of input or space.
+     */
+    public void playAnswer(String answer) {
+        if (answer == null)
+            return;
+
+        Position startPos = getHighlightLetter();
+        Word currentWord = getCurrentWord();
+        Zone zone = (currentWord == null) ? null : currentWord.getZone();
+        if (zone == null)
+            return;
+
+        pushNotificationDisabled();
+
+        int idx = 0;
+        for (Position pos : zone) {
+            if (idx >= answer.length())
+                return;
+
+            Box b = puzzle.checkedGetBox(pos);
+            if (b == null)
+                return;
+
+            if (
+                !preserveCorrectLettersInShowErrors
+                || !Objects.equals(b.getResponse(), b.getSolution())
+                || !isShowErrors()
+            ) {
+                b.setResponse(answer.charAt(idx));
+                b.setResponder(this.responder);
+            }
+
+            idx += 1;
+        }
+
+        Position currentPos = getHighlightLetter();
+        if (!Objects.equals(currentPos, startPos))
+            setHighlightLetter(startPos);
+
+        popNotificationDisabled();
+
+        notifyChange();
+    }
+
+    /**
+     * Clear the current word
+     */
+    public void clearWord() {
+        Position startPos = getHighlightLetter();
+        Word currentWord = getCurrentWord();
+        Zone zone = (currentWord == null) ? null : currentWord.getZone();
+
+        if (zone == null || zone.isEmpty())
+            return;
+
+        pushNotificationDisabled();
+        for (Position pos : zone) {
+            Position current = getHighlightLetter();
+            if (!Objects.equals(current, pos))
+                setHighlightLetter(pos);
+            deleteLetter();
+        }
+
+        Position currentPos = getHighlightLetter();
+        if (!Objects.equals(currentPos, startPos))
+            setHighlightLetter(startPos);
+
+        popNotificationDisabled();
+        notifyChange();
     }
 
     public Word playLetter(char letter) {

@@ -38,6 +38,7 @@ import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
+import app.crossword.yourealwaysbe.util.VoiceCommands.VoiceCommand;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
 import app.crossword.yourealwaysbe.view.BoardEditView;
@@ -66,6 +67,7 @@ public class PlayActivity extends PuzzleActivity
     private MovementStrategy movement = null;
     private BoardEditView boardView;
     private TextView clue;
+    private View voiceButtonContainer;
 
     private Runnable fitToScreenTask = new Runnable() {
         @Override
@@ -289,6 +291,14 @@ public class PlayActivity extends PuzzleActivity
         if (this.prefs.getBoolean("fitToScreen", false) || (ForkyzApplication.isLandscape(metrics)) && (ForkyzApplication.isTabletish(metrics) || ForkyzApplication.isMiniTabletish(metrics))) {
             this.handler.postDelayed(fitToScreenTask, 100);
         }
+
+        this.voiceButtonContainer
+            = this.findViewById(R.id.voiceButtonContainer);
+        this.findViewById(R.id.voiceButton).setOnClickListener(view -> {
+            launchVoiceInput();
+        });
+
+        setupVoiceCommands();
     }
 
     private void fitBoardToScreen() {
@@ -369,6 +379,8 @@ public class PlayActivity extends PuzzleActivity
         case KeyEvent.KEYCODE_ENTER:
         case KeyEvent.KEYCODE_DEL:
             return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            return isVolumeDownActivatesVoicePref();
         }
 
 
@@ -404,22 +416,22 @@ public class PlayActivity extends PuzzleActivity
                     break;
 
                 case KeyEvent.KEYCODE_DPAD_DOWN:
-                    getBoard().moveDown();
+                    onDownKey();
                     handled = true;
                     break;
 
                 case KeyEvent.KEYCODE_DPAD_UP:
-                    getBoard().moveUp();
+                    onUpKey();
                     handled = true;
                     break;
 
                 case KeyEvent.KEYCODE_DPAD_LEFT:
-                    getBoard().moveLeft();
+                    onLeftKey();
                     handled = true;
                     break;
 
                 case KeyEvent.KEYCODE_DPAD_RIGHT:
-                    getBoard().moveRight();
+                    onRightKey();
                     handled = true;
                     break;
 
@@ -449,12 +461,15 @@ public class PlayActivity extends PuzzleActivity
                     break;
 
                 case KeyEvent.KEYCODE_DEL:
-                    if (isScratchMode()) {
-                        getBoard().deleteScratchLetter();
-                    } else {
-                        getBoard().deleteLetter();
-                    }
+                    onDeleteKey();
                     handled = true;
+                    break;
+
+                case KeyEvent.KEYCODE_VOLUME_DOWN:
+                    if (isVolumeDownActivatesVoicePref()) {
+                        launchVoiceInput();
+                        handled = true;
+                    }
                     break;
             }
 
@@ -670,6 +685,10 @@ public class PlayActivity extends PuzzleActivity
             hideClueTabs();
         }
 
+        voiceButtonContainer.setVisibility(
+            isButtonActivatesVoicePref() ? View.VISIBLE : View.GONE
+        );
+
         registerBoard();
 
         if (keyboardManager != null)
@@ -861,6 +880,115 @@ public class PlayActivity extends PuzzleActivity
             "scratchMode", !scratchMode
         ).apply();
         invalidateOptionsMenu();
+    }
+
+    private void setupVoiceCommands() {
+        registerVoiceCommandAnswer();
+        registerVoiceCommandLetter();
+        registerVoiceCommandNumber();
+        registerVoiceCommandClear();
+
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_delete),
+            args -> { onDeleteKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_toggle),
+            args -> {
+                Playboard board = getBoard();
+                if (board != null)
+                    board.toggleSelection();
+            }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_next),
+            args -> {
+                Playboard board = getBoard();
+                if (board != null)
+                    board.nextWord();
+            }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_previous),
+            args -> {
+                Playboard board = getBoard();
+                if (board != null)
+                    board.previousWord();
+            }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_left),
+            args -> { onLeftKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_right),
+            args -> { onRightKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_up),
+            args -> { onUpKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_down),
+            args -> { onDownKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_back),
+            args -> { onBackKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_clues),
+            args -> { launchClueList(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_notes),
+            args -> {
+                Playboard board = getBoard();
+                if (board != null)
+                    launchClueNotes(board.getClueID());
+            }
+        ));
+    }
+
+    private void onLeftKey() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.moveLeft();
+    }
+
+    private void onRightKey() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.moveRight();
+    }
+
+    private void onDownKey() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.moveDown();
+    }
+
+    private void onUpKey() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.moveUp();
+    }
+
+    private void onBackKey() {
+        if (!keyboardManager.handleBackKey())
+            this.finish();
+    }
+
+    private void onDeleteKey() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        if (isScratchMode()) {
+            board.deleteScratchLetter();
+        } else {
+            board.deleteLetter();
+        }
     }
 
     public static class InfoDialog extends DialogFragment {

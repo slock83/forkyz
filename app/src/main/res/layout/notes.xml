@@ -122,6 +122,23 @@
             />
         </LinearLayout>
     </ScrollView>
+    <LinearLayout
+        android:id="@+id/voiceButtonContainer"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingBottom="5dp"
+    >
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/voiceButton"
+            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            app:icon="@drawable/ic_voice"
+            app:iconPadding="0dp"
+            app:iconGravity="textStart"
+        />
+    </LinearLayout>
     <app.crossword.yourealwaysbe.view.ForkyzKeyboard
         android:id="@+id/keyboard"
         android:layout_width="match_parent"

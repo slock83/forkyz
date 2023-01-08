@@ -1,15 +1,22 @@
 package app.crossword.yourealwaysbe;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.speech.RecognizerIntent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 import androidx.core.app.ShareCompat;
 import androidx.fragment.app.DialogFragment;
+
+import org.jg.wordstonumbers.WordsToNumbersUtil;
 
 import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
@@ -19,10 +26,14 @@ import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
+import app.crossword.yourealwaysbe.util.SpeechContract;
+import app.crossword.yourealwaysbe.util.VoiceCommands.VoiceCommand;
+import app.crossword.yourealwaysbe.util.VoiceCommands;
 import app.crossword.yourealwaysbe.util.files.FileHandlerShared;
 import app.crossword.yourealwaysbe.util.files.PuzHandle;
 import app.crossword.yourealwaysbe.view.SpecialEntryDialog;
 
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -36,6 +47,11 @@ public abstract class PuzzleActivity
     public static final String PRESERVE_CORRECT
         = "preserveCorrectLettersInShowErrors";
     public static final String DONT_DELETE_CROSSING = "dontDeleteCrossing";
+    private static final String PREF_VOLUME_ACTIVATES_VOICE
+        = "volumeActivatesVoice";
+    private static final String PREF_BUTTON_ACTIVATES_VOICE
+        = "buttonActivatesVoice";
+
 
     private ImaginaryTimer timer;
     private Handler handler = new Handler(Looper.getMainLooper());
@@ -45,6 +61,12 @@ public abstract class PuzzleActivity
             PuzzleActivity.this.onTimerUpdate();
         }
     };
+
+    private VoiceCommands voiceCommandDispatcher = new VoiceCommands();
+    private ActivityResultLauncher<String> voiceInputLauncher
+        = registerForActivityResult(new SpeechContract(), text -> {
+            voiceCommandDispatcher.dispatch(text);
+        });
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -398,6 +420,94 @@ public abstract class PuzzleActivity
         }
     }
 
+    protected void launchVoiceInput() {
+        try {
+            voiceInputLauncher.launch(
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+            );
+        } catch (ActivityNotFoundException e) {
+            Toast t = Toast.makeText(
+                this,
+                R.string.no_speech_recognition_available,
+                Toast.LENGTH_LONG
+            );
+            t.show();
+        }
+    }
+
+    protected void registerVoiceCommand(@NonNull VoiceCommand command) {
+        voiceCommandDispatcher.registerVoiceCommand(command);
+    }
+
+    /**
+     * Prepared command for inputting word answers
+     */
+    protected void registerVoiceCommandAnswer() {
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_answer),
+            answer -> {
+                Playboard board = getBoard();
+                if (board == null)
+                    return;
+
+                // remove non-word as not usually entered into grids
+                String prepped
+                    = answer.replaceAll("\\W+", "")
+                        .toUpperCase(Locale.getDefault());
+                board.playAnswer(prepped);
+            }
+        ));
+    }
+
+    /**
+     * Prepared command for inputting letters
+     */
+    protected void registerVoiceCommandLetter() {
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_letter),
+            letter -> {
+                if (letter == null || letter.isEmpty())
+                    return;
+                Playboard board = getBoard();
+                if (board != null)
+                    board.playLetter(Character.toUpperCase(letter.charAt(0)));
+            }
+        ));
+    }
+
+    /**
+     * Prepared command for jumping to clue number
+     */
+    protected void registerVoiceCommandNumber() {
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_number),
+            textNumber -> {
+                Playboard board = getBoard();
+                if (board == null)
+                    return;
+
+                String prepped
+                    = WordsToNumbersUtil.convertTextualNumbersInDocument(textNumber);
+                try {
+                    int number = Integer.parseInt(prepped);
+                    board.jumpToClue(String.valueOf(number));
+                } catch (NumberFormatException e) {
+                    board.jumpToClue(textNumber);
+                }
+            }
+        ));
+    }
+
+    /**
+     * Prepared command for clearing current word
+     */
+    protected void registerVoiceCommandClear() {
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_clear),
+            args -> { getBoard().clearWord(); }
+        ));
+    }
+
     private String getSharePuzzleDetails(Puzzle puz) {
         if (puz == null)
             return "";
@@ -479,5 +589,16 @@ public abstract class PuzzleActivity
                 startActivity(i);
             }
         }
+    }
+
+    protected boolean isVolumeDownActivatesVoicePref() {
+        return prefs.getBoolean(PREF_VOLUME_ACTIVATES_VOICE, false);
+    }
+
+    /**
+     * Whether to show an on-screen button to activate voice
+     */
+    protected boolean isButtonActivatesVoicePref() {
+        return prefs.getBoolean(PREF_BUTTON_ACTIVATES_VOICE, false);
     }
 }

@@ -49,9 +49,16 @@
     />
 
     <androidx.preference.Preference
+        android:title="@string/voice_settings"
+        android:summary="@string/voice_settings_desc"
+        android:key="voiceOptions"
+        app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$VoiceFragment"
+    />
+
+    <androidx.preference.Preference
         android:title="@string/display_settings"
         android:summary="@string/display_settings_desc"
-        android:key="keyboardOptions"
+        android:key="displayOptions"
         app:fragment="app.crossword.yourealwaysbe.PreferencesSubPages$DisplayFragment"
     />
 

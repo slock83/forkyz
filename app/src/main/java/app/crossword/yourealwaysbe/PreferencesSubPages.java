@@ -152,6 +152,29 @@ public class PreferencesSubPages {
         }
     }
 
+    public static class VoiceFragment extends PreferencesBaseFragment {
+        @Override
+        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+            setPreferencesFromResource(R.xml.preferences_voice, rootKey);
+
+            findPreference("aboutVoiceCommands")
+                    .setOnPreferenceClickListener(new OnPreferenceClickListener() {
+                    public boolean onPreferenceClick(Preference arg0) {
+                        Intent i = new Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse(
+                                "file:///android_asset/voice_commands.html"
+                            ),
+                            getActivity(),
+                            HTMLActivity.class
+                        );
+                        getActivity().startActivity(i);
+                        return true;
+                    }
+                });
+        }
+    }
+
     public static class DisplayFragment extends PreferencesBaseFragment {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {

@@ -1,6 +1,7 @@
 package app.crossword.yourealwaysbe;
 
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
@@ -34,6 +35,7 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
+import app.crossword.yourealwaysbe.util.VoiceCommands.VoiceCommand;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.BoardEditText.BoardEditFilter;
 import app.crossword.yourealwaysbe.view.BoardEditText;
@@ -74,6 +76,7 @@ public class NotesActivity extends PuzzleActivity {
     private BoardEditText anagramSourceView;
     private BoardEditText anagramSolView;
     private CheckBox flagClue;
+    private View voiceButtonContainer;
 
     private Random rand = new Random();
 
@@ -263,6 +266,14 @@ public class NotesActivity extends PuzzleActivity {
             = (ForkyzKeyboard) findViewById(R.id.keyboard);
         keyboardManager = new KeyboardManager(this, keyboardView, boardView);
         keyboardManager.showKeyboard(boardView);
+
+        this.voiceButtonContainer
+            = this.findViewById(R.id.voiceButtonContainer);
+        this.findViewById(R.id.voiceButton).setOnClickListener(view -> {
+            launchVoiceInput();
+        });
+
+        setupVoiceCommands();
     }
 
     @Override
@@ -278,6 +289,8 @@ public class NotesActivity extends PuzzleActivity {
         case KeyEvent.KEYCODE_BACK:
         case KeyEvent.KEYCODE_ESCAPE:
             return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            return isVolumeDownActivatesVoicePref();
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -286,35 +299,20 @@ public class NotesActivity extends PuzzleActivity {
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
         case KeyEvent.KEYCODE_ESCAPE:
-            if (!keyboardManager.handleBackKey())
-                this.finish();
+            onBackKey();
             return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            if (isVolumeDownActivatesVoicePref()) {
+                launchVoiceInput();
+                return true;
+            }
         }
         return super.onKeyUp(keyCode, event);
     }
 
     public void onPause() {
-        Puzzle puz = getPuzzle();
-
-        EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
-        String text = notesBox.getText().toString();
-
-        String scratch = scratchView.toString();
-        String anagramSource = anagramSourceView.toString();
-        String anagramSolution = anagramSolView.toString();
-
-        Note note = new Note(scratch, text, anagramSource, anagramSolution);
-
-        if (isPuzzleNotes()) {
-            puz.setPlayerNote(note);
-        } else {
-            Clue clue = getNotesClue();
-            puz.setNote(clue, note);
-            puz.flagClue(clue, flagClue.isChecked());
-        }
-
+        saveNoteToBoard();
         super.onPause();
-
         keyboardManager.onPause();
     }
 
@@ -333,58 +331,47 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     private boolean onMiniboardKeyUp(int keyCode, KeyEvent event) {
-        Word w = getBoard().getCurrentWord();
-        Zone zone = (w == null) ? null : w.getZone();
-        Position first = null;
-        Position last = null;
-
-        if (zone != null && !zone.isEmpty()) {
-            first = zone.getPosition(0);
-            last = zone.getPosition(zone.size() - 1);
-        }
-
         switch (keyCode) {
         case KeyEvent.KEYCODE_MENU:
             return false;
 
         case KeyEvent.KEYCODE_DPAD_LEFT:
-            getBoard().moveZoneBack(false);
+            onLeftKey();
             return true;
 
         case KeyEvent.KEYCODE_DPAD_RIGHT:
-            getBoard().moveZoneForward(false);
+            onRightKey();
             return true;
 
         case KeyEvent.KEYCODE_DEL:
-            w = getBoard().getCurrentWord();
-
-            getBoard().deleteLetter();
-
-            Position p = getBoard().getHighlightLetter();
-
-            if (!w.checkInWord(p) && first != null) {
-                getBoard().setHighlightLetter(first);
-            }
-
+            onDeleteKey();
             return true;
-
-        // space handled as any char
         }
 
         char c = Character.toUpperCase(event.getDisplayLabel());
 
         if (utils.isAcceptableCharacterResponse(c)) {
-            getBoard().playLetter(c);
+            Playboard board = getBoard();
+            if (board != null) {
+                Word w = board.getCurrentWord();
+                Zone zone = (w == null) ? null : w.getZone();
+                Position last = null;
 
-            Position p = getBoard().getHighlightLetter();
-            int row = p.getRow();
-            int col = p.getCol();
+                if (zone != null && !zone.isEmpty()) {
+                    last = zone.getPosition(zone.size() - 1);
+                }
 
-            if (!getBoard().getCurrentWord().equals(w)
-                    || (getBoard().getBoxes()[row][col] == null)) {
-                getBoard().setHighlightLetter(last);
+                board.playLetter(c);
+
+                Position p = board.getHighlightLetter();
+                int row = p.getRow();
+                int col = p.getCol();
+
+                if (!board.getCurrentWord().equals(w)
+                        || (board.getBoxes()[row][col] == null)) {
+                    getBoard().setHighlightLetter(last);
+                }
             }
-
             return true;
         }
 
@@ -523,6 +510,10 @@ public class NotesActivity extends PuzzleActivity {
         anagramSourceView.setLength(curWordLen);
 
         keyboardManager.onResume();
+
+        voiceButtonContainer.setVisibility(
+            isButtonActivatesVoicePref() ? View.VISIBLE : View.GONE
+        );
     }
 
     @Override
@@ -554,7 +545,6 @@ public class NotesActivity extends PuzzleActivity {
     }
 
     private void moveScratchToNote() {
-        EditText notesBox = (EditText) this.findViewById(R.id.notesBox);
         String notesText = notesBox.getText().toString();
 
         String scratchText = scratchView.toString().trim();
@@ -717,6 +707,108 @@ public class NotesActivity extends PuzzleActivity {
         );
     }
 
+    private void setupVoiceCommands() {
+        registerVoiceCommandAnswer();
+        registerVoiceCommandLetter();
+        registerVoiceCommandClear();
+
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_left),
+            args -> { onLeftKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_right),
+            args -> { onRightKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_back),
+            args -> { onBackKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_scratch),
+            text -> {
+                Playboard board = getBoard();
+                if (board == null)
+                    return;
+
+                // remove non-word as not usually entered into grids
+                String prepped
+                    = text.replaceAll("\\W+", "")
+                        .toUpperCase(Locale.getDefault());
+
+                // means you can't enter "clear" into scratch, but oh well
+                String clear = getString(R.string.command_clear);
+                if (clear.equalsIgnoreCase(text)) {
+                    scratchView.clear();
+                } else {
+                    int len = Math.min(
+                        prepped.length(), scratchView.getLength()
+                    );
+                    for (int i = 0; i < len; i++) {
+                        scratchView.setResponse(i, prepped.charAt(i));
+                    }
+                }
+
+                // need to save since is called between an onPause and an
+                // onResume
+                saveNoteToBoard();
+            }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_flag),
+            text -> {
+                Playboard board = getBoard();
+                if (board == null)
+                    return;
+
+                flagClue.setChecked(true);
+
+                // need to save since is called between an onPause and an
+                // onResume
+                saveNoteToBoard();
+            }
+        ));
+    }
+
+    private void onLeftKey() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.moveZoneBack(false);
+    }
+
+    private void onRightKey() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.moveZoneForward(false);
+    }
+
+    private void onDeleteKey() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        Word w = board.getCurrentWord();
+        Zone zone = (w == null) ? null : w.getZone();
+        Position first = null;
+
+        if (zone != null && !zone.isEmpty()) {
+            first = zone.getPosition(0);
+        }
+
+        board.deleteLetter();
+
+        Position p = board.getHighlightLetter();
+
+        if (!w.checkInWord(p) && first != null) {
+            board.setHighlightLetter(first);
+        }
+    }
+
+    private void onBackKey() {
+        if (!keyboardManager.handleBackKey())
+            this.finish();
+    }
+
     public static class TransferResponseRequestDialog extends DialogFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -806,5 +898,24 @@ public class NotesActivity extends PuzzleActivity {
     private boolean isClueOnBoard() {
         Clue clue = getNotesClue();
         return clue != null && clue.hasZone();
+    }
+
+    private void saveNoteToBoard() {
+        Puzzle puz = getPuzzle();
+
+        String text = notesBox.getText().toString();
+        String scratch = scratchView.toString();
+        String anagramSource = anagramSourceView.toString();
+        String anagramSolution = anagramSolView.toString();
+
+        Note note = new Note(scratch, text, anagramSource, anagramSolution);
+
+        if (isPuzzleNotes()) {
+            puz.setPlayerNote(note);
+        } else {
+            Clue clue = getNotesClue();
+            puz.setNote(clue, note);
+            puz.flagClue(clue, flagClue.isChecked());
+        }
     }
 }

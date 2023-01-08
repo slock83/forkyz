@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
@@ -19,6 +20,7 @@ import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.util.KeyboardManager;
+import app.crossword.yourealwaysbe.util.VoiceCommands.VoiceCommand;
 import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
 import app.crossword.yourealwaysbe.view.BoardWordEditView;
 import app.crossword.yourealwaysbe.view.ClueTabs;
@@ -35,6 +37,7 @@ public class ClueListActivity extends PuzzleActivity
     private KeyboardManager keyboardManager;
     private BoardWordEditView boardView;
     private ClueTabs clueTabs;
+    private View voiceButtonContainer;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -98,6 +101,14 @@ public class ClueListActivity extends PuzzleActivity
 
         ForkyzKeyboard keyboard = (ForkyzKeyboard) findViewById(R.id.keyboard);
         keyboardManager = new KeyboardManager(this, keyboard, boardView);
+
+        this.voiceButtonContainer
+            = this.findViewById(R.id.voiceButtonContainer);
+        this.findViewById(R.id.voiceButton).setOnClickListener(view -> {
+            launchVoiceInput();
+        });
+
+        setupVoiceCommands();
     }
 
     @Override
@@ -126,6 +137,10 @@ public class ClueListActivity extends PuzzleActivity
         clueTabs.refresh();
 
         keyboardManager.onResume();
+
+        voiceButtonContainer.setVisibility(
+            isButtonActivatesVoicePref() ? View.VISIBLE : View.GONE
+        );
     }
 
     @Override
@@ -184,6 +199,8 @@ public class ClueListActivity extends PuzzleActivity
         case KeyEvent.KEYCODE_DEL:
         case KeyEvent.KEYCODE_SPACE:
             return true;
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            return isVolumeDownActivatesVoicePref();
         }
 
         char c = Character.toUpperCase(event.getDisplayLabel());
@@ -195,103 +212,50 @@ public class ClueListActivity extends PuzzleActivity
 
     @Override
     public boolean onKeyUp(int keyCode, KeyEvent event) {
-        Playboard board = getBoard();
-        Puzzle puz = getPuzzle();
-        Word w = board.getCurrentWord();
-
-        Zone zone = (w == null) ? null : w.getZone();
-        Position first = null;
-        Position last = null;
-
-        if (zone != null && !zone.isEmpty()) {
-            first = zone.getPosition(0);
-            last = zone.getPosition(zone.size() - 1);
-        }
-
-        ClueID cid = board.getClueID();
-        String curList = cid == null ? null : cid.getListName();
-        int curClueIndex = cid == null ? -1 : cid.getIndex();
-
         switch (keyCode) {
         case KeyEvent.KEYCODE_BACK:
         case KeyEvent.KEYCODE_ESCAPE:
-            if (!keyboardManager.handleBackKey())
-                this.finish();
+            onBackKey();
             return true;
 
         case KeyEvent.KEYCODE_DPAD_LEFT:
-            if (!board.getHighlightLetter().equals(first)) {
-                board.moveZoneBack(false);
-            } else {
-                clueTabs.prevPage();
-                selectFirstSelectableClue(false);
-            }
+            onLeftKey();
             return true;
 
         case KeyEvent.KEYCODE_DPAD_RIGHT:
-            if (!board.getHighlightLetter().equals(last)) {
-                board.moveZoneForward(false);
-            } else {
-                clueTabs.nextPage();
-                selectFirstSelectableClue(true);
-            }
+            onRightKey();
             return true;
 
         case KeyEvent.KEYCODE_DPAD_UP:
-            if (curList != null && curClueIndex >= 0) {
-                int prev = puz.getClues(curList)
-                    .getPreviousZonedIndex(curClueIndex, true);
-                clueTabs.setForceSnap(true);
-                board.jumpToClue(new ClueID(curList, prev));
-                clueTabs.setForceSnap(false);
-            } else {
-                selectFirstSelectableClue(false);
-            }
-            break;
+            onUpKey();
+            return true;
 
         case KeyEvent.KEYCODE_DPAD_DOWN:
-            if (curList != null && curClueIndex >= 0) {
-                int next = puz.getClues(curList)
-                    .getNextZonedIndex(curClueIndex, true);
-                clueTabs.setForceSnap(true);
-                board.jumpToClue(new ClueID(curList, next));
-                clueTabs.setForceSnap(false);
-            } else {
-                selectFirstSelectableClue(true);
-            }
-            break;
+            onDownKey();
+            return true;
 
         case KeyEvent.KEYCODE_DEL:
-            w = board.getCurrentWord();
-            board.deleteLetter();
-
-            Position p = board.getHighlightLetter();
-
-            if (!w.checkInWord(p)) {
-                board.setHighlightLetter(first);
-            }
-
+            onDeleteKey();
             return true;
 
         case KeyEvent.KEYCODE_SPACE:
-            if (!prefs.getBoolean("spaceChangesDirection", true)) {
-                board.playLetter(' ');
-
-                Position curr = board.getHighlightLetter();
-                int row = curr.getRow();
-                int col = curr.getCol();
-
-                if (!board.getCurrentWord().equals(w)
-                        || (board.getBoxes()[row][col] == null)) {
-                    board.setHighlightLetter(last);
-                }
-            }
+            onSpaceKey();
             return true;
+
+        case KeyEvent.KEYCODE_VOLUME_DOWN:
+            if (isVolumeDownActivatesVoicePref()) {
+                launchVoiceInput();
+                return true;
+            }
         }
 
+        Playboard board = getBoard();
         char c = Character.toUpperCase(event.getDisplayLabel());
 
-        if (Character.isLetterOrDigit(c)) {
+        if (board != null && Character.isLetterOrDigit(c)) {
+            Word w = board.getCurrentWord();
+            Position last = getCurrentLastPosition();
+
             board.playLetter(c);
 
             Position p = board.getHighlightLetter();
@@ -432,5 +396,203 @@ public class ClueListActivity extends PuzzleActivity
             boardView.setIncognitoMode(false);
             clueTabs.setShowWords(false);
         }
+    }
+
+    private void setupVoiceCommands() {
+        registerVoiceCommandAnswer();
+        registerVoiceCommandLetter();
+        registerVoiceCommandClear();
+        registerVoiceCommandNumber();
+
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_left),
+            args -> { onLeftKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_right),
+            args -> { onRightKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_up),
+            args -> { onUpKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_down),
+            args -> { onDownKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_back),
+            args -> { onBackKey(); }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_next),
+            args -> {
+                clueTabs.nextPage();
+                selectFirstClue();
+            }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_previous),
+            args -> {
+                clueTabs.prevPage();
+                selectFirstClue();
+            }
+        ));
+        registerVoiceCommand(new VoiceCommand(
+            getString(R.string.command_notes),
+            args -> {
+                Playboard board = getBoard();
+                if (board != null)
+                    launchClueNotes(board.getClueID());
+            }
+        ));
+    }
+
+    private void onLeftKey() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        Position first = getCurrentFirstPosition();
+
+        if (!board.getHighlightLetter().equals(first)) {
+            board.moveZoneBack(false);
+        } else {
+            clueTabs.prevPage();
+            selectFirstSelectableClue(false);
+        }
+    }
+
+    private void onRightKey() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        Position last = getCurrentLastPosition();
+
+        if (!board.getHighlightLetter().equals(last)) {
+            board.moveZoneForward(false);
+        } else {
+            clueTabs.nextPage();
+            selectFirstSelectableClue(true);
+        }
+    }
+
+    private void onUpKey() {
+        Playboard board = getBoard();
+        Puzzle puz = getPuzzle();
+        if (board == null || puz == null)
+            return;
+
+        ClueID cid = board.getClueID();
+        String curList = cid == null ? null : cid.getListName();
+        int curClueIndex = cid == null ? -1 : cid.getIndex();
+
+        if (curList != null && curClueIndex >= 0) {
+            int prev = puz.getClues(curList)
+                .getPreviousZonedIndex(curClueIndex, true);
+            clueTabs.setForceSnap(true);
+            board.jumpToClue(new ClueID(curList, prev));
+            clueTabs.setForceSnap(false);
+        } else {
+            selectFirstSelectableClue(false);
+        }
+    }
+
+    private void onDownKey() {
+        Playboard board = getBoard();
+        Puzzle puz = getPuzzle();
+        if (board == null || puz == null)
+            return;
+
+        ClueID cid = board.getClueID();
+        String curList = cid == null ? null : cid.getListName();
+        int curClueIndex = cid == null ? -1 : cid.getIndex();
+
+        if (curList != null && curClueIndex >= 0) {
+            int next = puz.getClues(curList)
+                .getNextZonedIndex(curClueIndex, true);
+            clueTabs.setForceSnap(true);
+            board.jumpToClue(new ClueID(curList, next));
+            clueTabs.setForceSnap(false);
+        } else {
+            selectFirstSelectableClue(true);
+        }
+    }
+
+    private void onDeleteKey() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        Word w = board.getCurrentWord();
+        Position first = getCurrentFirstPosition();
+
+        board.deleteLetter();
+
+        Position p = board.getHighlightLetter();
+        if (!w.checkInWord(p) && first != null) {
+            board.setHighlightLetter(first);
+        }
+    }
+
+    private void onSpaceKey() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        if(prefs.getBoolean("spaceChangesDirection", true))
+            return;
+
+        Word w = board.getCurrentWord();
+        Position last = getCurrentLastPosition();
+
+        board.playLetter(' ');
+
+        Position curr = board.getHighlightLetter();
+        int row = curr.getRow();
+        int col = curr.getCol();
+
+        if (!board.getCurrentWord().equals(w)
+                || (board.getBoxes()[row][col] == null)) {
+            board.setHighlightLetter(last);
+        }
+    }
+
+    private void onBackKey() {
+        if (!keyboardManager.handleBackKey())
+            this.finish();
+    }
+
+    /**
+     * First position of current word or null
+     */
+    private Position getCurrentFirstPosition() {
+        Playboard board = getBoard();
+        if (board == null)
+            return null;
+
+        Word w = board.getCurrentWord();
+        Zone zone = (w == null) ? null : w.getZone();
+        Position first = null;
+        if (zone != null && !zone.isEmpty())
+            first = zone.getPosition(0);
+        return first;
+    }
+
+    /**
+     * Last position of current word or null
+     */
+    private Position getCurrentLastPosition() {
+        Playboard board = getBoard();
+        if (board == null)
+            return null;
+
+        Word w = board.getCurrentWord();
+        Zone zone = (w == null) ? null : w.getZone();
+        Position last = null;
+        if (zone != null && !zone.isEmpty())
+            last = zone.getPosition(zone.size() - 1);
+        return last;
     }
 }

@@ -138,6 +138,8 @@
     <string name="browser_settings_desc">Behaviour and appearance of the puzzle list page.</string>
     <string name="interaction_settings">Interaction Settings</string>
     <string name="interaction_settings_desc">Behaviour and control of the puzzle grid while playing.</string>
+    <string name="voice_settings">Voice Input Settings</string>
+    <string name="voice_settings_desc">Configure the use of voice commands in game.</string>
     <string name="keyboard_settings">Keyboard Settings</string>
     <string name="keyboard_settings_desc">Appearance, behaviour, and type of keyboard used for entering text during play.</string>
     <string name="display_settings">Display Settings</string>
@@ -507,4 +509,32 @@
     <string name="standard_theme_value">S</string>
     <string name="dynamic_theme_value">D</string>
     <string name="legacy_like_theme_value">L</string>
+
+    <!-- voice commands -->
+    <!-- make sure app/src/main/assets/.. help files match commands here -->
+    <!-- help files should really be in a resources file where they can be
+    overridden for different languages -->
+    <string name="no_speech_recognition_available">No voice input available on system, please check Android input settings.</string>
+    <string name="command_letter">Letter</string>
+    <string name="command_answer">Put</string>
+    <string name="command_toggle">Toggle</string>
+    <string name="command_number">Number</string>
+    <string name="command_next">Next</string>
+    <string name="command_previous">Previous</string>
+    <string name="command_left">Left</string>
+    <string name="command_right">Right</string>
+    <string name="command_up">Up</string>
+    <string name="command_down">Down</string>
+    <string name="command_delete">Delete</string>
+    <string name="command_clear">Clear</string>
+    <string name="command_back">Back</string>
+    <string name="command_clues">Clues</string>
+    <string name="command_notes">Notes</string>
+    <string name="command_scratch">Scratch</string>
+    <string name="command_flag">Flag</string>
+    <string name="voice_with_volume">Volume down activates voice</string>
+    <string name="voice_with_volume_desc">Use the volume down key to activate voice command input during play.</string>
+    <string name="voice_with_button">Show button to activate voice</string>
+    <string name="voice_with_button_desc">Add an on-screen button to activate voice command input.</string>
+    <string name="about_voice_commands">About Voice Commands</string>
 </resources>
