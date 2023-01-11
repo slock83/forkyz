@@ -662,7 +662,7 @@ public class PlayboardRenderer {
         int miniNoteTextSize = boxSize / 2;
         int noteTextSize = Math.round(boxSize * 0.6F);
         int letterTextSize = Math.round(boxSize * 0.7F);
-        int barSize = boxSize / 14;
+        int barSize = boxSize / 12;
         int numberOffset = barSize;
         int textOffset = boxSize / 30;
 
