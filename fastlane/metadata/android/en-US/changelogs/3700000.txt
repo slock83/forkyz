@@ -1,0 +1,4 @@
+- Add voice commands to puzzle activities.
+- Downloaders setup now aware of expected availability time of puzzle sources.
+- Target Android 13.
+- Minor UI tweaks.
