@@ -147,11 +147,9 @@ public class IPuzIO implements PuzzleParser {
         "http://ipuz.org/v1",
         WRITE_VERSION
     };
-    private static final String[] SUPPORTED_KINDS = {
+    private static final String[] SUPPORTED_KIND_PREFIXES = {
         WRITE_KIND,
-        "http://ipuz.org/crossword/crypticcrossword#1",
-        "http://ipuz.org/crossword",
-        "http://ipuz.org/crossword/crypticcrossword"
+        "http://ipuz.org/crossword"
     };
 
     private static final String EXT_NAMESPACE = "app.crossword.yourealwaysbe";
@@ -298,8 +296,8 @@ public class IPuzIO implements PuzzleParser {
 
         for (int i = 0; i < kinds.length(); i++) {
             String kind = kinds.getString(i);
-            for (String supportedKind : SUPPORTED_KINDS) {
-                if (supportedKind.equalsIgnoreCase(kind))
+            for (String supportedKindPrefix : SUPPORTED_KIND_PREFIXES) {
+                if (kind.toLowerCase().startsWith(supportedKindPrefix))
                     return;
             }
         }
