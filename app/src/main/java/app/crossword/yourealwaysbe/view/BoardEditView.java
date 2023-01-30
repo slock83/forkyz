@@ -140,16 +140,17 @@ public abstract class BoardEditView
         float oldScale = getCurrentScale();
 
         if (renderer != null) {
-            if (scale > renderer.getDeviceMaxScale()) {
-                scale = renderer.getDeviceMaxScale();
-            } else if (scale < renderer.getDeviceMinScale()) {
-                scale = renderer.getDeviceMinScale();
+            if (scale > renderer.getMaxScale()) {
+                scale = renderer.getMaxScale();
+            } else if (scale < renderer.getMinScale()) {
+                scale = renderer.getMinScale();
             } else if (Float.isNaN(scale)) {
                 scale = 1F;
             }
+
+            renderer.setScale(scale);
         }
 
-        renderer.setScale(scale);
         super.setCurrentScale(scale);
         if (!noRender && Float.compare(scale, oldScale) != 0) {
             render(true);

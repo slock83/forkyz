@@ -38,7 +38,7 @@ public class BoardWordEditView extends BoardEditView {
         super(context, attrs);
         setAllowOverScroll(false);
         setAllowZoom(false);
-        setMaxScale(1.0f);
+        setScaleBounds();
     }
 
     /**
@@ -65,9 +65,9 @@ public class BoardWordEditView extends BoardEditView {
     }
 
     @Override
-    public void setBoard(Playboard board) {
-        super.setBoard(board);
-        setMaxScale(1.0f);
+    public void setBoard(Playboard board, boolean noRender) {
+        super.setBoard(board, noRender);
+        setScaleBounds();
     }
 
     /**
@@ -120,7 +120,12 @@ public class BoardWordEditView extends BoardEditView {
         if (zone == null)
             return null;
 
-        int box = renderer.findPosition(point).getCol();
+        Position pos = renderer.findPosition(point);
+        if (pos == null)
+            return null;
+
+        int boxesPerRow = renderer.getNumBoxesPerRow(getContentWidth());
+        int box = boxesPerRow * pos.getRow() + pos.getCol();
         return zone.getPosition(box);
     }
 
@@ -141,7 +146,11 @@ public class BoardWordEditView extends BoardEditView {
 
         Word renderWord = getRenderWord();
         setBitmap(
-            renderer.drawWord(renderWord, getSuppressNotesList()),
+            renderer.drawWord(
+                renderWord,
+                getSuppressNotesList(),
+                getContentWidth()
+            ),
             rescale
         );
         setContentDescription(
@@ -344,5 +353,10 @@ public class BoardWordEditView extends BoardEditView {
         }
 
         return false;
+    }
+
+    private void setScaleBounds() {
+        setMaxScale(1.0F);
+        setMinScale(0.6F);
     }
 }

@@ -245,42 +245,70 @@ public class PlayboardRenderer {
         }
     }
 
+    public int getNumBoxesPerRow(int wrapWidth) {
+        return wrapWidth / getBoxSize();
+    }
+
     /**
      * Draw current word
      *
      * @param suppressNotesLists as in drawBox
      */
-    public Bitmap drawWord(Set<String> suppressNotesLists) {
-        return drawWord(this.board.getCurrentWord(), suppressNotesLists);
+    public Bitmap drawWord(Set<String> suppressNotesLists, int wrapWidth) {
+        return drawWord(
+            this.board.getCurrentWord(), suppressNotesLists, wrapWidth
+        );
     }
 
     /**
      * Draw word suppressing no notes
      */
-    public Bitmap drawWord(Word word) {
+    public Bitmap drawWord(Word word, int wrapWidth) {
         // call draw word with empty list
-        return drawWord(word, Collections.<String>emptySet());
+        return drawWord(word, Collections.<String>emptySet(), wrapWidth);
     }
 
     /**
      * Draw given word
+     *
+     * @param word word to draw
+     * @param suppressNotesLists as in drawBox
+     * @param wrapWidth if non-zero, wrap word after width (in pixels)
+     * exceeded
      */
-    public Bitmap drawWord(Word word, Set<String> suppressNotesLists) {
+    public Bitmap drawWord(
+        Word word, Set<String> suppressNotesLists, int wrapWidth
+    ) {
         Box[] boxes = board.getWordBoxes(word);
         Zone zone = word.getZone();
         int boxSize = getBoxSize();
         Position highlight = board.getHighlightLetter();
 
+        int height;
+        int width;
+        int boxesPerRow;
+
+        if (wrapWidth > 0) {
+            boxesPerRow = getNumBoxesPerRow(wrapWidth);
+            int numRows = (int) Math.ceil(boxes.length / (float) boxesPerRow);
+            height = numRows * boxSize;
+            width = Math.min(boxesPerRow, boxes.length) * boxSize;
+        } else {
+            height = boxSize;
+            width = boxes.length * boxSize;
+            boxesPerRow = boxes.length;
+        }
+
         Bitmap bitmap = Bitmap.createBitmap(
-            boxes.length * boxSize, boxSize, Bitmap.Config.RGB_565
+            width, height, Bitmap.Config.ARGB_8888
         );
-        bitmap.eraseColor(Color.BLACK);
+        bitmap.eraseColor(Color.TRANSPARENT);
 
         Canvas canvas = new Canvas(bitmap);
 
         for (int i = 0; i < boxes.length; i++) {
-            int x = i * boxSize;
-            int y = 0;
+            int x = (i % boxesPerRow) * boxSize;
+            int y = (i / boxesPerRow) * boxSize;
             Position pos = zone.getPosition(i);
             this.drawBox(
                 canvas,
@@ -309,28 +337,48 @@ public class PlayboardRenderer {
     /**
      * Draw the boxes
      *
+     * @param boxes boxes to draw
+     * @param highlight the position in the box list to highlight
      * @param suppressNotesLists as in drawBox
+     * @param wrapWidth if non-zero, wrap after this number of pixels
      */
     public Bitmap drawBoxes(
         Box[] boxes,
         Position highlight,
-        Set<String> suppressNotesLists
+        Set<String> suppressNotesLists,
+        int wrapWidth
     ) {
         if (boxes == null || boxes.length == 0) {
             return null;
         }
 
         int boxSize = getBoxSize();
-        Bitmap bitmap = Bitmap.createBitmap(boxes.length * boxSize,
-                                            boxSize,
-                                            Bitmap.Config.RGB_565);
-        bitmap.eraseColor(Color.BLACK);
+
+        int height;
+        int width;
+        int boxesPerRow;
+
+        if (wrapWidth > 0) {
+            boxesPerRow = getNumBoxesPerRow(wrapWidth);
+            int numRows = (int) Math.ceil(boxes.length / (float) boxesPerRow);
+            height = numRows * boxSize;
+            width = Math.min(boxesPerRow, boxes.length) * boxSize;
+        } else {
+            height = boxSize;
+            width = boxes.length * boxSize;
+            boxesPerRow = boxes.length;
+        }
+
+        Bitmap bitmap = Bitmap.createBitmap(
+            width, height, Bitmap.Config.ARGB_8888
+        );
+        bitmap.eraseColor(Color.TRANSPARENT);
 
         Canvas canvas = new Canvas(bitmap);
 
         for (int i = 0; i < boxes.length; i++) {
-            int x = i * boxSize;
-            int y = 0;
+            int x = (i % boxesPerRow) * boxSize;
+            int y = (i / boxesPerRow) * boxSize;
             this.drawBox(canvas,
                          x, y,
                          0, i,
@@ -1357,9 +1405,9 @@ public class PlayboardRenderer {
         int height = getFullHeight();
 
         bitmap = Bitmap.createBitmap(
-            width * boxSize, height * boxSize, Bitmap.Config.RGB_565
+            width * boxSize, height * boxSize, Bitmap.Config.ARGB_8888
         );
-        bitmap.eraseColor(Color.BLACK);
+        bitmap.eraseColor(Color.TRANSPARENT);
 
         return true;
     }

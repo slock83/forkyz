@@ -78,6 +78,8 @@ public class BoardEditText
             false,
             context
         );
+        this.renderer.setMaxScale(1.0F);
+        this.renderer.setMinScale(0.6F);
 
         setAllowOverScroll(false);
         setAllowZoom(false);
@@ -99,10 +101,7 @@ public class BoardEditText
                     getViewTreeObserver().removeOnPreDrawListener(this);
                     scrollTo(0, 0);
                     int width = getContentWidth();
-                    float scale = renderer.fitWidthTo(width, boxes.length);
-                    if (scale > 1) {
-                        renderer.setScale(1.0F);
-                    }
+                    renderer.fitWidthTo(width, boxes.length);
                     render();
                     return true;
                 }
@@ -428,7 +427,9 @@ public class BoardEditText
             ? Collections.emptySet()
             : null;
 
-        setBitmap(renderer.drawBoxes(boxes, selection, suppressNotesList));
+        setBitmap(renderer.drawBoxes(
+            boxes, selection, suppressNotesList, getContentWidth()
+        ));
         setContentDescription(
             renderer.getContentDescription(
                 contentDescriptionBase, boxes, getSelectedCol(), true
@@ -484,7 +485,8 @@ public class BoardEditText
         if (position == null)
             return -1;
 
-        int box = position.getCol();
+        int boxesPerRow = renderer.getNumBoxesPerRow(getContentWidth());
+        int box = boxesPerRow * position.getRow() + position.getCol();
 
         if (0 <= box && box < boxes.length)
             return box;
