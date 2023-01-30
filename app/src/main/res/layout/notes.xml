@@ -35,13 +35,15 @@
             <app.crossword.yourealwaysbe.view.BoardWordEditView
                 android:id="@+id/miniboard"
                 android:layout_width="fill_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusForward="@+id/scratchMiniboard"
                 android:nextFocusDown="@+id/scratchMiniboard"
                 android:nextFocusUp="@+id/anagramSolution"
                 android:contentDescription="@string/board_lab"
+                android:layout_marginTop="4sp"
+                android:layout_marginBottom="4sp"
             />
             <TextView
                 android:id="@+id/scratchLab"
@@ -52,12 +54,14 @@
             <app.crossword.yourealwaysbe.view.BoardEditText
                 android:id="@+id/scratchMiniboard"
                 android:layout_width="fill_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusForward="@+id/notesBox"
                 android:nextFocusDown="@+id/notesBox"
                 android:contentDescription="@string/scratch_lab"
+                android:layout_marginTop="4sp"
+                android:layout_marginBottom="4sp"
             />
             <TextView
                 android:id="@+id/notesLab"
@@ -97,12 +101,14 @@
             <app.crossword.yourealwaysbe.view.BoardEditText
                 android:id="@+id/anagramSource"
                 android:layout_width="fill_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusForward="@+id/anagramSolution"
                 android:nextFocusDown="@+id/anagramSolution"
                 android:contentDescription="@string/anagram_source_lab"
+                android:layout_marginTop="4sp"
+                android:layout_marginBottom="4sp"
             />
             <TextView
                 android:id="@+id/anagramSolutionLab"
@@ -113,12 +119,14 @@
             <app.crossword.yourealwaysbe.view.BoardEditText
                 android:id="@+id/anagramSolution"
                 android:layout_width="fill_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:nextFocusForward="@+id/miniboard"
                 android:nextFocusDown="@+id/miniboard"
                 android:contentDescription="@string/anagram_solution_lab"
+                android:layout_marginTop="4sp"
+                android:layout_marginBottom="4sp"
             />
         </LinearLayout>
     </ScrollView>
