@@ -266,6 +266,12 @@ public class PuzzleBuilder {
     public PuzzleBuilder addAcrossClue(
         String listName, String number, String hint
     ) {
+        return addAcrossClue(listName, number, null, hint);
+    }
+
+    public PuzzleBuilder addAcrossClue(
+        String listName, String number, String label, String hint
+    ) {
         Position start = getNumberPositions().get(number);
         if (start == null) {
             throw new IllegalArgumentException(
@@ -277,7 +283,7 @@ public class PuzzleBuilder {
         Zone zone = PuzzleUtils.getAcrossZone(puzzle, start);
         int index = getNextClueIndex(listName);
 
-        puzzle.addClue(new Clue(listName, index, number, hint, zone));
+        puzzle.addClue(new Clue(listName, index, number, label, hint, zone));
 
         return this;
     }
@@ -293,6 +299,12 @@ public class PuzzleBuilder {
     public PuzzleBuilder addDownClue(
         String listName, String number, String hint
     ) {
+        return addDownClue(listName, number, null, hint);
+    }
+
+    public PuzzleBuilder addDownClue(
+        String listName, String number, String label, String hint
+    ) {
         Position start = getNumberPositions().get(number);
         if (start == null) {
             throw new IllegalArgumentException(
@@ -304,7 +316,7 @@ public class PuzzleBuilder {
         Zone zone = PuzzleUtils.getDownZone(puzzle, start);
         int index = getNextClueIndex(listName);
 
-        puzzle.addClue(new Clue(listName, index, number, hint, zone));
+        puzzle.addClue(new Clue(listName, index, number, label, hint, zone));
 
         return this;
     }

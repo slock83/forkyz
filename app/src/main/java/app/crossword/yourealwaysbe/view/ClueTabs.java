@@ -721,17 +721,17 @@ public class ClueTabs extends LinearLayout
             this.clue = clue;
 
             String listName = getShortListName(clue);
-            String number = clue.getClueNumber();
+            String displayNum = clue.getDisplayNumber();
             String hint = clue.getHint();
             boolean hasCount = clue.hasZone();
             int count = hasCount ? clue.getZone().size() : -1;
 
             if (showDirection) {
                 if (hasCount && isShowCount()) {
-                    if (clue.hasClueNumber()) {
+                    if (displayNum != null) {
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_short_with_count,
-                            number, listName, hint, count
+                            displayNum, listName, hint, count
                         );
                     } else {
                         return ClueTabs.this.getContext().getString(
@@ -740,10 +740,10 @@ public class ClueTabs extends LinearLayout
                         );
                     }
                 } else {
-                    if (clue.hasClueNumber()) {
+                    if (displayNum != null) {
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_short,
-                            number, listName, hint
+                            displayNum, listName, hint
                         );
                     } else {
                         return ClueTabs.this.getContext().getString(
@@ -754,10 +754,10 @@ public class ClueTabs extends LinearLayout
                 }
             } else {
                 if (hasCount && isShowCount()) {
-                    if (clue.hasClueNumber()) {
+                    if (displayNum != null) {
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_short_no_dir_with_count,
-                            number, hint, count
+                            displayNum, hint, count
                         );
                     } else {
                         return ClueTabs.this.getContext().getString(
@@ -766,10 +766,10 @@ public class ClueTabs extends LinearLayout
                         );
                     }
                 } else {
-                    if (clue.hasClueNumber()) {
+                    if (displayNum != null) {
                         return ClueTabs.this.getContext().getString(
                             R.string.clue_format_short_no_dir,
-                            number, hint
+                            displayNum, hint
                         );
                     } else {
                         return ClueTabs.this.getContext().getString(

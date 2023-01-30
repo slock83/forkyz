@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Note;
@@ -82,9 +83,14 @@ public class IPuzIOTest {
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Vertical");
 
-        assertEquals(acrossClues.getClueByNumber("1").getHint(), "Test clue 1");
+        Clue clueOneAcross = acrossClues.getClueByNumber("1");
+        assertEquals(clueOneAcross.getHint(), "Test clue 1");
+        assertFalse(clueOneAcross.hasLabel());
         assertEquals(acrossClues.getClueByNumber("3").getHint(), "Test clue 2");
-        assertEquals(downClues.getClueByNumber("1").getHint(), "Test clue 3");
+
+        Clue clueOneDown = downClues.getClueByNumber("1");
+        assertEquals(clueOneDown.getLabel(), "One");
+        assertEquals(clueOneDown.getHint(), "Test clue 3");
         assertEquals(
             downClues.getClueByNumber("2").getHint(),
             "Test clue 4 (cont. 1 Across/1 Down) "

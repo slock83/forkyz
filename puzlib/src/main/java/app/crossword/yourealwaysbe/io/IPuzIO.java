@@ -123,6 +123,7 @@ public class IPuzIO implements PuzzleParser {
     private static final String FIELD_CLUES_DOWN = "Down";
 
     private static final String FIELD_CLUE_NUMBER = "number";
+    private static final String FIELD_CLUE_LABEL = "label";
     private static final String FIELD_CLUE_INDEX = "index";
     private static final String FIELD_CLUE_NUMBERS = "numbers";
     private static final String FIELD_CLUE_HINT = "clue";
@@ -705,17 +706,24 @@ public class IPuzIO implements PuzzleParser {
                 if (ipc != null) {
                     if (FIELD_CLUES_ACROSS.equals(dirName)) {
                         builder.addAcrossClue(
-                            displayName, ipc.getClueNumber(), ipc.getHint()
+                            displayName,
+                            ipc.getClueNumber(),
+                            ipc.getLabel(),
+                            ipc.getHint()
                         );
                     } else if (FIELD_CLUES_DOWN.equals(dirName)) {
                         builder.addDownClue(
-                            displayName, ipc.getClueNumber(), ipc.getHint()
+                            displayName,
+                            ipc.getClueNumber(),
+                            ipc.getLabel(),
+                            ipc.getHint()
                         );
                     } else {
                         builder.addClue(new Clue(
                             displayName,
                             i,
                             ipc.getClueNumber(),
+                            ipc.getLabel(),
                             ipc.getHint(),
                             ipc.getZone()
                         ));
@@ -749,7 +757,7 @@ public class IPuzIO implements PuzzleParser {
             Object clueNumObj = clueArray.get(0);
             String hint = clueArray.getString(1);
 
-            return buildClue(clueNumObj, hint, null, null);
+            return buildClue(clueNumObj, null, hint, null, null);
         } else if (clueObj instanceof JSONObject) {
             JSONObject clueJson = (JSONObject) clueObj;
 
@@ -757,6 +765,8 @@ public class IPuzIO implements PuzzleParser {
             Object clueNumObj = clueJson.opt(FIELD_CLUE_NUMBER);
             if (getClueNumber(clueNumObj) == null)
                 clueNumObj = clueJson.opt(FIELD_CLUE_NUMBERS);
+
+            String label = optStringNull(clueJson, FIELD_CLUE_LABEL);
 
             // build hint, bake in additional info
             StringBuilder hint = new StringBuilder();
@@ -779,7 +789,9 @@ public class IPuzIO implements PuzzleParser {
 
             Zone zone = getClueZone(clueJson);
 
-            return buildClue(clueNumObj, hint.toString(), enumeration, zone);
+            return buildClue(
+                clueNumObj, label, hint.toString(), enumeration, zone
+            );
         } else {
             throw new IPuzFormatException(
                 "Unsupported clue format " + clueObj.getClass() + ": " + clueObj
@@ -845,11 +857,14 @@ public class IPuzIO implements PuzzleParser {
      * In particular handles the different clue number formats
      *
      * @param clueNumObj the ClueNum object in JSON
+     * @param label a label to display instead of clue number (null if
+     * not used)
+     * @param hint the clue hint
      * @param enumeration null or empty if no enumeration to be shown in clue
      * @param zone the zone of the clue or null
      */
     private static IPuzClue buildClue(
-        Object clueNumObj, String hint, String enumeration, Zone zone
+        Object clueNumObj, String label, String hint, String enumeration, Zone zone
     ) throws IPuzFormatException {
         String number = getClueNumber(clueNumObj);
 
@@ -863,7 +878,7 @@ public class IPuzIO implements PuzzleParser {
             hint += " (" + enumeration + ")";
         }
 
-        return new IPuzClue(number, hint, zone);
+        return new IPuzClue(number, label, hint, zone);
     }
 
     /**
@@ -1658,7 +1673,8 @@ public class IPuzIO implements PuzzleParser {
                 hint = NULL_CLUE;
 
             writer.indent(2);
-            if (withZones) {
+
+            if (withZones || clue.hasLabel()) {
                 writer.object();
                 writer.newLine();
 
@@ -1666,6 +1682,13 @@ public class IPuzIO implements PuzzleParser {
                     writer.indent(3)
                         .key(FIELD_CLUE_NUMBER)
                         .value(clue.getClueNumber());
+                    writer.newLine();
+                }
+
+                if (clue.hasLabel()) {
+                    writer.indent(3)
+                        .key(FIELD_CLUE_LABEL)
+                        .value(clue.getLabel());
                     writer.newLine();
                 }
 
@@ -2039,6 +2062,9 @@ public class IPuzIO implements PuzzleParser {
         );
     }
 
+    /**
+     * Reads field from json, returns null if not there or empty val
+     */
     private static String optStringNull(JSONObject json, String field) {
         String value = json.optString(field);
         if (value == null || value.isEmpty())
@@ -2094,24 +2120,27 @@ public class IPuzIO implements PuzzleParser {
 
     private static class IPuzClue {
         private String number;
+        private String label;
         private String hint;
         private Zone zone;
 
-        public IPuzClue(String number, String hint, Zone zone) {
+        public IPuzClue(String number, String label, String hint, Zone zone) {
             this.number = number;
+            this.label = label;
             this.hint = hint;
             this.zone = zone;
         }
 
         public IPuzClue(String number, String hint) {
-            this(number, hint, null);
+            this(number, null, hint, null);
         }
 
         public IPuzClue(String hint) {
-            this(null, hint, null);
+            this(null, null, hint, null);
         }
 
         public String getClueNumber() { return number; }
+        public String getLabel() { return label; }
         public String getHint() { return hint; }
         public Zone getZone() { return zone; }
     }
