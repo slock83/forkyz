@@ -113,4 +113,6 @@ Copyright (C) 2010-2016 Robert Cooper (and 2018- Forkyz Contributors)
 
 Licensed under the GNU General Public License, Version 3
 
+ipuz is a trademark of Puzzazz, used with permission
+
 [online-sources]: https://yourealwaysbe.github.io/forkyz/
