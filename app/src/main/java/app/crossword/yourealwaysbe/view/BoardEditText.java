@@ -1,5 +1,6 @@
 package app.crossword.yourealwaysbe.view;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -57,6 +58,7 @@ public class BoardEditText
 
     private Position selection = new Position(0, -1);
     private Box[] boxes;
+    private boolean[] changes;
     private PlayboardRenderer renderer;
 
     private SharedPreferences prefs;
@@ -102,7 +104,7 @@ public class BoardEditText
                     scrollTo(0, 0);
                     int width = getContentWidth();
                     renderer.fitWidthTo(width, boxes.length);
-                    render();
+                    render(true);
                     return true;
                 }
             }
@@ -134,10 +136,17 @@ public class BoardEditText
     public void onDeleteResponse() {
         if (boxes != null) {
             int col = getSelectedCol();
-            if (boxes[col].isBlank() && col > 0)
+
+            if (boxes[col].isBlank() && col > 0) {
+                flagChanged(col);
                 setSelectedCol(col - 1);
-            if (canDelete(selection))
-                boxes[getSelectedCol()].setBlank();
+            }
+            if (canDelete(selection)) {
+                col = getSelectedCol();
+                boxes[col].setBlank();
+                flagChanged(col);
+            }
+
             this.render();
             updateInputConnection();
         }
@@ -168,6 +177,7 @@ public class BoardEditText
     public void setLength(int len) {
         if (boxes == null || len != boxes.length) {
             Box[] newBoxes = new Box[len];
+            newChanges(len);
 
             int overlap = 0;
             if (boxes != null) {
@@ -179,6 +189,7 @@ public class BoardEditText
 
             for (int i = overlap; i < len; ++i) {
                 newBoxes[i] = new Box();
+                flagChanged(i);
             }
 
             boxes = newBoxes;
@@ -223,6 +234,7 @@ public class BoardEditText
     public void setResponseNoInputConnectionUpdate(int pos, char c) {
         if (boxes != null && 0 <= pos && pos < boxes.length) {
             boxes[pos].setResponse(c);
+            flagChanged(pos);
             render();
         }
     }
@@ -237,9 +249,11 @@ public class BoardEditText
             boxes = null;
         } else {
             boxes = new Box[text.length()];
+            newChanges(text.length());
             for (int i = 0; i < text.length(); i++) {
                 boxes[i] = new Box();
                 boxes[i].setResponse(text.charAt(i));
+                flagChanged(i);
             }
         }
         render();
@@ -250,7 +264,7 @@ public class BoardEditText
         if (boxes != null) {
             for (Box box : boxes)
                 box.setBlank();
-            render();
+            render(true);
         }
     }
 
@@ -418,6 +432,10 @@ public class BoardEditText
     }
 
     private void render() {
+        render(false);
+    }
+
+    private void render(boolean renderAll) {
         if (getWidth() == 0)
             return;
 
@@ -427,9 +445,18 @@ public class BoardEditText
             ? Collections.emptySet()
             : null;
 
+        boolean[] renderChanges = renderAll ? null : changes;
+
         setBitmap(renderer.drawBoxes(
-            boxes, selection, suppressNotesList, getContentWidth()
+            boxes,
+            renderChanges,
+            selection,
+            suppressNotesList,
+            getContentWidth()
         ));
+
+        clearChanges();
+
         setContentDescription(
             renderer.getContentDescription(
                 contentDescriptionBase, boxes, getSelectedCol(), true
@@ -499,6 +526,7 @@ public class BoardEditText
     }
 
     private void setSelectedCol(int col) {
+        flagChanged(selection.getCol(), col);
         selection.setCol(col);
         updateInputConnection();
     }
@@ -529,5 +557,25 @@ public class BoardEditText
      */
     private int getContentWidth() {
         return getWidth() - getPaddingLeft() - getPaddingRight();
+    }
+
+    private void newChanges(int len) {
+        changes = new boolean[len];
+    }
+
+    private void clearChanges() {
+        if (changes == null)
+            return;
+        Arrays.fill(changes, false);
+    }
+
+    private void flagChanged(int... positions) {
+        if (changes == null)
+            return;
+
+        for (int pos : positions) {
+            if (0 <= pos && pos < changes.length)
+                changes[pos] = true;
+        }
     }
 }

@@ -23,7 +23,7 @@ import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Box;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
-import app.crossword.yourealwaysbe.puz.Playboard.Word;
+import app.crossword.yourealwaysbe.puz.Playboard.PlayboardChanges;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.SpeechContract;
@@ -121,9 +121,8 @@ public abstract class PuzzleActivity
         }
     }
 
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
+    @Override
+    public void onPlayboardChange(PlayboardChanges changes) {
         Puzzle puz = getPuzzle();
         ImaginaryTimer timer = getTimer();
 

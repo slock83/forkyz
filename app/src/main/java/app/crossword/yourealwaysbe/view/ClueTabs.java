@@ -4,13 +4,13 @@ import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
+import app.crossword.yourealwaysbe.puz.Playboard.PlayboardChanges;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 import app.crossword.yourealwaysbe.util.WeakSet;
 import app.crossword.yourealwaysbe.view.BoardEditView.BoardClickListener;
-
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -276,9 +276,7 @@ public class ClueTabs extends LinearLayout
 
     }
 
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
+    public void onPlayboardChange(PlayboardChanges changes) {
         if (viewPager == null || !isSnapToClue())
             return;
 
@@ -389,14 +387,31 @@ public class ClueTabs extends LinearLayout
     }
 
     private class ClueListHolder
-            extends RecyclerView.ViewHolder
-            implements Playboard.PlayboardListener {
+            extends RecyclerView.ViewHolder {
 
         private RecyclerView clueList;
         private ClueListAdapter clueListAdapter;
         private LinearLayoutManager layoutManager;
         private PageType pageType;
         private String listName;
+
+        // used to follow moved clue in history list when selected
+        private RecyclerView.AdapterDataObserver historyObserver
+            = new RecyclerView.AdapterDataObserver() {
+                public void onItemRangeInserted(int start, int count) {
+                    boolean atStart
+                        = layoutManager.findFirstVisibleItemPosition() == 0;
+                    if (start == 0 && atStart && clueList != null)
+                        layoutManager.scrollToPositionWithOffset(0, 0);
+                }
+
+                public void onItemRangeMoved(int from, int to, int count) {
+                    boolean atStart
+                        = layoutManager.findFirstVisibleItemPosition() == 0;
+                    if (to == 0 && atStart && clueList != null)
+                        layoutManager.scrollToPositionWithOffset(0, 0);
+                }
+            };
 
         public ClueListHolder(View view) {
             super(view);
@@ -410,31 +425,6 @@ public class ClueTabs extends LinearLayout
                 new DividerItemDecoration(context,
                                           DividerItemDecoration.VERTICAL)
             );
-
-            ClueTabs.this.board.addListener(this);
-        }
-
-        @SuppressLint("NotifyDataSetChanged")
-        public void onPlayboardChange(
-            boolean wholeBoard, Word currentWord, Word previousWord
-        ) {
-            if (clueListAdapter == null)
-                return;
-
-            if (wholeBoard) {
-                clueListAdapter.notifyDataSetChanged();
-                return;
-            }
-
-            if (previousWord == null) {
-                clueListAdapter.notifyClueSelectionChange(
-                    currentWord.getClueID()
-                );
-            } else {
-                clueListAdapter.notifyClueSelectionChange(
-                    currentWord.getClueID(), previousWord.getClueID()
-                );
-            }
         }
 
         /**
@@ -452,6 +442,15 @@ public class ClueTabs extends LinearLayout
             );
 
             if (board != null && changed) {
+                // remove old observer if there was one
+                if (clueListAdapter != null) {
+                    if (this.pageType == PageType.HISTORY) {
+                        clueListAdapter.unregisterAdapterDataObserver(
+                            historyObserver
+                        );
+                    }
+                }
+
                 switch (pageType) {
                 case CLUES:
                     if (puz != null) {
@@ -471,6 +470,9 @@ public class ClueTabs extends LinearLayout
                     if (puz != null) {
                         clueListAdapter
                             = new HistoryListAdapter(puz.getHistory());
+                        clueListAdapter.registerAdapterDataObserver(
+                            historyObserver
+                        );
                     } else {
                         clueListAdapter
                             = new HistoryListAdapter(new LinkedList<>());
@@ -490,10 +492,10 @@ public class ClueTabs extends LinearLayout
                     switch (pageType) {
                     case CLUES:
                         int position = board.getCurrentClueIndex();
-                        layoutManager.scrollToPositionWithOffset(position, 5);
+                        layoutManager.scrollToPositionWithOffset(position, 0);
                         break;
                     case HISTORY:
-                        layoutManager.scrollToPositionWithOffset(0, 5);
+                        layoutManager.scrollToPositionWithOffset(0, 0);
                         break;
                     }
                 }
@@ -502,11 +504,16 @@ public class ClueTabs extends LinearLayout
     }
 
     private abstract class ClueListAdapter
-            extends RecyclerView.Adapter<ClueViewHolder> {
+            extends RecyclerView.Adapter<ClueViewHolder>
+            implements Playboard.PlayboardListener {
+
         boolean showDirection;
 
         public ClueListAdapter(boolean showDirection) {
             this.showDirection = showDirection;
+
+            if (ClueTabs.this.board != null)
+                ClueTabs.this.board.addListener(this);
         }
 
         @Override
@@ -518,14 +525,10 @@ public class ClueTabs extends LinearLayout
             return new ClueViewHolder(clueView, showDirection);
         }
 
-        /**
-         * Notify clue selection without previous word
-         */
-        public abstract void notifyClueSelectionChange(ClueID curClueID);
-
-        public abstract void notifyClueSelectionChange(
-            ClueID curClueID, ClueID prevClueID
-        );
+        @Override
+        public void onViewRecycled(ClueViewHolder holder) {
+            holder.setClue(null);
+        }
     }
 
     private class PuzzleListAdapter extends ClueListAdapter {
@@ -552,31 +555,8 @@ public class ClueTabs extends LinearLayout
         }
 
         @Override
-        public void notifyClueSelectionChange(ClueID curClueID) {
-            if (curClueID == null)
-                return;
-
-            if (Objects.equals(listName, curClueID.getListName())) {
-                int index = curClueID.getIndex();
-                if (index > -1) {
-                    notifyItemChanged(index);
-                }
-            }
-        }
-
-        @Override
-        public void notifyClueSelectionChange(
-            ClueID curClueID, ClueID prevClueID
-        ) {
-            if (prevClueID != null) {
-                if (Objects.equals(listName, prevClueID.getListName())) {
-                    int index = prevClueID.getIndex();
-                    if (index > -1) {
-                        notifyItemChanged(index);
-                    }
-                }
-            }
-            notifyClueSelectionChange(curClueID);
+        public void onPlayboardChange(PlayboardChanges changes) {
+            // do nothing
         }
     }
 
@@ -609,22 +589,21 @@ public class ClueTabs extends LinearLayout
         }
 
         @Override
-        @SuppressLint("NotifyDataSetChanged")
-        public void notifyClueSelectionChange(ClueID curClueID) {
-            // Can't know old index of current clue without maintaining
-            // own copy of history list
-            notifyDataSetChanged();
-        }
-
-        @Override
-        public void notifyClueSelectionChange(
-            ClueID curClueID, ClueID prevClueID
-        ) {
-            notifyClueSelectionChange(curClueID);
+        public void onPlayboardChange(PlayboardChanges changes) {
+            if (changes.isHistoryChange()) {
+                int lastIndex = changes.getLastHistoryIndex();
+                if (lastIndex < 0)
+                    notifyItemInserted(0);
+                else if (lastIndex != 0)
+                    notifyItemMoved(lastIndex, 0);
+            }
         }
     }
 
-    private class ClueViewHolder extends RecyclerView.ViewHolder {
+    private class ClueViewHolder
+            extends RecyclerView.ViewHolder
+            implements Playboard.PlayboardListener {
+
         private final float MAX_WORD_SCALE = 0.9F;
 
         private CheckedTextView clueView;
@@ -657,8 +636,6 @@ public class ClueTabs extends LinearLayout
 
             // assume gone unless proven otherwise
             this.boardView.setVisibility(View.GONE);
-            // suppress board render until we set the word later
-            this.boardView.setBoard(ClueTabs.this.board, true);
             this.boardView.setMaxScale(MAX_WORD_SCALE);
             // potential memory leak as click listener has a strong
             // reference in the board view, but the board view lives as
@@ -676,50 +653,89 @@ public class ClueTabs extends LinearLayout
             });
         }
 
+        /**
+         * Set to null to "deactivate" view from board listening
+         */
         public void setClue(Clue clue) {
-            if (clue == null)
-                return;
+            this.clue = clue;
 
-            Playboard board = ClueTabs.this.board;
+            if (clue == null) {
+                boardView.detach();
+            } else {
+                Playboard board = ClueTabs.this.board;
 
-            clueView.setText(HtmlCompat.fromHtml(getClueText(clue), 0));
+                clueView.setText(HtmlCompat.fromHtml(getClueText(clue), 0));
 
-            if (board != null) {
-                ColorStateList colors = clueView.getTextColors();
-                int alpha
-                    = ClueTabs.this.getContext().getResources().getInteger(
-                        board.isFilledClueID(clue.getClueID())
-                        ? R.integer.filled_clue_alpha
-                        : R.integer.unfilled_clue_alpha
-                    );
-                clueView.setTextColor(colors.withAlpha(alpha));
-            }
+                if (board != null)
+                    board.addListener(this);
 
-            if (board != null) {
-                ClueID cid = board.getClueID();
-                boolean selected = Objects.equals(clue.getClueID(), cid);
-                clueView.setChecked(selected);
+                setStyle();
 
-                Puzzle puz = board.getPuzzle();
-                if (puz != null && puz.isFlagged(clue)) {
-                    flagView.setVisibility(View.VISIBLE);
+                if (showWords && board != null) {
+                    Word word = board.getClueWord(clue.getClueID());
+                    // suppress board render until we set the word later
+                    boardView.setBoard(board, true);
+                    boardView.setWord(word, Collections.<String>emptySet());
+                    boardView.setVisibility(word == null ? View.GONE : View.VISIBLE);
                 } else {
-                    flagView.setVisibility(View.INVISIBLE);
+                    boardView.setVisibility(View.GONE);
                 }
             }
+        }
 
-            if (showWords && board != null) {
-                Word word = board.getClueWord(clue.getClueID());
-                boardView.setWord(word, Collections.<String>emptySet());
-                boardView.setVisibility(word == null ? View.GONE : View.VISIBLE);
+        @Override
+        public void onPlayboardChange(PlayboardChanges changes) {
+            Playboard board = ClueTabs.this.board;
+            if (board == null)
+                return;
+
+            ClueID thisClueID = (clue == null) ? null : clue.getClueID();
+            if (thisClueID == null)
+                return;
+
+            Word currentWord = changes.getCurrentWord();
+            Word previousWord = changes.getPreviousWord();
+
+            ClueID curClueID
+                = (currentWord == null) ? null : currentWord.getClueID();
+            ClueID prevClueID
+                = (previousWord == null) ? null : previousWord.getClueID();
+
+            boolean refresh =
+                Objects.equals(thisClueID, curClueID)
+                || Objects.equals(thisClueID, prevClueID);
+
+            if (refresh)
+                setStyle();
+        }
+
+        private void setStyle() {
+            Playboard board = ClueTabs.this.board;
+            if (board == null)
+                return;
+
+            ColorStateList colors = clueView.getTextColors();
+            int alpha
+                = ClueTabs.this.getContext().getResources().getInteger(
+                    board.isFilledClueID(clue.getClueID())
+                    ? R.integer.filled_clue_alpha
+                    : R.integer.unfilled_clue_alpha
+                );
+            clueView.setTextColor(colors.withAlpha(alpha));
+
+            ClueID cid = board.getClueID();
+            boolean selected = Objects.equals(clue.getClueID(), cid);
+            clueView.setChecked(selected);
+
+            Puzzle puz = board.getPuzzle();
+            if (puz != null && puz.isFlagged(clue)) {
+                flagView.setVisibility(View.VISIBLE);
             } else {
-                boardView.setVisibility(View.GONE);
+                flagView.setVisibility(View.INVISIBLE);
             }
         }
 
         private String getClueText(Clue clue) {
-            this.clue = clue;
-
             String listName = getShortListName(clue);
             String displayNum = clue.getDisplayNumber();
             String hint = clue.getHint();

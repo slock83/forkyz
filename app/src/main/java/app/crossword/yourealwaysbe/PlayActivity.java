@@ -33,6 +33,7 @@ import app.crossword.yourealwaysbe.forkyz.ForkyzApplication;
 import app.crossword.yourealwaysbe.forkyz.R;
 import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.MovementStrategy;
+import app.crossword.yourealwaysbe.puz.Playboard.PlayboardChanges;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
@@ -629,10 +630,10 @@ public class PlayActivity extends PuzzleActivity
         editor.apply();
     }
 
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
-        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
+    public void onPlayboardChange(PlayboardChanges changes) {
+        super.onPlayboardChange(changes);
+
+        Word previousWord = changes.getPreviousWord();
 
         // hide keyboard when moving to a new word
         Position newPos = getBoard().getHighlightLetter();

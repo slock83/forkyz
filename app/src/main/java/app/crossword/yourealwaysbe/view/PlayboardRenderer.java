@@ -33,11 +33,18 @@ import app.crossword.yourealwaysbe.puz.Zone;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.Point;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
+/**
+ * For rendering part of the board
+ *
+ * Caches an internal bitmap and reuses. Do not mix calls to
+ * draw/drawWord/drawBoxes unless deliberately erasing previous draws.
+ */
 public class PlayboardRenderer {
     // for calculating max scale with no puzzle
     private static final int DEFAULT_PUZZLE_WIDTH = 15;
@@ -220,23 +227,28 @@ public class PlayboardRenderer {
      *
      * Refreshes current word and reset word if not null
      *
+     * @param changes a collection of positions that have changed since the
+     * last draw (can be null for all). Recommended to have a fast
+     * lookup.
      * @param suppressNotesLists as in drawBox
      */
-    public Bitmap draw(Word reset, Set<String> suppressNotesLists) {
+    public Bitmap draw(
+        Collection<Position> changes, Set<String> suppressNotesLists
+    ) {
         try {
-            Puzzle puz = this.board.getPuzzle();
-            Box[][] boxes = this.board.getBoxes();
-            int width = puz.getWidth();
-            int height = puz.getHeight();
+            boolean newBitmap = initialiseBitmap(
+                getFullWidth(), getFullHeight()
+            );
 
-            boolean newBitmap = initialiseBitmap();
-            boolean renderAll = reset == null || newBitmap;
+            // if new bitmap, rerender all
+            if (newBitmap)
+                changes = null;
 
             Canvas canvas = new Canvas(bitmap);
 
-            drawBoardBoxes(canvas, reset, renderAll, suppressNotesLists);
-            drawPinnedClue(canvas, reset, renderAll, suppressNotesLists);
-            if (renderAll)
+            drawBoardBoxes(canvas, changes, suppressNotesLists);
+            drawPinnedClue(canvas, changes, suppressNotesLists);
+            if (changes == null)
                 drawImages(canvas);
 
             return bitmap;
@@ -252,32 +264,51 @@ public class PlayboardRenderer {
     /**
      * Draw current word
      *
+     * @param changes positions that have changed since last draw (may
+     * be null for all). Recommend using something with fast lookup. May
+     * contain positions outside of current word.
      * @param suppressNotesLists as in drawBox
      */
-    public Bitmap drawWord(Set<String> suppressNotesLists, int wrapWidth) {
+    public Bitmap drawWord(
+        Collection<Position> changes,
+        Set<String> suppressNotesLists,
+        int wrapWidth
+    ) {
         return drawWord(
-            this.board.getCurrentWord(), suppressNotesLists, wrapWidth
+            this.board.getCurrentWord(), changes, suppressNotesLists, wrapWidth
         );
     }
 
     /**
      * Draw word suppressing no notes
      */
-    public Bitmap drawWord(Word word, int wrapWidth) {
+    public Bitmap drawWord(
+        Word word,
+        Collection<Position> changes,
+        int wrapWidth
+    ) {
         // call draw word with empty list
-        return drawWord(word, Collections.<String>emptySet(), wrapWidth);
+        return drawWord(
+            word, changes, Collections.<String>emptySet(), wrapWidth
+        );
     }
 
     /**
      * Draw given word
      *
      * @param word word to draw
+     * @param changes collection of positions changed since last draw.
+     * Can be null to render all. Can contain more positions than word.
+     * Recommend something with fast lookup.
      * @param suppressNotesLists as in drawBox
      * @param wrapWidth if non-zero, wrap word after width (in pixels)
      * exceeded
      */
     public Bitmap drawWord(
-        Word word, Set<String> suppressNotesLists, int wrapWidth
+        Word word,
+        Collection<Position> changes,
+        Set<String> suppressNotesLists,
+        int wrapWidth
     ) {
         Box[] boxes = board.getWordBoxes(word);
         Zone zone = word.getZone();
@@ -286,30 +317,29 @@ public class PlayboardRenderer {
 
         int height;
         int width;
-        int boxesPerRow;
 
         if (wrapWidth > 0) {
-            boxesPerRow = getNumBoxesPerRow(wrapWidth);
-            int numRows = (int) Math.ceil(boxes.length / (float) boxesPerRow);
-            height = numRows * boxSize;
-            width = Math.min(boxesPerRow, boxes.length) * boxSize;
+            int boxesPerRow = getNumBoxesPerRow(wrapWidth);
+            height = (int) Math.ceil(boxes.length / (float) boxesPerRow);
+            width = Math.min(boxesPerRow, boxes.length);
         } else {
-            height = boxSize;
-            width = boxes.length * boxSize;
-            boxesPerRow = boxes.length;
+            height = 1;
+            width = boxes.length;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(
-            width, height, Bitmap.Config.ARGB_8888
-        );
-        bitmap.eraseColor(Color.TRANSPARENT);
+        if (initialiseBitmap(width, height))
+            changes = null;
 
         Canvas canvas = new Canvas(bitmap);
 
         for (int i = 0; i < boxes.length; i++) {
-            int x = (i % boxesPerRow) * boxSize;
-            int y = (i / boxesPerRow) * boxSize;
             Position pos = zone.getPosition(i);
+
+            if (changes != null && !changes.contains(pos))
+                continue;
+
+            int x = (i % width) * boxSize;
+            int y = (i / width) * boxSize;
             this.drawBox(
                 canvas,
                 x, y,
@@ -338,12 +368,15 @@ public class PlayboardRenderer {
      * Draw the boxes
      *
      * @param boxes boxes to draw
+     * @param changes array of positions that have changed (should be
+     * rendered). Can be null to draw all.
      * @param highlight the position in the box list to highlight
      * @param suppressNotesLists as in drawBox
      * @param wrapWidth if non-zero, wrap after this number of pixels
      */
     public Bitmap drawBoxes(
         Box[] boxes,
+        boolean[] changes,
         Position highlight,
         Set<String> suppressNotesLists,
         int wrapWidth
@@ -356,29 +389,27 @@ public class PlayboardRenderer {
 
         int height;
         int width;
-        int boxesPerRow;
 
         if (wrapWidth > 0) {
-            boxesPerRow = getNumBoxesPerRow(wrapWidth);
-            int numRows = (int) Math.ceil(boxes.length / (float) boxesPerRow);
-            height = numRows * boxSize;
-            width = Math.min(boxesPerRow, boxes.length) * boxSize;
+            int boxesPerRow = getNumBoxesPerRow(wrapWidth);
+            height = (int) Math.ceil(boxes.length / (float) boxesPerRow);
+            width = Math.min(boxesPerRow, boxes.length);
         } else {
-            height = boxSize;
-            width = boxes.length * boxSize;
-            boxesPerRow = boxes.length;
+            height = 1;
+            width = boxes.length;
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(
-            width, height, Bitmap.Config.ARGB_8888
-        );
-        bitmap.eraseColor(Color.TRANSPARENT);
+        if (initialiseBitmap(width, height))
+            changes = null;
 
         Canvas canvas = new Canvas(bitmap);
 
         for (int i = 0; i < boxes.length; i++) {
-            int x = (i % boxesPerRow) * boxSize;
-            int y = (i / boxesPerRow) * boxSize;
+            if (changes != null && !changes[i])
+                continue;
+
+            int x = (i % width) * boxSize;
+            int y = (i / width) * boxSize;
             this.drawBox(canvas,
                          x, y,
                          0, i,
@@ -1307,12 +1338,12 @@ public class PlayboardRenderer {
      * Refresh parts in current or reset word, unless renderAll.
      *
      * @param canvas to draw on (assumed large enough)
-     * @param boxSize size of box in pixels
-     * @param reset a word (not current) to refresh
-     * @param renderAll whether to refresh no matter what
+     * @param changes the positions that have changed (can be null for
+     * all)
+     * @param suppressNotesLists as in drawBox
      */
     private void drawPinnedClue(
-        Canvas canvas, Word reset, boolean renderAll,
+        Canvas canvas, Collection<Position> changes,
         Set<String> suppressNotesLists
     ) {
         Puzzle puz = this.board.getPuzzle();
@@ -1336,13 +1367,8 @@ public class PlayboardRenderer {
 
         for (int i = 0; i < pinnedZone.size(); i++) {
             Position pos = pinnedZone.getPosition(i);
-            if (!renderAll) {
-                boolean inCur = currentWord.checkInWord(pos);
-                boolean inReset
-                    = reset != null && reset.checkInWord(pos);
-                if (!inCur && !inReset)
-                    continue;
-            }
+            if (changes != null && !changes.contains(pos))
+                continue;
 
             int x = (pinnedCol + i) * boxSize;
             int row = pos.getRow();
@@ -1396,13 +1422,11 @@ public class PlayboardRenderer {
      *
      * @return true if a new (blank) bitmap created, else old one used
      */
-    private boolean initialiseBitmap() {
+    private boolean initialiseBitmap(int width, int height) {
         if (bitmap != null)
             return false;
 
         int boxSize = getBoxSize();
-        int width = getFullWidth();
-        int height = getFullHeight();
 
         bitmap = Bitmap.createBitmap(
             width * boxSize, height * boxSize, Bitmap.Config.ARGB_8888
@@ -1440,14 +1464,16 @@ public class PlayboardRenderer {
      *
      * @param canvas canvas to draw on
      * @param boxSize the size of a box
-     * @param word (that isn't current) that also needs refreshing
+     * @param changes the positions that have changed since the last
+     * draw (can be null, which means render all)
      * @param renderAll whether to just draw the whole board anyway
      * @param suppressNotesLists the notes lists not to draw (null means
      * draw none, empty means draw all)
      */
     private void drawBoardBoxes(
         Canvas canvas,
-        Word reset, boolean renderAll, Set<String> suppressNotesLists
+        Collection<Position> changes,
+        Set<String> suppressNotesLists
     ) {
         Puzzle puz = board.getPuzzle();
         Box[][] boxes = board.getBoxes();
@@ -1457,15 +1483,16 @@ public class PlayboardRenderer {
         Position highlight = board.getHighlightLetter();
         Word currentWord = this.board.getCurrentWord();
 
+        // just have one object for some efficiency
+        Position tempPos = new Position(0, 0);
+
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
-                if (!renderAll) {
-                    boolean inCur = currentWord.checkInWord(row, col);
-                    boolean inReset
-                        = reset != null && reset.checkInWord(row, col);
-                    if (!inCur && !inReset) {
+                if (changes != null) {
+                    tempPos.setRow(row);
+                    tempPos.setCol(col);
+                    if (!changes.contains(tempPos))
                         continue;
-                    }
                 }
 
                 int x = col * boxSize;

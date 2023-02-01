@@ -1,6 +1,7 @@
 
 package app.crossword.yourealwaysbe.view;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
@@ -9,6 +10,7 @@ import android.content.SharedPreferences;
 import android.util.AttributeSet;
 
 import app.crossword.yourealwaysbe.puz.ClueID;
+import app.crossword.yourealwaysbe.puz.Playboard.PlayboardChanges;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
@@ -48,65 +50,26 @@ public class BoardFullEditView extends BoardEditView {
     }
 
     @Override
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
-        if (wholeBoard)
-            render();
-        else
-            render(previousWord);
-        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
+    public void onPlayboardChange(PlayboardChanges changes) {
+        render(changes.getCellChanges());
+        ensureVisible(changes.getPreviousWord());
+        super.onPlayboardChange(changes);
     }
 
     @Override
-    public void render(Word previous, boolean rescale) {
+    public void render(Collection<Position> changes, boolean rescale) {
         PlayboardRenderer renderer = getRenderer();
         Playboard board = getBoard();
         if (renderer == null || board == null)
             return;
 
-        SharedPreferences prefs = getPrefs();
-
         setBitmap(
-            renderer.draw(previous, getSuppressNotesList()),
+            renderer.draw(changes, getSuppressNotesList()),
             rescale
         );
         setContentDescription(
             renderer.getContentDescription(getContentDescriptionBase())
         );
-
-        /*
-         * If we jumped to a new word, ensure the first letter is visible.
-         * Otherwise, insure that the current letter is visible. Only necessary
-         * if the cursor is currently off screen.
-         */
-        if (prefs.getBoolean("ensureVisible", true)) {
-            Word currentWord = board.getCurrentWord();
-            Position cursorPos = board.getHighlightLetter();
-
-            Point topLeft;
-            Point bottomRight;
-            Point cursorTopLeft;
-            Point cursorBottomRight;
-
-            cursorTopLeft = renderer.findPointTopLeft(cursorPos);
-            cursorBottomRight = renderer.findPointBottomRight(cursorPos);
-
-            if ((previous != null) && previous.equals(currentWord)) {
-                topLeft = cursorTopLeft;
-                bottomRight = cursorBottomRight;
-            } else {
-                topLeft = renderer.findPointTopLeft(currentWord);
-                bottomRight = renderer.findPointBottomRight(currentWord);
-            }
-
-            ensureVisible(bottomRight);
-            ensureVisible(topLeft);
-
-            // ensure the cursor is always on the screen.
-            ensureVisible(cursorBottomRight);
-            ensureVisible(cursorTopLeft);
-        }
     }
 
     @Override
@@ -143,5 +106,48 @@ public class BoardFullEditView extends BoardEditView {
         return displayScratch
             ? Collections.emptySet()
             : null;
+    }
+
+    private void ensureVisible(Word previousWord) {
+        PlayboardRenderer renderer = getRenderer();
+        Playboard board = getBoard();
+        if (renderer == null || board == null)
+            return;
+
+        SharedPreferences prefs = getPrefs();
+
+        /*
+         * If we jumped to a new word, ensure the first letter is visible.
+         * Otherwise, insure that the current letter is visible. Only necessary
+         * if the cursor is currently off screen.
+         */
+        if (prefs.getBoolean("ensureVisible", true)) {
+            Word currentWord = board.getCurrentWord();
+            Position cursorPos = board.getHighlightLetter();
+
+            Point topLeft;
+            Point bottomRight;
+            Point cursorTopLeft;
+            Point cursorBottomRight;
+
+            cursorTopLeft = renderer.findPointTopLeft(cursorPos);
+            cursorBottomRight = renderer.findPointBottomRight(cursorPos);
+
+            if ((previousWord != null) && previousWord.equals(currentWord)) {
+                topLeft = cursorTopLeft;
+                bottomRight = cursorBottomRight;
+            } else {
+                topLeft = renderer.findPointTopLeft(currentWord);
+                bottomRight = renderer.findPointBottomRight(currentWord);
+            }
+
+            ensureVisible(bottomRight);
+            ensureVisible(topLeft);
+
+            // ensure the cursor is always on the screen.
+            ensureVisible(cursorBottomRight);
+            ensureVisible(cursorTopLeft);
+        }
+
     }
 }

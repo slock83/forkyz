@@ -1,6 +1,7 @@
 
 package app.crossword.yourealwaysbe.view;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import android.view.inputmethod.InputConnection;
 import androidx.preference.PreferenceManager;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Playboard.PlayboardChanges;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
@@ -66,41 +68,56 @@ public abstract class BoardEditView
      * Set the base board for the edit view
      *
      * Use noRender if you want to make more changes before rendering
-     *
      * Resets min/max scale as this depends on the board for some reason.
+     * Set board to null to "deactivate" this view (i.e. stop it
+     * drawing bitmaps on board changes).
      */
     public void setBoard(Playboard board, boolean noRender) {
         if (this.board != null)
             this.board.removeListener(this);
 
-        this.board = board;
+        if (board == null) {
+            this.board =  null;
+            // free up renderer and bitmap
+            this.renderer = null;
+        } else {
+            this.board = board;
 
-        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+            DisplayMetrics metrics
+                = getContext().getResources().getDisplayMetrics();
 
-        renderer = new PlayboardRenderer(
-            board,
-            metrics.densityDpi,
-            metrics.widthPixels,
-            !prefs.getBoolean("supressHints", false),
-            getContext()
-        );
-        setMaxScale(renderer.getMaxScale());
-        setMinScale(renderer.getMinScale());
+            renderer = new PlayboardRenderer(
+                board,
+                metrics.densityDpi,
+                metrics.widthPixels,
+                !prefs.getBoolean("supressHints", false),
+                getContext()
+            );
+            setMaxScale(renderer.getMaxScale());
+            setMinScale(renderer.getMinScale());
 
-        float scale = getCurrentScale();
+            float scale = getCurrentScale();
 
-        // reset scale in case it violates new board dims
-        setCurrentScale(scale, true);
+            // reset scale in case it violates new board dims
+            setCurrentScale(scale, true);
 
-        if (!noRender)
-            render(true);
+            if (!noRender)
+                render(true);
 
-        // TODO: needed?
-        //setFocusable(true);
+            // TODO: needed?
+            //setFocusable(true);
 
-        // don't worry about unlistening because Playboard keeps a
-        // weak set.
-        board.addListener(this);
+            // don't worry about unlistening because Playboard keeps a
+            // weak set.
+            board.addListener(this);
+        }
+    }
+
+    /**
+     * Detach view from board (and stop listening/updating)
+     */
+    public void detach() {
+        setBoard(null);
     }
 
     @Override
@@ -203,9 +220,7 @@ public abstract class BoardEditView
     }
 
     @Override
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
+    public void onPlayboardChange(PlayboardChanges changes) {
         if (currentInputConnection != null)
             currentInputConnection.setResponse(getCurrentResponse());
     }
@@ -326,18 +341,24 @@ public abstract class BoardEditView
     }
 
     protected void render() {
-        render(null, false);
+        render(false);
+    }
+
+    protected void render(Collection<Position> changes) {
+        render(changes, false);
     }
 
     protected void render(boolean rescale) {
         render(null, rescale);
     }
 
-    protected void render(Word previous) {
-        render(previous, false);
-    }
-
-    abstract protected void render(Word previous, boolean rescale);
+    /**
+     * Render board
+     *
+     * @param changes collection of positions on the board that have
+     * changed. Null means render all again.
+     */
+    abstract protected void render(Collection<Position> changes, boolean rescale);
 
     protected PlayboardRenderer getRenderer() { return renderer; }
     protected Playboard getBoard() { return board; }

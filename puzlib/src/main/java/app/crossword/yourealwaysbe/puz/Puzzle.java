@@ -811,18 +811,29 @@ public class Puzzle implements Serializable{
         this.title;
     }
 
-    public void updateHistory(ClueID clueID) {
+    /**
+     * Update history of selected clues
+     *
+     * Returns position in history list where the clue used to be (or
+     * -1).
+     */
+    public int updateHistory(ClueID clueID) {
         if (clueID == null)
-            return;
+            return -1;
+
+        int lastHistoryIndex = -1;
 
         if (hasClue(clueID)) {
+            lastHistoryIndex = historyList.indexOf(clueID);
             // if a new item, not equal to most recent
-            if (historyList.isEmpty() ||
-                !clueID.equals(historyList.getFirst())) {
-                historyList.remove(clueID);
+            if (lastHistoryIndex != 0) {
+                if (lastHistoryIndex > -1)
+                    historyList.remove(lastHistoryIndex);
                 historyList.addFirst(clueID);
             }
         }
+
+        return lastHistoryIndex;
     }
 
     public void setHistory(List<ClueID> newHistory) {

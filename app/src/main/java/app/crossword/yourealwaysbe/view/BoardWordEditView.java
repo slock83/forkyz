@@ -1,6 +1,7 @@
 
 package app.crossword.yourealwaysbe.view;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import app.crossword.yourealwaysbe.puz.ClueID;
+import app.crossword.yourealwaysbe.puz.Playboard.PlayboardChanges;
 import app.crossword.yourealwaysbe.puz.Playboard.Word;
 import app.crossword.yourealwaysbe.puz.Playboard;
 import app.crossword.yourealwaysbe.puz.Position;
@@ -29,7 +31,6 @@ import app.crossword.yourealwaysbe.puz.Zone;
  */
 public class BoardWordEditView extends BoardEditView {
     private Word word;
-    private Set<Position> wordPositions;
     private boolean incognitoMode;
     private int originalHeight;
     private Set<String> suppressNotesList = Collections.<String>emptySet();
@@ -82,18 +83,24 @@ public class BoardWordEditView extends BoardEditView {
      * Set word to draw or null to draw current word
      */
     public void setWord(Word word, Set<String> suppressNotesList) {
-        this.suppressNotesList = suppressNotesList;
-        this.word = word;
-        onRenderWordChanged();
-        // need to rescale with new word
-        renderToView();
+        boolean sameWord = Objects.equals(this.word, word);
+        boolean sameList
+            = Objects.equals(this.suppressNotesList, suppressNotesList);
+        if (!sameWord || !sameList) {
+            this.suppressNotesList = suppressNotesList;
+            this.word = word;
+            // need to rescale with new word
+            renderToView();
+        }
     }
 
     @Override
-    public void onPlayboardChange(
-        boolean wholeBoard, Word currentWord, Word previousWord
-    ) {
+    public void onPlayboardChange(PlayboardChanges changes) {
         if (isRendering()) {
+            Word currentWord = changes.getCurrentWord();
+            Word previousWord = changes.getPreviousWord();
+            Collection<Position> cellChanges = changes.getCellChanges();
+
             // if rendering current word, which is changing, refit
             // else redraw if data indicates the rendered word is
             // affected
@@ -102,12 +109,11 @@ public class BoardWordEditView extends BoardEditView {
                 && !Objects.equals(currentWord, previousWord)
             ) {
                 renderToView();
-                onRenderWordChanged();
-            } else if (redrawNeeded(wholeBoard, currentWord, previousWord)) {
-                render();
+            } else if (redrawNeeded(currentWord, previousWord, cellChanges)) {
+                render(cellChanges);
             }
         }
-        super.onPlayboardChange(wholeBoard, currentWord, previousWord);
+        super.onPlayboardChange(changes);
     }
 
     @Override
@@ -135,10 +141,11 @@ public class BoardWordEditView extends BoardEditView {
     }
 
     @Override
-    public void render(Word previous, boolean rescale) {
+    public void render(Collection<Position> changes, boolean rescale) {
         // don't draw until we get onSizeChanged
-        if (!isRendering())
+        if (!isRendering()) {
             return;
+        }
 
         PlayboardRenderer renderer = getRenderer();
         if (renderer == null)
@@ -148,6 +155,7 @@ public class BoardWordEditView extends BoardEditView {
         setBitmap(
             renderer.drawWord(
                 renderWord,
+                changes,
                 getSuppressNotesList(),
                 getContentWidth()
             ),
@@ -285,6 +293,8 @@ public class BoardWordEditView extends BoardEditView {
 
     /**
      * Render after making sure fits view size
+     *
+     * Does a full redraw
      */
     private void renderToView() {
         // don't render during fitToView because we want to
@@ -295,60 +305,17 @@ public class BoardWordEditView extends BoardEditView {
     }
 
     private boolean redrawNeeded(
-        boolean wholeBoard, Word currentWord, Word previousWord
+        Word currentWord, Word previousWord, Collection<Position> changes
     ) {
-        if (wholeBoard)
+        if (changes == null)
             return true;
 
-        Set<Position> positions = getRenderWordPositions();
-
-        if (positions.isEmpty())
-            return false;
-
-        return wordOverlaps(positions, currentWord)
-            || wordOverlaps(positions, previousWord);
-    }
-
-    /**
-     * Get (cached) positions of rendering word
-     *
-     * Call onRenderWordChanged when rendering word changes to clear
-     * cache.
-     */
-    private Set<Position> getRenderWordPositions() {
-        if (wordPositions == null) {
-            Zone zone = getRenderWordZone();
-
-            if (zone == null || zone.isEmpty()) {
-                wordPositions = Collections.<Position>emptySet();
-            } else {
-                wordPositions = new HashSet<>(zone.size());
-                for (Position position : zone) {
-                    wordPositions.add(position);
-                }
-            }
-        }
-        return wordPositions;
-    }
-
-    /**
-     * E.g. clears wordPositions cached
-     */
-    private void onRenderWordChanged() {
-        this.wordPositions = null;
-    }
-
-    private boolean wordOverlaps(Set<Position> positions, Word word) {
-        if (word == null)
-            return false;
-
-        Zone zone = word.getZone();
-
+        Zone zone = getRenderWordZone();
         if (zone == null)
             return false;
 
         for (Position position : zone) {
-            if (positions.contains(position))
+            if (changes.contains(position))
                 return true;
         }
 

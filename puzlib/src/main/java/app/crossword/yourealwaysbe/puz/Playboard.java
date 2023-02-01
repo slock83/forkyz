@@ -2,7 +2,9 @@ package app.crossword.yourealwaysbe.puz;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NavigableSet;
 import java.util.Objects;
@@ -23,12 +25,21 @@ public class Playboard implements Serializable {
     private boolean skipCompletedLetters;
     private boolean preserveCorrectLettersInShowErrors;
     private boolean dontDeleteCrossing;
-    private Set<PlayboardListener> listeners = WeakSet.buildSet();
-    private int notificationDisabledDepth = 0;
     private Word previousWord = null;
     // used by findZoneDelta to track last index to handle clues with
     // repeated positions
     private int lastFoundZoneIndex = -1;
+
+    private Set<PlayboardListener> listeners = WeakSet.buildSet();
+    private Set<PlayboardListener> pendingListenerRemovals = WeakSet.buildSet();
+    private Set<PlayboardListener> pendingListenerAdditions
+        = WeakSet.buildSet();
+    private boolean isNotifying = false;
+    private int notificationDisabledDepth = 0;
+
+    private Set<Position> changedPositions = new HashSet<>();
+    // reuse same one for all notifications
+    private PlayboardChanges notificationChanges = new PlayboardChanges();
 
     public Playboard(Puzzle puzzle,
                      MovementStrategy movementStrategy,
@@ -192,10 +203,17 @@ public class Playboard implements Serializable {
     }
 
     public void setCurrentWord(Box[] response) {
-        Box[] boxes = getCurrentWordBoxes();
-        int length = Math.min(boxes.length, response.length);
+        Zone zone = getZone(getClueID());
+        if (zone == null)
+            return;
+
+        int length = Math.min(zone.size(), response.length);
         for (int i = 0; i < length; i++) {
-            boxes[i].setResponse(response[i].getResponse());
+            Position pos = zone.getPosition(i);
+            Box box = puzzle.checkedGetBox(pos);
+            if (box != null)
+                box.setResponse(response[i].getResponse());
+            flagChange(pos);
         }
         notifyChange();
     }
@@ -215,6 +233,8 @@ public class Playboard implements Serializable {
         } else {
             Box box = puzzle.checkedGetBox(highlightLetter);
             if (box != null) {
+                flagChange(currentHighlight, highlightLetter);
+
                 puzzle.setPosition(highlightLetter);
 
                 // toggle if not part of current clue
@@ -265,6 +285,11 @@ public class Playboard implements Serializable {
         if (box.getIsPartOfClues().contains(cid)) {
             puzzle.setPosition(highlightLetter);
             puzzle.setCurrentClueID(cid);
+
+            flagChange(curHighlightLetter, highlightLetter);
+            // don't flag change of word as notify picks this up from
+            // current/previous word (and this call could be
+            // transitional)
             notifyChange();
         }
 
@@ -313,7 +338,7 @@ public class Playboard implements Serializable {
         boolean changed = (this.showErrorsGrid != showErrors);
         this.showErrorsGrid = showErrors;
         if (changed)
-            notifyChange();
+            notifyChange(true);
     }
 
     /**
@@ -322,8 +347,10 @@ public class Playboard implements Serializable {
     public void setShowErrorsCursor(boolean showErrorsCursor) {
         boolean changed = (this.showErrorsCursor != showErrorsCursor);
         this.showErrorsCursor = showErrorsCursor;
-        if (changed)
+        if (changed) {
+            flagChange(getHighlightLetter());
             notifyChange();
+        }
     }
 
     /**
@@ -339,7 +366,8 @@ public class Playboard implements Serializable {
      */
     public void toggleShowErrorsCursor() {
         this.showErrorsCursor = !this.showErrorsCursor;
-        notifyChange(true);
+        flagChange(getHighlightLetter());
+        notifyChange();
     }
 
     /**
@@ -414,6 +442,7 @@ public class Playboard implements Serializable {
 
         if (!isDontDeleteCurrent()) {
             currentBox.setBlank();
+            flagChange(getHighlightLetter());
         }
 
         popNotificationDisabled();
@@ -429,7 +458,6 @@ public class Playboard implements Serializable {
         pushNotificationDisabled();
 
         if (currentBox.isBlank()) {
-
             Note note = this.getNote();
 
             if (note != null) {
@@ -438,6 +466,7 @@ public class Playboard implements Serializable {
                 int length = this.getCurrentWordLength();
                 if (cluePos >= 0 && cluePos < length)
                     note.deleteScratchLetterAt(cluePos);
+                flagChange(getHighlightLetter());
             }
         }
 
@@ -523,8 +552,11 @@ public class Playboard implements Serializable {
 
         popNotificationDisabled();
 
-        if (pos != null)
+        if (pos != null) {
+            // no need to flag changed words, notifyChange will take
+            // care of that
             notifyChange();
+        }
     }
 
     public void jumpToClue(Clue clue) {
@@ -573,8 +605,11 @@ public class Playboard implements Serializable {
 
         popNotificationDisabled();
 
-        if (pos != null)
+        if (pos != null) {
+            // no need to flag changed words, notifyChange will take
+            // care of that
             notifyChange();
+        }
     }
 
     public void jumpToClueEnd(Clue clue) {
@@ -882,6 +917,7 @@ public class Playboard implements Serializable {
             ) {
                 b.setResponse(answer.charAt(idx));
                 b.setResponder(this.responder);
+                flagChange(pos);
             }
 
             idx += 1;
@@ -928,7 +964,8 @@ public class Playboard implements Serializable {
     }
 
     public Word playLetter(String letter) {
-        Box b = puzzle.checkedGetBox(getHighlightLetter());
+        Position pos = getHighlightLetter();
+        Box b = puzzle.checkedGetBox(pos);
 
         if (b == null) {
             return null;
@@ -945,6 +982,7 @@ public class Playboard implements Serializable {
             pushNotificationDisabled();
             b.setResponse(letter);
             b.setResponder(this.responder);
+            flagChange(pos);
             Word next = this.nextLetter();
             popNotificationDisabled();
 
@@ -955,7 +993,8 @@ public class Playboard implements Serializable {
     }
 
     public void playScratchLetter(char letter) {
-        Box box = puzzle.checkedGetBox(getHighlightLetter());
+        Position highlightPos = getHighlightLetter();
+        Box box = puzzle.checkedGetBox(highlightPos);
         if (box == null)
             return;
 
@@ -973,8 +1012,10 @@ public class Playboard implements Serializable {
 
         // Update the scratch text
         int pos = box.getCluePosition(cid);
-        if (pos >= 0 && pos < length)
+        if (pos >= 0 && pos < length) {
             note.setScratchLetter(pos, letter);
+            flagChange(highlightPos);
+        }
 
         nextLetter();
         popNotificationDisabled();
@@ -1019,6 +1060,7 @@ public class Playboard implements Serializable {
             if (!correctResponse) {
                 b.setCheated(true);
                 b.setResponse(b.getSolution());
+                flagChange(highlightLetter);
                 notifyChange();
                 return highlightLetter;
             }
@@ -1048,13 +1090,15 @@ public class Playboard implements Serializable {
                     if (b.isCheated() || (!b.isBlank() && !correctResponse)) {
                         b.setCheated(true);
                         b.setResponse(b.getSolution());
-                        changes.add(new Position(row, col));
+                        Position pos = new Position(row, col);
+                        flagChange(pos);
+                        changes.add(pos);
                     }
                 }
             }
         }
 
-        notifyChange(true);
+        notifyChange();
 
         return changes;
     }
@@ -1072,13 +1116,15 @@ public class Playboard implements Serializable {
                     if (!correctResponse) {
                         b.setCheated(true);
                         b.setResponse(b.getSolution());
-                        changes.add(new Position(row, col));
+                        Position pos = new Position(row, col);
+                        flagChange(pos);
+                        changes.add(pos);
                     }
                 }
             }
         }
 
-        notifyChange(true);
+        notifyChange();
 
         return changes;
     }
@@ -1097,8 +1143,10 @@ public class Playboard implements Serializable {
 
         for (int i = 0; i < zone.size(); i++) {
             Position p = revealLetter();
-            if (p != null)
+            if (p != null) {
+                flagChange(p);
                 changes.add(p);
+            }
             nextLetter(false);
         }
 
@@ -1158,33 +1206,91 @@ public class Playboard implements Serializable {
             }
         }
 
-        if (changed)
+        if (changed) {
+            // don't flag changed selected words (we might have multiple
+            // toggles). notifyChange will take care of the final result
             notifyChange();
+        }
 
         return w;
     }
 
     public void addListener(PlayboardListener listener) {
-        listeners.add(listener);
+        if (isNotifying)
+            addPendingListenerAddition(listener);
+        else
+            listeners.add(listener);
     }
 
     public void removeListener(PlayboardListener listener) {
-        listeners.remove(listener);
+        if (isNotifying())
+            addPendingListenerRemoval(listener);
+        else
+            listeners.remove(listener);
+    }
+
+    private void flagNotifying(boolean isNotifying) {
+        // if stopping notifying, clear pending removals
+        boolean stoppingNotifying = !isNotifying && this.isNotifying;
+        this.isNotifying = isNotifying;
+
+        if (stoppingNotifying) {
+            for (PlayboardListener listener : pendingListenerRemovals) {
+                removeListener(listener);
+            }
+            pendingListenerRemovals.clear();
+            for (PlayboardListener listener : pendingListenerAdditions) {
+                addListener(listener);
+            }
+            pendingListenerAdditions.clear();
+        }
+
+        this.isNotifying = isNotifying;
+    }
+
+    private boolean isNotifying() {
+        return isNotifying;
+    }
+
+    private void addPendingListenerRemoval(PlayboardListener listener) {
+        pendingListenerRemovals.add(listener);
+    }
+
+    private void addPendingListenerAddition(PlayboardListener listener) {
+        pendingListenerAdditions.add(listener);
     }
 
     private void notifyChange() { notifyChange(false); }
 
     private void notifyChange(boolean wholeBoard) {
         if (notificationDisabledDepth == 0) {
-            updateHistory();
+            flagNotifying(true);
+
+            int lastHistoryIndex = updateHistory();
+            boolean historyChange = (getClueID() != null);
 
             Word currentWord = getCurrentWord();
+
+            if (!Objects.equals(currentWord, previousWord)) {
+                // "unusual" is to stop me calling it elsewhere
+                flagUnusualWordChange(previousWord);
+                flagUnusualWordChange(currentWord);
+            }
+
+            Collection<Position> posChanges = wholeBoard ? null : getChanges();
+
+            notificationChanges.setValues(
+                currentWord, previousWord, posChanges,
+                historyChange, lastHistoryIndex
+            );
+
             for (PlayboardListener listener : listeners) {
-                listener.onPlayboardChange(
-                    wholeBoard, currentWord, previousWord
-                );
+                listener.onPlayboardChange(notificationChanges);
             }
             previousWord = currentWord;
+            clearChanges();
+
+            flagNotifying(false);
         }
     }
 
@@ -1197,11 +1303,17 @@ public class Playboard implements Serializable {
             notificationDisabledDepth -= 1;
     }
 
-    private void updateHistory() {
+    /**
+     * Returns lastHistoryIndex
+     *
+     * Note, will be -1 if the current clue wasn't in the history before and if
+     * there is no current clue. Detect latter case with getClueID() == null.
+     */
+    private int updateHistory() {
         ClueID cid = getClueID();
         if (cid == null)
-            return;
-        puzzle.updateHistory(cid);
+            return -1;
+        return puzzle.updateHistory(cid);
     }
 
     /**
@@ -1287,6 +1399,43 @@ public class Playboard implements Serializable {
         return zone == null ? 0 : zone.size();
     }
 
+    private void clearChanges() {
+        changedPositions.clear();
+    }
+
+    private Collection<Position> getChanges() {
+        return changedPositions;
+    }
+
+    private void flagChange(Position... positions) {
+        for (Position pos : positions) {
+            if (pos != null)
+                changedPositions.add(pos);
+        }
+    }
+
+    /**
+     * Don't use these for changes to selected word
+     *
+     * notifyChange will take care of that
+     */
+    private void flagUnusualWordChange(Word word) {
+        Zone zone = (word == null) ? null : word.getZone();
+        flagUnusualZoneChange(zone);
+    }
+
+    /**
+     * Don't use these for changes to selected word
+     *
+     * notifyChange will take care of that
+     */
+    private void flagUnusualZoneChange(Zone zone) {
+        if (zone == null)
+            return;
+        for (Position pos : zone)
+            flagChange(pos);
+    }
+
     /**
      * A word on the grid
      *
@@ -1352,23 +1501,62 @@ public class Playboard implements Serializable {
     /**
      * Playboard listeners will be updated when the highlighted letter
      * changes or the contents of a box changes.
-     *
-     * TODO: what about notes in scratch?
      */
     public interface PlayboardListener {
+        public void onPlayboardChange(PlayboardChanges changes);
+    }
+
+    public static class PlayboardChanges {
+        private Word currentWord;
+        private Word previousWord;
+        private Collection<Position> cellChanges;
+        private boolean historyChange;
+        private int lastHistoryIndex;
+
+        private void setValues(
+            Word currentWord,
+            Word previousWord,
+            Collection<Position> cellChanges,
+            boolean historyChange,
+            int lastHistoryIndex
+        ) {
+            this.currentWord = currentWord;
+            this.previousWord = previousWord;
+            this.cellChanges = cellChanges;
+            this.historyChange = historyChange;
+            this.lastHistoryIndex = lastHistoryIndex;
+        }
+
         /**
-         * Notify that something has changed on the board
-         *
-         * currentWord and previousWord are the selected words since the
-         * last notification. These will be where changes are.
-         *
-         * @param wholeBoard true if change affects whole board
-         * @param currentWord the currently selected word
-         * @param previousWord the word selected in the last
-         * notification (may be null)
+         * The currently selected word
          */
-        public void onPlayboardChange(
-            boolean wholeBoard, Word currentWord, Word previousWord
-        );
+        public Word getCurrentWord() { return currentWord; }
+
+        /**
+         * The word selected at last notification (may be null)
+         */
+        public Word getPreviousWord() { return previousWord; }
+
+        /**
+         * A set of changed cell positions since update
+         *
+         * Null means whole board changed. Fast lookup.
+         */
+        public Collection<Position> getCellChanges() { return cellChanges; }
+
+        /**
+         * True if something moved to the top of the history list
+         *
+         * See lastHistoryIndex. Note moving top item to top is a change!
+         */
+        public boolean isHistoryChange() { return historyChange; }
+
+        /**
+         * Where the current word used to sit in the history list
+         *
+         * Before it became the first :) Can be -1 if wasn't there
+         * before or no current clue selected (so list unchanged).
+         */
+        public int getLastHistoryIndex() { return lastHistoryIndex; }
     }
 }
