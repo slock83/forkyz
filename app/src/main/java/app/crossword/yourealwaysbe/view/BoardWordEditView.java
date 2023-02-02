@@ -3,7 +3,6 @@ package app.crossword.yourealwaysbe.view;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -114,6 +113,20 @@ public class BoardWordEditView extends BoardEditView {
             }
         }
         super.onPlayboardChange(changes);
+    }
+
+    @Override
+    public void onNewResponse(String response) {
+        Playboard board = getBoard();
+        if (board != null)
+            board.playLetter(response);
+    }
+
+    @Override
+    public void onDeleteResponse() {
+        Playboard board = getBoard();
+        if (board != null)
+            board.deleteLetter();
     }
 
     @Override

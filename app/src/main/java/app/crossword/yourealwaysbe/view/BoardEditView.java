@@ -259,20 +259,6 @@ public abstract class BoardEditView
         return fic;
     }
 
-    @Override
-    public void onNewResponse(String response) {
-        Playboard board = getBoard();
-        if (board != null)
-            board.playLetter(response);
-    }
-
-    @Override
-    public void onDeleteResponse() {
-        Playboard board = getBoard();
-        if (board != null)
-            board.deleteLetter();
-    }
-
     // This method is a hack needed in PlayActivity when clue tabs are
     // shown. The constrain of the board to 1:1 seems to have no effect
     // until render(true) is called.

@@ -57,6 +57,33 @@ public class BoardFullEditView extends BoardEditView {
     }
 
     @Override
+    public void onNewResponse(String response) {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        if (isScratchMode()) {
+            if (response != null)
+                board.playScratchLetter(response.charAt(0));
+        } else {
+            board.playLetter(response);
+        }
+    }
+
+    @Override
+    public void onDeleteResponse() {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        if (isScratchMode()) {
+            board.deleteScratchLetter();
+        } else {
+            board.deleteLetter();
+        }
+    }
+
+    @Override
     public void render(Collection<Position> changes, boolean rescale) {
         PlayboardRenderer renderer = getRenderer();
         Playboard board = getBoard();
@@ -149,5 +176,9 @@ public class BoardFullEditView extends BoardEditView {
             ensureVisible(cursorTopLeft);
         }
 
+    }
+
+    private boolean isScratchMode() {
+        return getPrefs().getBoolean("scratchMode", false);
     }
 }
