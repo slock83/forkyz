@@ -67,7 +67,7 @@ public class IPuzIO implements PuzzleParser {
         = Logger.getLogger(IPuzIO.class.getCanonicalName());
 
     // version 1 was not tagged in file
-    private static final int IO_VERSION = 2;
+    private static final int IO_VERSION = 3;
 
     private static final Charset WRITE_CHARSET = Charset.forName("UTF-8");
 
@@ -670,6 +670,8 @@ public class IPuzIO implements PuzzleParser {
             FIELD_SHOW_ENUMERATIONS, true
         );
 
+        int coordBase = getCoordBase(puzJson);
+
         JSONObject clues = puzJson.getJSONObject(FIELD_CLUES);
 
         JSONArray names = clues.names();
@@ -679,8 +681,61 @@ public class IPuzIO implements PuzzleParser {
                 clues.getJSONArray(listName),
                 names.getString(i),
                 showEnumerations,
+                coordBase,
                 builder
             );
+        }
+    }
+
+    /**
+     * Determine if cell indexes 0- or 1-based
+     *
+     * 0-based matches Puzzaz implementation and first crossword in
+     * ipuz. 1-based matches the examples in the ipuz spec (but crashes
+     * Puzzaz).
+     *
+     * Use 0-based by default. 1-based if on Forkyz ipuz io 2 or below,
+     * or if some coordinate is too high using 0-based numbering.
+     *
+     * @param puzJson json object of puzzle
+     */
+    private static int getCoordBase(JSONObject puzJson) {
+        int ioVersion = getIOVersion(puzJson);
+        if (ioVersion > 0 && ioVersion <= 2) {
+            return 1;
+        } else if (ioVersion >= 3) {
+            return 0;
+        } else { // search cells
+            JSONObject dimensions = puzJson.getJSONObject(FIELD_DIMENSIONS);
+            int width = dimensions.getInt(FIELD_WIDTH);
+            int height = dimensions.getInt(FIELD_HEIGHT);
+
+            JSONObject clues = puzJson.getJSONObject(FIELD_CLUES);
+            JSONArray names = clues.names();
+            for (int i = 0; i < names.length(); i++) {
+                String listName = names.getString(i);
+                JSONArray clueList = clues.getJSONArray(listName);
+                for (int j = 0; j < clueList.length(); j++) {
+                    Object clueObj = clueList.get(j);
+                    if (clueObj instanceof JSONObject) {
+                        JSONObject clueJson = (JSONObject) clueObj;
+                        JSONArray cells
+                            = clueJson.optJSONArray(FIELD_CLUE_CELLS);
+                        if (cells != null) {
+                            for (int k = 0; k < cells.length(); k++) {
+                                JSONArray cell = cells.getJSONArray(k);
+                                int row = cell.getInt(1);
+                                if (row >= height)
+                                    return 1;
+                                int col = cell.getInt(0);
+                                if (col >= width)
+                                    return 1;
+                            }
+                        }
+                    }
+                }
+            }
+            return 0;
         }
     }
 
@@ -688,9 +743,12 @@ public class IPuzIO implements PuzzleParser {
      * Transfer clues from json to puzzle
      *
      * Adds enumeration text to hint if showEnumerations is true
+     *
+     * @param coordBase 0 if 0-based, 1 if 1-based
      */
     private static void addClues(
-        JSONArray jsonClues, String listName, boolean showEnumerations,
+        JSONArray jsonClues, String listName,
+        boolean showEnumerations, int coordBase,
         PuzzleBuilder builder
     ) throws IPuzFormatException {
         String[] splitName = listName.split(":");
@@ -701,7 +759,7 @@ public class IPuzIO implements PuzzleParser {
             for (int i = 0; i < jsonClues.length(); i++) {
                 Object clueObj = jsonClues.get(i);
                 // all clues not across until proven otherwise by list name
-                IPuzClue ipc = getClue(clueObj, showEnumerations);
+                IPuzClue ipc = getClue(clueObj, showEnumerations, coordBase);
                 // TODO: support zoning of more than just across/down
                 if (ipc != null) {
                     if (FIELD_CLUES_ACROSS.equals(dirName)) {
@@ -740,10 +798,10 @@ public class IPuzIO implements PuzzleParser {
      *
      * Adds enumeration to hint if showEnumerations is true
      *
-     * @param listName the name of the list the clue belongs to
+     * @param coordBase 0 if 0-based indexing, 1 if 1-based
      */
     private static IPuzClue getClue(
-        Object clueObj, boolean showEnumerations
+        Object clueObj, boolean showEnumerations, int coordBase
     ) throws IPuzFormatException {
         if (clueObj instanceof String) {
             return new IPuzClue((String) clueObj);
@@ -787,7 +845,7 @@ public class IPuzIO implements PuzzleParser {
                 ? optStringNull(clueJson, FIELD_ENUMERATION)
                 : null;
 
-            Zone zone = getClueZone(clueJson);
+            Zone zone = getClueZone(clueJson, coordBase);
 
             return buildClue(
                 clueNumObj, label, hint.toString(), enumeration, zone
@@ -802,9 +860,10 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Read zone info from clue json
      *
+     * @param coordBase 0 if 0-based, 1 if 1-based
      * @return null if no info
      */
-    private static Zone getClueZone(JSONObject clueJson) {
+    private static Zone getClueZone(JSONObject clueJson, int coordBase) {
         if (clueJson == null)
             return null;
 
@@ -817,7 +876,7 @@ public class IPuzIO implements PuzzleParser {
         for (int i = 0; i < cells.length(); i++) {
             JSONArray cell = cells.getJSONArray(i);
             zone.addPosition(new Position(
-                cell.getInt(1) - 1, cell.getInt(0) - 1
+                cell.getInt(1) - coordBase, cell.getInt(0) - coordBase
             ));
         }
 
@@ -1704,8 +1763,8 @@ public class IPuzIO implements PuzzleParser {
                     Zone zone = clue.getZone();
                     for (Position pos : zone) {
                         writer.array()
-                            .value(pos.getCol() + 1)
-                            .value(pos.getRow() + 1)
+                            .value(pos.getCol())
+                            .value(pos.getRow())
                             .endArray();
                     }
                     writer.endArray();

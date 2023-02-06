@@ -1,0 +1,112 @@
+{
+    "version": "http://ipuz.org/v2",
+    "kind": [ "http://ipuz.org/crossword#1" ],
+    "title": "Zones Puzzle",
+    "author": "Forkyz",
+    "copyright": "",
+    "publisher": "Forkyz",
+    "date": "02/01/2003",
+    "dimensions": { "width": 9, "height": 9 },
+    "puzzle": [
+        [ { "style": { "color": "ccff33" }, "cell": "&#x1f332;" }, 0, 0, "#", "#", "#", { "style": { "color": "ffff00" }, "cell": "&#x2615;" }, 0, 0 ],
+        [ 0, { style: { "barred": "TLR" }, "cell": 1 }, 0, "#", "#", "#", 0, { style: { "barred": "TLR" }, "cell": 2 }, 0 ],
+        [ 0, 0, 3, "#", "#", "#", 0, 0, 0 ],
+        [ "#", "#", "#", 0, "#", 0, "#", "#", "#" ],
+        [ "#", "#", "#", "#", 0, "#", "#", "#", "#" ],
+        [ "#", "#", "#", 0, "#", 0, "#", "#", "#" ],
+        [ 0, 0, 4, "#", "#", "#", 0, 0, 0 ],
+        [ 0, { style: { "barred": "BLR" }, "cell": 5}, 0, "#", "#", "#", 0, { style: { "barred": "LBR" }, "cell": 6 }, 0 ],
+        [ { "style": { "color": "cc33cc" }, "cell": "&#x1f98a;" }, 0, 0, "#", "#", "#", { "style": { "color": "33ccff" }, "cell": "&#x1f44d;" }, 0, 0 ],
+    ],
+    "showenumerations": true,
+    "clues": {
+        "Zones:Bases": [
+            {
+                "number": "&#x1f332;",
+                "clue": "The green team keeps polarities",
+                "enumeration": 8,
+                "cells": [
+                    [0, 0], [1, 0], [2, 0], [2, 1], [2, 2], [1, 2],
+                    [0, 2], [0, 1]
+                ]
+            },
+            {
+                "number": "&#x2615;",
+                "clue": "The yellow team pours tea",
+                "enumeration": 8,
+                "cells": [
+                    [6, 0], [7, 0], [8, 0], [8, 1], [8, 2], [7, 2],
+                    [6, 2], [6, 1]
+                ]
+            },
+            {
+                "number": "&#x1f98a;",
+                "clue": "The pink team raises foxes",
+                "enumeration": 8,
+                "cells": [
+                    [0, 8], [1, 8], [2, 8], [2, 7], [2, 6], [1, 6],
+                    [0, 6], [0, 7]
+                ]
+            },
+            {
+                "number": "&#x1f44d;",
+                "clue": "The blue team stays positive",
+                "enumeration": 8,
+                "cells": [
+                    [6, 8], [7, 8], [8, 8], [8, 7], [8, 6], [7, 6],
+                    [6, 6], [6, 7]
+                ]
+            }
+        ],
+        "Zones:Pathways": [
+            {
+                "number": 1,
+                "clue": "Grass Road",
+                "enumeration": 2,
+                "cells": [
+                    [1, 1], [1, 2]
+                ]
+            },
+            {
+                "number": 2,
+                "clue": "Citrus Avenue",
+                "enumeration": 2,
+                "cells": [
+                    [7, 1], [7, 2]
+                ]
+            },
+            {
+                "number": 3,
+                "clue": "Low Road",
+                "enumeration": 5,
+                "cells": [
+                    [2, 2], [3, 3], [4, 4], [5, 5], [6, 6]
+                ]
+            },
+            {
+                "number": 4,
+                "clue": "High Road",
+                "enumeration": 5,
+                "cells": [
+                    [2, 6], [3, 5], [4, 4], [5, 3], [6, 2]
+                ]
+            },
+            {
+                "number": 5,
+                "clue": "Sky Avenue",
+                "enumeration": 2,
+                "cells": [
+                    [1, 7], [1, 6]
+                ]
+            },
+            {
+                "number": 6,
+                "clue": "Ocean Drive",
+                "enumeration": 2,
+                "cells": [
+                    [7, 7], [7, 6]
+                ]
+            }
+        ]
+    }
+}

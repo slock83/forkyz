@@ -38,7 +38,16 @@ public class IPuzIOTest {
     }
 
     public static InputStream getTestPuzzleZonesInputStream() {
-        return IPuzIOTest.class.getResourceAsStream("/zones.ipuz");
+        return IPuzIOTest.class.getResourceAsStream("/zones-0-based.ipuz");
+    }
+
+    public static InputStream getTestPuzzleZones1BasedInputStream() {
+        return IPuzIOTest.class.getResourceAsStream("/zones-1-based.ipuz");
+    }
+
+    // same as 1-based, but check picked up by version number
+    public static InputStream getTestPuzzleZonesIOV2InputStream() {
+        return IPuzIOTest.class.getResourceAsStream("/zones-io-v2.ipuz");
     }
 
     public static void assertIsTestPuzzle1(Puzzle puz) throws Exception {
@@ -460,6 +469,22 @@ public class IPuzIOTest {
     @Test
     public void testIPuzZones() throws Exception {
         try (InputStream is = getTestPuzzleZonesInputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+            assertIsTestPuzzleZones(puz);
+        }
+    }
+
+    @Test
+    public void testIPuzZones1Based() throws Exception {
+        try (InputStream is = getTestPuzzleZones1BasedInputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+            assertIsTestPuzzleZones(puz);
+        }
+    }
+
+    @Test
+    public void testIPuzZonesIOV2() throws Exception {
+        try (InputStream is = getTestPuzzleZonesIOV2InputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
             assertIsTestPuzzleZones(puz);
         }
