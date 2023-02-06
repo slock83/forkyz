@@ -120,7 +120,7 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.viewpager2:viewpager2:1.0.0'
     implementation 'androidx.webkit:webkit:1.4.0'
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'com.leinardi.android:speed-dial:3.3.0'
     implementation 'com.github.jgraham0325:words-to-numbers:8a97d258fd'
 
