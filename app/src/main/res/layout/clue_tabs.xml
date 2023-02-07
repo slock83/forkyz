@@ -2,10 +2,16 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    tools:ignore="overdraw"
+    android:background="?clueTabsBackground"
 >
+    <!-- ignore overdraw because on my LineageOS 17 phone, the theme background
+    doesn't always cover board. I couldn't define a custom theme without
+    breaking Material You  -->
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/clueTabsTabLayout"

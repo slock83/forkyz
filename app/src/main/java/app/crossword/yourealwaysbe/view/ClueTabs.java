@@ -61,6 +61,7 @@ public class ClueTabs extends LinearLayout
     private boolean forceSnap = false;
     private List<String> listNames = new ArrayList<>();
     private boolean showWords = false;
+    private float maxWordScale = 0.9F;
 
     public static interface ClueTabsListener {
         /**
@@ -69,8 +70,9 @@ public class ClueTabs extends LinearLayout
          * @param clue the clue clicked
          * @param view the view calling
          */
-        default void onClueTabsClick(Clue clue,
-                                     ClueTabs view) { }
+        default void onClueTabsClick(
+            Clue clue, ClueTabs view
+        ) { }
 
         /**
          * When the user long-presses a clue
@@ -78,8 +80,21 @@ public class ClueTabs extends LinearLayout
          * @param clue the clue clicked
          * @param view the view calling
          */
-        default void onClueTabsLongClick(Clue clue,
-                                         ClueTabs view) { }
+        default void onClueTabsLongClick(
+            Clue clue, ClueTabs view
+        ) { }
+
+        /**
+         * When the user clicks the board view of a clue
+         *
+         * @param clue the clue clicked
+         * @param previousWord the previously selected word according to
+         * onPlayboardChange
+         * @param view the view calling
+         */
+        default void onClueTabsBoardClick(
+            Clue clue, Word previousWord, ClueTabs view
+        ) { }
 
         /**
          * When the user swipes up on the tab bar
@@ -123,6 +138,15 @@ public class ClueTabs extends LinearLayout
         this.showWords = showWords;
         if (changed)
             refresh();
+    }
+
+    /**
+     * Maximum size of words as a scale of default size
+     *
+     * Default 0.9
+     */
+    public void setMaxWordScale(float maxWordScale) {
+        this.maxWordScale = maxWordScale;
     }
 
     /**
@@ -311,6 +335,11 @@ public class ClueTabs extends LinearLayout
     private void notifyListenersClueClick(Clue clue) {
         for (ClueTabsListener listener : listeners)
             listener.onClueTabsClick(clue, this);
+    }
+
+    private void notifyListenersClueBoardClick(Clue clue, Word previousWord) {
+        for (ClueTabsListener listener : listeners)
+            listener.onClueTabsBoardClick(clue, previousWord, this);
     }
 
     private void notifyListenersClueLongClick(Clue clue) {
@@ -604,8 +633,6 @@ public class ClueTabs extends LinearLayout
             extends RecyclerView.ViewHolder
             implements Playboard.PlayboardListener {
 
-        private final float MAX_WORD_SCALE = 0.9F;
-
         private CheckedTextView clueView;
         private View flagView;
         private BoardWordEditView boardView;
@@ -636,14 +663,15 @@ public class ClueTabs extends LinearLayout
 
             // assume gone unless proven otherwise
             this.boardView.setVisibility(View.GONE);
-            this.boardView.setMaxScale(MAX_WORD_SCALE);
             // potential memory leak as click listener has a strong
             // reference in the board view, but the board view lives as
             // long as this holder afaik
             this.boardView.addBoardClickListener(new BoardClickListener() {
                 @Override
                 public void onClick(Position position, Word previousWord) {
-                    ClueTabs.this.notifyListenersClueClick(clue);
+                    ClueTabs.this.notifyListenersClueBoardClick(
+                        clue, previousWord
+                    );
                 }
 
                 @Override
@@ -675,8 +703,11 @@ public class ClueTabs extends LinearLayout
                     Word word = board.getClueWord(clue.getClueID());
                     // suppress board render until we set the word later
                     boardView.setBoard(board, true);
+                    boardView.setMaxScale(maxWordScale);
                     boardView.setWord(word, Collections.<String>emptySet());
-                    boardView.setVisibility(word == null ? View.GONE : View.VISIBLE);
+                    boardView.setVisibility(
+                        word == null ? View.GONE : View.VISIBLE
+                    );
                 } else {
                     boardView.setVisibility(View.GONE);
                 }

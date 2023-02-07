@@ -164,16 +164,14 @@ public class ClueListActivity extends PuzzleActivity
 
     @Override
     public void onClueTabsClick(Clue clue, ClueTabs view) {
-        Playboard board = getBoard();
-        if (board == null)
-            return;
+        onClueTabsClickGeneral(clue);
+    }
 
-        if (clue.hasZone()) {
-            Word old = board.getCurrentWord();
-            if (!Objects.equals(clue.getClueID(), board.getClueID()))
-                board.jumpToClue(clue);
-            displayKeyboard(old);
-        }
+    @Override
+    public void onClueTabsBoardClick(
+        Clue clue, Word previousWord, ClueTabs view
+    ) {
+        onClueTabsClickGeneral(clue);
     }
 
     @Override
@@ -594,5 +592,21 @@ public class ClueListActivity extends PuzzleActivity
         if (zone != null && !zone.isEmpty())
             last = zone.getPosition(zone.size() - 1);
         return last;
+    }
+
+    /**
+     * General method for any part of a clue tab click
+     */
+    private void onClueTabsClickGeneral(Clue clue) {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        if (clue.hasZone()) {
+            Word old = board.getCurrentWord();
+            if (!Objects.equals(clue.getClueID(), board.getClueID()))
+                board.jumpToClue(clue);
+            displayKeyboard(old);
+        }
     }
 }

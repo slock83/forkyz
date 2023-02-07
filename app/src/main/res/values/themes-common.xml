@@ -38,5 +38,6 @@
         <item name="android:textColorHint">?attr/android:textColorSecondary</item>
         <item name="actionBarPopupTheme">@style/submenuHeaderStyle</item>
         <item name="checkboxStyle">@style/checkboxStyle</item>
+        <item name="clueTabsBackground">?attr/colorSurface</item>
     </style>
 </resources>

@@ -47,13 +47,17 @@ import app.crossword.yourealwaysbe.view.ClueTabs;
 import app.crossword.yourealwaysbe.view.ForkyzKeyboard;
 import app.crossword.yourealwaysbe.view.ScrollingImageView.ScaleListener;
 
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class PlayActivity extends PuzzleActivity
                           implements Playboard.PlayboardListener,
                                      ClueTabs.ClueTabsListener {
     private static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
-    private static final double BOARD_DIM_RATIO = 1.0;
+    private static final float BOARD_DIM_RATIO = 1.0F;
+    private static final float ACROSTIC_BOARD_HEIGHT_RATIO_MIN = 0.2F;
+    private static final float ACROSTIC_CLUE_TABS_WORD_SCALE = 0.7F;
+    private static final float ACROSTIC_CLUE_TABS_HEIGHT_RATIO_MIN = 0.3F;
     private static final String SHOW_CLUES_TAB = "showCluesOnPlayScreen";
     private static final String CLUE_TABS_PAGE = "playActivityClueTabsPage";
     private static final String PREF_SHOW_ERRORS_GRID = "showErrors";
@@ -214,6 +218,7 @@ public class PlayActivity extends PuzzleActivity
         });
 
         // constrain to 1:1 if clueTabs is showing
+        // or half of screen if acrostic
         boardView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             public void onLayoutChange(View v,
               int left, int top, int right, int bottom,
@@ -241,12 +246,35 @@ public class PlayActivity extends PuzzleActivity
                     boolean portrait
                         = orientation == Configuration.ORIENTATION_PORTRAIT;
 
-                    if (portrait && height > width) {
-                        constrainedDims = true;
-                        set.constrainMaxHeight(
-                            boardView.getId(),
-                            (int)(BOARD_DIM_RATIO * width)
-                        );
+                    if (portrait) {
+                        int maxHeight = 0;
+                        if (isAcrostic()) {
+                            DisplayMetrics metrics
+                                = getResources().getDisplayMetrics();
+                            maxHeight = (int)(
+                                ACROSTIC_BOARD_HEIGHT_RATIO_MIN
+                                    * metrics.heightPixels
+                            );
+                            Puzzle puz = getPuzzle();
+                            if (puz != null) {
+                                int proportionalHeight = (int)(
+                                    ((float) puz.getHeight()) / puz.getWidth()
+                                        * metrics.widthPixels
+                                );
+                                maxHeight = Math.max(
+                                    maxHeight, proportionalHeight
+                                );
+                            }
+                        } else {
+                            maxHeight = (int)(BOARD_DIM_RATIO * width);
+                        }
+
+                        if (height > maxHeight) {
+                            constrainedDims = true;
+                            set.constrainMaxHeight(
+                                boardView.getId(), maxHeight
+                            );
+                        }
                     }
                 } else {
                     set.constrainMaxHeight(boardView.getId(), 0);
@@ -596,12 +624,14 @@ public class PlayActivity extends PuzzleActivity
         Playboard board = getBoard();
         if (board == null)
             return;
+        onClueTabsClickGeneral(clue, board.getCurrentWord());
+    }
 
-        if (clue.hasZone()) {
-            Word old = board.getCurrentWord();
-            board.jumpToClue(clue);
-            displayKeyboard(old);
-        }
+    @Override
+    public void onClueTabsBoardClick(
+        Clue clue, Word previousWord, ClueTabs view
+    ) {
+        onClueTabsClickGeneral(clue, previousWord);
     }
 
     @Override
@@ -735,6 +765,8 @@ public class PlayActivity extends PuzzleActivity
 
         if (clueTabs != null) {
             clueTabs.setBoard(board);
+            clueTabs.setMaxWordScale(ACROSTIC_CLUE_TABS_WORD_SCALE);
+            clueTabs.setShowWords(isAcrostic());
             clueTabs.setPage(prefs.getInt(CLUE_TABS_PAGE, 0));
             clueTabs.addListener(this);
             clueTabs.listenBoard();
@@ -818,6 +850,13 @@ public class PlayActivity extends PuzzleActivity
         ConstraintSet set = new ConstraintSet();
         set.clone(constraintLayout);
         set.setVisibility(clueTabs.getId(), ConstraintSet.VISIBLE);
+        if (isAcrostic()) {
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            int minHeight = (int)(
+                ACROSTIC_CLUE_TABS_HEIGHT_RATIO_MIN * metrics.heightPixels
+            );
+            set.constrainMinHeight(clueTabs.getId(), minHeight);
+        }
         set.applyTo(constraintLayout);
 
         clueTabs.setPage(prefs.getInt(CLUE_TABS_PAGE, 0));
@@ -989,6 +1028,32 @@ public class PlayActivity extends PuzzleActivity
             board.deleteScratchLetter();
         } else {
             board.deleteLetter();
+        }
+    }
+
+    private boolean isAcrostic() {
+        Puzzle puz = getPuzzle();
+        return puz == null
+            ? false
+            : Puzzle.Kind.ACROSTIC.equals(puz.getKind());
+    }
+
+    /**
+     * Handle a click on the clue tabs
+     *
+     * @param clue the clue clicked
+     * @param the previously selected word since last board update (a
+     * clue tabs board click might have changed the word)
+     */
+    private void onClueTabsClickGeneral(Clue clue, Word previousWord) {
+        Playboard board = getBoard();
+        if (board == null)
+            return;
+
+        if (clue.hasZone()) {
+            if (!Objects.equals(clue.getClueID(), board.getClueID()))
+                board.jumpToClue(clue);
+            displayKeyboard(previousWord);
         }
     }
 
