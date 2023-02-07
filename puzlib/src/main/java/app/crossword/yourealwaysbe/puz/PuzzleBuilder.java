@@ -197,6 +197,11 @@ public class PuzzleBuilder {
         return this;
     }
 
+    public PuzzleBuilder setKind(Puzzle.Kind kind) {
+        puzzle.setKind(kind);
+        return this;
+    }
+
     /**
      * Number puzzle boxes according to standard system
      *

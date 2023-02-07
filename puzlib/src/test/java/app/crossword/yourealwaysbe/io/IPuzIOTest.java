@@ -50,7 +50,13 @@ public class IPuzIOTest {
         return IPuzIOTest.class.getResourceAsStream("/zones-io-v2.ipuz");
     }
 
+    public static InputStream getTestPuzzleAcrosticInputStream() {
+        return IPuzIOTest.class.getResourceAsStream("/acrostic.ipuz");
+    }
+
     public static void assertIsTestPuzzle1(Puzzle puz) throws Exception {
+        assertEquals(puz.getKind(), Puzzle.Kind.CROSSWORD);
+
         assertEquals(puz.getTitle(), "Test &amp; puzzle");
         assertEquals(puz.getAuthor(), "Test author");
         assertEquals(puz.getCopyright(), "Test copyright");
@@ -206,6 +212,27 @@ public class IPuzIOTest {
 
         assertEquals(zone3.size(), 5);
         assertEquals(zone3.getPosition(3), new Position(3, 5));
+    }
+
+    public static void assertIsTestPuzzleAcrostic(Puzzle puz) throws Exception {
+        assertEquals(puz.getKind(), Puzzle.Kind.ACROSTIC);
+
+        ClueList words = puz.getClues("Clues");
+        ClueList quote = puz.getClues("Quote");
+
+        Clue clueA = words.getClueByIndex(0);
+        Clue clueC = words.getClueByIndex(2);
+
+        assertEquals(clueA.getLabel(), "A");
+        assertEquals(clueC.getLabel(), "C");
+
+        Zone zoneA = clueA.getZone();
+        assertEquals(zoneA.getPosition(2), new Position(0, 2));
+        assertEquals(zoneA.getPosition(3), new Position(0, 4));
+
+        Zone zoneQuote = quote.getClueByIndex(0).getZone();
+        assertEquals(zoneQuote.size(), 13);
+        assertEquals(zoneQuote.getPosition(5), new Position(1, 1));
     }
 
     /**
@@ -493,6 +520,32 @@ public class IPuzIOTest {
     @Test
     public void testIPuzWriteReadZones() throws Exception {
         try (InputStream is = getTestPuzzleZonesInputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IPuzIO.writePuzzle(puz, baos);
+            baos.close();
+
+            ByteArrayInputStream bais
+                = new ByteArrayInputStream(baos.toByteArray());
+
+            Puzzle puz2 = IPuzIO.readPuzzle(bais);
+
+            assertEquals(puz, puz2);
+        }
+    }
+
+    @Test
+    public void testIPuzAcrostic() throws Exception {
+        try (InputStream is = getTestPuzzleAcrosticInputStream()) {
+            Puzzle puz = IPuzIO.readPuzzle(is);
+            assertIsTestPuzzleAcrostic(puz);
+        }
+    }
+
+    @Test
+    public void testIPuzWriteReadAcrostic() throws Exception {
+        try (InputStream is = getTestPuzzleAcrosticInputStream()) {
             Puzzle puz = IPuzIO.readPuzzle(is);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

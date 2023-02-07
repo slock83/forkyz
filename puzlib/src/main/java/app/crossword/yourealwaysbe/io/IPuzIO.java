@@ -143,6 +143,9 @@ public class IPuzIO implements PuzzleParser {
 
     private static final String WRITE_VERSION = "http://ipuz.org/v2";
     private static final String WRITE_KIND = "http://ipuz.org/crossword#1";
+    private static final String WRITE_KIND_ACROSTIC
+        = "http://ipuz.org/acrostic#1";
+    private static final String ACROSTIC_PREFIX = "http://ipuz.org/acrostic";
 
     private static final String[] SUPPORTED_VERSIONS = {
         "http://ipuz.org/v1",
@@ -150,7 +153,8 @@ public class IPuzIO implements PuzzleParser {
     };
     private static final String[] SUPPORTED_KIND_PREFIXES = {
         WRITE_KIND,
-        "http://ipuz.org/crossword"
+        "http://ipuz.org/crossword",
+        ACROSTIC_PREFIX
     };
 
     private static final String EXT_NAMESPACE = "app.crossword.yourealwaysbe";
@@ -264,9 +268,12 @@ public class IPuzIO implements PuzzleParser {
             JSONObject json = new JSONObject(new JSONTokener(is));
 
             checkIPuzVersion(json);
-            checkIPuzKind(json);
+            Puzzle.Kind kind = getPuzKind(json);
 
             PuzzleBuilder builder = new PuzzleBuilder(readBoxes(json));
+
+            if (kind != null)
+                builder.setKind(kind);
 
             readMetaData(json, builder);
             readClues(json, builder);
@@ -275,6 +282,7 @@ public class IPuzIO implements PuzzleParser {
             return builder.getPuzzle();
         } catch (IPuzFormatException | JSONException e) {
             LOG.severe("Could not read IPuz file: " + e);
+            e.printStackTrace();
             return null;
         }
     }
@@ -291,19 +299,37 @@ public class IPuzIO implements PuzzleParser {
         );
     }
 
-    private static void checkIPuzKind(JSONObject puzJson)
+    /**
+     * Checks recognized ipuz kind
+     *
+     * @return Puzzle.Kind the ipuz kind matches
+     */
+    private static Puzzle.Kind getPuzKind(JSONObject puzJson)
             throws IPuzFormatException {
-        JSONArray kinds = puzJson.getJSONArray(FIELD_KIND);
+        Puzzle.Kind puzKind = null;
 
+        // Either acrostic or crossword. If we find acrostic, we're
+        // done. Otherwise, assume crossword unless acrostic comes up
+        // later
+
+        JSONArray kinds = puzJson.getJSONArray(FIELD_KIND);
         for (int i = 0; i < kinds.length(); i++) {
-            String kind = kinds.getString(i);
+            String kind = kinds.getString(i).toLowerCase();
+
+            if (kind.startsWith(ACROSTIC_PREFIX))
+                return Puzzle.Kind.ACROSTIC;
+
             for (String supportedKindPrefix : SUPPORTED_KIND_PREFIXES) {
-                if (kind.toLowerCase().startsWith(supportedKindPrefix))
-                    return;
+                if (kind.startsWith(supportedKindPrefix)) {
+                    puzKind = Puzzle.Kind.CROSSWORD;
+                }
             }
         }
 
-        throw new IPuzFormatException("No supported IPuz kind: " + kinds);
+        if (puzKind == null)
+            throw new IPuzFormatException("No supported IPuz kind: " + kinds);
+
+        return puzKind;
     }
 
     /**
@@ -1397,7 +1423,7 @@ public class IPuzIO implements PuzzleParser {
             jsonWriter.object();
             jsonWriter.newLine();
 
-            writeIPuzHeader(jsonWriter);
+            writeIPuzHeader(puz, jsonWriter);
             writeMetaData(puz, jsonWriter);
             writeBoxes(puz, jsonWriter, omitPlayState);
             writeClues(puz, jsonWriter);
@@ -1415,13 +1441,22 @@ public class IPuzIO implements PuzzleParser {
     /**
      * Write IPuz version and kind
      */
-    private static void writeIPuzHeader(FormatableJSONWriter writer)
+    private static void writeIPuzHeader(Puzzle puz, FormatableJSONWriter writer)
             throws IOException {
         writer.keyValueNonNull(FIELD_VERSION, WRITE_VERSION)
             .key(FIELD_KIND)
-            .array()
-            .value(WRITE_KIND)
-            .endArray();
+            .array();
+
+        switch (puz.getKind()) {
+        case CROSSWORD:
+            writer.value(WRITE_KIND);
+            break;
+        case ACROSTIC:
+            writer.value(WRITE_KIND_ACROSTIC);
+            break;
+        }
+
+        writer.endArray();
         writer.newLine();
     }
 

@@ -63,6 +63,9 @@ public class Puzzle implements Serializable{
     // a clue/word to display permanently somewhere
     private ClueID pinnedClueID;
 
+    public enum Kind { CROSSWORD, ACROSTIC };
+    private Kind kind = Kind.CROSSWORD;
+
     // Temporary fields used for unscrambling.
     public int[] unscrambleKey;
     public byte[] unscrambleTmp;
@@ -666,6 +669,14 @@ public class Puzzle implements Serializable{
         return pinnedClueID;
     }
 
+    public Kind getKind() {
+        return kind;
+    }
+
+    public void setKind(Kind kind) {
+        this.kind = kind;
+    }
+
     @Override
     public boolean equals(Object obj) {
 
@@ -777,6 +788,9 @@ public class Puzzle implements Serializable{
         if (!Objects.equals(pinnedClueID, other.pinnedClueID))
             return false;
 
+        if (!Objects.equals(kind, other.kind))
+            return false;
+
         return true;
     }
 
@@ -799,7 +813,7 @@ public class Puzzle implements Serializable{
         result = (prime * result) + Objects.hashCode(images);
         result = (prime * result) + Objects.hash(
             sourceUrl, supportUrl, shareUrl, introMessage, completionMessage,
-            pinnedClueID
+            pinnedClueID, kind
         );
 
         return result;
