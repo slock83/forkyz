@@ -376,11 +376,7 @@ public class PuzzleBuilder {
         }
     }
 
-    private void invalidateNumberPosition() {
-        numberPositions = null;
-    }
-
-    private Map<String, Position> getNumberPositions() {
+    public Map<String, Position> getNumberPositions() {
         if (numberPositions == null) {
             numberPositions = new HashMap<>();
             Box[][] boxes = puzzle.getBoxes();
@@ -398,6 +394,10 @@ public class PuzzleBuilder {
         }
 
         return numberPositions;
+    }
+
+    private void invalidateNumberPosition() {
+        numberPositions = null;
     }
 
     private boolean joinedTop(int row, int col) {

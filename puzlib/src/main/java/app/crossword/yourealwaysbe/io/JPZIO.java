@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -35,6 +36,8 @@ import javax.xml.parsers.SAXParserFactory;
  * This is not necessarily a complete implementation, but works for the
  * sources tested.
  *
+ * Acrostic format is an extension from Alex Boisvert
+ *
  * The (supported) XML format is:
  *
  * <crossword-compiler>
@@ -45,7 +48,7 @@ import javax.xml.parsers.SAXParserFactory;
  *       <copyright>[Copyright]</copyright>
  *       <description>[Description]</description>
  *     </metadata>
- *     <crossword>
+ *     <crossword> or <acrostic>
  *       <grid width="[width]" height="[height]">
  *         <cell x="[x]" y="[y]" solution="[letter]" ?number="[number]"/>
  *         <cell x="[x]" y="[y]" type="block" .../>
@@ -59,8 +62,8 @@ import javax.xml.parsers.SAXParserFactory;
  *         <clue number="[number]" is-link="[ordering num]">
  *           [clue]
  *         </clue>
-*       </clues>
- *     </crossword>
+ *       </clues>
+ *     </crossword> or </acrostic>
  *   </rectangular-puzzle>
  * </crossword-compiler>
  *
@@ -75,6 +78,13 @@ import javax.xml.parsers.SAXParserFactory;
 public class JPZIO implements PuzzleParser {
     private static final Logger LOG
         = Logger.getLogger("app.crossword.yourealwaysbe");
+
+    public static class JPZIOException extends Exception {
+        public JPZIOException(String msg) { super(msg); }
+    }
+
+    private static final String ACROSTIC_QUOTE_LISTNAME = "Quote";
+    private static final String ACROSTIC_QUOTE_HINT = "Quote";
 
     private static class ClueInfo extends ClueID {
         private String clueNumber;
@@ -122,6 +132,7 @@ public class JPZIO implements PuzzleParser {
         private int width;
         private int height;
         private Box[][] boxes;
+        private boolean acrostic = false;
         private List<ClueInfo> clues = new LinkedList<>();
         private Map<String, Zone> zoneMap = new HashMap<>();
         private StringBuilder charBuffer = new StringBuilder();
@@ -142,6 +153,7 @@ public class JPZIO implements PuzzleParser {
         public Box[][] getBoxes() { return boxes; }
         public List<ClueInfo> getClues() { return clues; }
         public Map<String, Zone> getZoneMap() { return zoneMap; }
+        public boolean isAcrostic() { return acrostic; }
 
         /**
          * Best assessment of whether read succeeded (i.e. was a JPZ
@@ -509,6 +521,8 @@ public class JPZIO implements PuzzleParser {
                 state = inClues;
             } else if (name.equalsIgnoreCase("word")) {
                 state = inWord;
+            } else if (name.equalsIgnoreCase("acrostic")) {
+                acrostic = true;
             }
 
             state.startElement(nsURI, name, tagName, attributes);
@@ -555,19 +569,12 @@ public class JPZIO implements PuzzleParser {
         if (!handler.isSuccessfulRead())
             return null;
 
-        // TODO: move away from this and use JPZ words to build puzzle
-        // directly
-        PuzzleBuilder builder = new PuzzleBuilder(handler.getBoxes());
-        builder.setTitle(handler.getTitle())
-            .setAuthor(handler.getCreator())
-            .setCopyright(handler.getCopyright())
-            .setIntroMessage(handler.getInstructions())
-            .setCompletionMessage(handler.getCompletion());
-
-        setClues(builder, handler);
-        setNote(builder, handler);
-
-        return builder.getPuzzle();
+        if (handler.isAcrostic() || looksLikeAnAcrostic(handler)) {
+            Puzzle puz = buildAcrostic(handler);
+            return (puz == null) ? buildCrossword(handler) : puz;
+        } else {
+            return buildCrossword(handler);
+        }
     }
 
     public static boolean convertPuzzle(InputStream is,
@@ -583,6 +590,23 @@ public class JPZIO implements PuzzleParser {
             LOG.severe("Unable to convert JPZ file: " + e.getMessage());
             return false;
         }
+    }
+
+    /**
+     * Build crossword from completed handler
+     */
+    private static Puzzle buildCrossword(JPZXMLParser handler) {
+        PuzzleBuilder builder = new PuzzleBuilder(handler.getBoxes());
+        builder.setTitle(handler.getTitle())
+            .setAuthor(handler.getCreator())
+            .setCopyright(handler.getCopyright())
+            .setIntroMessage(handler.getInstructions())
+            .setCompletionMessage(handler.getCompletion());
+
+        setClues(builder, handler);
+        setNote(builder, handler);
+
+        return builder.getPuzzle();
     }
 
     private static void setClues(PuzzleBuilder builder, JPZXMLParser handler) {
@@ -635,5 +659,204 @@ public class JPZIO implements PuzzleParser {
         }
 
         builder.setNotes(notes.toString());
+    }
+
+    /**
+     * Build acrostic from completed handler
+     *
+     * Should work when handler.isAcrostic() is true. Will try anyway.
+     * Returns null if it's not possible to read it as an acrostic.
+     */
+    private static Puzzle buildAcrostic(JPZXMLParser handler) {
+        Box[][] boxes = getAcrosticBoxes(handler);
+        if (boxes == null)
+            return null;
+
+        PuzzleBuilder builder = new PuzzleBuilder(boxes);
+        builder.setTitle(handler.getTitle())
+            .setAuthor(handler.getCreator())
+            .setCopyright(handler.getCopyright())
+            .setIntroMessage(handler.getInstructions())
+            .setCompletionMessage(handler.getCompletion())
+            .setKind(Puzzle.Kind.ACROSTIC);
+
+        try {
+            setAcrosticClues(builder, handler);
+        } catch (JPZIOException e) {
+            return null;
+        }
+
+        setNote(builder, handler);
+
+        return builder.getPuzzle();
+    }
+
+    /**
+     * Find the part of an acrostic grid corresponding to the quote
+     *
+     * Returns null if not derivable
+     */
+    private static Box[][] getAcrosticBoxes(JPZXMLParser handler) {
+        int lastRow = getAcrosticLastQuoteRow(handler);
+        if (lastRow < 0)
+            return null;
+
+        Box[][] allBoxes = handler.getBoxes();
+        Box[][] boxes = new Box[lastRow + 1][handler.getWidth()];
+        for (int row = 0; row <= lastRow; row++) {
+            for (int col = 0; col < handler.getWidth(); col++) {
+                boxes[row][col] = allBoxes[row][col];
+            }
+        }
+
+        return boxes;
+    }
+
+    /**
+     * Guess if JPZ is an acrostic
+     *
+     * If exported from crossword nexus, the <acrostic> tag is changed to the
+     * standard crossword one. So look for other evidence this is actually an
+     * acrostic.
+     */
+    private static boolean looksLikeAnAcrostic(JPZXMLParser handler) {
+        return getAcrosticQuoteZone(handler) != null;
+    }
+
+    /**
+     * JPZ acrostics have quote boxes on top and separate answer boxes
+     */
+    private static int getAcrosticLastQuoteRow(JPZXMLParser handler) {
+        Zone quoteZone = getAcrosticQuoteZone(handler);
+        if (quoteZone == null)
+            return -1;
+
+        int lastRow = -1;
+        for (Position pos : quoteZone) {
+            if (lastRow < 0)
+                lastRow = pos.getRow();
+            else
+                lastRow = Math.max(lastRow, pos.getRow());
+        }
+
+        return lastRow;
+    }
+
+    private static Zone getAcrosticQuoteZone(JPZXMLParser handler) {
+        Zone quoteZone = null;
+        List<ClueInfo> clues = handler.getClues();
+        Map<String, Zone> zones = handler.getZoneMap();
+
+        // look for quote clue, start from end as it's usually last
+        ListIterator<ClueInfo> li = clues.listIterator(clues.size());
+        while (li.hasPrevious()) {
+            ClueInfo clue = li.previous();
+            if (isAcrosticQuoteClue(clue)) {
+                quoteZone = zones.get(clue.getZoneID());
+                break;
+            }
+        }
+
+        return quoteZone;
+    }
+
+    private static boolean isAcrosticQuoteClue(ClueInfo clue) {
+        String number = clue.getClueNumber();
+        String hint = clue.getHint();
+        return (number == null || number.isEmpty())
+            && "[QUOTE]".equalsIgnoreCase(hint);
+    }
+
+    /**
+     * Add the clues to a builder for an acrostic
+     *
+     * builder must have the quote boxes (but then you can't get a
+     * builder without giving the boxes)
+     */
+    private static void setAcrosticClues(
+        PuzzleBuilder builder, JPZXMLParser handler
+    ) throws JPZIOException {
+        // the clue zones refer to "non-quote" cells, that map to quote
+        // cells via the box number.
+
+        Map<String, Zone> zones = handler.getZoneMap();
+        Box[][] allBoxes = handler.getBoxes();
+        Map<String, Position> numberPositions = builder.getNumberPositions();
+
+        List<ClueInfo> clues = handler.getClues();
+        for (int i = 0; i < clues.size(); i++) {
+            ClueInfo clue = clues.get(i);
+            if (!isAcrosticQuoteClue(clue)) {
+                Zone indirectZone = zones.get(clue.getZoneID());
+                Zone directZone = new Zone();
+                for (Position pos : indirectZone) {
+                    int row = pos.getRow();
+                    int col = pos.getCol();
+                    if (row < 0 || row >= allBoxes.length) {
+                        throw new JPZIOException(
+                            "Clue postion " + pos + " is outside of boxes."
+                        );
+                    }
+
+                    if (col < 0 || col >= allBoxes[row].length) {
+                        throw new JPZIOException(
+                            "Clue postion " + pos + " is outside of boxes."
+                        );
+                    }
+
+                    Box box = allBoxes[row][col];
+                    if (box == null) {
+                        throw new JPZIOException(
+                            "Clue contains position "
+                            + pos + " which is not a box"
+                        );
+                    }
+
+                    if (!box.hasClueNumber()) {
+                        throw new JPZIOException(
+                            "Acrostic clue contains position "
+                            + pos
+                            + " which is a box not linked to the quote via"
+                            + " its clue number."
+                        );
+                    }
+
+                    Position truePos
+                        = numberPositions.get(box.getClueNumber());
+                    if (truePos == null) {
+                        throw new JPZIOException(
+                            "Acrostic clue contains position "
+                            + pos
+                            + " with number "
+                            + box.getClueNumber()
+                            + " that is not a position in the quote."
+                        );
+                    }
+
+                    directZone.addPosition(truePos);
+                }
+
+                String listName = clue.getListName();
+                int index = builder.getNextClueIndex(listName);
+                builder.addClue(new Clue(
+                    listName,
+                    index,
+                    null, // use label instead of clue number
+                    clue.getClueNumber(),
+                    clue.getHint(),
+                    directZone
+                ));
+            } else {
+                int index = builder.getNextClueIndex(ACROSTIC_QUOTE_LISTNAME);
+                builder.addClue(new Clue(
+                    ACROSTIC_QUOTE_LISTNAME,
+                    index,
+                    null,
+                    null,
+                    ACROSTIC_QUOTE_HINT,
+                    zones.get(clue.getZoneID())
+                ));
+            }
+        }
     }
 }

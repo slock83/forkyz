@@ -55,7 +55,7 @@ public class PlayActivity extends PuzzleActivity
                                      ClueTabs.ClueTabsListener {
     private static final Logger LOG = Logger.getLogger("app.crossword.yourealwaysbe");
     private static final float BOARD_DIM_RATIO = 1.0F;
-    private static final float ACROSTIC_BOARD_HEIGHT_RATIO_MIN = 0.2F;
+    private static final float ACROSTIC_BOARD_HEIGHT_RATIO_MIN = 0.25F;
     private static final float ACROSTIC_CLUE_TABS_WORD_SCALE = 0.7F;
     private static final float ACROSTIC_CLUE_TABS_HEIGHT_RATIO_MIN = 0.3F;
     private static final String SHOW_CLUES_TAB = "showCluesOnPlayScreen";

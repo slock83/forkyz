@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.puz.Box;
+import app.crossword.yourealwaysbe.puz.Clue;
 import app.crossword.yourealwaysbe.puz.ClueID;
 import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
@@ -20,6 +21,10 @@ public class JPZIOTest {
 
     public static InputStream getTestPuzzle1InputStream() {
         return JPZIOTest.class.getResourceAsStream("/lat_puzzle_111128.xml");
+    }
+
+    public static InputStream getTestPuzzleAcrosticInputStream() {
+        return JPZIOTest.class.getResourceAsStream("/acrostic.jpz");
     }
 
     public static void assertIsTestPuzzle1(Puzzle puz) {
@@ -105,6 +110,47 @@ public class JPZIOTest {
         assertEquals(marks[2][2], "BR");
     }
 
+    public static void assertIsTestPuzzleAcrostic(Puzzle puz) {
+        String CLUES = "Clues";
+        String QUOTES = "Quote";
+
+
+        Box[][] boxes = puz.getBoxes();
+
+        assertEquals(12, boxes.length);
+        assertEquals(33, boxes[0].length);
+        assertEquals("1", boxes[0][0].getClueNumber());
+        assertEquals(true, boxes[0][0].isPartOf(new ClueID(CLUES, 17)));
+        assertEquals(true, boxes[0][0].isStartOf(new ClueID(QUOTES, 0)));
+        assertEquals(false, boxes[0][3].isStartOf(new ClueID(CLUES, 21)));
+
+        assertEquals(boxes[0][0].getSolution(), "N");
+        assertNull(boxes[0][4]);
+        assertEquals(boxes[1][10].getResponse(), ",");
+
+        ClueList clues = puz.getClues(CLUES);
+        ClueList quotes = puz.getClues(QUOTES);
+
+        Clue clueB = clues.getClueByIndex(1);
+
+        assertEquals(clues.size(), 22);
+        assertEquals(
+            clueB.getHint(),
+            "Super hyped to watch a muppet vampire while sick in bed (4, 3, 3, 5)"
+        );
+        assertFalse(clueB.hasClueNumber());
+        assertEquals(clueB.getLabel(), "B");
+        assertEquals(quotes.size(), 1);
+        assertEquals(
+            quotes.getClueByIndex(0).getHint(),
+            "Quote"
+        );
+
+        String[][] marks = boxes[1][0].getMarks();
+        assertNull(marks[0][0]);
+        assertEquals(marks[0][2], "R");
+    }
+
     @Test
     public void testJPZ() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -113,5 +159,15 @@ public class JPZIOTest {
             new ByteArrayInputStream(baos.toByteArray())
         );
         assertIsTestPuzzle1(puz);
+    }
+
+    @Test
+    public void testJPZAcrostic() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        StreamUtils.copyStream(getTestPuzzleAcrosticInputStream(), baos);
+        Puzzle puz = JPZIO.readPuzzle(
+            new ByteArrayInputStream(baos.toByteArray())
+        );
+        assertIsTestPuzzleAcrostic(puz);
     }
 }
