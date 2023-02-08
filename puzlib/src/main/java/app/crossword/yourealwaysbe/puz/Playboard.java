@@ -904,11 +904,11 @@ public class Playboard implements Serializable {
         int idx = 0;
         for (Position pos : zone) {
             if (idx >= answer.length())
-                return;
+                break;
 
             Box b = puzzle.checkedGetBox(pos);
             if (b == null)
-                return;
+                break;
 
             if (
                 !preserveCorrectLettersInShowErrors
