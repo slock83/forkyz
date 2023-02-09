@@ -493,7 +493,9 @@ public class Playboard implements Serializable {
             && this.isShowErrors()
         );
 
+        // don't delete crossing doesn't make sense for acrostic
         boolean skipAdjacent = dontDeleteCrossing
+            && !Puzzle.Kind.ACROSTIC.equals(puzzle.getKind())
             && currentBoxHasFilledAdjacent();
 
         return skipCorrect || skipAdjacent;
