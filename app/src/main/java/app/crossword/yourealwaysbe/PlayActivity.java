@@ -177,8 +177,7 @@ public class PlayActivity extends PuzzleActivity
             }
         );
 
-        keyboardManager
-            = new KeyboardManager(this, keyboardView, boardView);
+        keyboardManager = new KeyboardManager(this, keyboardView, boardView);
 
         board.setSkipCompletedLetters(
             this.prefs.getBoolean("skipFilled", false)

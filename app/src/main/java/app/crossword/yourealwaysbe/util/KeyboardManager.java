@@ -52,8 +52,8 @@ public class KeyboardManager {
      *
      * @param activity the activity the keyboard is for
      * @param keyboardView the keyboard view of the activity
-     * @param initialView the initial view the keyboard should be
-     * attached to if always shown or null if none
+     * @param initialView the view that should have focus immediately if
+     * keyboard always show
      */
     public KeyboardManager(
         Activity activity,
@@ -64,7 +64,6 @@ public class KeyboardManager {
         this.prefs = PreferenceManager.getDefaultSharedPreferences(activity);
         this.keyboardView = keyboardView;
 
-        // make sure showing, hide if appropriate
         if (getKeyboardMode() == KeyboardMode.ALWAYS_SHOW) {
             showKeyboard(initialView);
         } else {

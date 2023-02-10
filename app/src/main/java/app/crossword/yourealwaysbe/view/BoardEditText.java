@@ -103,7 +103,8 @@ public class BoardEditText
                     getViewTreeObserver().removeOnPreDrawListener(this);
                     scrollTo(0, 0);
                     int width = getContentWidth();
-                    renderer.fitWidthTo(width, boxes.length);
+                    int len = boxes == null ? 0 : boxes.length;
+                    renderer.fitWidthTo(width, len);
                     render(true);
                     return true;
                 }

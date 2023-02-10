@@ -264,8 +264,8 @@ public class NotesActivity extends PuzzleActivity {
 
         ForkyzKeyboard keyboardView
             = (ForkyzKeyboard) findViewById(R.id.keyboard);
-        keyboardManager = new KeyboardManager(this, keyboardView, boardView);
-        keyboardManager.showKeyboard(boardView);
+        keyboardManager = new KeyboardManager(this, keyboardView, null);
+        keyboardManager.showKeyboard(isPuzzleNotes() ? scratchView : boardView);
 
         this.voiceButtonContainer
             = this.findViewById(R.id.voiceButtonContainer);

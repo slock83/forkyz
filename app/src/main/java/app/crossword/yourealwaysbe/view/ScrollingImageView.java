@@ -47,6 +47,10 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
                 context.getResources().getDisplayMetrics()
             );
 
+        // have some initial presence so that view can have focus from
+        // the get-go
+        setImageViewParams(1, 1);
+
         try {
             aux = (AuxTouchHandler) Class.forName(
                 "app.crossword.yourealwaysbe.view.MultitouchHandler"
@@ -68,7 +72,7 @@ public class ScrollingImageView extends FrameLayout implements OnGestureListener
     public void setBitmap(Bitmap bitmap, boolean rescale) {
         if (bitmap == null) {
             imageView.setImageBitmap(null);
-            setImageViewParams(0, 0);
+            setImageViewParams(1, 1);
         } else if (rescale) {
             imageView.setImageBitmap(bitmap);
             setImageViewParams(bitmap.getWidth(), bitmap.getHeight());
