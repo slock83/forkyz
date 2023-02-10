@@ -251,6 +251,9 @@ public class IPuzIO implements PuzzleParser {
     private static final String OLD_ACROSS_LIST_NAME = "Across";
     private static final String OLD_DOWN_LIST_NAME = "Down";
 
+    private static final String ACROSTIC_BOARD_CLUE_LIST = "Quote";
+    private static final String ACROSTIC_BOARD_CLUE_HINT = "Quote";
+
     /**
      * An unfancy exception indicating error while parsing
      */
@@ -278,6 +281,9 @@ public class IPuzIO implements PuzzleParser {
             readMetaData(json, builder);
             readClues(json, builder);
             readExtensions(json, builder);
+
+            if (Puzzle.Kind.ACROSTIC.equals(kind))
+                ensureBoardClue(builder);
 
             return builder.getPuzzle();
         } catch (IPuzFormatException | JSONException e) {
@@ -1399,6 +1405,96 @@ public class IPuzIO implements PuzzleParser {
         }
 
         return new ClueID(listName, index);
+    }
+
+    /**
+     * For acrostics, ensure there's a clue for selecting whole board
+     *
+     * Else the user has to pick box by box, which is annoying. Add one
+     * if needed.
+     */
+    private static void ensureBoardClue(PuzzleBuilder builder) {
+        Puzzle puz = builder.getPuzzle();
+
+        Zone boardZone = getCluedBoardZone(puz);
+        if (!hasClueCoveringZone(puz, boardZone)) {
+            int index = builder.getNextClueIndex(ACROSTIC_BOARD_CLUE_LIST);
+            builder.addClue(new Clue(
+                ACROSTIC_BOARD_CLUE_LIST,
+                index,
+                null,
+                ACROSTIC_BOARD_CLUE_HINT,
+                boardZone
+            ));
+        }
+    }
+
+    /**
+     * True if there's a clue in puz with all position in zone
+     */
+    private static boolean hasClueCoveringZone(Puzzle puz, Zone zone) {
+        for (Clue clue : puz.getAllClues()) {
+            if (zoneCoversZone(clue.getZone(), zone))
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * True if all positions of coveredZone are in coveringZone
+     *
+     * Assumes coveredZone doesn't contain duplicates. Positions don't
+     * have to be in same order.
+     */
+    private static boolean zoneCoversZone(
+        Zone coveringZone, Zone coveredZone
+    ) {
+        if (coveringZone == coveredZone)
+            return true;
+        if (coveredZone == null)
+            return true;
+        if (coveringZone == null)
+            return coveredZone.isEmpty();
+
+        // this optimisation won't work if coveredZone contain duplicate
+        // elements... (never in the way we use this)
+        if (coveringZone.size() < coveredZone.size())
+            return false;
+
+        Set<Position> coveringPositions = new HashSet<>(coveringZone.size());
+        for (Position pos : coveringZone)
+            coveringPositions.add(pos);
+
+        for (Position pos : coveredZone) {
+            if (!coveringPositions.contains(pos))
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Make a zone containing all puzzle cells appearing in a clue
+     */
+    private static Zone getCluedBoardZone(Puzzle puz) {
+        Set<Position> cluedPositions = new HashSet<>();
+        for (Clue clue : puz.getAllClues())
+            for (Position pos : clue.getZone())
+                cluedPositions.add(pos);
+
+        Zone boardZone = new Zone();
+        for (int row = 0; row < puz.getHeight(); row++) {
+            for (int col = 0; col < puz.getWidth(); col++) {
+                Box box = puz.checkedGetBox(row, col);
+                if (box != null) {
+                    Position pos = new Position(row, col);
+                    if (cluedPositions.contains(pos))
+                        boardZone.addPosition(pos);
+                }
+            }
+        }
+
+        return boardZone;
     }
 
     public static void writePuzzle(Puzzle puz, OutputStream os)

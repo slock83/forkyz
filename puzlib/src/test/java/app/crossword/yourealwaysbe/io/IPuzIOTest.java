@@ -560,5 +560,26 @@ public class IPuzIOTest {
             assertEquals(puz, puz2);
         }
     }
+
+    @Test
+    public void testJPZAcrosticWriteIPuzRead() throws Exception {
+        try (InputStream is = JPZIOTest.getTestPuzzleAcrosticInputStream()) {
+            Puzzle puz = JPZIO.readPuzzle(is);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IPuzIO.writePuzzle(puz, baos);
+            baos.close();
+
+            ByteArrayInputStream bais
+                = new ByteArrayInputStream(baos.toByteArray());
+
+            Puzzle puz2 = IPuzIO.readPuzzle(bais);
+
+            // bit of a hack because "" is read back as null
+            puz.setNotes(null);
+
+            assertEquals(puz, puz2);
+        }
+    }
 }
 
