@@ -8,6 +8,12 @@
         android:title="@string/regular_sized"
     >
         <androidx.preference.CheckBoxPreference
+            android:title="@string/de_telegraaf"
+            android:summary="@string/de_telegraaf_desc"
+            android:defaultValue="true"
+            android:key="downloadDeTelegraaf"
+        />
+        <androidx.preference.CheckBoxPreference
             android:title="@string/jonesin_crosswords"
             android:defaultValue="true"
             android:summary="@string/updates_thursdays"

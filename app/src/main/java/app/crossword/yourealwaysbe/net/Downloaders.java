@@ -370,6 +370,20 @@ public class Downloaders {
     public List<Downloader> getDownloaders() {
         List<Downloader> downloaders = new LinkedList<>();
 
+        if (prefs.getBoolean("downloadDeTelegraaf", true)) {
+            downloaders.add(new AbstractDateDownloader(
+                "detelegraaf",
+                context.getString(R.string.de_telegraaf),
+                Downloader.DATE_SATURDAY,
+                Duration.ofHours(-1), // guess midnight
+                "https://www.telegraaf.nl/abonnement/telegraaf/abonnement-bestellen/",
+                new BrainsOnlyIO(),
+                "'https://pzzl.net/servlet/MH_kruis/netcrossword?date='"
+                    + "yyMMdd",
+                "'https://www.telegraaf.nl/puzzels/kruiswoord'"
+            ));
+        }
+
         if (prefs.getBoolean("downloadGuardianDailyCryptic", true)) {
             downloaders.add(new GuardianDailyCrypticDownloader(
                 "guardian", context.getString(R.string.guardian_daily)
