@@ -4,7 +4,7 @@ ARCHIVE
 
 02/07/14 SODA SPEAK
 
-S.N. & Robert Francis, edited by Stanley Newman
+S.N. & Robert Francis, edited by Stanley Newman<NOTEPAD>Test note</NOTEPAD>
 
 15
 
@@ -19,7 +19,7 @@ ASIA#EDIT#ONICE
 PENSACOLA#STEED
 PRISSY#NBAER###
 LINKS###STPETER
-EDGE#FFF#LEEWAY
+ED%GE#FFF#LEEWAY
 ###YELLEDAT#IVE
 #MOSQUITORANGE#
 FIN#UNTANGLE###

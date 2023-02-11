@@ -11,6 +11,8 @@ import app.crossword.yourealwaysbe.puz.ClueList;
 import app.crossword.yourealwaysbe.puz.Puzzle;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class BrainsOnlyIOTest  {
@@ -25,6 +27,7 @@ public class BrainsOnlyIOTest  {
             "S.N. &amp; Robert Francis, edited by Stanley Newman",
             puz.getAuthor()
         );
+        assertEquals("Test note", puz.getNotes());
 
         Box[][] boxes = puz.getBoxes();
 
@@ -40,6 +43,9 @@ public class BrainsOnlyIOTest  {
         assertEquals(boxes[14][14].getSolution(), "P");
         assertEquals(boxes[14][5], null);
         assertEquals(boxes[3][6], null);
+
+        assertTrue(boxes[5][2].isCircled());
+        assertFalse(boxes[5][3].isCircled());
 
         ClueList acrossClues = puz.getClues("Across");
         ClueList downClues = puz.getClues("Down");

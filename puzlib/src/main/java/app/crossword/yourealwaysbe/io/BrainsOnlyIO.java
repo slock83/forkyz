@@ -28,6 +28,8 @@ public class BrainsOnlyIO implements PuzzleParser {
     private static final Charset CHARSET = Charset.forName("ISO-8859-1");
     private static final String ACROSS_LIST = "Across";
     private static final String DOWN_LIST = "Down";
+    private static final String NOTEPAD_START_TAG = "<NOTEPAD>";
+    private static final String NOTEPAD_END_TAG = "</NOTEPAD>";
 
     public static boolean convertBrainsOnly(InputStream is, DataOutputStream os, LocalDate date){
         try {
@@ -57,7 +59,27 @@ public class BrainsOnlyIO implements PuzzleParser {
         String puzTitle = htmlString(
             title.substring(startIndex >= 0 ? startIndex : 0)
         );
-        String author = htmlString(readLineAtOffset(reader, 1));
+        String author = readLineAtOffset(reader, 1);
+
+        // Not sure if note should be part of author line or a separate line
+        // Assume part of author for now as De Telegraaf replaces author line
+        // with it
+
+        String notes = "";
+        String authorUpper = author.toUpperCase();
+        int notesStart = authorUpper.indexOf(NOTEPAD_START_TAG);
+        if (notesStart > -1) {
+            int notesEnd = authorUpper.indexOf(NOTEPAD_END_TAG);
+
+            notes = htmlString(author.substring(
+                notesStart + NOTEPAD_START_TAG.length(),
+                notesEnd
+            ));
+
+            author = htmlString(author.substring(0, notesStart));
+        } else {
+            author = htmlString(author);
+        }
 
         int width = Integer.parseInt(readLineAtOffset(reader, 1));
         int height = Integer.parseInt(readLineAtOffset(reader, 1));
@@ -68,7 +90,39 @@ public class BrainsOnlyIO implements PuzzleParser {
         Box[][] boxes = new Box[height][width];
         for(int down = 0; down < height; down++){
             String line = readLineAtOffset(reader, 0);
-            if (line.length() != width)
+
+            boolean nextCircled = false;
+            boolean addToPrevious = false;
+            int across = 0;
+            for(int i = 0; i < line.length(); i++){
+                char c = line.charAt(i);
+                if (c == '%') {
+                    nextCircled = true;
+                    continue;
+                } else if (c == ',') {
+                    addToPrevious = true;
+                    continue;
+                }
+
+                if (addToPrevious) {
+                    Box b = boxes[down][across - 1];
+                    b.setSolution(b.getSolution() + c);
+                } else {
+                    if (c != '#'){
+                        Box b = new Box();
+                        b.setSolution(c);
+                        b.setCircled(nextCircled);
+                        boxes[down][across] = b;
+                    }
+
+                    across += 1;
+                }
+
+                nextCircled = false;
+                addToPrevious = false;
+            }
+
+            if (across != width)
                 throw new IOException(
                     String.format(
                         "Unexpected line length for width %d grid: %s",
@@ -76,22 +130,14 @@ public class BrainsOnlyIO implements PuzzleParser {
                         line
                     )
                 );
-
-            for(int across = 0; across < width; across++){
-                char c = line.charAt(across);
-                if(c == '#'){
-                    continue;
-                }
-                Box b = new Box();
-                b.setSolution(c);
-                boxes[down][across] = b;
-            }
         }
 
         PuzzleBuilder builder = new PuzzleBuilder(boxes);
         builder.autoNumberBoxes()
             .setTitle(puzTitle)
-            .setAuthor(author);
+            .setAuthor(author)
+            .setNotes(notes);
+        System.out.println("Set notes " + notes);
 
         readLineAtOffset(reader, 0);
         ArrayList<String> acrossClues = new ArrayList<String>();
@@ -142,7 +188,6 @@ public class BrainsOnlyIO implements PuzzleParser {
             }
         }
 
-        builder.setNotes("");
         return builder.getPuzzle();
     }
 
