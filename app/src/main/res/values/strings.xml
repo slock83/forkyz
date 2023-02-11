@@ -518,7 +518,8 @@
     overridden for different languages -->
     <string name="no_speech_recognition_available">No voice input available on system, please check Android input settings.</string>
     <string name="command_letter">Letter</string>
-    <string name="command_answer">Put</string>
+    <string name="command_answer">Solution</string>
+    <string name="command_answer_alt">Put</string>
     <string name="command_toggle">Toggle</string>
     <string name="command_number">Number</string>
     <string name="command_next">Next</string>

@@ -1,6 +1,7 @@
 
 package app.crossword.yourealwaysbe.util;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -50,7 +51,8 @@ public class VoiceCommands {
     }
 
     public static class VoiceCommand {
-        private String command;
+        // list of starter keywords
+        private List<String> commands = new ArrayList<>();
         private Consumer<String> execute;
 
         /**
@@ -61,8 +63,17 @@ public class VoiceCommands {
          * @param execute a function that consumes the string after the
          * command word
          */
-        public VoiceCommand(String command, @NonNull Consumer<String> execute) {
-            this.command = command;
+        public VoiceCommand(String command, @NonNull Consumer<String> execute
+        ) {
+            this.commands.add(command);
+            this.execute = execute;
+        }
+
+        public VoiceCommand(
+            String command, String commandAlt, @NonNull Consumer<String> execute
+        ) {
+            this.commands.add(command);
+            this.commands.add(commandAlt);
             this.execute = execute;
         }
 
@@ -72,7 +83,11 @@ public class VoiceCommands {
          * Ignores case
          */
         public boolean matches(String s) {
-            return command.equalsIgnoreCase(s);
+            for (String command : commands) {
+                if (command.equalsIgnoreCase(s))
+                    return true;
+            }
+            return false;
         }
 
         /**

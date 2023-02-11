@@ -444,6 +444,7 @@ public abstract class PuzzleActivity
     protected void registerVoiceCommandAnswer() {
         registerVoiceCommand(new VoiceCommand(
             getString(R.string.command_answer),
+            getString(R.string.command_answer_alt),
             answer -> {
                 Playboard board = getBoard();
                 if (board == null)
