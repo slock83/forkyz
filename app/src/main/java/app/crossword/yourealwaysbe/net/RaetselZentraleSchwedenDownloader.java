@@ -9,6 +9,8 @@ import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -70,7 +72,15 @@ public class RaetselZentraleSchwedenDownloader
 
     @Override
     protected LocalDate getGoodFrom() {
-        return LocalDate.now();
+        // website has "yesterday's" puzzle up until the
+        // utcAvailabilityOffset, so either return today or yesterday
+        // depending on what's available
+        ZonedDateTime goodFrom = ZonedDateTime.now(ZoneId.of("UTC"));
+        Duration availabilityOffset = getUTCAvailabilityOffset();
+        if (availabilityOffset != null)
+            goodFrom =goodFrom.minus(availabilityOffset);
+
+        return goodFrom.toLocalDate();
     }
 
     @Override
