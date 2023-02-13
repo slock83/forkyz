@@ -22,7 +22,8 @@ public class PuzzleStreamReader implements PuzzleParser {
         new AmuseLabsJSONIO(),
         new RaetselZentraleSchwedenJSONIO(),
         new RCIJeuxMFJIO(),
-        new PrzekrojIO()
+        new PrzekrojIO(),
+        new KeesingXMLIO()
     };
 
     /**

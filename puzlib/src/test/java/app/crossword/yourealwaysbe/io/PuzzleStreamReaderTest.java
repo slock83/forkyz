@@ -85,5 +85,14 @@ public class PuzzleStreamReaderTest {
             )
         );
     }
+
+    @Test
+    public void testKeesingXML() throws Exception {
+        KeesingXMLIOTest.assertIsTestPuzzle1(
+            PuzzleStreamReader.parseInputStatic(
+                KeesingXMLIOTest.getTestPuzzle1InputStream()
+            )
+        );
+    }
 }
 
