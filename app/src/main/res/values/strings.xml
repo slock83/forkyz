@@ -286,6 +286,8 @@
     <string name="universal_crossword">Universal Crossword</string>
     <string name="usa_today">USA Today</string>
     <string name="uclick_copyright">uclick LLC</string>
+    <string name="de_standaard">De Standaard</string>
+    <string name="de_standaard_desc">Daily crossword in Flemish</string>
 
     <!-- preferences weekly -->
     <string name="updates_thursdays">Updates Thursdays</string>

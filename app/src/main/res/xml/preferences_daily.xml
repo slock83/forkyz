@@ -5,6 +5,12 @@
     android:key="selectDaily"
 >
     <androidx.preference.CheckBoxPreference
+        android:title="@string/de_standaard"
+        android:summary="@string/de_standaard_desc"
+        android:defaultValue="true"
+        android:key="downloadDeStandaard"
+    />
+    <androidx.preference.CheckBoxPreference
         android:title="@string/guardian_daily"
         android:summary="@string/updates_mon_fri"
         android:defaultValue="true"

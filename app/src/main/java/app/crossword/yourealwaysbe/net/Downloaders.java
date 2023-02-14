@@ -370,6 +370,19 @@ public class Downloaders {
     public List<Downloader> getDownloaders() {
         List<Downloader> downloaders = new LinkedList<>();
 
+        if (prefs.getBoolean("downloadDeStandaard", true)) {
+            downloaders.add(new KeesingDownloader(
+                "destandaard",
+                context.getString(R.string.de_standaard),
+                Downloader.DATE_DAILY,
+                Duration.ofHours(-1), // midnight, tested
+                "https://aboshop.standaard.be/",
+                "'https://www.standaard.be/kruiswoordraadsel'",
+                "hetnieuwsbladpremium",
+                "crossword_today_hetnieuwsbladpremium"
+            ));
+        }
+
         if (prefs.getBoolean("downloadDeTelegraaf", true)) {
             downloaders.add(new AbstractDateDownloader(
                 "detelegraaf",

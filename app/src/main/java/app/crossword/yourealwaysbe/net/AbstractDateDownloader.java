@@ -189,6 +189,9 @@ public class AbstractDateDownloader extends AbstractDownloader {
     ){
         try {
             String sourceUrl = getSourceUrl(date);
+            if (sourceUrl == null)
+                return null;
+
             URL url = new URL(sourceUrl);
             try (InputStream is = getInputStream(url, headers)) {
                 Puzzle puz = puzzleParser.parseInput(is);
