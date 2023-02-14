@@ -1,9 +1,7 @@
 package app.crossword.yourealwaysbe.net;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.time.DayOfWeek;
@@ -93,37 +91,12 @@ public class RaetselZentraleSchwedenDownloader
         LocalDate date,
         Map<String, String> headers
     ) {
-        if (!LocalDate.now().equals(date))
-            return null;
-
-        try {
-            String sourceUrl = getJSONUrl(headers);
-            if (sourceUrl == null)
-                return null;
-
-            URL url = new URL(sourceUrl);
-
-            try(
-                InputStream is = new BufferedInputStream(
-                    getInputStream(url, headers)
-                )
-            ) {
-                Puzzle puz = RaetselZentraleSchwedenJSONIO.readPuzzle(is);
-                if (puz != null) {
-                    puz.setCopyright(getName());
-                    puz.setSource(getName());
-                    puz.setSourceUrl(sourceUrl);
-                    puz.setSupportUrl(getSupportUrl());
-                    puz.setShareUrl(getShareUrl(date));
-                    puz.setDate(date);
-                }
-                return puz;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        Puzzle puz = super.download(date, headers);
+        if (puz != null) {
+            puz.setCopyright(getName());
+            puz.setDate(date);
         }
-
-        return null;
+        return puz;
     }
 
     private String getJSONUrl(Map<String, String> headers) {
