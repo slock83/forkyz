@@ -58,7 +58,7 @@
     <application
         android:name="app.crossword.yourealwaysbe.forkyz.ForkyzApplication"
         android:backupAgent="app.crossword.yourealwaysbe.forkyz.BackupAgent"
-        android:icon="@drawable/icon"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:restoreAnyVersion="true"
         android:largeHeap="true"
