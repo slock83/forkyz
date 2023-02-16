@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.IOTest;
+import app.crossword.yourealwaysbe.io.IPuzIO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -348,6 +349,27 @@ public class PlayboardTest {
         checkNoMoveFullGrid(MovementStrategy.MOVE_PARALLEL_WORD);
     }
 
+    @Test
+    public void testDetachedWord() throws Exception {
+        Puzzle puz = loadTestDetachedPuz();
+        Playboard board = new Playboard(puz);
+        moveToPosition(board, 8, 2);
+        Playboard.Word word = board.getCurrentWord();
+        Zone boardZone = word.getZone();
+
+        int[][] expectedZoneArr = new int[][] {
+            {7, 1}, {7, 2}, {7, 3}, {7, 5},
+            {8, 2}, {9, 2}, {10, 2},
+            {9, 1}, {9, 3},
+            {12, 2}, {14, 2},
+        };
+        Zone expectedZone = new Zone();
+        for (int[] pos : expectedZoneArr)
+            expectedZone.addPosition(new Position(pos[0], pos[1]));
+
+        assertEquals(boardZone, expectedZone);
+    }
+
     private void checkNoMoveFullGrid(
         MovementStrategy moveStrat
     ) throws Exception {
@@ -355,6 +377,7 @@ public class PlayboardTest {
         final int CHECK_OFFSET = 5;
 
         Puzzle puz = loadTestPuz();
+
         int width = puz.getWidth();
         int height = puz.getHeight();
         Box[][] boxes = puz.getBoxes();
@@ -420,6 +443,12 @@ public class PlayboardTest {
             new DataInputStream(
                 IOTest.class.getResourceAsStream("/test.puz")
             )
+        );
+    }
+
+    private Puzzle loadTestDetachedPuz() throws IOException {
+        return IPuzIO.readPuzzle(
+            IOTest.class.getResourceAsStream("/detachedCells.ipuz")
         );
     }
 }

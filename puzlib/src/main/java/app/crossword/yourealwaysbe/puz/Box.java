@@ -283,6 +283,13 @@ public class Box implements Serializable {
     }
 
     /**
+     * True if this box belongs to at least one clue
+     */
+    public boolean isPartOfClues() {
+        return !getIsPartOfClues().isEmpty();
+    }
+
+    /**
      * Get a clue that this box is part of from the specified list
      *
      * If there are more than one clues from the same list, returns

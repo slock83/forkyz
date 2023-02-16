@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import app.crossword.yourealwaysbe.util.PuzzleUtils;
 import app.crossword.yourealwaysbe.util.WeakSet;
 
 public class Playboard implements Serializable {
@@ -29,6 +30,8 @@ public class Playboard implements Serializable {
     // used by findZoneDelta to track last index to handle clues with
     // repeated positions
     private int lastFoundZoneIndex = -1;
+    // Zone for the cells without clues attached
+    private Zone detachedCellsZone;
 
     private Set<PlayboardListener> listeners = WeakSet.buildSet();
     private Set<PlayboardListener> pendingListenerRemovals = WeakSet.buildSet();
@@ -159,12 +162,7 @@ public class Playboard implements Serializable {
 
     public Word getCurrentWord() {
         Word word = getClueWord(getClueID());
-        if (word == null) {
-            Zone zone = new Zone();
-            zone.addPosition(getHighlightLetter());
-            word = new Word(zone);
-        }
-        return word;
+        return (word == null) ? new Word(getDetachedCellsZone()) : word;
     }
 
     /**
@@ -203,7 +201,7 @@ public class Playboard implements Serializable {
     }
 
     public void setCurrentWord(Box[] response) {
-        Zone zone = getZone(getClueID());
+        Zone zone = getCurrentZone();
         if (zone == null)
             return;
 
@@ -789,8 +787,7 @@ public class Playboard implements Serializable {
     public Position findZoneDelta(
         Position original, boolean skipCompleted, int delta
     ) {
-        Word word = getCurrentWord();
-        Zone zone = word.getZone();
+        Zone zone = getCurrentZone();
 
         if (zone == null)
             return null;
@@ -823,8 +820,7 @@ public class Playboard implements Serializable {
     public int findZoneDelta(
         int original, boolean skipCompleted, int delta
     ) {
-        Word word = getCurrentWord();
-        Zone zone = word.getZone();
+        Zone zone = getCurrentZone();
 
         if (zone == null)
             return -1;
@@ -896,8 +892,7 @@ public class Playboard implements Serializable {
             return;
 
         Position startPos = getHighlightLetter();
-        Word currentWord = getCurrentWord();
-        Zone zone = (currentWord == null) ? null : currentWord.getZone();
+        Zone zone = getCurrentZone();
         if (zone == null)
             return;
 
@@ -939,8 +934,7 @@ public class Playboard implements Serializable {
      */
     public void clearWord() {
         Position startPos = getHighlightLetter();
-        Word currentWord = getCurrentWord();
-        Zone zone = (currentWord == null) ? null : currentWord.getZone();
+        Zone zone = getCurrentZone();
 
         if (zone == null || zone.isEmpty())
             return;
@@ -1133,10 +1127,12 @@ public class Playboard implements Serializable {
 
     public List<Position> revealWord() {
         ArrayList<Position> changes = new ArrayList<Position>();
+        Zone zone = getCurrentZone();
+        if (zone == null || zone.isEmpty())
+            return changes;
+
         Position curPos = getHighlightLetter();
-        ClueID cid = getClueID();
-        Position startPos = getClueStart(cid);
-        Zone zone = getZone(cid);
+        Position startPos = zone.getPosition(0);
 
         pushNotificationDisabled();
 
@@ -1396,8 +1392,7 @@ public class Playboard implements Serializable {
     }
 
     private int getCurrentWordLength() {
-        Word word = getCurrentWord();
-        Zone zone = (word == null) ? null : word.getZone();
+        Zone zone = getCurrentZone();
         return zone == null ? 0 : zone.size();
     }
 
@@ -1436,6 +1431,108 @@ public class Playboard implements Serializable {
             return;
         for (Position pos : zone)
             flagChange(pos);
+    }
+
+    /**
+     * Get currently selected zone
+     *
+     * Normally the highlight letter is in the currently selected clue.
+     *
+     * If there is no currently selected clue, return the zone of
+     * detached cells if the highlighted cell is in them. Else, just
+     * return a zone with the current position.
+     */
+    private Zone getCurrentZone() {
+        Clue clue = getPuzzle().getClue(getClueID());
+        if (clue == null || !clue.hasZone()) {
+            Position highlight = getHighlightLetter();
+            Puzzle puz = getPuzzle();
+            Box box = puz.checkedGetBox(highlight);
+            if (box != null && !box.isPartOfClues()) {
+                return getDetachedCellsZone();
+            } else {
+                Zone zone = new Zone();
+                zone.addPosition(highlight);
+                return zone;
+            }
+        } else {
+            return clue.getZone();
+        }
+    }
+
+    /**
+     * A word for all the cells that are not part of a clue
+     *
+     * Tries to order the detached cells "intuitively". A sequence of
+     * across detached cells will go together. Similarly, a sequence of
+     * down detached cells go together.
+     *
+     * Scan left-to-right, top-to-bottom. First look for an across seq
+     * of more than one box, then add. If there isn't one, try finding a
+     * down sequence. Add whatever sequence found. Don't add boxes that
+     * have been added before. Then move on with the scan.
+     */
+    private Zone getDetachedCellsZone() {
+        if (detachedCellsZone != null)
+            return detachedCellsZone;
+
+        detachedCellsZone = new Zone();
+        // because Zone.hasPosition is O(n)
+        Set<Position> oldPositions = new HashSet<>();
+
+        Puzzle puz = getPuzzle();
+        for (int row = 0; row < puz.getHeight(); row++) {
+            for (int col = 0; col < puz.getWidth(); col++) {
+                Box box = puz.checkedGetBox(row, col);
+                if (box != null && !box.isPartOfClues()) {
+                    Position pos = new Position(row, col);
+                    if (oldPositions.contains(pos))
+                        continue;
+
+                    Zone across = PuzzleUtils.getAcrossZone(puz, pos);
+                    if (across.size() > 1) {
+                        addZoneToDetached(
+                            across, detachedCellsZone, oldPositions, puz
+                        );
+                    } else {
+                        Zone down = PuzzleUtils.getDownZone(puz, pos);
+                        addZoneToDetached(
+                            down, detachedCellsZone, oldPositions, puz
+                        );
+                    }
+                }
+            }
+        }
+
+        return detachedCellsZone;
+    }
+
+    /**
+     * Helper for getDetachedCellsWord
+     *
+     * Put the cells from the zone into detachedZone up to the first
+     * that shouldn't be in there. Skip oldPositions, and add to
+     * oldPositions those added to detachedZone.
+     *
+     * By shouldn't be there, we mean positions that are part of a clue.
+     */
+    private void addZoneToDetached(
+        Zone zone, Zone detachedZone, Set<Position> oldPositions, Puzzle puz
+    ) {
+        for (Position zonePos : zone) {
+            if (!oldPositions.contains(zonePos)) {
+                Box zoneBox = puz.checkedGetBox(zonePos);
+
+                // if isn't detached, abort
+                if (zoneBox == null || zoneBox.isPartOfClues())
+                    return;
+
+                if (!oldPositions.contains(zonePos)) {
+                    detachedZone.addPosition(zonePos);
+                    oldPositions.add(zonePos);
+                }
+            }
+        }
     }
 
     /**
