@@ -388,7 +388,7 @@ public class Downloaders {
                 "detelegraaf",
                 context.getString(R.string.de_telegraaf),
                 Downloader.DATE_SATURDAY,
-                Duration.ofHours(-1), // guess midnight
+                Duration.ofHours(-1), // midnight, tested
                 "https://www.telegraaf.nl/abonnement/telegraaf/abonnement-bestellen/",
                 new BrainsOnlyIO(),
                 "'https://pzzl.net/servlet/MH_kruis/netcrossword?date='"
