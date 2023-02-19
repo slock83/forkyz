@@ -1,0 +1,11 @@
+- New De Telegraaf and De Standaard downloaders.
+- New play screen for acrostic puzzles.
+- Streamline board rendering (please report bugs).
+- Wrap long board views in clue list and notes.
+- New Keesing XML parser.
+- Additional features BrainsOnly: circled boxes, rebus square, puzzle info.
+- Additional features IPuz: clue labels, any crossword kind, acrostic, "smart" cell indexing (default 0-based now).
+- Additional features JPZ: support Alex Boisvert's acrostic extensions.
+- Group cells with no attached clue for easier entering.
+- Remake app icon with Android 13 themed icon support.
+- Fix scratch mode in main board view and other bugs.
