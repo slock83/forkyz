@@ -87,7 +87,7 @@ Supported import file formats (can be zipped or unzipped):
 * AmuseLabs JSON,
 * BrainsOnly TXT,
 * Guardian JSON and HTML,
-* IPuz (crosswords only),
+* IPuz (crosswords and acrostics only),
 * JPZ,
 * Keesing XML,
 * King Features TXT,
