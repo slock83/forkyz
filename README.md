@@ -12,7 +12,7 @@ follow a standard across/down set-up) and other customisations.
 
 Play crosswords! Full board view, clue list view, make notes about clues, anagram helper.
 
-Support for block and bar puzzles. Puzzles don't have to be across/down. E.g. rows gardens and marching bands are supported in JPZ and IPuz.
+Support for block, bar, and acrostic puzzles. Puzzles don't have to be across/down. E.g. rows gardens and marching bands are supported in JPZ and IPuz.
 
 ## Screenshots
 
@@ -66,6 +66,11 @@ Support for block and bar puzzles. Puzzles don't have to be across/down. E.g. ro
     src="fastlane/metadata/android/en-US/images/phoneScreenshots/10-DynamicTheme.png"
     width=150
 />
+<img
+    alt="The play screen for an acrostic puzzle"
+    src="fastlane/metadata/android/en-US/images/phoneScreenshots/11-Acrostic.png"
+    width=150
+/>
 
 ## Obtaining Puzzles
 
@@ -84,13 +89,14 @@ Supported import file formats (can be zipped or unzipped):
 * Guardian JSON and HTML,
 * IPuz (crosswords only),
 * JPZ,
+* Keesing XML,
 * King Features TXT,
 * Przekroj Magazine JSON and HTML,
 * RCI Jeux Mots-Fleches HJSON,
 * Raetsel Zentrale Schwedenratsel JSON,
 * Uclick XML.
 
-Current downloaders are Guardian Daily Cryptic, Hamburger Abendblatt, Independent Daily Cryptic, Thomas Joseph Crossword, Le Parisien, Newsday, Sheffer Crossword, Universal Crosssword, USA Today, Jonesin' Crosswords, Premier Crossword, the Wall Street Journal (Sat/Sun), Keglar's Cryptics, Cryptic Cru Archives, Private Eye, and Przekroj Magazine.
+Current downloaders are De Standaard, De Telegraaf, Guardian Daily Cryptic, Hamburger Abendblatt, Independent Daily Cryptic, Thomas Joseph Crossword, Le Parisien, Newsday, Sheffer Crossword, Universal Crosssword, USA Today, Jonesin' Crosswords, Premier Crossword, the Wall Street Journal (Sat/Sun), Keglar's Cryptics, Cryptic Cru Archives, Private Eye, and Przekroj Magazine.
 
 ## Compilation
 
@@ -103,7 +109,7 @@ You will then need to handle signing/installing the apk. Hopefully this is stand
 ## Project Structure
 
   * ./app The Android App.
-  * ./puzzlib A platform independent Java library for dealing with puzzle formats.
+  * ./puzlib A platform independent Java library for dealing with puzzle formats.
   * ./gfx Misc art assets.
 
 License
