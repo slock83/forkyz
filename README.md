@@ -112,8 +112,11 @@ You will then need to handle signing/installing the apk. Hopefully this is stand
   * ./puzlib A platform independent Java library for dealing with puzzle formats.
   * ./gfx Misc art assets.
 
-License
--------
+## Thanks
+
+Jonathan Blandford of [GNOME Crosswords][gnome-crosswords] for discussion on acrostics and the IPuz file on which the acrostic screenshot is based.
+
+## License
 
 Copyright (C) 2010-2016 Robert Cooper (and 2018- Forkyz Contributors)
 
@@ -121,4 +124,5 @@ Licensed under the GNU General Public License, Version 3
 
 ipuz is a trademark of Puzzazz, used with permission
 
+[gnome-crosswords]: https://gitlab.gnome.org/jrb/crosswords
 [online-sources]: https://yourealwaysbe.github.io/forkyz/
