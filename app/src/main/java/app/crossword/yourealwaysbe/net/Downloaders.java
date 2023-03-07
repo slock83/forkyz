@@ -15,6 +15,7 @@ import app.crossword.yourealwaysbe.io.BrainsOnlyIO;
 import app.crossword.yourealwaysbe.io.IO;
 import app.crossword.yourealwaysbe.io.JPZIO;
 import app.crossword.yourealwaysbe.io.PrzekrojIO;
+import app.crossword.yourealwaysbe.io.RCIJeuxMFJIO;
 import app.crossword.yourealwaysbe.util.files.FileHandler;
 import app.crossword.yourealwaysbe.versions.AndroidVersionUtils;
 
@@ -459,9 +460,100 @@ public class Downloaders {
             ));
         }
 
-        if (prefs.getBoolean("downloadLeParisien", true)) {
-            downloaders.add(new LeParisienDownloader(
-                "leparisien", context.getString(R.string.le_parisien_daily)
+        if (prefs.getBoolean("download20Minutes", true)) {
+            downloaders.add(new AbstractDateDownloader(
+                    "20minutes",
+                    context.getString(R.string.vingminutes),
+                    Downloader.DATE_DAILY,
+                    Duration.ofHours(1), // by experiment
+                    "https://www.20minutes.fr",
+                    new RCIJeuxMFJIO(),
+                    "'https://www.rcijeux.fr/drupal_game/20minutes/grids/'ddMMyy'.mfj'",
+                    "'https://www.20minutes.fr/services/mots-fleches'"
+            ));
+        }
+
+        if (prefs.getBoolean("downloadNotreTempsGeant2", true)) {
+            downloaders.add(new AbstractRCIJeuxMFJDateDownloader(
+                    "notretempsgeant2",
+                    context.getString(R.string.notretempsgeant2),
+                    Downloader.DATE_SATURDAY,
+                    Duration.ofHours(1), // by experiment
+                    "https://www.notretemps.com/",
+                    "https://www.rcijeux.fr/drupal_game/notretemps/mflechesg/grids/"
+                        + "mflechesg_2_%d.mfj",
+                    "'https://www.notretemps.com/jeux/jeux-en-ligne/mots-fleches-geants/force-2/'",
+                    256,
+                    LocalDate.of(2023,3,4)
+
+            ));
+        }
+
+        if (prefs.getBoolean("downloadLeParisienF1", true)) {
+
+            downloaders.add(new AbstractRCIJeuxMFJDateDownloader(
+                    "leparisienf1",
+                    context.getString((R.string.le_parisien_daily_f1)),
+                    Downloader.DATE_DAILY,
+                    Duration.ofHours(1),
+                    "https://abonnement.leparisien.fr",
+                    "https://www.rcijeux.fr/drupal_game/leparisien/mfleches1/grids/"
+                            + "mfleches_1_%d.mfj",
+                    "https://www.leparisien.fr/jeux/mots-fleches/",
+                    2536,
+                    LocalDate.of(2022, 6, 21)
+
+            ));
+        }
+
+        if (prefs.getBoolean("downloadLeParisienF2", true)) {
+
+            downloaders.add(new AbstractRCIJeuxMFJDateDownloader(
+                    "leparisienf2",
+                    context.getString((R.string.le_parisien_daily_f2)),
+                    Downloader.DATE_DAILY,
+                    Duration.ofHours(1),
+                    "https://abonnement.leparisien.fr",
+                    "https://www.rcijeux.fr/drupal_game/leparisien/mfleches1/grids/"
+                            + "mfleches_2_%d.mfj",
+                    "https://www.leparisien.fr/jeux/mots-fleches/force-2/",
+                    2536,
+                    LocalDate.of(2022, 6, 21)
+
+            ));
+        }
+
+        if (prefs.getBoolean("downloadLeParisienF3", true)) {
+
+            downloaders.add(new AbstractRCIJeuxMFJDateDownloader(
+                    "leparisienf3",
+                    context.getString((R.string.le_parisien_daily_f3)),
+                    Downloader.DATE_DAILY,
+                    Duration.ofHours(1),
+                    "https://abonnement.leparisien.fr",
+                    "https://www.rcijeux.fr/drupal_game/leparisien/mfleches1/grids/"
+                            + "mfleches_3_%d.mfj",
+                    "https://www.leparisien.fr/jeux/mots-fleches/force-3/",
+                    300,
+                    LocalDate.of(2023, 3, 4)
+
+            ));
+        }
+
+        if (prefs.getBoolean("downloadLeParisienF4", true)) {
+
+            downloaders.add(new AbstractRCIJeuxMFJDateDownloader(
+                    "leparisienf4",
+                    context.getString((R.string.le_parisien_daily_f4)),
+                    Downloader.DATE_DAILY,
+                    Duration.ofHours(1),
+                    "https://abonnement.leparisien.fr",
+                    "https://www.rcijeux.fr/drupal_game/leparisien/mfleches1/grids/"
+                            + "mfleches_4_%d.mfj",
+                    "https://www.leparisien.fr/jeux/mots-fleches/force-4/",
+                    300,
+                    LocalDate.of(2023, 3, 4)
+
             ));
         }
 

@@ -274,10 +274,20 @@
     <string name="updates_mon_fri">Updates Monday-Friday</string>
     <string name="updates_mon_sat">Updates Monday-Saturday</string>
     <string name="updates_daily">Updates Daily</string>
-    <string name="hamburger_abendblatt_daily">Hamburger Abendblatt</string>
+    <string name="hamburger_abendblatt_daily">(DE) Hamburger Abendblatt</string>
     <string name="hamburger_abendblatt_daily_desc">Daily crossword in German</string>
-    <string name="le_parisien_daily">Le Parisien</string>
-    <string name="le_parisien_daily_desc">Daily crossword in French, Level 2</string>
+    <string name="vingminutes">(FR) 20 Minutes</string>
+    <string name="vingminutes_desc">Daily crossword in French, Level 2</string>
+    <string name="notretempsgeant2">(FR) Notre temps geant force 2</string>
+    <string name="notretempsgeant2_desc">Weekly giant crossword in French, Level 2</string>
+    <string name="le_parisien_daily_f1">(FR) Le Parisien force 1</string>
+    <string name="le_parisien_daily_f1_desc">Daily crossword in French, Level 1</string>
+    <string name="le_parisien_daily_f2">(FR) Le Parisien force 2</string>
+    <string name="le_parisien_daily_f2_desc">Daily crossword in French, Level 2</string>
+    <string name="le_parisien_daily_f3">(FR) Le Parisien force 3</string>
+    <string name="le_parisien_daily_f3_desc">Daily crossword in French, Level 3</string>
+    <string name="le_parisien_daily_f4">(FR) Le Parisien force 4</string>
+    <string name="le_parisien_daily_f4_desc">Daily crossword in French, Level 4</string>
     <string name="guardian_daily">Guardian Daily Cryptic</string>
     <string name="independent_daily">Independent Daily Cryptic</string>
     <string name="newsday">Newsday</string>
@@ -286,7 +296,7 @@
     <string name="universal_crossword">Universal Crossword</string>
     <string name="usa_today">USA Today</string>
     <string name="uclick_copyright">uclick LLC</string>
-    <string name="de_standaard">De Standaard</string>
+    <string name="de_standaard">(FL) De Standaard</string>
     <string name="de_standaard_desc">Daily crossword in Flemish</string>
 
     <!-- preferences weekly -->
@@ -298,7 +308,7 @@
     <string name="premier_crossword">Premier Crossword</string>
     <string name="wall_street_journal">The Wall Street Journal</string>
     <string name="washington_post_sunday">The Washington Post Sunday</string>
-    <string name="de_telegraaf">De Telegraaf</string>
+    <string name="de_telegraaf">(DU) De Telegraaf</string>
     <string name="de_telegraaf_desc">Updates Sundays, in Dutch</string>
 
     <!--  preferences scrapers -->
@@ -308,7 +318,7 @@
     <string name="keglars_cryptics_desc">Ron &quot;Kegler&quot; Sweet\'s Cryptic Archive\nhttps://kegler.gitlab.io/Block_style/index.html</string>
     <string name="private_eye">Private Eye</string>
     <string name="private_eye_desc">Archive of the Private Eye crossword. New puzzle roughly every fortnight.</string>
-    <string name="przekroj">Przekrój</string>
+    <string name="przekroj">(PO) Przekrój</string>
     <string name="przekroj_desc">Puzzles from Przekrój magazine, in Polish.</string>
     <string name="about_scrapes">About These Sources</string>
 

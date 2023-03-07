@@ -35,5 +35,12 @@
             android:summary="@string/updates_sundays"
             android:key="downloadWaPoSunday"
         />
+
+        <androidx.preference.CheckBoxPreference
+            android:title="@string/notretempsgeant2"
+            android:defaultValue="true"
+            android:summary="@string/notretempsgeant2_desc"
+            android:key="downloadNotreTempsGeant2"
+            />
     </androidx.preference.PreferenceCategory>
 </androidx.preference.PreferenceScreen>

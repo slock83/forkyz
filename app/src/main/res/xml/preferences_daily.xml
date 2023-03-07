@@ -34,11 +34,30 @@
         android:key="downloadJoseph"
     />
     <androidx.preference.CheckBoxPreference
-        android:title="@string/le_parisien_daily"
-        android:summary="@string/le_parisien_daily_desc"
         android:defaultValue="true"
-        android:key="downloadLeParisien"
-    />
+        android:key="download20Minutes"
+        android:summary="@string/vingminutes_desc"
+        android:title="@string/vingminutes" />
+    <androidx.preference.CheckBoxPreference
+        android:defaultValue="true"
+        android:key="downloadLeParisienF1"
+        android:summary="@string/le_parisien_daily_f1_desc"
+        android:title="@string/le_parisien_daily_f1" />
+    <androidx.preference.CheckBoxPreference
+        android:defaultValue="true"
+        android:key="downloadLeParisienF2"
+        android:summary="@string/le_parisien_daily_f2_desc"
+        android:title="@string/le_parisien_daily_f2" />
+    <androidx.preference.CheckBoxPreference
+        android:defaultValue="true"
+        android:key="downloadLeParisienF3"
+        android:summary="@string/le_parisien_daily_f3_desc"
+        android:title="@string/le_parisien_daily_f3" />
+    <androidx.preference.CheckBoxPreference
+        android:defaultValue="true"
+        android:key="downloadLeParisienF4"
+        android:summary="@string/le_parisien_daily_f4_desc"
+        android:title="@string/le_parisien_daily_f4" />
     <androidx.preference.CheckBoxPreference
         android:title="@string/newsday"
         android:defaultValue="true"
