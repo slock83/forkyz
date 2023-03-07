@@ -102,12 +102,18 @@ public class IPuzIO implements PuzzleParser {
     private static final int HEX_CODE_LEN = 6;
     private static final String HEX_COLOR_FORMAT = "%0" + HEX_CODE_LEN + "X";
     private static final String FIELD_BARRED = "barred";
+    private static final String FIELD_DASHED = "dashed";
 
     private static final String SHAPE_BG_CIRCLE = "circle";
     private static final char BARRED_TOP = 'T';
     private static final char BARRED_BOTTOM = 'B';
     private static final char BARRED_LEFT = 'L';
     private static final char BARRED_RIGHT = 'R';
+
+    private static final char DASHED_TOP = 'T';
+    private static final char DASHED_BOTTOM = 'B';
+    private static final char DASHED_LEFT = 'L';
+    private static final char DASHED_RIGHT = 'R';
     private static final String FIELD_MARK = "mark";
     private static final String FIELD_MARK_TOP_LEFT = "TL";
     private static final String FIELD_MARK_TOP = "T";
@@ -526,6 +532,7 @@ public class IPuzIO implements PuzzleParser {
                 }
 
                 getBarredFromStyleObj(style, box);
+                getDashedFromStyleObj(style, box);
                 getMarksFromStyleObj(style, box);
             }
 
@@ -568,6 +575,32 @@ public class IPuzIO implements PuzzleParser {
                     break;
                 default:
                     // do nothing
+                }
+            }
+        }
+    }
+
+    private static void getDashedFromStyleObj(JSONObject style, Box box) {
+        String dashed = optStringNull(style, FIELD_DASHED);
+        if (dashed != null) {
+            dashed = dashed.toUpperCase();
+            for (int i = 0; i < dashed.length(); i++) {
+                char c = dashed.charAt(i);
+                switch(c) {
+                    case DASHED_TOP:
+                        box.setDashedTop(true);
+                        break;
+                    case DASHED_BOTTOM:
+                        box.setDashedBottom(true);
+                        break;
+                    case DASHED_LEFT:
+                        box.setDashedLeft(true);
+                        break;
+                    case DASHED_RIGHT:
+                        box.setDashedRight(true);
+                        break;
+                    default:
+                        // do nothing
                 }
             }
         }
@@ -1655,6 +1688,7 @@ public class IPuzIO implements PuzzleParser {
     private static boolean isCellWithStyle(Box box) {
         return box.isCircled()
             || box.isBarred()
+            || box.isDashed()
             || box.hasColor()
             || box.hasMarks();
     }
@@ -1674,6 +1708,7 @@ public class IPuzIO implements PuzzleParser {
         }
 
         writeBarredField(box, writer);
+        writeDashedField(box, writer);
         writeMarkField(box, writer);
 
         writer.endObject();
@@ -1692,6 +1727,22 @@ public class IPuzIO implements PuzzleParser {
                 barred += BARRED_LEFT;
 
             writer.key(FIELD_BARRED).value(barred.toString());
+        }
+    }
+
+    private static void writeDashedField(Box box, FormatableJSONWriter writer) {
+        if (box.isDashed()) {
+            String dashed = "";
+            if (box.isDashedTop())
+                dashed += DASHED_TOP;
+            if (box.isDashedRight())
+                dashed += DASHED_RIGHT;
+            if (box.isDashedBottom())
+                dashed += DASHED_BOTTOM;
+            if (box.isDashedLeft())
+                dashed += DASHED_LEFT;
+
+            writer.key(FIELD_DASHED).value(dashed.toString());
         }
     }
 

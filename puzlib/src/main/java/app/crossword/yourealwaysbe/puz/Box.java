@@ -22,9 +22,13 @@ public class Box implements Serializable {
     private NavigableMap<ClueID, Integer> cluePositions = new TreeMap<>();
 
     private boolean barTop = false;
+    private boolean dashedTop = false;
     private boolean barBottom = false;
+    private boolean dashedBottom = false;
     private boolean barLeft = false;
+    private boolean dashedLeft = false;
     private boolean barRight = false;
+    private boolean dashedRight = false;
     // 3x3 grid of small text marks
     private String[][] marks = null;
 
@@ -90,6 +94,17 @@ public class Box implements Serializable {
         if (isBarredRight() != other.isBarredRight())
             return false;
 
+        if (isDashedTop() != other.isDashedTop())
+            return false;
+
+        if (isDashedBottom() != other.isDashedBottom())
+            return false;
+
+        if (isDashedLeft() != other.isDashedLeft())
+            return false;
+
+        if (isDashedRight() != other.isDashedRight())
+            return false;
         if (getColor() != other.getColor())
             return false;
         // Annoying Arrays.equals doesn't do arrays of arrays..
@@ -120,6 +135,10 @@ public class Box implements Serializable {
         result = (prime * result) + (isBarredBottom() ? 1231 : 1237);
         result = (prime * result) + (isBarredLeft() ? 1231 : 1237);
         result = (prime * result) + (isBarredRight() ? 1231 : 1237);
+        result = (prime * result) + (isDashedTop() ? 1231 : 1237);
+        result = (prime * result) + (isDashedBottom() ? 1231 : 1237);
+        result = (prime * result) + (isDashedLeft() ? 1231 : 1237);
+        result = (prime * result) + (isDashedRight() ? 1231 : 1237);
         result = (prime * result) +
             ((getResponder() == null) ? 0 : getResponder().hashCode());
         result = (prime * result) + Objects.hash(getResponse());
@@ -332,6 +351,11 @@ public class Box implements Serializable {
     public boolean isBarredLeft() { return barLeft; }
     public boolean isBarredRight() { return barRight; }
 
+    public boolean isDashedTop() { return dashedTop; }
+    public boolean isDashedBottom() { return dashedBottom; }
+    public boolean isDashedLeft() { return dashedLeft; }
+    public boolean isDashedRight() { return dashedRight; }
+
     /**
      * 3x3 array of text marks to put in box, can have null entries
      */
@@ -367,6 +391,11 @@ public class Box implements Serializable {
             || isBarredLeft() || isBarredRight();
     }
 
+    public boolean isDashed() {
+        return isDashedTop() || isDashedBottom()
+                || isDashedLeft() || isDashedRight();
+    }
+
     public void setBarredTop(boolean barTop) {
         this.barTop = barTop;
     }
@@ -381,6 +410,22 @@ public class Box implements Serializable {
 
     public void setBarredRight(boolean barRight) {
         this.barRight = barRight;
+    }
+
+    public void setDashedTop(boolean dashedTop) {
+        this.dashedTop = dashedTop;
+    }
+
+    public void setDashedBottom(boolean dashedBottom) {
+        this.dashedBottom = dashedBottom;
+    }
+
+    public void setDashedLeft(boolean dashedLeft) {
+        this.dashedLeft = dashedLeft;
+    }
+
+    public void setDashedRight(boolean dashedRight) {
+        this.dashedRight = dashedRight;
     }
 
     public boolean hasColor() { return color != NOCOLOR; }

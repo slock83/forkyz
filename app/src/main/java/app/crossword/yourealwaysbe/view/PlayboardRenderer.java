@@ -5,9 +5,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
 import android.graphics.Paint;
+import android.graphics.PathEffect;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.text.Layout;
@@ -57,6 +59,7 @@ public class PlayboardRenderer {
     private final Paint blackBox = new Paint();
     private final Paint blackCircle = new Paint();
     private final Paint blackLine = new Paint();
+    private final Paint dashedLine = new Paint();
     private final Paint cheated = new Paint();
     private final Paint currentLetterBox = new Paint();
     private final Paint currentLetterHighlight = new Paint();
@@ -112,6 +115,11 @@ public class PlayboardRenderer {
 
         blackLine.setColor(blankColor);
         blackLine.setStrokeWidth(2.0F);
+
+        dashedLine.setColor(blankColor);
+        dashedLine.setStyle(Style.STROKE);
+        dashedLine.setPathEffect(new DashPathEffect(new float[]{20,10}, 1));
+        dashedLine.setStrokeWidth(8.0F);
 
         numberText.setTextAlign(Align.LEFT);
         numberText.setColor(boardLetterColor);
@@ -760,9 +768,7 @@ public class PlayboardRenderer {
 
         Paint outlineColor = isHighlighted ? currentLetterBox : blackLine;
         drawBoxOutline(canvas, x, y, boxSize, outlineColor);
-
         Rect r = new Rect(x + 1, y + 1, (x + boxSize) - 1, (y + boxSize) - 1);
-
         if (box == null) {
             canvas.drawRect(r, this.blackBox);
         } else {
@@ -772,8 +778,10 @@ public class PlayboardRenderer {
             drawBoxBackground(canvas, box, row, col, r, highlight, currentWord);
 
             // Bars before clue numbers to avoid obfuscating
-            if (fullBoard)
+            if (fullBoard) {
                 drawBoxBars(canvas, x, y, box, boxSize, barSize);
+                drawBoxDashes(canvas, x, y, box, boxSize);
+            }
 
             drawBoxMarks(
                 canvas, x, y, box, boxSize, numberOffset, numberText
@@ -844,6 +852,31 @@ public class PlayboardRenderer {
                 canvas.drawRect(boxRect, paint);
             }
         }
+    }
+
+    private void drawBoxDashes(
+            Canvas canvas, int x, int y, Box box,
+            int boxSize
+    ) {
+
+
+
+        if (box.isDashedLeft()) {
+            canvas.drawLine(x, y, x, y + boxSize, dashedLine);
+        }
+
+        if (box.isDashedTop()) {
+            canvas.drawLine(x, y, x + boxSize, y, dashedLine);
+        }
+
+        if (box.isDashedRight()) {
+            canvas.drawLine(x + boxSize, y, x + boxSize, y + boxSize, dashedLine);
+        }
+
+        if (box.isDashedBottom()) {
+            canvas.drawLine(x, y + boxSize, x + boxSize, y + boxSize, dashedLine);
+        }
+
     }
 
     private void drawBoxBars(
@@ -1185,7 +1218,7 @@ public class PlayboardRenderer {
      * somewhere in between.
      *
      * @param base the standard background color
-     * @param color 24-bit 0x00rrggbb "pure" color
+     * @param pureColor 24-bit 0x00rrggbb "pure" color
      */
     private Paint getRelativePaint(Paint base, int pureColor) {
         int baseCol = base.getColor();
@@ -1463,10 +1496,8 @@ public class PlayboardRenderer {
      * Refresh board (current word) on canvas or draw all
      *
      * @param canvas canvas to draw on
-     * @param boxSize the size of a box
      * @param changes the positions that have changed since the last
      * draw (can be null, which means render all)
-     * @param renderAll whether to just draw the whole board anyway
      * @param suppressNotesLists the notes lists not to draw (null means
      * draw none, empty means draw all)
      */
